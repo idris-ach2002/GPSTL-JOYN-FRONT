@@ -8,10 +8,13 @@ import '../../../../design_system/tokens/app_colors.dart';
 import '../../../../design_system/tokens/app_radius.dart';
 import '../../../../design_system/tokens/app_shadows.dart';
 import '../../../../design_system/tokens/app_spacing.dart';
+import '../navigation/landing_section.dart';
 import 'joyn_mark.dart';
 
 class LandingNavbar extends StatefulWidget {
-  const LandingNavbar({super.key});
+  const LandingNavbar({required this.onNavigate, super.key});
+
+  final LandingNavigate onNavigate;
 
   @override
   State<LandingNavbar> createState() => _LandingNavbarState();
@@ -33,9 +36,17 @@ class _LandingNavbarState extends State<LandingNavbar> {
     super.dispose();
   }
 
-  // --------------------------------------------------------------------------
-  // Desktop mega menu
-  // --------------------------------------------------------------------------
+  void _navigate(LandingSection destination) {
+    _closeMegaMenu();
+
+    if (_mobileMenuOpen && mounted) {
+      setState(() {
+        _mobileMenuOpen = false;
+      });
+    }
+
+    widget.onNavigate(destination);
+  }
 
   void _showMegaMenu(String section) {
     _closeTimer?.cancel();
@@ -74,6 +85,7 @@ class _LandingNavbarState extends State<LandingNavbar> {
                   width: panelWidth,
                   child: _MegaMenuPanel(
                     section: section,
+                    onNavigate: _navigate,
                     onClose: _closeMegaMenu,
                   ),
                 ),
@@ -105,6 +117,10 @@ class _LandingNavbarState extends State<LandingNavbar> {
   void _closeMegaMenu() {
     _closeTimer?.cancel();
 
+    if (_megaMenuEntry == null && _activeMenu == null) {
+      return;
+    }
+
     _megaMenuEntry?.remove();
     _megaMenuEntry = null;
 
@@ -114,10 +130,6 @@ class _LandingNavbarState extends State<LandingNavbar> {
       });
     }
   }
-
-  // --------------------------------------------------------------------------
-  // Mobile menu
-  // --------------------------------------------------------------------------
 
   void _toggleMobileMenu() {
     setState(() {
@@ -133,27 +145,18 @@ class _LandingNavbarState extends State<LandingNavbar> {
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
         child: LayoutBuilder(
           builder: (context, constraints) {
-            // Le précédent breakpoint utilisait un desktop trop tôt.
-            // À environ 916 px disponibles, la Row débordait.
-            //
-            // On utilise donc une navbar compacte sous ~1040 px.
             final useDesktopNavigation = constraints.maxWidth >= 1040;
 
             if (useDesktopNavigation) {
               return _DesktopNavbar(
                 activeMenu: _activeMenu,
+                onNavigate: _navigate,
                 onMenuEnter: _showMegaMenu,
                 onMenuExit: _scheduleMegaMenuClose,
                 onMenuTap: _toggleMegaMenu,
-                onSimpleItemEnter: _closeMegaMenu,
               );
             }
 
-            // Ne jamais appeler setState() directement pendant build().
-            //
-            // Si un mega-menu desktop était encore ouvert lors d'un
-            // redimensionnement vers mobile/tablette, on le ferme une fois
-            // la frame courante terminée.
             if (_megaMenuEntry != null || _activeMenu != null) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (!mounted) {
@@ -169,6 +172,7 @@ class _LandingNavbarState extends State<LandingNavbar> {
             return _MobileNavbar(
               open: _mobileMenuOpen,
               onToggle: _toggleMobileMenu,
+              onNavigate: _navigate,
             );
           },
         ),
@@ -177,124 +181,112 @@ class _LandingNavbarState extends State<LandingNavbar> {
   }
 }
 
-// =============================================================================
-// DESKTOP
-// =============================================================================
-
 class _DesktopNavbar extends StatelessWidget {
   const _DesktopNavbar({
     required this.activeMenu,
+    required this.onNavigate,
     required this.onMenuEnter,
     required this.onMenuExit,
     required this.onMenuTap,
-    required this.onSimpleItemEnter,
   });
 
   final String? activeMenu;
+  final LandingNavigate onNavigate;
 
   final ValueChanged<String> onMenuEnter;
+
   final VoidCallback onMenuExit;
+
   final ValueChanged<String> onMenuTap;
-  final VoidCallback onSimpleItemEnter;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const _JoynLogo(),
-
+        _JoynLogo(
+          onTap: () {
+            onNavigate(LandingSection.hero);
+          },
+        ),
         const SizedBox(width: 28),
-
         Expanded(
           child: Center(
             child: FittedBox(
               fit: BoxFit.scaleDown,
-              child: _NavigationPill(
-                activeMenu: activeMenu,
-                onMenuEnter: onMenuEnter,
-                onMenuExit: onMenuExit,
-                onMenuTap: onMenuTap,
-                onSimpleItemEnter: onSimpleItemEnter,
+              child: Container(
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: AppColors.white.withValues(alpha: 0.07),
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
+                  border: Border.all(
+                    color: AppColors.white.withValues(alpha: 0.15),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _DesktopNavItem(
+                      label: 'Comment ça marche',
+                      onTap: () {
+                        onNavigate(LandingSection.howItWorks);
+                      },
+                    ),
+                    _DesktopNavItem(
+                      label: 'Fonctionnalités',
+                      hasMegaMenu: true,
+                      selected: activeMenu == 'Fonctionnalités',
+                      onEnter: () {
+                        onMenuEnter('Fonctionnalités');
+                      },
+                      onExit: onMenuExit,
+                      onTap: () {
+                        onMenuTap('Fonctionnalités');
+                      },
+                    ),
+                    _DesktopNavItem(
+                      label: 'Entreprises',
+                      hasMegaMenu: true,
+                      selected: activeMenu == 'Entreprises',
+                      onEnter: () {
+                        onMenuEnter('Entreprises');
+                      },
+                      onExit: onMenuExit,
+                      onTap: () {
+                        onMenuTap('Entreprises');
+                      },
+                    ),
+                    _DesktopNavItem(
+                      label: 'Témoignages',
+                      onTap: () {
+                        onNavigate(LandingSection.testimonials);
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
         ),
-
         const SizedBox(width: 28),
-
-        const _DesktopActions(),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _NavActionButton(
+              label: 'Se connecter',
+              filled: false,
+              onPressed: () {},
+            ),
+            const SizedBox(width: 10),
+            _NavActionButton(
+              label: 'Commencer',
+              filled: true,
+              onPressed: () {
+                onNavigate(LandingSection.opportunities);
+              },
+            ),
+          ],
+        ),
       ],
-    );
-  }
-}
-
-class _NavigationPill extends StatelessWidget {
-  const _NavigationPill({
-    required this.activeMenu,
-    required this.onMenuEnter,
-    required this.onMenuExit,
-    required this.onMenuTap,
-    required this.onSimpleItemEnter,
-  });
-
-  final String? activeMenu;
-
-  final ValueChanged<String> onMenuEnter;
-  final VoidCallback onMenuExit;
-  final ValueChanged<String> onMenuTap;
-  final VoidCallback onSimpleItemEnter;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(5),
-      decoration: BoxDecoration(
-        color: AppColors.white.withValues(alpha: 0.07),
-        borderRadius: BorderRadius.circular(AppRadius.pill),
-        border: Border.all(color: AppColors.white.withValues(alpha: 0.15)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _DesktopNavItem(
-            label: 'Comment ça marche',
-            onEnter: onSimpleItemEnter,
-            onTap: () {},
-          ),
-
-          _DesktopNavItem(
-            label: 'Fonctionnalités',
-            hasMegaMenu: true,
-            selected: activeMenu == 'Fonctionnalités',
-            onEnter: () {
-              onMenuEnter('Fonctionnalités');
-            },
-            onExit: onMenuExit,
-            onTap: () {
-              onMenuTap('Fonctionnalités');
-            },
-          ),
-
-          _DesktopNavItem(
-            label: 'Entreprises',
-            hasMegaMenu: true,
-            selected: activeMenu == 'Entreprises',
-            onEnter: () {
-              onMenuEnter('Entreprises');
-            },
-            onExit: onMenuExit,
-            onTap: () {
-              onMenuTap('Entreprises');
-            },
-          ),
-
-          _DesktopNavItem(
-            label: 'Témoignages',
-            onEnter: onSimpleItemEnter,
-            onTap: () {},
-          ),
-        ],
-      ),
     );
   }
 }
@@ -302,8 +294,8 @@ class _NavigationPill extends StatelessWidget {
 class _DesktopNavItem extends StatefulWidget {
   const _DesktopNavItem({
     required this.label,
-    required this.onEnter,
     required this.onTap,
+    this.onEnter,
     this.onExit,
     this.hasMegaMenu = false,
     this.selected = false,
@@ -311,8 +303,8 @@ class _DesktopNavItem extends StatefulWidget {
 
   final String label;
 
-  final VoidCallback onEnter;
   final VoidCallback onTap;
+  final VoidCallback? onEnter;
   final VoidCallback? onExit;
 
   final bool hasMegaMenu;
@@ -336,7 +328,7 @@ class _DesktopNavItemState extends State<_DesktopNavItem> {
           _hovered = true;
         });
 
-        widget.onEnter();
+        widget.onEnter?.call();
       },
       onExit: (_) {
         setState(() {
@@ -370,7 +362,6 @@ class _DesktopNavItemState extends State<_DesktopNavItem> {
                   fontWeight: highlighted ? FontWeight.w700 : FontWeight.w500,
                 ),
               ),
-
               if (widget.hasMegaMenu) ...[
                 const SizedBox(width: 5),
                 AnimatedRotation(
@@ -391,40 +382,17 @@ class _DesktopNavItemState extends State<_DesktopNavItem> {
   }
 }
 
-class _DesktopActions extends StatelessWidget {
-  const _DesktopActions();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _NavActionButton(
-          label: 'Se connecter',
-          filled: false,
-          onPressed: () {},
-        ),
-
-        const SizedBox(width: 10),
-
-        _NavActionButton(label: 'Commencer', filled: true, onPressed: () {}),
-      ],
-    );
-  }
-}
-
-// =============================================================================
-// MOBILE / TABLET
-// =============================================================================
-// =============================================================================
-// MOBILE / TABLET
-// =============================================================================
-
 class _MobileNavbar extends StatelessWidget {
-  const _MobileNavbar({required this.open, required this.onToggle});
+  const _MobileNavbar({
+    required this.open,
+    required this.onToggle,
+    required this.onNavigate,
+  });
 
   final bool open;
   final VoidCallback onToggle;
+
+  final LandingNavigate onNavigate;
 
   @override
   Widget build(BuildContext context) {
@@ -432,26 +400,22 @@ class _MobileNavbar extends StatelessWidget {
       children: [
         Row(
           children: [
-            const _JoynLogo(),
-
-            const Spacer(),
-
-            Semantics(
-              button: true,
-              expanded: open,
-              label: open ? 'Fermer le menu' : 'Ouvrir le menu',
-              child: _MobileMenuButton(open: open, onPressed: onToggle),
+            _JoynLogo(
+              onTap: () {
+                onNavigate(LandingSection.hero);
+              },
             ),
+            const Spacer(),
+            _MobileMenuButton(open: open, onPressed: onToggle),
           ],
         ),
-
         AnimatedSize(
           duration: const Duration(milliseconds: 260),
           curve: Curves.easeOutCubic,
           child: open
-              ? const Padding(
-                  padding: EdgeInsets.only(top: AppSpacing.md),
-                  child: _MobileMenuPanel(),
+              ? Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.md),
+                  child: _MobileMenuPanel(onNavigate: onNavigate),
                 )
               : const SizedBox.shrink(),
         ),
@@ -479,13 +443,9 @@ class _MobileMenuButton extends StatelessWidget {
       ),
       child: IconButton(
         onPressed: onPressed,
-        icon: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 160),
-          child: Icon(
-            open ? Icons.close_rounded : Icons.menu_rounded,
-            key: ValueKey(open),
-            color: open ? AppColors.navy : AppColors.white,
-          ),
+        icon: Icon(
+          open ? Icons.close_rounded : Icons.menu_rounded,
+          color: open ? AppColors.navy : AppColors.white,
         ),
       ),
     );
@@ -493,22 +453,20 @@ class _MobileMenuButton extends StatelessWidget {
 }
 
 class _MobileMenuPanel extends StatefulWidget {
-  const _MobileMenuPanel();
+  const _MobileMenuPanel({required this.onNavigate});
+
+  final LandingNavigate onNavigate;
 
   @override
   State<_MobileMenuPanel> createState() => _MobileMenuPanelState();
 }
 
 class _MobileMenuPanelState extends State<_MobileMenuPanel> {
-  String? _expandedSection;
+  String? _expanded;
 
-  void _toggleSection(String section) {
+  void _toggle(String value) {
     setState(() {
-      if (_expandedSection == section) {
-        _expandedSection = null;
-      } else {
-        _expandedSection = section;
-      }
+      _expanded = _expanded == value ? null : value;
     });
   }
 
@@ -520,109 +478,103 @@ class _MobileMenuPanelState extends State<_MobileMenuPanel> {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppColors.grey20),
         boxShadow: AppShadows.floating,
       ),
       child: Column(
         children: [
-          const _MobileDirectMenuItem(
+          _MobileDirectItem(
             icon: Icons.route_outlined,
             label: 'Comment ça marche',
+            onTap: () {
+              widget.onNavigate(LandingSection.howItWorks);
+            },
           ),
-
-          _MobileExpandableMenuItem(
+          _MobileExpandableItem(
             icon: Icons.auto_awesome_outlined,
             label: 'Fonctionnalités',
-            expanded: _expandedSection == 'features',
+            expanded: _expanded == 'features',
             onTap: () {
-              _toggleSection('features');
+              _toggle('features');
             },
-            children: const [
-              _MobileSubMenuItem(
-                icon: Icons.auto_awesome_rounded,
+            children: [
+              _MobileSubItem(
                 title: 'Matching intelligent',
-                description: 'Comprends pourquoi chaque offre te correspond.',
+                onTap: () {
+                  widget.onNavigate(LandingSection.features);
+                },
               ),
-              _MobileSubMenuItem(
-                icon: Icons.swipe_outlined,
+              _MobileSubItem(
                 title: 'Découverte fluide',
-                description: 'Explore les opportunités adaptées à ton profil.',
+                onTap: () {
+                  widget.onNavigate(LandingSection.features);
+                },
               ),
-              _MobileSubMenuItem(
-                icon: Icons.forum_outlined,
+              _MobileSubItem(
                 title: 'Échange direct',
-                description: 'Discute dès que candidat et entreprise matchent.',
+                onTap: () {
+                  widget.onNavigate(LandingSection.features);
+                },
               ),
             ],
           ),
-
-          _MobileExpandableMenuItem(
+          _MobileExpandableItem(
             icon: Icons.business_outlined,
             label: 'Entreprises',
-            expanded: _expandedSection == 'companies',
+            expanded: _expanded == 'companies',
             onTap: () {
-              _toggleSection('companies');
+              _toggle('companies');
             },
-            children: const [
-              _MobileSubMenuItem(
-                icon: Icons.post_add_outlined,
+            children: [
+              _MobileSubItem(
                 title: 'Publier une offre',
-                description: 'Crée des opportunités ciblées et lisibles.',
+                onTap: () {
+                  widget.onNavigate(LandingSection.companies);
+                },
               ),
-              _MobileSubMenuItem(
-                icon: Icons.people_alt_outlined,
+              _MobileSubItem(
                 title: 'Trouver les bons profils',
-                description: 'Découvre les candidats les plus compatibles.',
+                onTap: () {
+                  widget.onNavigate(LandingSection.companies);
+                },
               ),
-              _MobileSubMenuItem(
-                icon: Icons.insights_outlined,
+              _MobileSubItem(
                 title: 'Piloter le recrutement',
-                description: 'Centralise candidatures, échanges et suivi.',
+                onTap: () {
+                  widget.onNavigate(LandingSection.companies);
+                },
               ),
             ],
           ),
-
-          const _MobileDirectMenuItem(
+          _MobileDirectItem(
             icon: Icons.format_quote_rounded,
             label: 'Témoignages',
+            onTap: () {
+              widget.onNavigate(LandingSection.testimonials);
+            },
           ),
-
           const Padding(
             padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
             child: Divider(),
           ),
-
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
               onPressed: () {},
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.navy,
-                side: const BorderSide(color: AppColors.grey),
-                padding: const EdgeInsets.symmetric(vertical: 15),
-              ),
-              child: const Text(
-                'Se connecter',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
+              child: const Text('Se connecter'),
             ),
           ),
-
           const SizedBox(height: AppSpacing.sm),
-
           SizedBox(
             width: double.infinity,
             child: FilledButton(
-              onPressed: () {},
+              onPressed: () {
+                widget.onNavigate(LandingSection.opportunities);
+              },
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.orange,
                 foregroundColor: AppColors.white,
-                padding: const EdgeInsets.symmetric(vertical: 15),
               ),
-              child: const Text(
-                'Commencer',
-                style: TextStyle(fontWeight: FontWeight.w700),
-              ),
+              child: const Text('Commencer'),
             ),
           ),
         ],
@@ -631,20 +583,21 @@ class _MobileMenuPanelState extends State<_MobileMenuPanel> {
   }
 }
 
-// =============================================================================
-// MOBILE DIRECT LINK
-// =============================================================================
-
-class _MobileDirectMenuItem extends StatelessWidget {
-  const _MobileDirectMenuItem({required this.icon, required this.label});
+class _MobileDirectItem extends StatelessWidget {
+  const _MobileDirectItem({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
 
   final IconData icon;
   final String label;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {},
+      onTap: onTap,
       borderRadius: BorderRadius.circular(AppRadius.md),
       child: Padding(
         padding: const EdgeInsets.symmetric(
@@ -654,9 +607,7 @@ class _MobileDirectMenuItem extends StatelessWidget {
         child: Row(
           children: [
             Icon(icon, color: AppColors.navy, size: 21),
-
             const SizedBox(width: AppSpacing.sm),
-
             Expanded(
               child: Text(
                 label,
@@ -667,7 +618,6 @@ class _MobileDirectMenuItem extends StatelessWidget {
                 ),
               ),
             ),
-
             const Icon(
               Icons.arrow_forward_ios_rounded,
               color: AppColors.grey,
@@ -680,12 +630,8 @@ class _MobileDirectMenuItem extends StatelessWidget {
   }
 }
 
-// =============================================================================
-// MOBILE EXPANDABLE LINK
-// =============================================================================
-
-class _MobileExpandableMenuItem extends StatelessWidget {
-  const _MobileExpandableMenuItem({
+class _MobileExpandableItem extends StatelessWidget {
+  const _MobileExpandableItem({
     required this.icon,
     required this.label,
     required this.expanded,
@@ -706,28 +652,18 @@ class _MobileExpandableMenuItem extends StatelessWidget {
     return Column(
       children: [
         InkWell(
+          key: ValueKey('mobile-nav-$label'),
           onTap: onTap,
           borderRadius: BorderRadius.circular(AppRadius.md),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
+          child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.sm,
               vertical: 15,
             ),
-            decoration: BoxDecoration(
-              color: expanded ? AppColors.background : Colors.transparent,
-              borderRadius: BorderRadius.circular(AppRadius.md),
-            ),
             child: Row(
               children: [
-                Icon(
-                  icon,
-                  color: expanded ? AppColors.orange : AppColors.navy,
-                  size: 21,
-                ),
-
+                Icon(icon, color: expanded ? AppColors.orange : AppColors.navy),
                 const SizedBox(width: AppSpacing.sm),
-
                 Expanded(
                   child: Text(
                     label,
@@ -738,30 +674,25 @@ class _MobileExpandableMenuItem extends StatelessWidget {
                     ),
                   ),
                 ),
-
                 AnimatedRotation(
                   duration: const Duration(milliseconds: 180),
                   turns: expanded ? 0.5 : 0,
                   child: const Icon(
                     Icons.keyboard_arrow_down_rounded,
                     color: AppColors.grey,
-                    size: 22,
                   ),
                 ),
               ],
             ),
           ),
         ),
-
         AnimatedSize(
           duration: const Duration(milliseconds: 220),
-          curve: Curves.easeOutCubic,
           child: expanded
               ? Padding(
                   padding: const EdgeInsets.only(
-                    top: AppSpacing.xs,
+                    left: 28,
                     bottom: AppSpacing.sm,
-                    left: AppSpacing.sm,
                   ),
                   child: Column(children: children),
                 )
@@ -772,110 +703,48 @@ class _MobileExpandableMenuItem extends StatelessWidget {
   }
 }
 
-// =============================================================================
-// MOBILE SUBMENU
-// =============================================================================
+class _MobileSubItem extends StatelessWidget {
+  const _MobileSubItem({required this.title, required this.onTap});
 
-class _MobileSubMenuItem extends StatefulWidget {
-  const _MobileSubMenuItem({
-    required this.icon,
-    required this.title,
-    required this.description,
-  });
-
-  final IconData icon;
   final String title;
-  final String description;
-
-  @override
-  State<_MobileSubMenuItem> createState() => _MobileSubMenuItemState();
-}
-
-class _MobileSubMenuItemState extends State<_MobileSubMenuItem> {
-  bool _pressed = false;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) {
-        setState(() {
-          _pressed = true;
-        });
-      },
-      onTapCancel: () {
-        setState(() {
-          _pressed = false;
-        });
-      },
-      onTapUp: (_) {
-        setState(() {
-          _pressed = false;
-        });
-      },
-      onTap: () {},
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 120),
-        width: double.infinity,
-        margin: const EdgeInsets.only(bottom: AppSpacing.xs),
-        padding: const EdgeInsets.all(AppSpacing.md),
-        decoration: BoxDecoration(
-          color: _pressed
-              ? AppColors.blue.withValues(alpha: 0.08)
-              : AppColors.background,
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border.all(color: AppColors.grey20),
+    return InkWell(
+      key: ValueKey('mobile-submenu-$title'),
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.sm,
+          vertical: 12,
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: AppColors.blue.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(AppRadius.sm),
+              width: 7,
+              height: 7,
+              decoration: const BoxDecoration(
+                color: AppColors.orange,
+                shape: BoxShape.circle,
               ),
-              child: Icon(widget.icon, color: AppColors.blue, size: 19),
             ),
-
             const SizedBox(width: AppSpacing.sm),
-
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.title,
-                    style: const TextStyle(
-                      color: AppColors.navy,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-
-                  const SizedBox(height: 4),
-
-                  Text(
-                    widget.description,
-                    style: const TextStyle(
-                      color: AppColors.grey,
-                      fontSize: 12,
-                      height: 1.35,
-                    ),
-                  ),
-                ],
+              child: Text(
+                title,
+                style: const TextStyle(
+                  color: AppColors.navy,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-
-            const SizedBox(width: AppSpacing.xs),
-
-            const Padding(
-              padding: EdgeInsets.only(top: 10),
-              child: Icon(
-                Icons.arrow_forward_rounded,
-                color: AppColors.grey,
-                size: 17,
-              ),
+            const Icon(
+              Icons.arrow_forward_rounded,
+              color: AppColors.grey,
+              size: 16,
             ),
           ],
         ),
@@ -884,39 +753,38 @@ class _MobileSubMenuItemState extends State<_MobileSubMenuItem> {
   }
 }
 
-// =============================================================================
-// LOGO
-// =============================================================================
-
 class _JoynLogo extends StatelessWidget {
-  const _JoynLogo();
+  const _JoynLogo({required this.onTap});
+
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        JoynMark(),
-
-        SizedBox(width: AppSpacing.sm),
-
-        Text(
-          'joyn',
-          style: TextStyle(
-            color: AppColors.white,
-            fontSize: 23,
-            fontWeight: FontWeight.w700,
-            letterSpacing: -0.6,
-          ),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppRadius.pill),
+      child: const Padding(
+        padding: EdgeInsets.all(2),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            JoynMark(),
+            SizedBox(width: AppSpacing.sm),
+            Text(
+              'joyn',
+              style: TextStyle(
+                color: AppColors.white,
+                fontSize: 23,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.6,
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
-
-// =============================================================================
-// CTA NAVBAR
-// =============================================================================
 
 class _NavActionButton extends StatefulWidget {
   const _NavActionButton({
@@ -964,9 +832,6 @@ class _NavActionButtonState extends State<_NavActionButton> {
             side: widget.filled
                 ? BorderSide.none
                 : BorderSide(color: AppColors.white.withValues(alpha: 0.16)),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppRadius.pill),
-            ),
           ),
           child: Text(
             widget.label,
@@ -978,19 +843,32 @@ class _NavActionButtonState extends State<_NavActionButton> {
   }
 }
 
-// =============================================================================
-// MEGA MENU
-// =============================================================================
-
 class _MegaMenuPanel extends StatelessWidget {
-  const _MegaMenuPanel({required this.section, required this.onClose});
+  const _MegaMenuPanel({
+    required this.section,
+    required this.onNavigate,
+    required this.onClose,
+  });
 
   final String section;
+  final LandingNavigate onNavigate;
   final VoidCallback onClose;
 
   @override
   Widget build(BuildContext context) {
-    final isCompanies = section == 'Entreprises';
+    final companies = section == 'Entreprises';
+
+    final items = companies
+        ? const [
+            (Icons.post_add_outlined, 'Publier une offre'),
+            (Icons.people_alt_outlined, 'Trouver les bons profils'),
+            (Icons.insights_outlined, 'Piloter le recrutement'),
+          ]
+        : const [
+            (Icons.auto_awesome_outlined, 'Matching intelligent'),
+            (Icons.swipe_outlined, 'Découverte fluide'),
+            (Icons.forum_outlined, 'Échange direct'),
+          ];
 
     return Container(
       padding: const EdgeInsets.all(28),
@@ -1006,104 +884,43 @@ class _MegaMenuPanel extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      isCompanies
-                          ? 'Recrute autrement.'
-                          : 'Tout JOYN en un coup d’œil.',
-                      style: const TextStyle(
-                        color: AppColors.navy,
-                        fontSize: 21,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.4,
-                      ),
-                    ),
-
-                    const SizedBox(height: 5),
-
-                    Text(
-                      isCompanies
-                          ? 'Matching, offres et relation candidat réunis dans une seule expérience.'
-                          : 'Découvre les fonctionnalités pensées pour rendre la recherche plus simple.',
-                      style: const TextStyle(
-                        color: AppColors.grey,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  companies
+                      ? 'JOYN pour les entreprises.'
+                      : 'Découvre l’expérience JOYN.',
+                  style: const TextStyle(
+                    color: AppColors.navy,
+                    fontSize: 21,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
-
               IconButton(
-                tooltip: 'Fermer',
                 onPressed: onClose,
-                icon: const Icon(Icons.close_rounded, color: AppColors.navy),
+                icon: const Icon(Icons.close_rounded),
               ),
             ],
           ),
-
           const SizedBox(height: AppSpacing.lg),
-
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: isCompanies
-                ? const [
-                    Expanded(
-                      child: _MegaMenuCard(
-                        icon: Icons.post_add_outlined,
-                        title: 'Publier une offre',
-                        description:
-                            'Crée des opportunités claires et ciblées.',
-                      ),
-                    ),
-                    SizedBox(width: AppSpacing.md),
-                    Expanded(
-                      child: _MegaMenuCard(
-                        icon: Icons.people_alt_outlined,
-                        title: 'Trouver les bons profils',
-                        description:
-                            'Découvre des candidats selon leur compatibilité.',
-                      ),
-                    ),
-                    SizedBox(width: AppSpacing.md),
-                    Expanded(
-                      child: _MegaMenuCard(
-                        icon: Icons.insights_outlined,
-                        title: 'Piloter le recrutement',
-                        description:
-                            'Centralise candidatures, échanges et suivi.',
-                      ),
-                    ),
-                  ]
-                : const [
-                    Expanded(
-                      child: _MegaMenuCard(
-                        icon: Icons.auto_awesome_outlined,
-                        title: 'Matching intelligent',
-                        description: 'Comprends immédiatement pourquoi une offre te correspond.',
-                      ),
-                    ),
-                    SizedBox(width: AppSpacing.md),
-                    Expanded(
-                      child: _MegaMenuCard(
-                        icon: Icons.swipe_outlined,
-                        title: 'Découverte fluide',
-                        description:
-                            'Explore rapidement les opportunités qui comptent.',
-                      ),
-                    ),
-                    SizedBox(width: AppSpacing.md),
-                    Expanded(
-                      child: _MegaMenuCard(
-                        icon: Icons.forum_outlined,
-                        title: 'Échange direct',
-                        description:
-                            'Discute dès que candidat et entreprise matchent.',
-                      ),
-                    ),
-                  ],
+            children: [
+              for (var i = 0; i < items.length; i++) ...[
+                Expanded(
+                  child: _MegaCard(
+                    icon: items[i].$1,
+                    title: items[i].$2,
+                    onTap: () {
+                      onNavigate(
+                        companies
+                            ? LandingSection.companies
+                            : LandingSection.features,
+                      );
+                    },
+                  ),
+                ),
+                if (i != items.length - 1) const SizedBox(width: AppSpacing.md),
+              ],
+            ],
           ),
         ],
       ),
@@ -1111,22 +928,22 @@ class _MegaMenuPanel extends StatelessWidget {
   }
 }
 
-class _MegaMenuCard extends StatefulWidget {
-  const _MegaMenuCard({
+class _MegaCard extends StatefulWidget {
+  const _MegaCard({
     required this.icon,
     required this.title,
-    required this.description,
+    required this.onTap,
   });
 
   final IconData icon;
   final String title;
-  final String description;
+  final VoidCallback onTap;
 
   @override
-  State<_MegaMenuCard> createState() => _MegaMenuCardState();
+  State<_MegaCard> createState() => _MegaCardState();
 }
 
-class _MegaMenuCardState extends State<_MegaMenuCard> {
+class _MegaCardState extends State<_MegaCard> {
   bool _hovered = false;
 
   @override
@@ -1143,59 +960,40 @@ class _MegaMenuCardState extends State<_MegaMenuCard> {
           _hovered = false;
         });
       },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        decoration: BoxDecoration(
-          color: _hovered ? AppColors.background : AppColors.white,
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-          border: Border.all(
-            color: _hovered
-                ? AppColors.blue.withValues(alpha: 0.30)
-                : AppColors.grey20,
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 170),
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          decoration: BoxDecoration(
+            color: _hovered ? AppColors.background : AppColors.white,
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+            border: Border.all(
+              color: _hovered
+                  ? AppColors.blue.withValues(alpha: 0.28)
+                  : AppColors.grey20,
+            ),
           ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: _hovered
-                    ? AppColors.blue.withValues(alpha: 0.14)
-                    : AppColors.background,
-                borderRadius: BorderRadius.circular(AppRadius.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(widget.icon, color: AppColors.blue),
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                widget.title,
+                style: const TextStyle(
+                  color: AppColors.navy,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-              child: Icon(
-                widget.icon,
-                color: _hovered ? AppColors.blue : AppColors.navy,
+              const SizedBox(height: 10),
+              const Icon(
+                Icons.arrow_forward_rounded,
+                color: AppColors.orange,
+                size: 18,
               ),
-            ),
-
-            const SizedBox(height: AppSpacing.md),
-
-            Text(
-              widget.title,
-              style: const TextStyle(
-                color: AppColors.navy,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-
-            const SizedBox(height: 6),
-
-            Text(
-              widget.description,
-              style: const TextStyle(
-                color: AppColors.grey,
-                fontSize: 13,
-                height: 1.45,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

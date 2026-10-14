@@ -4,12 +4,16 @@ import '../../../../design_system/layout/content_container.dart';
 import '../../../../design_system/tokens/app_colors.dart';
 import '../../../../design_system/tokens/app_radius.dart';
 import '../../../../design_system/tokens/app_spacing.dart';
+import '../navigation/landing_section.dart';
 import '../widgets/hero_background.dart';
 import '../widgets/hero_match_preview.dart';
 import '../widgets/landing_navbar.dart';
+import '../widgets/landing_motion.dart';
 
 class HeroSection extends StatelessWidget {
-  const HeroSection({super.key});
+  const HeroSection({required this.onNavigate, super.key});
+
+  final LandingNavigate onNavigate;
 
   @override
   Widget build(BuildContext context) {
@@ -21,13 +25,18 @@ class HeroSection extends StatelessWidget {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const LandingNavbar(),
+              LandingNavbar(onNavigate: onNavigate),
 
               ContentContainer(
                 maxWidth: 1440,
                 child: isDesktop
-                    ? const SizedBox(height: 680, child: _DesktopHeroContent())
-                    : const _MobileHeroContent(),
+                    ? ConstrainedBox(
+                        // Le Hero a une taille minimale,
+                        // mais peut grandir selon son contenu.
+                        constraints: const BoxConstraints(minHeight: 620),
+                        child: _DesktopHeroContent(onNavigate: onNavigate),
+                      )
+                    : _MobileHeroContent(onNavigate: onNavigate),
               ),
             ],
           );
@@ -37,42 +46,36 @@ class HeroSection extends StatelessWidget {
   }
 }
 
+// =============================================================================
+// DESKTOP
+// =============================================================================
+
 class _DesktopHeroContent extends StatelessWidget {
-  const _DesktopHeroContent();
+  const _DesktopHeroContent({required this.onNavigate});
+
+  final LandingNavigate onNavigate;
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.only(top: 80, bottom: 90),
+    return Padding(
+      padding: const EdgeInsets.only(top: 66, bottom: 72),
       child: Row(
         children: [
-          Expanded(flex: 11, child: _HeroCopy()),
-
-          SizedBox(width: 80),
-
-          Expanded(flex: 9, child: Center(child: HeroMatchPreview())),
-        ],
-      ),
-    );
-  }
-}
-
-class _MobileHeroContent extends StatelessWidget {
-  const _MobileHeroContent();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.only(top: 52, bottom: 76),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _HeroCopy(),
-
-          SizedBox(height: 64),
-
-          Center(
-            child: FittedBox(fit: BoxFit.scaleDown, child: HeroMatchPreview()),
+          Expanded(
+            flex: 11,
+            child: LandingReveal(
+              offset: const Offset(-28, 0),
+              child: _HeroCopy(onNavigate: onNavigate),
+            ),
+          ),
+          const SizedBox(width: 56),
+          const Expanded(
+            flex: 9,
+            child: LandingReveal(
+              delay: Duration(milliseconds: 140),
+              offset: Offset(34, 0),
+              child: Center(child: HeroMatchPreview()),
+            ),
           ),
         ],
       ),
@@ -80,8 +83,45 @@ class _MobileHeroContent extends StatelessWidget {
   }
 }
 
+// =============================================================================
+// MOBILE / TABLET
+// =============================================================================
+
+class _MobileHeroContent extends StatelessWidget {
+  const _MobileHeroContent({required this.onNavigate});
+
+  final LandingNavigate onNavigate;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 52, bottom: 76),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          LandingReveal(
+            offset: const Offset(-18, 0),
+            child: _HeroCopy(onNavigate: onNavigate),
+          ),
+          const SizedBox(height: 56),
+          const LandingReveal(
+            delay: Duration(milliseconds: 120),
+            child: Center(child: HeroMatchPreview()),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// HERO COPY
+// =============================================================================
+
 class _HeroCopy extends StatelessWidget {
-  const _HeroCopy();
+  const _HeroCopy({required this.onNavigate});
+
+  final LandingNavigate onNavigate;
 
   @override
   Widget build(BuildContext context) {
@@ -89,10 +129,11 @@ class _HeroCopy extends StatelessWidget {
 
     final isMobile = screenWidth < 700;
 
-    final titleSize = isMobile ? 52.0 : 74.0;
-    final joySize = isMobile ? 74.0 : 102.0;
+    final titleSize = isMobile ? 50.0 : 68.0;
+    final joySize = isMobile ? 72.0 : 96.0;
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -106,7 +147,7 @@ class _HeroCopy extends StatelessWidget {
           child: Text(
             'Trouve l’opportunité qui te correspond.',
             style: TextStyle(
-              color: AppColors.white.withValues(alpha: 0.9),
+              color: AppColors.white.withValues(alpha: 0.90),
               fontSize: 13,
               fontWeight: FontWeight.w500,
             ),
@@ -141,7 +182,6 @@ class _HeroCopy extends StatelessWidget {
                 letterSpacing: isMobile ? -2 : -3,
               ),
             ),
-
             Transform.translate(
               offset: Offset(0, isMobile ? 8 : 11),
               child: Text(
@@ -176,7 +216,7 @@ class _HeroCopy extends StatelessWidget {
             TextSpan(
               style: TextStyle(
                 color: AppColors.white.withValues(alpha: 0.82),
-                fontSize: isMobile ? 16 : 18,
+                fontSize: isMobile ? 15 : 17,
                 height: 1.6,
               ),
               children: const [
@@ -204,6 +244,27 @@ class _HeroCopy extends StatelessWidget {
           ),
         ),
 
+        const SizedBox(height: 24),
+
+        Wrap(
+          spacing: 10,
+          runSpacing: 8,
+          children: [
+            _HeroProof(
+              icon: Icons.auto_awesome_rounded,
+              label: 'Score expliqué',
+            ),
+            _HeroProof(
+              icon: Icons.favorite_outline_rounded,
+              label: 'Match réciproque',
+            ),
+            _HeroProof(
+              icon: Icons.chat_bubble_outline_rounded,
+              label: 'Chat au bon moment',
+            ),
+          ],
+        ),
+
         const SizedBox(height: AppSpacing.xl),
 
         Wrap(
@@ -211,7 +272,9 @@ class _HeroCopy extends StatelessWidget {
           runSpacing: AppSpacing.sm,
           children: [
             FilledButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                onNavigate(LandingSection.opportunities);
+              },
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.orange,
                 foregroundColor: AppColors.white,
@@ -226,9 +289,10 @@ class _HeroCopy extends StatelessWidget {
                 style: TextStyle(fontWeight: FontWeight.w700),
               ),
             ),
-
             OutlinedButton(
-              onPressed: () {},
+              onPressed: () {
+                onNavigate(LandingSection.companies);
+              },
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.white,
                 padding: const EdgeInsets.symmetric(
@@ -245,6 +309,32 @@ class _HeroCopy extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ],
+    );
+  }
+}
+
+class _HeroProof extends StatelessWidget {
+  const _HeroProof({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 15, color: AppColors.orangeLight),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: TextStyle(
+            color: AppColors.white.withValues(alpha: .68),
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ],
     );
