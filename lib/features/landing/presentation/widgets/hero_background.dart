@@ -2,16 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../../../design_system/tokens/app_gradients.dart';
 
-/// Fond graphique du Hero de la landing page.
+/// Fond graphique du Hero JOYN.
 ///
-/// Composition:
-/// - gradient bleu JOYN
-/// - grille technique discrète
-/// - halo bleu
-/// - halo orange
-///
-/// Aucun asset bitmap n'est nécessaire pour ce fond :
-/// il reste ainsi net et responsive quelle que soit la résolution.
+/// Le contenu non positionné détermine la hauteur naturelle du Stack.
+/// Cela permet au widget de fonctionner correctement dans une page scrollable.
 class HeroBackground extends StatelessWidget {
   const HeroBackground({required this.child, super.key});
 
@@ -20,18 +14,14 @@ class HeroBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(
-      fit: StackFit.expand,
+      clipBehavior: Clip.none,
       children: [
-        // -------------------------------------------------------------------
-        // Fond principal
-        // -------------------------------------------------------------------
-        const DecoratedBox(
-          decoration: BoxDecoration(gradient: AppGradients.hero),
+        const Positioned.fill(
+          child: DecoratedBox(
+            decoration: BoxDecoration(gradient: AppGradients.hero),
+          ),
         ),
 
-        // -------------------------------------------------------------------
-        // Halo bleu principal
-        // -------------------------------------------------------------------
         Positioned(
           right: -220,
           bottom: -240,
@@ -44,9 +34,6 @@ class HeroBackground extends StatelessWidget {
           ),
         ),
 
-        // -------------------------------------------------------------------
-        // Halo orange subtil
-        // -------------------------------------------------------------------
         Positioned(
           right: 20,
           top: 70,
@@ -59,26 +46,16 @@ class HeroBackground extends StatelessWidget {
           ),
         ),
 
-        // -------------------------------------------------------------------
-        // Grille technique
-        // -------------------------------------------------------------------
         const Positioned.fill(
           child: IgnorePointer(child: CustomPaint(painter: _HeroGridPainter())),
         ),
 
-        // -------------------------------------------------------------------
-        // Contenu du Hero
-        // -------------------------------------------------------------------
         child,
       ],
     );
   }
 }
 
-/// Dessine la grille visible très légèrement derrière le Hero.
-///
-/// Le painter évite d'avoir besoin d'une image répétée et conserve
-/// une grille parfaitement nette sur desktop comme sur mobile.
 class _HeroGridPainter extends CustomPainter {
   const _HeroGridPainter();
 
