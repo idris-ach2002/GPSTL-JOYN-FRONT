@@ -82,13 +82,13 @@ class FooterSection extends StatelessWidget {
               const SizedBox(height: 18),
               LayoutBuilder(
                 builder: (context, constraints) {
-                  final mobile = constraints.maxWidth < 520;
+                  final mobile = constraints.maxWidth < 760;
                   final left = const Text(
                     '© 2026 JOYN',
                     style: TextStyle(color: Color(0xFF8192A2), fontSize: 11),
                   );
                   final right = const Text(
-                    'Fait pour les alternants, par des alternants.',
+                    'Produit en développement · Démonstrations illustratives.',
                     style: TextStyle(color: Color(0xFF8192A2), fontSize: 11),
                   );
                   if (mobile) {
