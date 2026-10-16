@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import '../../../../design_system/tokens/app_colors.dart';
+import '../../../../design_system/joyn_tokens.dart';
 
 /// Première proposition du symbole JOYN.
 ///
@@ -18,7 +18,7 @@ import '../../../../design_system/tokens/app_colors.dart';
 /// Une fois la direction artistique validée, le logo final pourra être
 /// exporté proprement en SVG depuis Figma.
 class JoynMark extends StatelessWidget {
-  const JoynMark({this.size = 44, super.key});
+  const JoynMark({this.size = JoynTokens.logo, super.key});
 
   final double size;
 
@@ -32,7 +32,7 @@ class JoynMark extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [AppColors.orangeLight, AppColors.orange],
+            colors: [JoynTokens.orangeLight, JoynTokens.orange],
           ),
         ),
         child: CustomPaint(painter: const _JoynMarkPainter()),
@@ -49,7 +49,7 @@ class _JoynMarkPainter extends CustomPainter {
     final strokeWidth = size.width * 0.075;
 
     final linkPaint = Paint()
-      ..color = AppColors.white
+      ..color = JoynTokens.paper
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
@@ -79,7 +79,7 @@ class _JoynMarkPainter extends CustomPainter {
     canvas.restore();
 
     final dotPaint = Paint()
-      ..color = AppColors.white
+      ..color = JoynTokens.paper
       ..style = PaintingStyle.fill;
 
     canvas.drawCircle(
@@ -93,4 +93,21 @@ class _JoynMarkPainter extends CustomPainter {
   bool shouldRepaint(covariant _JoynMarkPainter oldDelegate) {
     return false;
   }
+}
+
+/// A short rotation on interaction, no continuous spinning.
+class AnimatedJoynMark extends StatelessWidget {
+  const AnimatedJoynMark({super.key, this.active = false});
+  final bool active;
+  @override
+  Widget build(BuildContext context) => TweenAnimationBuilder<double>(
+    tween: Tween(begin: 0, end: active ? 1 : 0),
+    duration: MediaQuery.disableAnimationsOf(context)
+        ? JoynTokens.instant
+        : JoynTokens.menuDuration,
+    curve: Curves.easeOutCubic,
+    builder: (context, progress, child) =>
+        Transform.rotate(angle: progress * math.pi / 12, child: child),
+    child: const JoynMark(),
+  );
 }
