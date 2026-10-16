@@ -80,7 +80,7 @@ class _MobileCopy extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppRadius.pill),
           ),
           child: const Text(
-            'WEB · iOS · ANDROID',
+            'WEB · MOBILE EN DÉVELOPPEMENT',
             style: TextStyle(
               color: AppColors.white,
               fontSize: 9,
@@ -101,7 +101,7 @@ class _MobileCopy extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         Text(
-          'Swipe dans le métro, réponds au recruteur entre deux cours. Ton profil, tes matchs et tes messages te suivent partout.',
+          'L’expérience mobile reprend les gestes essentiels : découvrir, comparer et répondre rapidement. Les apps natives sont présentées ici comme direction produit, pas comme disponibilité en store.',
           style: TextStyle(
             color: AppColors.white.withValues(alpha: .72),
             fontSize: 14,
@@ -120,7 +120,7 @@ class _MobileCopy extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Expérience mobile pensée pour les gestes rapides.',
+                'Prototype mobile pensé pour les gestes rapides.',
                 style: TextStyle(
                   color: AppColors.white.withValues(alpha: .7),
                   fontSize: 11,

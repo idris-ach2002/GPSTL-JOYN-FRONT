@@ -4,7 +4,6 @@ import '../../../../design_system/layout/content_container.dart';
 import '../../../../design_system/tokens/app_colors.dart';
 import '../widgets/landing_motion.dart';
 import '../widgets/landing_product_mockups.dart';
-import '../widgets/section_header.dart';
 
 class FeaturesSection extends StatefulWidget {
   const FeaturesSection({super.key});
@@ -19,22 +18,22 @@ class _FeaturesSectionState extends State<FeaturesSection> {
   static const items = [
     _FeatureData(
       'Score détaillé',
-      'Chaque offre affiche un score expliqué : compétence, formation, rythme et trajet.',
+      'Pourquoi cette offre te correspond — sans boîte noire.',
       Icons.track_changes_rounded,
     ),
     _FeatureData(
       'Skill Gap',
-      'Tu vois ce qu’il te manque pour viser plus haut, avec des pistes concrètes de progression.',
+      'Ce qui te manque pour viser plus haut, rendu visible.',
       Icons.tune_rounded,
     ),
     _FeatureData(
-      'Candidature en un geste',
-      'Ton CV et ton message partent sans ressaisie quand une offre t’intéresse.',
+      'Candidature express',
+      'Ton CV et ton message partent sans tout ressaisir.',
       Icons.send_rounded,
     ),
     _FeatureData(
-      'Suivi des candidatures',
-      'Matchs, réponses et prochaines étapes restent visibles au même endroit.',
+      'Suivi clair',
+      'Match, réponse, entretien : tout reste au même endroit.',
       Icons.view_list_rounded,
     ),
   ];
@@ -42,22 +41,16 @@ class _FeaturesSectionState extends State<FeaturesSection> {
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
-      color: AppColors.white,
+      color: const Color(0xFF061F34),
       child: ContentContainer(
         maxWidth: 1240,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 112),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: SectionHeader(
-                  eyebrow: 'Fonctionnalités',
-                  title: "Tout ce qu'il faut pour décrocher ta place.",
-                  description: 'Le produit reste simple en surface, mais chaque interaction donne du contexte : pourquoi cette offre, quoi améliorer, où en est ta candidature.',
-                ),
-              ),
-              const SizedBox(height: 54),
+              const LandingReveal(child: _FeaturesIntro()),
+              const SizedBox(height: 52),
               LayoutBuilder(
                 builder: (context, constraints) {
                   final stacked = constraints.maxWidth < 850;
@@ -65,7 +58,7 @@ class _FeaturesSectionState extends State<FeaturesSection> {
                     children: [
                       for (var index = 0; index < items.length; index++)
                         Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.only(bottom: 10),
                           child: _FeatureSelector(
                             data: items[index],
                             number: '${index + 1}'.padLeft(2, '0'),
@@ -78,7 +71,7 @@ class _FeaturesSectionState extends State<FeaturesSection> {
 
                   final preview = LandingReveal(
                     delay: const Duration(milliseconds: 100),
-                    offset: const Offset(32, 0),
+                    offset: const Offset(30, 0),
                     child: _FeaturePreview(index: selected),
                   );
 
@@ -92,53 +85,53 @@ class _FeaturesSectionState extends State<FeaturesSection> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Expanded(flex: 5, child: selector),
-                      const SizedBox(width: 42),
+                      const SizedBox(width: 44),
                       Expanded(flex: 6, child: preview),
                     ],
                   );
                 },
               ),
-              const SizedBox(height: 58),
+              const SizedBox(height: 56),
               LayoutBuilder(
                 builder: (context, constraints) {
-                  final count = constraints.maxWidth >= 1000
+                  final count = constraints.maxWidth >= 980
                       ? 4
-                      : constraints.maxWidth >= 600
+                      : constraints.maxWidth >= 760
                       ? 2
                       : 1;
                   final width =
-                      (constraints.maxWidth - (count - 1) * 14) / count;
+                      (constraints.maxWidth - (count - 1) * 12) / count;
                   const mini = [
                     (
-                      'Alertes sur mesure',
-                      'Une notification dès qu’une offre dépasse ton seuil de compatibilité.',
+                      'Alertes utiles',
+                      'Seulement quand une offre mérite ton attention.',
                       Icons.notifications_none_rounded,
                     ),
                     (
-                      'Favoris',
-                      'Garde les offres qui te plaisent et compare-les quand tu veux.',
+                      'Favoris comparables',
+                      'Garde les offres et reviens-y sans perdre le contexte.',
                       Icons.bookmark_border_rounded,
                     ),
                     (
-                      'Tes stats en direct',
-                      'Vues, matchs et réponses : ta semaine en un coup d’œil.',
+                      'Stats lisibles',
+                      'Vues, matchs et réponses — pas un tableau incompréhensible.',
                       Icons.analytics_outlined,
                     ),
                     (
-                      'Filtres rythme & trajet',
-                      'Ne vois que les offres qui collent à ton rythme d’école et à ton trajet.',
-                      Icons.tune_rounded,
+                      'Rythme & trajet',
+                      'Élimine les offres incompatibles avant même le swipe.',
+                      Icons.route_outlined,
                     ),
                   ];
                   return Wrap(
-                    spacing: 14,
-                    runSpacing: 14,
+                    spacing: 12,
+                    runSpacing: 12,
                     children: [
                       for (var i = 0; i < mini.length; i++)
                         SizedBox(
                           width: width,
                           child: LandingReveal(
-                            delay: Duration(milliseconds: 70 * i),
+                            delay: Duration(milliseconds: 65 * i),
                             child: _MiniFeatureCard(
                               title: mini[i].$1,
                               text: mini[i].$2,
@@ -158,14 +151,61 @@ class _FeaturesSectionState extends State<FeaturesSection> {
   }
 }
 
+class _FeaturesIntro extends StatelessWidget {
+  const _FeaturesIntro();
+
+  @override
+  Widget build(BuildContext context) {
+    final mobile = MediaQuery.sizeOf(context).width < 600;
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 760),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'LE MOTEUR JOYN',
+            style: TextStyle(
+              color: AppColors.orangeLight,
+              fontSize: 11,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1.5,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Text(
+            'Simple à utiliser. Pas simpliste.',
+            style: TextStyle(
+              color: AppColors.white,
+              fontSize: mobile ? 38 : 54,
+              height: 1.02,
+              fontWeight: FontWeight.w900,
+              letterSpacing: mobile ? -1 : -1.7,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Clique sur une fonctionnalité : le produit change, pas juste le texte.',
+            style: TextStyle(
+              color: AppColors.white.withValues(alpha: .60),
+              fontSize: 15,
+              height: 1.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _FeatureData {
   const _FeatureData(this.title, this.description, this.icon);
+
   final String title;
   final String description;
   final IconData icon;
 }
 
-class _FeatureSelector extends StatelessWidget {
+class _FeatureSelector extends StatefulWidget {
   const _FeatureSelector({
     required this.data,
     required this.number,
@@ -179,69 +219,104 @@ class _FeatureSelector extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
+  State<_FeatureSelector> createState() => _FeatureSelectorState();
+}
+
+class _FeatureSelectorState extends State<_FeatureSelector> {
+  bool hovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-        decoration: BoxDecoration(
-          color: selected ? const Color(0xFFE7EDF1) : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: selected ? AppColors.navy : const Color(0xFFF0F4F7),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(
-                data.icon,
-                size: 19,
-                color: selected ? AppColors.white : AppColors.navy,
-              ),
+    final active = widget.selected || hovered;
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => hovered = true),
+      onExit: (_) => setState(() => hovered = false),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          padding: const EdgeInsets.all(17),
+          decoration: BoxDecoration(
+            color: active
+                ? AppColors.white.withValues(alpha: widget.selected ? .11 : .07)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: widget.selected
+                  ? AppColors.orange.withValues(alpha: .55)
+                  : AppColors.white.withValues(alpha: .08),
             ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    data.title,
-                    style: const TextStyle(
-                      color: AppColors.navy,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                  if (selected) ...[
-                    const SizedBox(height: 6),
+          ),
+          child: Row(
+            children: [
+              Text(
+                widget.number,
+                style: TextStyle(
+                  color: widget.selected
+                      ? AppColors.orangeLight
+                      : AppColors.white.withValues(alpha: .34),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: active
+                      ? AppColors.orange.withValues(alpha: .15)
+                      : AppColors.white.withValues(alpha: .05),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  widget.data.icon,
+                  color: active
+                      ? AppColors.orangeLight
+                      : AppColors.white.withValues(alpha: .54),
+                  size: 19,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      data.description,
+                      widget.data.title,
                       style: const TextStyle(
-                        color: Color(0xFF6B8094),
-                        fontSize: 12,
-                        height: 1.4,
+                        color: AppColors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      widget.data.description,
+                      style: TextStyle(
+                        color: AppColors.white.withValues(alpha: .48),
+                        fontSize: 11,
+                        height: 1.35,
                       ),
                     ),
                   ],
-                ],
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              number,
-              style: TextStyle(
-                color: selected ? AppColors.orange : const Color(0xFFD8E1E7),
-                fontSize: 14,
-                fontWeight: FontWeight.w900,
+              AnimatedRotation(
+                duration: const Duration(milliseconds: 220),
+                turns: widget.selected ? 0 : -.08,
+                child: Icon(
+                  Icons.arrow_forward_rounded,
+                  color: widget.selected
+                      ? AppColors.orangeLight
+                      : AppColors.white.withValues(alpha: .24),
+                  size: 18,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -250,52 +325,51 @@ class _FeatureSelector extends StatelessWidget {
 
 class _FeaturePreview extends StatelessWidget {
   const _FeaturePreview({required this.index});
+
   final int index;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 370,
-      padding: const EdgeInsets.all(30),
+      constraints: const BoxConstraints(minHeight: 430),
+      padding: const EdgeInsets.all(26),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF062A43), Color(0xFF0A5576)],
+          colors: [Color(0xFF0E3857), Color(0xFF09263E)],
         ),
-      ),
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: IgnorePointer(
-              child: CustomPaint(painter: _DotGridPainter()),
-            ),
-          ),
-          Center(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 360),
-              switchInCurve: Curves.easeOutCubic,
-              transitionBuilder: (child, animation) => FadeTransition(
-                opacity: animation,
-                child: ScaleTransition(
-                  scale: Tween(begin: .97, end: 1.0).animate(animation),
-                  child: child,
-                ),
-              ),
-              child: switch (index) {
-                0 => ConstrainedBox(
-                  key: const ValueKey(0),
-                  constraints: const BoxConstraints(maxWidth: 360),
-                  child: const MatchScoreMockup(),
-                ),
-                1 => const _SkillGapMockup(key: ValueKey(1)),
-                2 => const _ApplyMockup(key: ValueKey(2)),
-                _ => const _TrackingMockup(key: ValueKey(3)),
-              },
-            ),
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(color: AppColors.white.withValues(alpha: .10)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: .20),
+            blurRadius: 48,
+            offset: const Offset(0, 24),
           ),
         ],
+      ),
+      child: Center(
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 360),
+          transitionBuilder: (child, animation) => FadeTransition(
+            opacity: animation,
+            child: ScaleTransition(
+              scale: Tween(begin: .97, end: 1.0).animate(animation),
+              child: child,
+            ),
+          ),
+          child: switch (index) {
+            0 => ConstrainedBox(
+              key: const ValueKey(0),
+              constraints: const BoxConstraints(maxWidth: 360),
+              child: const MatchScoreMockup(),
+            ),
+            1 => const _SkillGapMockup(key: ValueKey(1)),
+            2 => const _ApplyMockup(key: ValueKey(2)),
+            _ => const _TrackingMockup(key: ValueKey(3)),
+          },
+        ),
       ),
     );
   }
@@ -514,74 +588,46 @@ class _MiniFeatureCard extends StatelessWidget {
     required this.text,
     required this.icon,
   });
+
   final String title;
   final String text;
   final IconData icon;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE5EBF0)),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.navy.withValues(alpha: .07),
-            blurRadius: 22,
-            offset: const Offset(0, 9),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              color: const Color(0xFFEAF6FC),
-              borderRadius: BorderRadius.circular(9),
+    return LandingHoverLift(
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: AppColors.white.withValues(alpha: .06),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: AppColors.white.withValues(alpha: .08)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: AppColors.orangeLight, size: 21),
+            const SizedBox(height: 14),
+            Text(
+              title,
+              style: const TextStyle(
+                color: AppColors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w900,
+              ),
             ),
-            child: Icon(icon, color: AppColors.cyanBlue, size: 18),
-          ),
-          const SizedBox(height: 14),
-          Text(
-            title,
-            style: const TextStyle(
-              color: AppColors.navy,
-              fontSize: 14,
-              fontWeight: FontWeight.w900,
+            const SizedBox(height: 6),
+            Text(
+              text,
+              style: TextStyle(
+                color: AppColors.white.withValues(alpha: .48),
+                fontSize: 11,
+                height: 1.4,
+              ),
             ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            text,
-            style: const TextStyle(
-              color: Color(0xFF72879A),
-              fontSize: 11,
-              height: 1.4,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
-}
-
-class _DotGridPainter extends CustomPainter {
-  const _DotGridPainter();
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = Colors.white.withValues(alpha: .07);
-    for (double x = 8; x < size.width; x += 18) {
-      for (double y = 8; y < size.height; y += 18) {
-        canvas.drawCircle(Offset(x, y), 1, paint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

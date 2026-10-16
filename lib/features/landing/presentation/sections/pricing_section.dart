@@ -29,7 +29,7 @@ class _PricingSectionState extends State<PricingSection> {
                 child: Column(
                   children: [
                     Text(
-                      'TARIFS',
+                      'TARIFS · HYPOTHÈSES PRODUIT',
                       style: TextStyle(
                         color: Color(0xFF4F6680),
                         fontSize: 11,
@@ -39,7 +39,7 @@ class _PricingSectionState extends State<PricingSection> {
                     ),
                     SizedBox(height: 12),
                     Text(
-                      'Gratuit pour commencer.',
+                      'Une grille simple à tester en bêta.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: AppColors.navy,
@@ -51,7 +51,7 @@ class _PricingSectionState extends State<PricingSection> {
                     ),
                     SizedBox(height: 10),
                     Text(
-                      'Pour les étudiants, l’essentiel est gratuit, pour toujours. Pour les entreprises, c’est à l’annonce, sans abonnement.',
+                      'Ces montants illustrent une proposition de pricing à valider avant lancement. Ils ne constituent pas une offre commerciale publiée.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Color(0xFF72879A),
@@ -176,8 +176,8 @@ class _StudentPricing extends StatelessWidget {
             name: 'joyn',
             subtitle: 'Tout l’essentiel pour décrocher ton alternance.',
             price: '0 €',
-            period: 'Pour toujours',
-            description: 'Gratuit, sans limite de durée.',
+            period: 'Base gratuite',
+            description: 'Hypothèse de lancement à valider en bêta.',
             features: [
               '10 × Intéressé par jour',
               'Score de compatibilité expliqué',
@@ -193,7 +193,7 @@ class _StudentPricing extends StatelessWidget {
             subtitle: 'Plus de « Intéressé », plus de visibilité, plus vite en entretien.',
             price: '15,99 €',
             period: '/ Mois',
-            description: 'Sans engagement, annulable en un clic.',
+            description: 'Hypothèse d’abonnement premium.',
             features: [
               '« Intéressé » illimités',
               'Profil mis en avant chaque semaine',
@@ -208,7 +208,7 @@ class _StudentPricing extends StatelessWidget {
             subtitle: 'Ton profil en tête des recommandations recruteurs pendant 48 h.',
             price: '4,99 €',
             period: 'Pour 48h.',
-            description: 'Paiement unique, quand tu en as besoin.',
+            description: 'Hypothèse d’achat ponctuel.',
             features: [
               'Profil remonté en tête',
               'Priorité temporaire côté recruteur',
