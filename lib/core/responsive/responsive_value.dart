@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 
 import 'app_breakpoints.dart';
+
 /// Retourne la variante mobile, tablette ou ordinateur du type demandé.
 T responsiveValue<T>(
   BuildContext context, {

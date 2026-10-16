@@ -7,12 +7,15 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../../../design_system/joyn_tokens.dart';
+
 /// Signe vectoriel JOYN dont la taille est paramétrable.
 class JoynMark extends StatelessWidget {
   /// Initialise les paramètres de JoynMark ; les valeurs par défaut figurent dans la signature.
   const JoynMark({this.size = JoynTokens.logo, super.key});
+
   /// Taille demandée pour le dessin ou dimensions du canevas.
   final double size;
+
   /// Construit la présentation à partir de la configuration et de l’état courant.
   @override
   Widget build(BuildContext context) {
@@ -32,10 +35,12 @@ class JoynMark extends StatelessWidget {
     );
   }
 }
+
 /// Tracé du signe JOYN sur un canevas normalisé.
 class _JoynMarkPainter extends CustomPainter {
   /// Initialise les paramètres de _JoynMarkPainter ; les valeurs par défaut figurent dans la signature.
   const _JoynMarkPainter();
+
   /// Dessine la géométrie dans le repère du canevas fourni.
   @override
   void paint(Canvas canvas, Size size) {
@@ -86,25 +91,32 @@ class _JoynMarkPainter extends CustomPainter {
       dotPaint,
     );
   }
+
   /// Indique si les données du dessin diffèrent du peintre précédent.
   @override
   bool shouldRepaint(covariant _JoynMarkPainter oldDelegate) {
     return false;
   }
 }
+
 /// Rotation du signe JOYN selon l’état actif.
 class AnimatedJoynMark extends StatelessWidget {
   /// Initialise les paramètres de AnimatedJoynMark ; les valeurs par défaut figurent dans la signature.
   const AnimatedJoynMark({super.key, this.active = false});
+
   /// Indice ou indicateur d’activation utilisé par cette composition.
   final bool active;
+
   /// Construit la présentation à partir de la configuration et de l’état courant.
   @override
   Widget build(BuildContext context) => TweenAnimationBuilder<double>(
     tween: Tween(begin: 0, end: active ? 1 : 0),
-    duration: MediaQuery.disableAnimationsOf(context) ? JoynTokens.instant : JoynTokens.menuDuration,
+    duration: MediaQuery.disableAnimationsOf(context)
+        ? JoynTokens.instant
+        : JoynTokens.menuDuration,
     curve: Curves.easeOutCubic,
-    builder: (context, progress, child) => Transform.rotate(angle: progress * math.pi / 12, child: child),
+    builder: (context, progress, child) =>
+        Transform.rotate(angle: progress * math.pi / 12, child: child),
     child: const JoynMark(),
   );
 }
