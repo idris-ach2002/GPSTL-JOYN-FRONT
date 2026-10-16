@@ -30,6 +30,7 @@
   </style>
 </head>
 <body>
+  <!-- État de chargement conservé jusqu’au premier rendu de la page Flutter. -->
   <main id="startup">
     <p>JOYN / PROFILS, OFFRES, INTÉRÊT PARTAGÉ</p>
     <h1>Joyn a job,<br>With <span style="color:#FF8559">joy.</span></h1>
@@ -44,7 +45,9 @@
     </section>
   </main>
   <script>
+    // Affiche une reprise lorsque le chargement du moteur ou de l’application échoue.
     function showStartupFailure() {
+      // Ces blocs peuvent avoir été retirés après le démarrage de Flutter.
       const failure = document.getElementById('failure');
       const loading = document.getElementById('loading');
       if (failure) failure.hidden = false;

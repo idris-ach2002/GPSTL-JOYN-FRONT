@@ -1,3 +1,4 @@
+/* Styles des pages de lecture JOYN. Référence : doc/landing/web.md. */
 @font-face{font-family:Inter;src:url('assets/assets/fonts/Inter-Regular.ttf');font-display:swap}
 @font-face{font-family:SpaceGrotesk;src:url('assets/assets/fonts/SpaceGrotesk-Bold.ttf');font-weight:700;font-display:swap}
 :root{--ink:#001e3b;--navy:#00254a;--blue:#60a0ff;--cyan:#489ec9;--orange:#ff6731;--orange-light:#ff8559;--paper:#fff;--canvas:#f5f8fb;--line:#9da5ac;--radius:16px}
