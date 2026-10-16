@@ -12,9 +12,16 @@ import '../navigation/landing_section.dart';
 import 'joyn_mark.dart';
 
 class LandingNavbar extends StatefulWidget {
-  const LandingNavbar({required this.onNavigate, super.key});
+  const LandingNavbar({
+    required this.onNavigate,
+    this.companyMode = false,
+    this.activeSection = LandingSection.hero,
+    super.key,
+  });
 
   final LandingNavigate onNavigate;
+  final bool companyMode;
+  final LandingSection activeSection;
 
   @override
   State<LandingNavbar> createState() => _LandingNavbarState();
@@ -154,6 +161,8 @@ class _LandingNavbarState extends State<LandingNavbar> {
                 onMenuEnter: _showMegaMenu,
                 onMenuExit: _scheduleMegaMenuClose,
                 onMenuTap: _toggleMegaMenu,
+                companyMode: widget.companyMode,
+                activeSection: widget.activeSection,
               );
             }
 
@@ -173,6 +182,7 @@ class _LandingNavbarState extends State<LandingNavbar> {
               open: _mobileMenuOpen,
               onToggle: _toggleMobileMenu,
               onNavigate: _navigate,
+              companyMode: widget.companyMode,
             );
           },
         ),
@@ -188,6 +198,8 @@ class _DesktopNavbar extends StatelessWidget {
     required this.onMenuEnter,
     required this.onMenuExit,
     required this.onMenuTap,
+    required this.companyMode,
+    required this.activeSection,
   });
 
   final String? activeMenu;
@@ -198,6 +210,8 @@ class _DesktopNavbar extends StatelessWidget {
   final VoidCallback onMenuExit;
 
   final ValueChanged<String> onMenuTap;
+  final bool companyMode;
+  final LandingSection activeSection;
 
   @override
   Widget build(BuildContext context) {
@@ -227,6 +241,7 @@ class _DesktopNavbar extends StatelessWidget {
                   children: [
                     _DesktopNavItem(
                       label: 'Comment ça marche',
+                      active: activeSection == LandingSection.howItWorks,
                       onTap: () {
                         onNavigate(LandingSection.howItWorks);
                       },
@@ -235,6 +250,7 @@ class _DesktopNavbar extends StatelessWidget {
                       label: 'Fonctionnalités',
                       hasMegaMenu: true,
                       selected: activeMenu == 'Fonctionnalités',
+                      active: activeSection == LandingSection.features,
                       onEnter: () {
                         onMenuEnter('Fonctionnalités');
                       },
@@ -247,6 +263,7 @@ class _DesktopNavbar extends StatelessWidget {
                       label: 'Entreprises',
                       hasMegaMenu: true,
                       selected: activeMenu == 'Entreprises',
+                      active: activeSection == LandingSection.companies,
                       onEnter: () {
                         onMenuEnter('Entreprises');
                       },
@@ -256,7 +273,8 @@ class _DesktopNavbar extends StatelessWidget {
                       },
                     ),
                     _DesktopNavItem(
-                      label: 'Témoignages',
+                      label: 'Preuves',
+                      active: activeSection == LandingSection.testimonials,
                       onTap: () {
                         onNavigate(LandingSection.testimonials);
                       },
@@ -278,10 +296,14 @@ class _DesktopNavbar extends StatelessWidget {
             ),
             const SizedBox(width: 10),
             _NavActionButton(
-              label: 'Commencer',
+              label: companyMode ? 'Côté recruteur' : 'Voir les offres',
               filled: true,
               onPressed: () {
-                onNavigate(LandingSection.opportunities);
+                onNavigate(
+                  companyMode
+                      ? LandingSection.companies
+                      : LandingSection.opportunities,
+                );
               },
             ),
           ],
@@ -299,6 +321,7 @@ class _DesktopNavItem extends StatefulWidget {
     this.onExit,
     this.hasMegaMenu = false,
     this.selected = false,
+    this.active = false,
   });
 
   final String label;
@@ -309,6 +332,7 @@ class _DesktopNavItem extends StatefulWidget {
 
   final bool hasMegaMenu;
   final bool selected;
+  final bool active;
 
   @override
   State<_DesktopNavItem> createState() => _DesktopNavItemState();
@@ -319,7 +343,7 @@ class _DesktopNavItemState extends State<_DesktopNavItem> {
 
   @override
   Widget build(BuildContext context) {
-    final highlighted = _hovered || widget.selected;
+    final highlighted = _hovered || widget.selected || widget.active;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -387,12 +411,14 @@ class _MobileNavbar extends StatelessWidget {
     required this.open,
     required this.onToggle,
     required this.onNavigate,
+    required this.companyMode,
   });
 
   final bool open;
   final VoidCallback onToggle;
 
   final LandingNavigate onNavigate;
+  final bool companyMode;
 
   @override
   Widget build(BuildContext context) {
@@ -415,7 +441,10 @@ class _MobileNavbar extends StatelessWidget {
           child: open
               ? Padding(
                   padding: const EdgeInsets.only(top: AppSpacing.md),
-                  child: _MobileMenuPanel(onNavigate: onNavigate),
+                  child: _MobileMenuPanel(
+                    onNavigate: onNavigate,
+                    companyMode: companyMode,
+                  ),
                 )
               : const SizedBox.shrink(),
         ),
@@ -453,9 +482,10 @@ class _MobileMenuButton extends StatelessWidget {
 }
 
 class _MobileMenuPanel extends StatefulWidget {
-  const _MobileMenuPanel({required this.onNavigate});
+  const _MobileMenuPanel({required this.onNavigate, required this.companyMode});
 
   final LandingNavigate onNavigate;
+  final bool companyMode;
 
   @override
   State<_MobileMenuPanel> createState() => _MobileMenuPanelState();
@@ -547,7 +577,7 @@ class _MobileMenuPanelState extends State<_MobileMenuPanel> {
           ),
           _MobileDirectItem(
             icon: Icons.format_quote_rounded,
-            label: 'Témoignages',
+            label: 'Preuves',
             onTap: () {
               widget.onNavigate(LandingSection.testimonials);
             },
@@ -568,13 +598,19 @@ class _MobileMenuPanelState extends State<_MobileMenuPanel> {
             width: double.infinity,
             child: FilledButton(
               onPressed: () {
-                widget.onNavigate(LandingSection.opportunities);
+                widget.onNavigate(
+                  widget.companyMode
+                      ? LandingSection.companies
+                      : LandingSection.opportunities,
+                );
               },
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.orange,
                 foregroundColor: AppColors.white,
               ),
-              child: const Text('Commencer'),
+              child: Text(
+                widget.companyMode ? 'Côté recruteur' : 'Voir les offres',
+              ),
             ),
           ),
         ],
