@@ -52,7 +52,6 @@ class AppColors {
   /// Erreur / action destructive.
   static const Color error = Color(0xFFE24B4B);
 
-
   /// #8395BC à 10%.
   static const Color blueGrey10 = Color(0x1A8395BC);
 

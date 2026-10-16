@@ -1,8 +1,8 @@
-class AppBreakpoints {
-  AppBreakpoints._();
+import '../../design_system/joyn_tokens.dart';
 
-  static const double mobile = 600;
-  static const double tablet = 1024;
-  static const double desktop = 1280;
-  static const double wide = 1440;
+abstract final class AppBreakpoints {
+  static const mobile = JoynTokens.mobile;
+  static const tablet = JoynTokens.tablet;
+  static const desktop = JoynTokens.tablet;
+  static const wide = JoynTokens.content;
 }
