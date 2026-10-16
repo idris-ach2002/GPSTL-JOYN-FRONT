@@ -1,12 +1,12 @@
 {
-  "name": "JOYN — Trouve ton alternance autrement",
+  "name": "JOYN — Le match avant la candidature",
   "short_name": "JOYN",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#001E3B",
   "theme_color": "#001E3B",
-  "description": "Matching expliqué entre étudiants et entreprises pour l’alternance.",
-  "orientation": "portrait-primary",
+  "description": "Prototype de matching alternance entre candidats et entreprises.",
+  "orientation": "any",
   "prefer_related_applications": false,
   "icons": [
     {

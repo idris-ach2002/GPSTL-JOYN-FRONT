@@ -1,58 +1,60 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
   <base href="$FLUTTER_BASE_HREF">
-
   <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-
-  <title>JOYN — Trouve ton alternance autrement</title>
-  <meta name="description" content="JOYN rapproche étudiants et entreprises grâce à un matching expliqué : offres compatibles, candidatures simplifiées, Skill Gap et échanges dès que l’intérêt est réciproque.">
-  <meta name="keywords" content="alternance, stage, emploi étudiant, recrutement, matching, candidature, entreprise, JOYN">
-  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <title>JOYN — Le match avant la candidature</title>
+  <meta name="description" content="Comprendre les points communs entre un profil et une offre : compétences, mobilité, rythme et intérêt réciproque. Consultez le fonctionnement de JOYN.">
+  <meta name="robots" content="index,follow">
   <meta name="theme-color" content="#001E3B">
-  <meta name="application-name" content="JOYN">
-
   <meta property="og:type" content="website">
   <meta property="og:locale" content="fr_FR">
   <meta property="og:site_name" content="JOYN">
-  <meta property="og:title" content="JOYN — Trouve ton alternance autrement">
-  <meta property="og:description" content="Des offres compatibles, un score expliqué et une conversation quand l’intérêt est réciproque.">
-
+  <meta property="og:title" content="JOYN — Le match avant la candidature">
+  <meta property="og:description" content="Un poste. Des compétences. Un intérêt partagé. Testez un exemple de matching expliqué.">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="JOYN — Trouve ton alternance autrement">
-  <meta name="twitter:description" content="Des offres compatibles, un score expliqué et une conversation quand l’intérêt est réciproque.">
-
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="JOYN">
+  <meta name="twitter:title" content="JOYN — Le match avant la candidature">
+  <meta name="twitter:description" content="Un exemple interactif pour comprendre les critères d’un matching.">
+  <link rel="icon" href="favicon.png">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
-  <link rel="icon" type="image/png" href="favicon.png">
   <link rel="manifest" href="manifest.json">
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "JOYN",
-    "description": "Plateforme de matching entre étudiants et entreprises pour l’alternance, avec score de compatibilité expliqué et mise en relation réciproque.",
-    "inLanguage": "fr-FR"
-  }
-  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"JOYN","inLanguage":"fr-FR","description":"JOYN rapproche les profils candidats et les offres des entreprises."}</script>
+  <style>
+    :root{--ink:#001e3b;--paper:#fff;--orange:#ff6731;--space:24px;--radius:16px}
+    html,body{margin:0;background:var(--ink);color:var(--paper);font:16px/1.5 Arial,sans-serif}
+    #startup{max-width:880px;margin:auto;padding:64px var(--space)}
+    h1{font-size:clamp(36px,7vw,72px);line-height:1.05}a{color:inherit;text-underline-offset:5px}
+    a:focus-visible,button:focus-visible{outline:3px solid var(--orange);outline-offset:4px}
+    button{padding:16px 24px;border:1px solid var(--ink);border-radius:var(--radius);background:var(--orange);color:var(--ink);cursor:pointer}
+    #failure{border-top:1px solid var(--ink);padding-top:var(--space)}[hidden]{display:none!important}
+  </style>
 </head>
 <body>
-  <noscript>
-    <main>
-      <h1>JOYN — Trouve ton alternance autrement</h1>
-      <p>JOYN rapproche étudiants et entreprises avec des offres compatibles, un score expliqué, un Skill Gap et une messagerie ouverte quand l’intérêt est réciproque.</p>
-      <h2>Comment ça marche</h2>
-      <p>Crée ton profil, découvre les offres adaptées à ta formation et à ton rythme, puis matche avec les entreprises.</p>
-      <h2>Pour les entreprises</h2>
-      <p>Publiez une opportunité, découvrez les profils compatibles et échangez avec les candidats retenus.</p>
-    </main>
-  </noscript>
-  <script src="flutter_bootstrap.js" async></script>
+  <main id="startup">
+    <p>JOYN / PROFILS, OFFRES, INTÉRÊT PARTAGÉ</p>
+    <h1>Joyn a job,<br>With <span style="color:#FF8559">joy.</span></h1>
+    <p>JOYN met en regard les compétences, la mobilité, le rythme d’alternance et les attentes d’un poste. Le parcours présenté prévoit un échange lorsque l’intérêt est réciproque.</p>
+    <p id="loading" role="status">Chargement de JOYN…</p>
+    <p><a href="presentation.html">Lire la présentation du projet</a></p>
+    <noscript><p>JavaScript est nécessaire pour ouvrir JOYN. La présentation reste accessible sans JavaScript.</p></noscript>
+    <section id="failure" hidden role="alert">
+      <h2>JOYN n’a pas pu démarrer.</h2>
+      <p>Vous pouvez réessayer ou lire la présentation du projet.</p>
+      <button type="button" onclick="window.location.reload()">RÉESSAYER</button>
+    </section>
+  </main>
+  <script>
+    function showStartupFailure() {
+      const failure = document.getElementById('failure');
+      const loading = document.getElementById('loading');
+      if (failure) failure.hidden = false;
+      if (loading) loading.hidden = true;
+    }
+    window.addEventListener('joyn-load-error', showStartupFailure);
+    window.setTimeout(() => {
+      if (document.getElementById('startup')) showStartupFailure();
+    }, 30000);
+  </script>
+  <script src="flutter_bootstrap.js" async onerror="showStartupFailure()"></script>
 </body>
 </html>
