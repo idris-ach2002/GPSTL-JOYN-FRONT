@@ -1,0 +1,121 @@
+import 'package:flutter/material.dart';
+
+import '../../../../design_system/joyn_tokens.dart';
+import '../widgets/editorial_layout.dart';
+import '../widgets/match_signature.dart';
+import '../widgets/product_atmosphere.dart';
+import '../widgets/gentle_depth.dart';
+import '../widgets/mobile_chapter.dart';
+
+class FuturistHero extends StatelessWidget {
+  const FuturistHero({super.key, required this.onExplore});
+  final VoidCallback onExplore;
+  @override
+  Widget build(BuildContext context) => ProductAtmosphere(
+    child: EditorialSection(
+      transparent: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          EditorialSplit(
+            leading: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'LE MATCH AVANT LA CANDIDATURE',
+                  style: Theme.of(context).textTheme.labelLarge
+                      ?.copyWith(color: JoynTokens.blue),
+                ),
+                const SizedBox(height: JoynTokens.lg),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final text = Theme.of(context).textTheme;
+                    final compact = constraints.maxWidth < JoynTokens.mobile;
+                    final title =
+                        (compact ? text.displayMedium : text.displayLarge)
+                            ?.copyWith(color: JoynTokens.paper);
+                    return Semantics(
+                      header: true,
+                      label: 'Joyn a job, with joy.',
+                      child: ExcludeSemantics(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Joyn a job,', style: title),
+                            Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                Text('With ', style: title),
+                                Text(
+                                  'joy.',
+                                  style: TextStyle(
+                                    fontFamily: 'GreatVibes',
+                                    fontSize: JoynTokens.joySize,
+                                    height: JoynTokens.titleHeight,
+                                    color: JoynTokens.orangeLight,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: JoynTokens.md),
+                Text(
+                  'Ton prochain poste commence par ce qui te correspond.',
+                  style: Theme.of(context).textTheme.headlineSmall
+                      ?.copyWith(color: JoynTokens.paper),
+                ),
+                const SizedBox(height: JoynTokens.md),
+                Text(
+                  'Tes compétences, ton rythme, ton trajet. JOYN met les points communs en lumière pour te permettre de choisir avant de candidater.',
+                  style: Theme.of(context).textTheme.bodyLarge
+                      ?.copyWith(color: JoynTokens.paper),
+                ),
+                const SizedBox(height: JoynTokens.lg),
+                FilledButton(
+                  onPressed: onExplore,
+                  child: const Text('COMPRENDRE LES RECOMMANDATIONS →'),
+                ),
+                const SizedBox(height: JoynTokens.md),
+                Text(
+                  'Candidats · Recruteurs',
+                  style: Theme.of(context).textTheme.labelLarge
+                      ?.copyWith(color: JoynTokens.blue),
+                ),
+              ],
+            ),
+            trailing: MediaQuery.sizeOf(context).width < JoynTokens.mobile
+                ? const MobileReveal(
+                    label: 'VOIR LA RENCONTRE',
+                    child: MatchSignature(),
+                  )
+                : const GentleDepth(child: MatchSignature()),
+          ),
+          const SizedBox(height: JoynTokens.xl),
+          Divider(color: JoynTokens.cyan.withValues(alpha: .4)),
+          const SizedBox(height: JoynTokens.md),
+          Wrap(
+            spacing: JoynTokens.lg,
+            runSpacing: JoynTokens.sm,
+            children: [
+              for (final item in [
+                '01 / UN PROFIL QUI TE RESSEMBLE',
+                '02 / DES CRITÈRES EXPLIQUÉS',
+                '03 / UN INTÉRÊT PARTAGÉ',
+              ])
+                Text(
+                  item,
+                  style: Theme.of(context).textTheme.labelLarge
+                      ?.copyWith(color: JoynTokens.paper),
+                ),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
+}

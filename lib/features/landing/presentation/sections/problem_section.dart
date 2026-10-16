@@ -24,7 +24,7 @@ class ProblemSection extends StatelessWidget {
                   final stacked = constraints.maxWidth < 900;
                   final copy = LandingReveal(
                     child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 650),
+                      constraints: const BoxConstraints(maxWidth: 660),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -32,29 +32,29 @@ class ProblemSection extends StatelessWidget {
                             'LE CONSTAT',
                             style: TextStyle(
                               color: AppColors.orange,
-                              fontSize: 12,
+                              fontSize: 11,
                               fontWeight: FontWeight.w900,
                               letterSpacing: 1.4,
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 15),
                           Text(
-                            'Chercher une alternance ne devrait pas être un job à plein temps.',
+                            'Chercher ne devrait pas devenir ton deuxième job.',
                             style: TextStyle(
                               color: AppColors.navy,
                               fontSize: constraints.maxWidth < 520 ? 38 : 54,
                               height: 1.02,
                               fontWeight: FontWeight.w900,
-                              letterSpacing: -1.8,
+                              letterSpacing: -1.7,
                             ),
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 18),
                           const Text(
-                            'Candidatures sans réponse, peu de réseau au départ, offres qui ne collent pas au rythme de l’école. JOYN remet la compatibilité et la réciprocité au centre.',
+                            'JOYN part d’un problème simple : trop de volume, trop peu de contexte, et beaucoup trop de candidatures envoyées sans savoir si le poste colle vraiment.',
                             style: TextStyle(
                               color: Color(0xFF6B8094),
-                              fontSize: 16,
-                              height: 1.55,
+                              fontSize: 15,
+                              height: 1.52,
                             ),
                           ),
                         ],
@@ -62,21 +62,20 @@ class ProblemSection extends StatelessWidget {
                     ),
                   );
 
-                  final stats = Wrap(
-                    spacing: 18,
-                    runSpacing: 18,
-                    children: const [
-                      _StatCard(
-                        icon: Icons.groups_2_outlined,
-                        value: '320 000',
-                        label: "étudiants encore en recherche d'alternance",
+                  const frictions = Wrap(
+                    spacing: 16,
+                    runSpacing: 16,
+                    children: [
+                      _FrictionCard(
+                        icon: Icons.layers_outlined,
+                        title: 'Trop de bruit',
+                        text: 'Des dizaines d’offres et de CV, mais peu de signal utile pour décider.',
                         dark: false,
                       ),
-                      _StatCard(
-                        icon: Icons.schedule_rounded,
-                        value: '2 sur 3',
-                        label:
-                            'étudiants de M2 fins sans alternance à la rentrée',
+                      _FrictionCard(
+                        icon: Icons.help_outline_rounded,
+                        title: 'Peu de contexte',
+                        text: 'Rythme, trajet, attentes et compatibilité arrivent souvent trop tard.',
                         dark: true,
                       ),
                     ],
@@ -87,10 +86,10 @@ class ProblemSection extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         copy,
-                        const SizedBox(height: 46),
-                        LandingReveal(
-                          delay: const Duration(milliseconds: 110),
-                          child: stats,
+                        const SizedBox(height: 42),
+                        const LandingReveal(
+                          delay: Duration(milliseconds: 90),
+                          child: frictions,
                         ),
                       ],
                     );
@@ -100,48 +99,45 @@ class ProblemSection extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Expanded(flex: 6, child: copy),
-                      const SizedBox(width: 56),
-                      Expanded(
+                      const SizedBox(width: 54),
+                      const Expanded(
                         flex: 4,
                         child: LandingReveal(
-                          delay: const Duration(milliseconds: 120),
-                          offset: const Offset(34, 0),
-                          child: stats,
+                          delay: Duration(milliseconds: 100),
+                          offset: Offset(34, 0),
+                          child: frictions,
                         ),
                       ),
                     ],
                   );
                 },
               ),
-              const SizedBox(height: 86),
+              const SizedBox(height: 84),
               const LandingReveal(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'AVANT  /  APRÈS',
-                      style: TextStyle(
-                        color: AppColors.orange,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1.4,
-                      ),
-                    ),
-                    SizedBox(height: 14),
-                    Text(
-                      'La même recherche,\nsans la galère.',
-                      style: TextStyle(
-                        color: AppColors.navy,
-                        fontSize: 46,
-                        height: 1.04,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: -1.4,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  'AVANT / APRÈS',
+                  style: TextStyle(
+                    color: AppColors.orange,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.4,
+                  ),
                 ),
               ),
-              const SizedBox(height: 34),
+              const SizedBox(height: 14),
+              const LandingReveal(
+                child: Text(
+                  'Même recherche.\nMoins de friction.',
+                  style: TextStyle(
+                    color: AppColors.navy,
+                    fontSize: 46,
+                    height: 1.04,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -1.4,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
               LayoutBuilder(
                 builder: (context, constraints) {
                   final stacked = constraints.maxWidth < 780;
@@ -149,24 +145,23 @@ class ProblemSection extends StatelessWidget {
                     label: 'Sans JOYN',
                     dark: false,
                     lines: [
-                      'Tu envoies le même CV à des dizaines d’offres.',
-                      'Tu relances des entreprises qui ne répondent jamais.',
-                      'Tu découvres en entretien que le rythme ne colle pas.',
-                      'Tu cherches seul·e, sans réseau pour te recommander.',
+                      'Tu parcours les mêmes annonces que tout le monde.',
+                      'Tu adaptes ton CV sans savoir ce qui fera la différence.',
+                      'Tu découvres parfois trop tard que le rythme ou le trajet ne colle pas.',
                     ],
                   );
                   const withJoyn = _ComparePanel(
                     label: 'Avec JOYN',
                     dark: true,
                     lines: [
-                      'Seulement des offres compatibles, avec un score expliqué.',
-                      'Ton CV part en un geste, le chat s’ouvre dès que l’entreprise répond.',
-                      'Rythme, trajet et formation vérifiés avant même de candidater.',
+                      'Les opportunités les plus compatibles remontent en premier.',
+                      'Le score explique pourquoi le poste colle à ton profil.',
+                      'Le contexte utile est visible avant la candidature.',
                     ],
                   );
 
                   if (stacked) {
-                    return Column(
+                    return const Column(
                       children: [
                         LandingReveal(child: without),
                         SizedBox(height: 16),
@@ -178,14 +173,14 @@ class ProblemSection extends StatelessWidget {
                     );
                   }
 
-                  return Row(
+                  return const Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(child: LandingReveal(child: without)),
                       SizedBox(width: 16),
                       Expanded(
                         child: LandingReveal(
-                          delay: Duration(milliseconds: 110),
+                          delay: Duration(milliseconds: 100),
                           child: withJoyn,
                         ),
                       ),
@@ -201,67 +196,67 @@ class ProblemSection extends StatelessWidget {
   }
 }
 
-class _StatCard extends StatelessWidget {
-  const _StatCard({
+class _FrictionCard extends StatelessWidget {
+  const _FrictionCard({
     required this.icon,
-    required this.value,
-    required this.label,
+    required this.title,
+    required this.text,
     required this.dark,
   });
 
   final IconData icon;
-  final String value;
-  final String label;
+  final String title;
+  final String text;
   final bool dark;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 200,
-      constraints: const BoxConstraints(minHeight: 230),
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        color: dark ? const Color(0xFF0F304F) : AppColors.white,
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.navy.withValues(alpha: .09),
-            blurRadius: 28,
-            offset: const Offset(0, 12),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            icon,
-            color: dark ? AppColors.orangeLight : AppColors.cyanBlue,
-            size: 28,
-          ),
-          const SizedBox(height: 34),
-          Text(
-            value,
-            style: TextStyle(
-              color: dark ? AppColors.white : AppColors.navy,
-              fontSize: 36,
-              fontWeight: FontWeight.w900,
-              letterSpacing: -1.2,
+    return LandingHoverLift(
+      child: Container(
+        width: 205,
+        constraints: const BoxConstraints(minHeight: 210),
+        padding: const EdgeInsets.all(22),
+        decoration: BoxDecoration(
+          color: dark ? const Color(0xFF0F304F) : AppColors.white,
+          borderRadius: BorderRadius.circular(22),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.navy.withValues(alpha: .08),
+              blurRadius: 28,
+              offset: const Offset(0, 12),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: TextStyle(
-              color: dark
-                  ? AppColors.white.withValues(alpha: .66)
-                  : const Color(0xFF72879A),
-              fontSize: 10,
-              height: 1.35,
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              icon,
+              color: dark ? AppColors.orangeLight : AppColors.cyanBlue,
+              size: 27,
             ),
-          ),
-        ],
+            const SizedBox(height: 30),
+            Text(
+              title,
+              style: TextStyle(
+                color: dark ? AppColors.white : AppColors.navy,
+                fontSize: 20,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              text,
+              style: TextStyle(
+                color: dark
+                    ? AppColors.white.withValues(alpha: .58)
+                    : const Color(0xFF71869A),
+                fontSize: 11,
+                height: 1.42,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -284,58 +279,56 @@ class _ComparePanel extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(26),
       decoration: BoxDecoration(
-        color: dark ? const Color(0xFF0F304F) : const Color(0xFFE7EFF5),
-        borderRadius: BorderRadius.circular(22),
+        color: dark ? const Color(0xFF0F304F) : AppColors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: dark
+              ? AppColors.cyanBlue.withValues(alpha: .24)
+              : const Color(0xFFE2E9EF),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
             decoration: BoxDecoration(
-              color: AppColors.white,
+              color: dark
+                  ? AppColors.orange.withValues(alpha: .16)
+                  : const Color(0xFFF2F6F9),
               borderRadius: BorderRadius.circular(AppRadius.pill),
             ),
             child: Text(
               label,
               style: TextStyle(
-                color: dark ? AppColors.orange : AppColors.grey,
-                fontSize: 11,
-                fontWeight: FontWeight.w800,
+                color: dark ? AppColors.orangeLight : AppColors.navy,
+                fontSize: 10,
+                fontWeight: FontWeight.w900,
               ),
             ),
           ),
           const SizedBox(height: 20),
           for (final line in lines)
             Padding(
-              padding: const EdgeInsets.only(bottom: 13),
+              padding: const EdgeInsets.only(bottom: 14),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: 20,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: dark
-                          ? AppColors.orange
-                          : AppColors.white.withValues(alpha: .92),
-                    ),
-                    child: Icon(
-                      dark ? Icons.check_rounded : Icons.close_rounded,
-                      size: 13,
-                      color: dark ? AppColors.white : AppColors.grey,
-                    ),
+                  Icon(
+                    dark
+                        ? Icons.check_circle_rounded
+                        : Icons.remove_circle_outline,
+                    size: 17,
+                    color: dark ? AppColors.success : const Color(0xFF9AA8B4),
                   ),
-                  const SizedBox(width: 11),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       line,
                       style: TextStyle(
-                        color: foreground,
-                        fontSize: 13,
+                        color: foreground.withValues(alpha: dark ? .72 : .90),
+                        fontSize: 12,
                         height: 1.45,
-                        fontWeight: dark ? FontWeight.w600 : FontWeight.w500,
                       ),
                     ),
                   ),
