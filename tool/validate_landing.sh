@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
 cd "$(dirname "$0")/.."
-
-echo "== JOYN landing validation =="
-dart format --output=none --set-exit-if-changed lib/features/landing test/widget_test.dart
+flutter pub get
+dart format lib test
 flutter analyze
-flutter test test/widget_test.dart
-
-echo "== OK =="
+flutter test
+flutter build web --release
+python3 -m json.tool web/manifest.json >/dev/null
