@@ -1,6 +1,6 @@
 // Décrit les groupes de navigation et les liens partagés entre les menus.
 //
-// Référence : doc/landing/fichiers/landing_navigation.md.
+// Référence : doc/landing.md#landing_navigationdart.
 
 /// Lien composé d’un libellé, d’une description et d’une cible de navigation.
 class LandingLink {
@@ -53,8 +53,8 @@ const landingGroups = [
         'difficultes',
       ),
       LandingLink(
-        'Avant / après',
-        'Comparer une même recherche.',
+        'Comprendre une offre',
+        'Missions, conditions et candidature.',
         'comparaison',
       ),
       LandingLink(
@@ -103,9 +103,14 @@ const landingGroups = [
   ),
   LandingGroup(
     'CANDIDATS',
-    'Ton parcours, avec ton contexte.',
-    'Un profil n’est pas uniquement une liste de technologies.',
+    'Les avantages pour ta recherche.',
+    'Profil, offres correspondantes et suivi des candidatures.',
     [
+      LandingLink(
+        'Avantages candidat',
+        'Ce que JOYN apporte à chaque étape.',
+        'benefices-candidat',
+      ),
       LandingLink(
         'Construire mon profil',
         'Motivation, preuves et contraintes.',
@@ -119,15 +124,20 @@ const landingGroups = [
       LandingLink(
         'Préparer le premier échange',
         'Questions concrètes pour l’entretien.',
-        'ressources',
+        'guide-entretien',
       ),
     ],
   ),
   LandingGroup(
     'RECRUTEURS',
-    'Gérer les offres et les candidatures.',
-    'Décrire le besoin, consulter les profils et suivre les candidatures.',
+    'Les avantages pour le recrutement.',
+    'Offres, profils et organisation des candidatures.',
     [
+      LandingLink(
+        'Avantages recruteur',
+        'Du besoin de recrutement au suivi.',
+        'benefices-recruteur',
+      ),
       LandingLink(
         'Présenter un poste',
         'Missions, compétences et conditions du poste.',
@@ -178,19 +188,19 @@ const landingGroups = [
     ],
   ),
   LandingGroup(
-    'OFFRES',
-    'Les services selon ton besoin.',
-    'Profil candidat ou recrutement en entreprise : consulte les services associés.',
+    'FORMULES',
+    'Comparer les accès et les outils.',
+    'Quatre formules candidat et deux formules entreprise, avec leurs tarifs mensuels.',
     [
       LandingLink(
         'Candidats',
-        'Profil, offres et suivi des candidatures.',
-        'offres',
+        'Basic, Standard, Plus et Pro.',
+        'plans-candidat',
       ),
       LandingLink(
         'Recruteurs',
-        'Offres, profils et gestion des candidatures.',
-        'offres',
+        'Membre et Membre premium.',
+        'plans-entreprise',
       ),
       LandingLink('Sur téléphone', 'Le parcours sur un petit écran.', 'mobile'),
     ],
@@ -249,7 +259,7 @@ const accountGroup = LandingGroup(
     ),
     LandingLink(
       'Comprendre les formules',
-      'Consulter les services candidat et recruteur.',
+      'Comparer les tarifs et accès mensuels.',
       'offres',
     ),
   ],

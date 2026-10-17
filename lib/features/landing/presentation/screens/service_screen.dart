@@ -1,6 +1,6 @@
 // Affiche les pages de connexion et d’assistance avec leur état de disponibilité.
 //
-// Référence : doc/landing/fichiers/service_screen.md.
+// Référence : doc/landing.md#service_screendart.
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -8,7 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/platform/page_metadata.dart';
 import '../../../../design_system/joyn_tokens.dart';
 import '../widgets/editorial_layout.dart';
-import '../widgets/joyn_mark.dart';
+import '../widgets/landing_mega_navigation.dart';
 import '../widgets/navigation_symbol.dart';
 import '../widgets/product_atmosphere.dart';
 
@@ -18,15 +18,11 @@ class ServiceScreen extends StatefulWidget {
   const ServiceScreen({
     super.key,
     required this.connection,
-    this.topic = '',
     this.question = '',
   });
 
   /// Sélectionne l’écran de connexion plutôt que l’assistance.
   final bool connection;
-
-  /// Sujet reçu dans le paramètre de route theme.
-  final String topic;
 
   /// Question reçue par la route ou contrôleur de sa saisie, selon la portée.
   final String question;
@@ -40,9 +36,6 @@ class ServiceScreen extends StatefulWidget {
 class _ServiceScreenState extends State<ServiceScreen> {
   /// Clé du formulaire utilisée pour déclencher la validation de ses champs.
   final form = GlobalKey<FormState>();
-
-  /// Clé du bloc d’assistance à rendre visible après le premier rendu.
-  final topicKey = GlobalKey();
 
   /// Contrôleur du champ d’adresse e-mail.
   final email = TextEditingController();
@@ -71,17 +64,20 @@ class _ServiceScreenState extends State<ServiceScreen> {
         return;
       }
       updatePageMetadata(widget.connection ? 'connexion' : 'assistance');
-      // Cible d’ancre ou de route transmise à la navigation.
-      final target = topicKey.currentContext;
-      if (target != null) {
-        Scrollable.ensureVisible(
-          target,
-          duration: MediaQuery.disableAnimationsOf(context)
-              ? JoynTokens.instant
-              : JoynTokens.duration,
-        );
-      }
     });
+  }
+
+  /// Garde tous les menus accessibles et transmet les ancres vers la landing.
+  void navigate(String target) {
+    if (target == 'connexion' || target == 'assistance') {
+      context.go('/$target');
+    } else if (target.startsWith('guide-') || target == 'presentation') {
+      openResource(target);
+    } else {
+      context.go(
+        Uri(path: '/', queryParameters: {'section': target}).toString(),
+      );
+    }
   }
 
   /// Libère les ressources détenues par cet état avant sa destruction.
@@ -102,34 +98,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: JoynTokens.md,
-                vertical: JoynTokens.xs,
-              ),
-              child: Row(
-                children: [
-                  TextButton(
-                    onPressed: () => context.go('/'),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        JoynMark(),
-                        SizedBox(width: JoynTokens.sm),
-                        Text('joyn'),
-                      ],
-                    ),
-                  ),
-                  const Spacer(),
-                  TextButton(
-                    onPressed: () => context.go(
-                      widget.connection ? '/assistance' : '/connexion',
-                    ),
-                    child: Text(widget.connection ? 'Aide' : 'Connexion'),
-                  ),
-                ],
-              ),
-            ),
+            LandingMegaNavigation(onNavigate: navigate),
             const Divider(),
             Expanded(
               child: SingleChildScrollView(
@@ -308,42 +277,6 @@ class _ServiceScreenState extends State<ServiceScreen> {
           ),
         ),
       ],
-      const SizedBox(height: JoynTokens.md),
-      ProductSurface(
-        key: widget.topic == 'donnees' ? topicKey : null,
-        accent: widget.topic == 'donnees',
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Données de navigation',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: JoynTokens.sm),
-            const Text(
-              'Les champs, favoris et choix restent en mémoire de la page. Les aperçus de cette page ne transmettent pas de candidature et ne déclenchent aucun paiement. Recharger efface ces choix.',
-            ),
-          ],
-        ),
-      ),
-      const SizedBox(height: JoynTokens.md),
-      ProductSurface(
-        key: widget.topic == 'accessibilite' ? topicKey : null,
-        accent: widget.topic == 'accessibilite',
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Navigation et mouvements',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: JoynTokens.sm),
-            const Text(
-              'Les contrôles sont accessibles au clavier. Échap ferme le menu. Les rubriques mobiles s’ouvrent au toucher ; les détails de la landing restent repliables. La préférence de réduction des mouvements désactive les effets de profondeur et la scène au défilement.',
-            ),
-          ],
-        ),
-      ),
       const SizedBox(height: JoynTokens.lg),
       const Text(
         'Le contact avec l’assistance est momentanément indisponible.',

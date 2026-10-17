@@ -1,6 +1,6 @@
 // Gère l’ouverture des menus, leur positionnement, la recherche mobile et le retour du focus.
 //
-// Référence : doc/landing/fichiers/landing_mega_navigation.md.
+// Référence : doc/landing.md#landing_mega_navigationdart.
 
 import 'dart:async';
 import 'dart:math' as math;
@@ -227,11 +227,13 @@ class _LandingMegaNavigationState extends State<LandingMegaNavigation>
     child: Semantics(
       expanded: shown && active == index,
       child: TextButton(
-        key: ValueKey('nav-group-$index'),
+        key: ValueKey(index == 7 ? 'nav-account' : 'nav-group-$index'),
         focusNode: triggerFocus[index],
         style: textStyle,
         onPressed: () {
-          if (shown && active == index) {
+          if (index == 7) {
+            choose('connexion');
+          } else if (shown && active == index) {
             close();
           } else {
             open(index);
@@ -241,14 +243,18 @@ class _LandingMegaNavigationState extends State<LandingMegaNavigation>
           mainAxisSize: MainAxisSize.min,
           children: [
             NavigationSymbol(
-              kind: index == 6
+              kind: index == 7
+                  ? NavigationSymbolKind.account
+                  : index == 6
                   ? NavigationSymbolKind.support
                   : _groupSymbols[index],
               active: shown && active == index,
               size: JoynTokens.smallSymbol,
             ),
             Text(
-              index == 6
+              index == 7
+                  ? 'Connexion'
+                  : index == 6
                   ? 'Assistance'
                   : index == 3
                   ? 'Recruteurs'
@@ -256,6 +262,7 @@ class _LandingMegaNavigationState extends State<LandingMegaNavigation>
                   ? 'Formules'
                   : _mobileGroupTitles[index],
               style: Theme.of(context).textTheme.labelLarge,
+              maxLines: 1,
             ),
             const SizedBox(height: JoynTokens.xs),
             Container(
@@ -292,10 +299,15 @@ class _LandingMegaNavigationState extends State<LandingMegaNavigation>
               : 'nav-account-mobile',
         ),
         onPressed: action,
-        child: NavigationSymbol(
-          kind: kind,
-          active: active,
-          size: JoynTokens.smallSymbol,
+        child: SizedBox.square(
+          dimension: JoynTokens.touch,
+          child: Center(
+            child: NavigationSymbol(
+              kind: kind,
+              active: active,
+              size: JoynTokens.smallSymbol,
+            ),
+          ),
         ),
       ),
     ),
@@ -426,31 +438,9 @@ class _LandingMegaNavigationState extends State<LandingMegaNavigation>
                             Expanded(
                               child: Row(
                                 children: [
-                                  for (final index in _primaryGroups)
+                                  for (final index in [..._primaryGroups, 6, 7])
                                     Expanded(child: primary(index)),
                                 ],
-                              ),
-                            ),
-                            const SizedBox(width: JoynTokens.md),
-                            primary(6),
-                            MouseRegion(
-                              onEnter: (_) => open(7),
-                              child: TextButton(
-                                key: const ValueKey('nav-account'),
-                                style: textStyle,
-                                focusNode: triggerFocus[7],
-                                onPressed: () => choose('connexion'),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    NavigationSymbol(
-                                      kind: NavigationSymbolKind.account,
-                                      active: shown && active == 7,
-                                      size: JoynTokens.smallSymbol,
-                                    ),
-                                    const Text('Connexion'),
-                                  ],
-                                ),
                               ),
                             ),
                           ] else ...[

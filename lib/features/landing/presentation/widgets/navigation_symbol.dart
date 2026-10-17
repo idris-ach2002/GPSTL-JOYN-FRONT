@@ -1,6 +1,6 @@
 // Associe les libellés de menu à des pictogrammes vectoriels et anime leur tracé.
 //
-// Référence : doc/landing/fichiers/navigation_symbol.md.
+// Référence : doc/landing.md#navigation_symboldart.
 
 import 'dart:math' as math;
 
@@ -59,7 +59,7 @@ enum NavigationSymbolKind {
 NavigationSymbolKind symbolFor(String label) => switch (label) {
   'Le principe JOYN' => NavigationSymbolKind.principle,
   'Les difficultés de recherche' => NavigationSymbolKind.obstacles,
-  'Avant / après' => NavigationSymbolKind.compare,
+  'Comprendre une offre' => NavigationSymbolKind.compare,
   'Parcours candidat' => NavigationSymbolKind.journey,
   'Le matching expliqué' => NavigationSymbolKind.matching,
   'Profil et CV' => NavigationSymbolKind.cv,
@@ -86,6 +86,8 @@ NavigationSymbolKind symbolFor(String label) => switch (label) {
   'Se connecter' => NavigationSymbolKind.login,
   'Présenter mon profil' => NavigationSymbolKind.identity,
   'Comprendre les formules' => NavigationSymbolKind.comparePlans,
+  'Avantages candidat' => NavigationSymbolKind.identity,
+  'Avantages recruteur' => NavigationSymbolKind.company,
   'Assistance' => NavigationSymbolKind.support,
   'Connexion' => NavigationSymbolKind.account,
   _ => throw ArgumentError.value(
@@ -103,6 +105,7 @@ class NavigationSymbol extends StatelessWidget {
     required this.kind,
     this.active = false,
     this.size = JoynTokens.navSymbol,
+    this.color = JoynTokens.ink,
   });
 
   /// Dessin vectoriel à utiliser.
@@ -113,6 +116,9 @@ class NavigationSymbol extends StatelessWidget {
 
   /// Taille demandée pour le dessin ou dimensions du canevas.
   final double size;
+
+  /// Couleur du trait de base, adaptée au fond du composant parent.
+  final Color color;
 
   /// Construit la présentation à partir de la configuration et de l’état courant.
   @override
@@ -127,7 +133,7 @@ class NavigationSymbol extends StatelessWidget {
         curve: Curves.easeOutCubic,
         builder: (context, progress, child) => Transform.scale(
           scale: 1 + JoynTokens.iconHoverGrowth * progress,
-          child: CustomPaint(painter: _SymbolPainter(kind, progress)),
+          child: CustomPaint(painter: _SymbolPainter(kind, progress, color)),
         ),
       ),
     ),
@@ -137,13 +143,14 @@ class NavigationSymbol extends StatelessWidget {
 /// Dessin du pictogramme sélectionné et de la portion de tracé accentuée.
 class _SymbolPainter extends CustomPainter {
   /// Initialise les paramètres de _SymbolPainter ; les valeurs par défaut figurent dans la signature.
-  const _SymbolPainter(this.kind, this.progress);
+  const _SymbolPainter(this.kind, this.progress, this.color);
 
   /// Dessin vectoriel à utiliser.
   final NavigationSymbolKind kind;
 
   /// Avancement de la scène ou du tracé, généralement entre zéro et un.
   final double progress;
+  final Color color;
 
   /// Dessine la géométrie dans le repère du canevas fourni.
   @override
@@ -152,7 +159,7 @@ class _SymbolPainter extends CustomPainter {
     canvas.scale(size.width / 64, size.height / 64);
     // Style du trait utilisé pour le dessin.
     final line = Paint()
-      ..color = JoynTokens.ink
+      ..color = color
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2
       ..strokeCap = StrokeCap.round
@@ -584,5 +591,7 @@ class _SymbolPainter extends CustomPainter {
   /// Indique si les données du dessin diffèrent du peintre précédent.
   @override
   bool shouldRepaint(covariant _SymbolPainter oldDelegate) =>
-      oldDelegate.kind != kind || oldDelegate.progress != progress;
+      oldDelegate.kind != kind ||
+      oldDelegate.progress != progress ||
+      oldDelegate.color != color;
 }

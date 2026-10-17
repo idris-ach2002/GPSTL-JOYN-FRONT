@@ -1,6 +1,6 @@
 // Déclare les routes actives de la landing, de la connexion et de l’assistance.
 //
-// Référence : doc/landing/fichiers/app_router.md.
+// Référence : doc/landing.md#app_routerdart.
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -19,15 +19,17 @@ final GoRouter appRouter = GoRouter(
       path: '/assistance',
       builder: (context, state) => ServiceScreen(
         connection: false,
-        topic: state.uri.queryParameters['theme'] ?? '',
         question: state.uri.queryParameters['question'] ?? '',
       ),
     ),
     for (final audience in ['accueil', 'candidats', 'entreprises'])
       GoRoute(
         path: audience == 'accueil' ? '/' : '/$audience',
-        builder: (context, state) =>
-            LandingScreen(key: ValueKey(state.uri.path), audience: audience),
+        builder: (context, state) => LandingScreen(
+          key: ValueKey(state.uri.path),
+          audience: audience,
+          initialTarget: state.uri.queryParameters['section'],
+        ),
       ),
   ],
   errorBuilder: (context, state) => Scaffold(

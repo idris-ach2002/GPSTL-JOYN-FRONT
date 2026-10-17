@@ -1,6 +1,6 @@
 // Assemble les sections, leurs ancres de défilement et les chapitres mobiles.
 //
-// Référence : doc/landing/fichiers/landing_screen.md.
+// Référence : doc/landing.md#landing_screendart.
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -18,7 +18,6 @@ import '../sections/pocket_section.dart';
 import '../sections/profile_section.dart';
 import '../sections/questions_section.dart';
 import '../sections/reciprocity_section.dart';
-import '../sections/resources_section.dart';
 import '../sections/scroll_journey_section.dart';
 import '../widgets/landing_mega_navigation.dart';
 import '../widgets/mobile_chapter.dart';
@@ -30,7 +29,7 @@ const mobileChapters = [
   (
     id: 'comprendre',
     title: 'Comprendre le matching',
-    summary: 'Les situations, la comparaison et les critères à essayer.',
+    summary: 'Comprendre une offre et les recommandations.',
     kind: NavigationSymbolKind.link,
     targets: ['difficultes', 'comparaison', 'matching'],
   ),
@@ -50,8 +49,8 @@ const mobileChapters = [
   ),
   (
     id: 'organisations',
-    title: 'Recruteurs',
-    summary: 'Les offres et la gestion des candidatures.',
+    title: 'Ce que JOYN apporte',
+    summary: 'Les avantages candidat et recruteur dans un espace dédié.',
     kind: NavigationSymbolKind.company,
     targets: ['entreprises'],
   ),
@@ -63,21 +62,28 @@ const mobileChapters = [
     targets: ['mobile', 'offres'],
   ),
   (
-    id: 'ressources',
-    title: 'Guides et questions',
-    summary: 'Trois guides pratiques et les questions fréquentes.',
-    kind: NavigationSymbolKind.book,
-    targets: ['ressources', 'questions'],
+    id: 'questions',
+    title: 'Questions fréquentes',
+    summary: 'Rechercher une réponse par sujet ou par mot-clé.',
+    kind: NavigationSymbolKind.faq,
+    targets: ['questions'],
   ),
 ];
 
 /// Page publique qui possède le défilement et les ancres des sections.
 class LandingScreen extends StatefulWidget {
   /// Initialise les paramètres de LandingScreen ; les valeurs par défaut figurent dans la signature.
-  const LandingScreen({super.key, this.audience = 'accueil'});
+  const LandingScreen({
+    super.key,
+    this.audience = 'accueil',
+    this.initialTarget,
+  });
 
   /// Acteur ou point d’entrée utilisé pour adapter la présentation.
   final String audience;
+
+  /// Ancre demandée depuis une page de service.
+  final String? initialTarget;
 
   /// Crée l’état local associé au widget.
   @override
@@ -94,6 +100,8 @@ class _LandingScreenState extends State<LandingScreen> {
 
   /// Identifiant du chapitre mobile ouvert ; null signifie qu’aucun chapitre n’est ouvert.
   String? expandedChapter;
+  late bool recruiterBenefits = widget.audience == 'entreprises';
+  bool companyPlans = false;
 
   /// Hauteur réellement occupée par la navigation au-dessus du contenu.
   double headerExtent = JoynTokens.navHeight;
@@ -113,7 +121,6 @@ class _LandingScreenState extends State<LandingScreen> {
       'entreprises',
       'mobile',
       'offres',
-      'ressources',
       'questions',
     ])
       name: GlobalKey(),
@@ -128,7 +135,9 @@ class _LandingScreenState extends State<LandingScreen> {
         return;
       }
       updatePageMetadata(widget.audience);
-      if (widget.audience == 'entreprises') {
+      if (widget.initialTarget != null) {
+        navigate(widget.initialTarget!, instant: true);
+      } else if (widget.audience == 'entreprises') {
         navigate(widget.audience, instant: true);
       } else if (widget.audience == 'candidats') {
         navigate('parcours', instant: true);
@@ -136,22 +145,31 @@ class _LandingScreenState extends State<LandingScreen> {
     });
   }
 
+  @override
+  void didUpdateWidget(covariant LandingScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialTarget != null &&
+        widget.initialTarget != oldWidget.initialTarget) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          navigate(widget.initialTarget!);
+        }
+      });
+    }
+  }
+
   /// Résout une route, un guide ou une ancre ; ouvre d’abord le chapitre mobile concerné.
   void navigate(String target, {bool instant = false}) {
-    if (const [
-      'connexion',
-      'assistance',
-      'donnees',
-      'accessibilite',
-    ].contains(target)) {
-      context.go(
-        target == 'connexion'
-            ? '/connexion'
-            : target == 'assistance'
-            ? '/assistance'
-            : '/assistance?theme=$target',
-      );
+    if (target == 'connexion' || target == 'assistance') {
+      context.go('/$target');
       return;
+    }
+    if (target == 'benefices-candidat' || target == 'benefices-recruteur') {
+      setState(() => recruiterBenefits = target == 'benefices-recruteur');
+      target = 'entreprises';
+    } else if (target == 'plans-candidat' || target == 'plans-entreprise') {
+      setState(() => companyPlans = target == 'plans-entreprise');
+      target = 'offres';
     }
     if (MediaQuery.sizeOf(context).width < JoynTokens.mobile &&
         target != 'hero') {
@@ -255,7 +273,7 @@ class _LandingScreenState extends State<LandingScreen> {
                           ),
                           'comparaison': section(
                             'comparaison',
-                            const BeforeAfterSection(),
+                            const OfferDecisionSection(),
                           ),
                           'parcours': section(
                             'parcours',
@@ -283,7 +301,9 @@ class _LandingScreenState extends State<LandingScreen> {
                           ),
                           'entreprises': section(
                             'entreprises',
-                            const OrganisationSection(),
+                            OrganisationSection(
+                              initialRecruiter: recruiterBenefits,
+                            ),
                           ),
                           'mobile': section(
                             'mobile',
@@ -293,11 +313,7 @@ class _LandingScreenState extends State<LandingScreen> {
                           ),
                           'offres': section(
                             'offres',
-                            const PlanComparisonSection(),
-                          ),
-                          'ressources': section(
-                            'ressources',
-                            ResourcesSection(onOpen: navigate),
+                            PlanComparisonSection(initialCompany: companyPlans),
                           ),
                           'questions': section(
                             'questions',
