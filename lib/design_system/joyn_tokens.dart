@@ -1,6 +1,6 @@
 // Centralise les couleurs, dimensions, espacements, formes et durées de la landing.
 //
-// Référence : doc/landing/fichiers/joyn_tokens.md.
+// Référence : doc/landing.md#joyn_tokensdart.
 
 import 'package:flutter/material.dart';
 
@@ -219,8 +219,18 @@ abstract final class JoynTokens {
   /// Durée partagée des transitions.
   static const duration = Duration(milliseconds: 650);
 
-  /// Désactive la transition de défilement lorsqu’il vaut true.
+  /// Durée nulle lorsque les animations sont réduites.
   static const instant = Duration.zero;
+
+  /// Paramètres des carrousels, espacements et détails de présentation.
+  static const wheelThreshold = 8.0;
+  static const wheelInterval = Duration(milliseconds: 350);
+  static const disabledAlpha = .35;
+  static const planDesktopFraction = .36;
+  static const planTabletFraction = .64;
+  static const planMobileFraction = .94;
+  static const footerTraceHeight = 80.0;
+  static const footerTraceDuration = Duration(milliseconds: 900);
 
   /// Forme commune des contrôles et surfaces.
   static const shape = RoundedRectangleBorder(
