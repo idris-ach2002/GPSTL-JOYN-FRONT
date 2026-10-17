@@ -6,6 +6,7 @@ class AppRoutes {
   static const String login = '/login';
 
   // Registration
+  static const String register = '/register';
   static const String candidateRegister = '/register/candidate';
   static const String recruiterRegister = '/register/recruiter';
 
@@ -14,6 +15,8 @@ class AppRoutes {
   static const String candidateDiscover = '/candidate/discover';
   static const String candidateProfile = '/candidate/profile';
   static const String candidateApplications = '/candidate/applications';
+  static const String candidateOnboarding = '/candidate/onboarding';
+  static const String candidateCvImport = '/candidate/onboarding/cv';
 
   // Recruiter
   static const String recruiter = '/recruiter';
