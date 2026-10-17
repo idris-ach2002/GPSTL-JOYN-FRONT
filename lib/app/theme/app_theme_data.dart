@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../design_system/tokens/app_colors.dart';
+import '../../design_system/tokens/app_fonts.dart';
 
 ThemeData buildJoynLightTheme() {
   final colorScheme = ColorScheme.fromSeed(
@@ -15,6 +16,7 @@ ThemeData buildJoynLightTheme() {
   return ThemeData(
     useMaterial3: true,
     colorScheme: colorScheme,
+    fontFamily: AppFonts.body,
     scaffoldBackgroundColor: AppColors.background,
 
     appBarTheme: const AppBarTheme(

@@ -84,4 +84,78 @@ class AppColors {
   static const Color textOnDark = white;
 
   static const Color border = grey20;
+
+  // -------------------------------------------------------------------------
+  // Compléments maquette (inscription, profils, matching)
+  //
+  // La palette ci-dessus reste la référence. Ces teintes complètent les
+  // besoins des écrans : fonds de pastilles, texte lisible sur fond blanc,
+  // bordures de champs et variantes foncées pour le texte des statuts.
+  // -------------------------------------------------------------------------
+
+  /// Fond des pastilles et badges bleus.
+  static const Color skyTint = Color(0xFFE4F3FB);
+
+  /// Bleu très clair : texte secondaire sur fond bleu nuit, piste des jauges.
+  static const Color skyMist = Color(0xFFD6E9F3);
+
+  /// Fond des pastilles orange (entreprise, recommandation).
+  static const Color orangeTint = Color(0xFFFFF0EA);
+
+  /// Fond des encarts orange.
+  static const Color orangeMist = Color(0xFFFFF7F3);
+
+  /// Bordure des encarts orange.
+  static const Color orangeLine = Color(0xFFFFE0D2);
+
+  /// Orange foncé, pour du texte posé sur [orangeTint].
+  static const Color orangeDeep = Color(0xFFB23A12);
+
+  /// Fond des pastilles de succès.
+  static const Color successTint = Color(0xFFE7F5EE);
+
+  /// Vert foncé, pour du texte de succès lisible.
+  static const Color successDeep = Color(0xFF17714A);
+
+  /// Jaune foncé, pour du texte d'avertissement lisible.
+  static const Color warningDeep = Color(0xFF8A5A00);
+
+  /// Fond des encarts d'avertissement.
+  static const Color warningTint = Color(0xFFFFF6E0);
+
+  /// Bordure des encarts de succès.
+  static const Color successLine = Color(0xFFCBE9D8);
+
+  /// Fond très léger des sections de formulaire.
+  static const Color surfaceSubtle = Color(0xFFFBFCFD);
+
+  /// Fond d'un champ en erreur.
+  static const Color errorTint = Color(0xFFFFF5F5);
+
+  /// Rouge foncé, pour les messages d'erreur (contraste AA sur blanc).
+  static const Color errorDeep = Color(0xFFB42318);
+
+  /// Texte secondaire lisible sur fond blanc (contraste AA).
+  ///
+  /// [textSecondary] (#9DA5AC) reste réservé aux textes décoratifs :
+  /// sur fond blanc, son contraste est trop faible pour du texte courant.
+  static const Color slate = Color(0xFF56656F);
+
+  /// Texte des paragraphes sur fond blanc.
+  static const Color slateDark = Color(0xFF384852);
+
+  /// Texte d'exemple dans les champs.
+  static const Color placeholder = Color(0xFF8A98A1);
+
+  /// Bordure des champs et des boutons secondaires.
+  static const Color line = Color(0xFFD3DDE3);
+
+  /// Séparateurs fins.
+  static const Color lineSoft = Color(0xFFE2E9ED);
+
+  /// Bordure pointillée des actions facultatives.
+  static const Color lineDashed = Color(0xFFC6D2D9);
+
+  /// Segments vides des jauges.
+  static const Color track = Color(0xFFE6EDF1);
 }
