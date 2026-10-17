@@ -1,6 +1,6 @@
 // Présente le parcours sur téléphone et un accès aux étapes du candidat.
 //
-// Référence : doc/landing/fichiers/pocket_section.md.
+// Référence : doc/landing.md#pocket_sectiondart.
 
 import 'package:flutter/material.dart';
 

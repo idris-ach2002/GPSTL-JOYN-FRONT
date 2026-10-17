@@ -1,7 +1,4 @@
-// Présente les fonctions candidat ou recruteur dans un même espace sélectionnable.
-//
-// Référence : doc/landing/fichiers/organisation_section.md.
-
+// Bénéfices JOYN par acteur, réunis dans un même espace de présentation.
 import 'package:flutter/material.dart';
 
 import '../../../../design_system/joyn_tokens.dart';
@@ -9,173 +6,232 @@ import '../widgets/editorial_layout.dart';
 import '../widgets/product_atmosphere.dart';
 import '../widgets/navigation_symbol.dart';
 
-/// Bloc commun qui distingue les usages candidat et recruteur.
+/// Le rôle initial est fourni par la route ou la navigation, puis reste sélectionnable.
 class OrganisationSection extends StatefulWidget {
-  /// Initialise les paramètres de OrganisationSection ; les valeurs par défaut figurent dans la signature.
-  const OrganisationSection({super.key});
-
-  /// Crée l’état local associé au widget.
+  const OrganisationSection({super.key, this.initialRecruiter = false});
+  final bool initialRecruiter;
   @override
   State<OrganisationSection> createState() => _OrganisationSectionState();
 }
 
-/// État de OrganisationSection ; définit ses données mutables et son rendu.
 class _OrganisationSectionState extends State<OrganisationSection> {
-  /// Sélectionne le rôle recruteur ou son portrait selon le composant.
-  bool recruiter = true;
-
-  /// Indice du détail ouvert, ou état ouvert/fermé selon le composant.
-  int? expanded;
-
-  /// Fonctions et descriptions propres au parcours candidat.
-  static const candidateItems = [
+  late bool recruiter = widget.initialRecruiter;
+  int selected = 0;
+  static const candidateBenefits = [
     (
-      'Créer son profil avec son CV',
-      'Joins ton CV à la création du profil. L’analyse recueille les informations utiles pour présenter ton parcours et tes compétences.',
+      'Un profil à partir du CV',
+      'Présenter son parcours une seule fois',
+      'Le CV joint à la création du profil est analysé pour en recueillir les informations utiles. Le profil présente l’expérience et les compétences au recruteur.',
+      'PARCOURS → PROFIL',
+      NavigationSymbolKind.cv,
     ),
     (
-      'Consulter les offres correspondantes',
-      'Les recommandations présentent les offres qui correspondent à ton profil. Tu peux consulter leurs missions et leurs conditions avant de candidater.',
+      'Des offres correspondantes',
+      'Lire des postes en rapport avec son profil',
+      'La sélection présente les offres correspondant au profil candidat. Les missions et conditions restent consultables pour décider de poursuivre la démarche.',
+      'PROFIL → OFFRES',
+      NavigationSymbolKind.matching,
     ),
     (
-      'Retrouver les offres enregistrées',
-      'Distingue les postes à relire des candidatures déjà engagées. Enregistrer une offre ne transmet pas de candidature.',
+      'Des favoris distincts des candidatures',
+      'Garder un poste à relire sans candidater',
+      'Une offre enregistrée reste un repère personnel. Une candidature constitue une démarche différente : les deux listes servent des usages distincts.',
+      'À RELIRE / CANDIDATÉ',
+      NavigationSymbolKind.favorites,
     ),
     (
-      'Suivre ses candidatures',
-      'Retrouve tes démarches et leur statut pour préparer la suite de ta recherche.',
+      'Un suivi au même endroit',
+      'Retrouver les démarches et préparer la suite',
+      'Le statut et le poste concerné replacent chaque candidature dans son contexte. Les outils d’organisation dépendent de la formule choisie.',
+      'CANDIDATURE → SUIVI',
+      NavigationSymbolKind.tracking,
+    ),
+    (
+      'Un intérêt partagé',
+      'Distinguer une correspondance d’un échange',
+      'Une offre correspondante n’est pas une promesse d’embauche. L’intérêt du candidat et celui du recruteur sont deux décisions distinctes avant la conversation.',
+      'DEUX INTÉRÊTS → ÉCHANGE',
+      NavigationSymbolKind.reciprocal,
+    ),
+  ];
+  static const recruiterBenefits = [
+    (
+      'Une offre structurée',
+      'Rendre les attentes du poste lisibles',
+      'Décrire les missions, les compétences, le contrat et l’organisation du travail permet au candidat de comprendre le besoin avant de candidater.',
+      'BESOIN → OFFRE',
+      NavigationSymbolKind.publish,
+    ),
+    (
+      'Des profils recommandés',
+      'Examiner le parcours dans le contexte du poste',
+      'Consulter les compétences et l’expérience avec les attentes de l’offre donne un cadre de lecture au recrutement.',
+      'OFFRE → PROFILS',
+      NavigationSymbolKind.inspectProfile,
+    ),
+    (
+      'Les candidatures par offre',
+      'Éviter de mélanger les recrutements',
+      'Chaque candidature est associée au poste concerné. Le recruteur retrouve le profil et l’état de la démarche dans ce même contexte.',
+      'OFFRE → CANDIDATURES',
+      NavigationSymbolKind.inbox,
+    ),
+    (
+      'Une organisation partagée',
+      'Répartir la gestion du recrutement',
+      'La formule Membre premium prévoit plusieurs comptes, des rôles et l’attribution des candidatures pour organiser le travail entre recruteurs.',
+      'RÔLES → ATTRIBUTIONS',
+      NavigationSymbolKind.company,
+    ),
+    (
+      'Une vue de pilotage',
+      'Suivre l’activité des offres',
+      'Le tableau de bord partagé et l’export de suivi de Membre premium rassemblent les informations utiles à la gestion des recrutements.',
+      'SUIVI → PILOTAGE',
+      NavigationSymbolKind.chart,
     ),
   ];
 
-  /// Fonctions et descriptions propres au parcours recruteur.
-  static const recruiterItems = [
-    (
-      'Présenter une offre',
-      'Décris les missions, les compétences attendues, le contrat, le lieu de travail et l’organisation du poste.',
-    ),
-    (
-      'Consulter les profils recommandés',
-      'Examine les informations du profil en lien avec le besoin de recrutement : parcours, expérience et compétences.',
-    ),
-    (
-      'Gérer les candidatures par offre',
-      'Retrouve les candidatures associées à chaque poste pour organiser leur consultation et leur suivi.',
-    ),
-    (
-      'Clarifier les attentes',
-      'Précise les conditions du poste et réponds aux questions du candidat pendant les échanges.',
-    ),
-  ];
+  @override
+  void didUpdateWidget(covariant OrganisationSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialRecruiter != widget.initialRecruiter) {
+      recruiter = widget.initialRecruiter;
+      selected = 0;
+    }
+  }
 
-  /// Change la sélection en respectant les limites du contenu.
-  void select(bool value) {
+  void selectRole(bool value) {
     if (value != recruiter) {
       setState(() {
         recruiter = value;
-        expanded = null;
+        selected = 0;
       });
     }
   }
 
-  /// Construit la présentation à partir de la configuration et de l’état courant.
   @override
   Widget build(BuildContext context) {
-    // Liste de contenus correspondant à l’acteur ou à la sélection courante.
-    final items = recruiter ? recruiterItems : candidateItems;
-    return EditorialSection(
-      tinted: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SectionHeading(
-            number: 'CANDIDATS ET RECRUTEURS',
-            title: 'Deux usages.\nUn parcours pour chacun.',
-            description: 'Choisis ton rôle pour consulter les fonctions qui te concernent.',
-          ),
-          Wrap(
-            spacing: JoynTokens.sm,
-            children: [
-              Semantics(
-                selected: !recruiter,
-                child: OutlinedButton(
-                  onPressed: () => select(false),
-                  child: const Text('CANDIDAT'),
-                ),
-              ),
-              Semantics(
-                selected: recruiter,
-                child: OutlinedButton(
-                  onPressed: () => select(true),
-                  child: const Text('RECRUTEUR'),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: JoynTokens.lg),
-          GestureDetector(
-            onHorizontalDragEnd: (details) {
-              // Vitesse horizontale du geste, utilisée pour choisir le rôle affiché.
-              final velocity = details.primaryVelocity ?? 0;
-              if (velocity.abs() >= JoynTokens.swipeVelocity) {
-                select(velocity < 0);
-              }
-            },
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    final benefits = recruiter ? recruiterBenefits : candidateBenefits;
+    final benefit = benefits[selected];
+    final theme = Theme.of(context).textTheme;
+    return ProductAtmosphere(
+      child: EditorialSection(
+        transparent: true,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'CE QUE JOYN APPORTE',
+              style: theme.labelLarge?.copyWith(color: JoynTokens.blue),
+            ),
+            const SizedBox(height: JoynTokens.md),
+            Text(
+              recruiter
+                  ? 'Recruter, de l’offre\nà la candidature.'
+                  : 'Chercher un poste.\nGarder le fil.',
+              style: theme.displaySmall?.copyWith(color: JoynTokens.paper),
+            ),
+            const SizedBox(height: JoynTokens.md),
+            Text(
+              recruiter
+                  ? 'Décrire le besoin, consulter les profils et organiser les démarches autour de chaque offre.'
+                  : 'Présenter son parcours, consulter des offres correspondantes et retrouver chaque candidature.',
+              style: theme.bodyLarge?.copyWith(color: JoynTokens.paper),
+            ),
+            const SizedBox(height: JoynTokens.lg),
+            Wrap(
+              spacing: JoynTokens.sm,
+              runSpacing: JoynTokens.sm,
               children: [
-                Semantics(
-                  liveRegion: true,
-                  child: ProductSurface(
-                    child: Row(
-                      children: [
-                        NavigationSymbol(
-                          kind: recruiter
-                              ? NavigationSymbolKind.company
-                              : NavigationSymbolKind.profile,
-                          active: true,
-                        ),
-                        const SizedBox(width: JoynTokens.md),
-                        Expanded(
-                          child: Text(
-                            recruiter
-                                ? 'Publier une offre.\nSuivre les candidatures.'
-                                : 'Présenter son parcours.\nOrganiser sa recherche.',
-                            style: Theme.of(context).textTheme.headlineSmall,
+                for (final role in [false, true])
+                  Semantics(
+                    selected: recruiter == role,
+                    child: OutlinedButton(
+                      key: ValueKey(
+                        role ? 'benefits-recruiter' : 'benefits-candidate',
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: recruiter == role
+                            ? JoynTokens.orange
+                            : JoynTokens.paper,
+                        foregroundColor: JoynTokens.ink,
+                      ),
+                      onPressed: () => selectRole(role),
+                      child: Text(role ? 'RECRUTEUR' : 'CANDIDAT'),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: JoynTokens.lg),
+            GestureDetector(
+              onHorizontalDragEnd: (details) {
+                final velocity = details.primaryVelocity ?? 0;
+                if (velocity.abs() >= JoynTokens.swipeVelocity) {
+                  selectRole(velocity < 0);
+                }
+              },
+              child: ProductSurface(
+                child: EditorialSplit(
+                  leading: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (var i = 0; i < benefits.length; i++) ...[
+                        const Divider(),
+                        Semantics(
+                          selected: selected == i,
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: TextButton(
+                              key: ValueKey('benefit-$i'),
+                              style: const ButtonStyle(
+                                alignment: Alignment.centerLeft,
+                              ),
+                              onPressed: () => setState(() => selected = i),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: JoynTokens.sm,
+                                ),
+                                child: Row(
+                                  children: [
+                                    NavigationSymbol(
+                                      kind: benefits[i].$5,
+                                      active: selected == i,
+                                      size: JoynTokens.smallSymbol,
+                                    ),
+                                    const SizedBox(width: JoynTokens.sm),
+                                    Expanded(child: Text(benefits[i].$1)),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
                         ),
+                      ],
+                    ],
+                  ),
+                  trailing: Semantics(
+                    liveRegion: true,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        NavigationSymbol(kind: benefit.$5, active: true),
+                        const SizedBox(height: JoynTokens.md),
+                        Text(benefit.$2, style: theme.headlineLarge),
+                        const SizedBox(height: JoynTokens.md),
+                        Text(benefit.$3),
+                        const SizedBox(height: JoynTokens.lg),
+                        const Divider(),
+                        const SizedBox(height: JoynTokens.md),
+                        Text(benefit.$4, style: theme.labelLarge),
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(height: JoynTokens.md),
-                for (var i = 0; i < items.length; i++) ...[
-                  const Divider(),
-                  Semantics(
-                    expanded: expanded == i,
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: TextButton(
-                        style: const ButtonStyle(
-                          alignment: Alignment.centerLeft,
-                        ),
-                        onPressed: () =>
-                            setState(() => expanded = expanded == i ? null : i),
-                        child: Text(
-                          '${expanded == i ? '−' : '+'} ${items[i].$1}',
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (expanded == i)
-                    Padding(
-                      padding: const EdgeInsets.all(JoynTokens.md),
-                      child: Text(items[i].$2),
-                    ),
-                ],
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

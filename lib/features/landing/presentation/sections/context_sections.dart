@@ -1,6 +1,6 @@
-// Présente les informations utiles à la recherche et une comparaison avant/après.
+// Présente les situations de recherche et la lecture concrète d’une offre.
 //
-// Référence : doc/landing/fichiers/context_sections.md.
+// Référence : doc/landing.md#context_sectionsdart.
 
 import 'package:flutter/material.dart';
 
@@ -108,111 +108,121 @@ class _SearchDifficultiesSectionState extends State<SearchDifficultiesSection> {
   );
 }
 
-/// Comparaison entre une recherche sans contexte et une lecture structurée.
-class BeforeAfterSection extends StatefulWidget {
-  /// Initialise les paramètres de BeforeAfterSection ; les valeurs par défaut figurent dans la signature.
-  const BeforeAfterSection({super.key});
-
-  /// Crée l’état local associé au widget.
+/// Décompose une offre concrète en missions, conditions et démarche de candidature.
+class OfferDecisionSection extends StatefulWidget {
+  const OfferDecisionSection({super.key});
   @override
-  State<BeforeAfterSection> createState() => _BeforeAfterSectionState();
+  State<OfferDecisionSection> createState() => _OfferDecisionSectionState();
 }
 
-/// État de BeforeAfterSection ; définit ses données mutables et son rendu.
-class _BeforeAfterSectionState extends State<BeforeAfterSection> {
-  /// Sélectionne la présentation avec informations de contexte.
-  bool contextual = true;
-
-  /// Construit la présentation à partir de la configuration et de l’état courant.
+class _OfferDecisionSectionState extends State<OfferDecisionSection> {
+  int selected = 0;
+  static const details = [
+    (
+      'MISSIONS',
+      'Qu’est-ce que je vais faire ?',
+      'Développer des écrans Flutter',
+      'Construire la liste des candidatures, relier les écrans de détail et vérifier les parcours au clavier.',
+      'Compétences mobilisées',
+      'Dart · Flutter · tests de widgets',
+    ),
+    (
+      'CONDITIONS',
+      'Dans quelles conditions ?',
+      'Un poste à Paris, en alternance',
+      'Trois jours en entreprise chaque semaine. Les jours de présence et les modalités de travail sont précisés dans l’offre.',
+      'À lire avant de candidater',
+      'Lieu · contrat · rythme de présence',
+    ),
+    (
+      'CANDIDATURE',
+      'Que se passe-t-il ensuite ?',
+      'Retrouver chaque étape',
+      'Consulter l’offre, présenter son profil et retrouver la candidature dans son suivi. Le recruteur la consulte avec les autres démarches liées au poste.',
+      'Deux vues du même recrutement',
+      'Suivi personnel · candidatures par offre',
+    ),
+  ];
   @override
-  Widget build(BuildContext context) => EditorialSection(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SectionHeading(
-          number: '03 / AVANT ET AVEC LE CONTEXTE',
-          title: 'La même offre.\nUne décision mieux éclairée.',
-        ),
-        Wrap(
-          spacing: JoynTokens.sm,
-          runSpacing: JoynTokens.xs,
-          children: [
-            Semantics(
-              selected: !contextual,
-              child: OutlinedButton(
-                onPressed: () => setState(() => contextual = false),
-                child: const Text('ANNONCE SEULE'),
-              ),
-            ),
-            Semantics(
-              selected: contextual,
-              child: FilledButton(
-                onPressed: () => setState(() => contextual = true),
-                child: const Text('AVEC MON CONTEXTE'),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: JoynTokens.lg),
-        EditorialSplit(
-          leading: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Développement Flutter',
-                style: Theme.of(context).textTheme.headlineLarge,
-              ),
-              const SizedBox(height: JoynTokens.md),
-              const Text(
-                'Contribuer à une interface produit et participer aux échanges avec l’équipe.',
-              ),
-              const SizedBox(height: JoynTokens.md),
-              const InformationRow(label: 'Contrat', value: 'Alternance'),
-              const InformationRow(label: 'Ville', value: 'Paris'),
-            ],
+  Widget build(BuildContext context) {
+    final detail = details[selected];
+    return EditorialSection(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SectionHeading(
+            number: '03 / LIRE UNE OFFRE',
+            title: 'Une offre lisible.\nUne décision concrète.',
+            description: 'Les missions, les conditions et la candidature, à partir d’un exemple de poste en développement Flutter.',
           ),
-          trailing: Semantics(
-            liveRegion: true,
-            child: ProductSurface(
-              accent: contextual,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    contextual
-                        ? 'Ce que Camille peut comparer'
-                        : 'Ce qui reste à demander',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: JoynTokens.md),
-                  InformationRow(
-                    label: 'Rythme',
-                    value: contextual ? '3 jours : compatible' : 'Non précisé',
-                  ),
-                  InformationRow(
-                    label: 'Compétence',
-                    value: contextual
-                        ? 'Dart et Flutter'
-                        : 'Niveau à clarifier',
-                  ),
-                  InformationRow(
-                    label: 'Mobilité',
-                    value: contextual
-                        ? 'Paris : même ville'
-                        : 'À rapprocher du profil',
-                  ),
-                  const SizedBox(height: JoynTokens.md),
-                  Text(
-                    contextual
-                        ? 'Exemple de lecture contextualisée ; cela ne garantit ni sélection ni entretien.'
-                        : 'Une annonce seule ne connaît pas les contraintes de Camille.',
+          EditorialSplit(
+            leading: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'DÉVELOPPEMENT FLUTTER / EXEMPLE',
+                  style: Theme.of(context).textTheme.labelLarge,
+                ),
+                const SizedBox(height: JoynTokens.md),
+                Text(
+                  'Trois questions avant de candidater.',
+                  style: Theme.of(context).textTheme.headlineLarge,
+                ),
+                const SizedBox(height: JoynTokens.md),
+                for (var i = 0; i < details.length; i++) ...[
+                  const Divider(),
+                  Semantics(
+                    selected: selected == i,
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: TextButton(
+                        key: ValueKey('offer-detail-$i'),
+                        style: const ButtonStyle(
+                          alignment: Alignment.centerLeft,
+                        ),
+                        onPressed: () => setState(() => selected = i),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: JoynTokens.sm,
+                          ),
+                          child: Text(
+                            '${selected == i ? '—' : '+'} ${details[i].$2}',
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
+              ],
+            ),
+            trailing: Semantics(
+              liveRegion: true,
+              child: ProductSurface(
+                accent: true,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      detail.$1,
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                    const SizedBox(height: JoynTokens.md),
+                    Text(
+                      detail.$3,
+                      style: Theme.of(context).textTheme.headlineLarge,
+                    ),
+                    const SizedBox(height: JoynTokens.md),
+                    Text(detail.$4),
+                    const SizedBox(height: JoynTokens.lg),
+                    InformationRow(label: detail.$5, value: detail.$6),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }

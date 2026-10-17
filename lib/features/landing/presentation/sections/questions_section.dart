@@ -1,6 +1,6 @@
 // Filtre les questions et réponses, les pagine et transmet la recherche à l’assistance.
 //
-// Référence : doc/landing/fichiers/questions_section.md.
+// Référence : doc/landing.md#questions_sectiondart.
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -90,7 +90,7 @@ class _QuestionsSectionState extends State<QuestionsSection> {
     (
       'FORMULES',
       'Où trouver les informations sur les formules ?',
-      'La rubrique des services distingue l’usage candidat de l’usage entreprise. Pour une question sur les conditions d’une formule, consulte l’assistance.',
+      'La rubrique Formules présente quatre niveaux candidat : Basic, Standard, Plus et Pro, et deux niveaux entreprise : Membre et Membre premium. Chaque carte précise son prix mensuel et les accès inclus.',
     ),
     (
       'ASSISTANCE',
@@ -237,6 +237,7 @@ class _QuestionsSectionState extends State<QuestionsSection> {
               ),
           ],
           const Divider(),
+          const SizedBox(height: JoynTokens.lg),
           if (pages > 1)
             Wrap(
               spacing: JoynTokens.sm,
