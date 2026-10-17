@@ -1,6 +1,6 @@
 // Initialise Flutter, désactive le chargement distant des polices et démarre JOYN.
 //
-// Référence : doc/landing/fichiers/main.md.
+// Référence : doc/landing.md#maindart.
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

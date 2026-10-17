@@ -3,7 +3,7 @@
 
 L’argument --origin doit désigner une URL HTTPS réelle. L’outil modifie les
 pages HTML de web/, puis réécrit robots.txt et sitemap.xml. Aucune opération
-Git ni requête réseau n’est effectuée. Voir doc/landing/web.md.
+Git ni requête réseau n’est effectuée. Voir doc/landing.md#web-et-référencement.
 """
 import argparse
 import re

@@ -1,6 +1,6 @@
 // Distingue les intérêts candidat et entreprise avant l’ouverture d’un échange illustré.
 //
-// Référence : doc/landing/fichiers/reciprocity_section.md.
+// Référence : doc/landing.md#reciprocity_sectiondart.
 
 import 'package:flutter/material.dart';
 

@@ -1,6 +1,6 @@
 // Configure l’application Material, son thème et son routeur.
 //
-// Référence : doc/landing/fichiers/app.md.
+// Référence : doc/landing.md#appdart.
 
 import 'package:flutter/material.dart';
 

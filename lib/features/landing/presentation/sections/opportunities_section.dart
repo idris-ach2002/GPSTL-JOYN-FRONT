@@ -1,6 +1,6 @@
 // Affiche les exemples d’offres, la recherche et les favoris de la visite.
 //
-// Référence : doc/landing/fichiers/opportunities_section.md.
+// Référence : doc/landing.md#opportunities_sectiondart.
 
 import 'package:flutter/material.dart';
 

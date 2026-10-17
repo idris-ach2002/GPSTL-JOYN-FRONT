@@ -1,6 +1,6 @@
 // Dessine le signe JOYN et sa rotation au changement d’état actif.
 //
-// Référence : doc/landing/fichiers/joyn_mark.md.
+// Référence : doc/landing.md#joyn_markdart.
 
 import 'dart:math' as math;
 

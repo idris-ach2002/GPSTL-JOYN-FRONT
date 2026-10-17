@@ -1,6 +1,6 @@
 // Présente les étapes du suivi d’une candidature à partir d’un exemple interactif.
 //
-// Référence : doc/landing/fichiers/application_tracking_section.md.
+// Référence : doc/landing.md#application_tracking_sectiondart.
 
 import 'package:flutter/material.dart';
 

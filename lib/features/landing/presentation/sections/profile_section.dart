@@ -1,6 +1,6 @@
 // Permet de saisir une présentation et de mettre à jour un aperçu local du profil.
 //
-// Référence : doc/landing/fichiers/profile_section.md.
+// Référence : doc/landing.md#profile_sectiondart.
 
 import 'package:flutter/material.dart';
 

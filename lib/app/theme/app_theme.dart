@@ -1,6 +1,6 @@
 // Expose le thème clair partagé par l’application.
 //
-// Référence : doc/landing/fichiers/app_theme.md.
+// Référence : doc/landing.md#app_themedart.
 
 import 'package:flutter/material.dart';
 

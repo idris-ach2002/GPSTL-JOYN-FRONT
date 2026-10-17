@@ -1,6 +1,6 @@
 // Sélectionne une valeur typée à partir de la largeur fournie par MediaQuery.
 //
-// Référence : doc/landing/fichiers/responsive_value.md.
+// Référence : doc/landing.md#responsive_valuedart.
 
 import 'package:flutter/material.dart';
 

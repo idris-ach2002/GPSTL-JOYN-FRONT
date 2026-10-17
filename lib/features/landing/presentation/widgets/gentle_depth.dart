@@ -1,6 +1,6 @@
 // Déplace légèrement une illustration selon le pointeur sur les grands écrans.
 //
-// Référence : doc/landing/fichiers/gentle_depth.md.
+// Référence : doc/landing.md#gentle_depthdart.
 
 import 'package:flutter/material.dart';
 

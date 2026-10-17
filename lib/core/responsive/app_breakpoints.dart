@@ -1,6 +1,6 @@
 // Expose les seuils de largeur partagés avec les jetons de la landing.
 //
-// Référence : doc/landing/fichiers/app_breakpoints.md.
+// Référence : doc/landing.md#app_breakpointsdart.
 
 import '../../design_system/joyn_tokens.dart';
 

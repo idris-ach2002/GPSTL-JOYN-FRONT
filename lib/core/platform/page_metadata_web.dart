@@ -1,6 +1,6 @@
 // Met à jour les métadonnées et ouvre les guides dans le navigateur.
 //
-// Référence : doc/landing/fichiers/page_metadata_web.md.
+// Référence : doc/landing.md#page_metadata_webdart.
 
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:web/web.dart' as web;

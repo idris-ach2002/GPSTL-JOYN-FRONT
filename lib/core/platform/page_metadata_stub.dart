@@ -1,6 +1,6 @@
 // Fournit les mêmes fonctions sans effets sur les plateformes sans navigateur Web.
 //
-// Référence : doc/landing/fichiers/page_metadata_stub.md.
+// Référence : doc/landing.md#page_metadata_stubdart.
 
 /// Configure les URL sans fragment sur Web ; ne produit aucun effet dans le stub.
 void configureWeb() {}

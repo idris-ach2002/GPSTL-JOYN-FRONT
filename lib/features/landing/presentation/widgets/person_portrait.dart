@@ -1,6 +1,6 @@
 // Dessine les portraits illustrés utilisés dans les aperçus.
 //
-// Référence : doc/landing/fichiers/person_portrait.md.
+// Référence : doc/landing.md#person_portraitdart.
 
 import 'package:flutter/material.dart';
 

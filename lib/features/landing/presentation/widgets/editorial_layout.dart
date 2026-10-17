@@ -1,6 +1,6 @@
 // Fournit les compositions de section, de titre, de colonnes et de lignes d’information.
 //
-// Référence : doc/landing/fichiers/editorial_layout.md.
+// Référence : doc/landing.md#editorial_layoutdart.
 
 import 'package:flutter/material.dart';
 

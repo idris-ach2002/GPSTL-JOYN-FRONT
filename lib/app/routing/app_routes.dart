@@ -1,6 +1,6 @@
 // Regroupe des chemins de navigation du projet ; leur présence ne les enregistre pas dans le routeur actif.
 //
-// Référence : doc/landing/fichiers/app_routes.md.
+// Référence : doc/landing.md#app_routesdart.
 
 /// Catalogue de chemins du projet, distinct de la liste des routes enregistrées.
 class AppRoutes {

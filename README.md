@@ -10,26 +10,20 @@ JOYN organise ces informations dans deux parcours : le candidat présente son ex
 
 ## Les parcours
 
-| Candidat | Recruteur en entreprise |
-| --- | --- |
-| Constituer son profil à partir de son CV | Présenter les missions et conditions d’un poste |
-| Consulter les offres correspondant à son profil | Consulter les profils recommandés |
-| Examiner une offre avant de candidater | Retrouver les candidatures par offre |
-| Suivre ses candidatures et préparer les échanges | Organiser le suivi et préciser les attentes |
+| Candidat                                         | Recruteur en entreprise                         |
+| ------------------------------------------------ | ----------------------------------------------- |
+| Constituer son profil à partir de son CV         | Présenter les missions et conditions d’un poste |
+| Consulter les offres correspondant à son profil  | Consulter les profils recommandés               |
+| Examiner une offre avant de candidater           | Retrouver les candidatures par offre            |
+| Suivre ses candidatures et préparer les échanges | Organiser le suivi et préciser les attentes     |
 
 Lors de la création du profil, l’analyse du CV joint fournit les informations nécessaires à sa constitution. Les recommandations rapprochent ensuite le profil des offres. Une correspondance aide à orienter la recherche ; elle ne constitue pas une décision de recrutement.
 
-## Explorer le projet
+## Fonctionnalités
 
-| Entrée | Contenu |
-| --- | --- |
-| [Documentation](doc/README.md) | Sommaire de la documentation du projet |
-| [Landing page](doc/landing/README.md) | Présentation, sections et interactions de la page publique |
-| [Architecture de la landing](doc/landing/architecture.md) | Organisation des fichiers et circulation des événements |
-| [Navigation](doc/landing/navigation.md) | Menus, routes, ancres, assistance et guides |
-| [Identité visuelle](doc/landing/design-system.md) | Couleurs, typographie, dimensions et mouvements |
-| [Référence du code](doc/landing/reference.md) | Description de chaque fichier et de ses déclarations |
-| [Développement et tests](doc/landing/developpement.md) | Installation, exécution et vérifications |
+| Fonctionnalité | Description                                                                       | Documentation                             |
+| -------------- | --------------------------------------------------------------------------------- | ----------------------------------------- |
+| Landing page   | Présentation de JOYN, parcours candidat et recruteur, formules, FAQ et assistance | [Documentation technique](doc/landing.md) |
 
 ## Démarrer l’interface Web
 

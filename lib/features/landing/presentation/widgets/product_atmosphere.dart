@@ -1,6 +1,6 @@
 // Dessine le fond sombre quadrillé et les surfaces de présentation.
 //
-// Référence : doc/landing/fichiers/product_atmosphere.md.
+// Référence : doc/landing.md#product_atmospheredart.
 
 import 'package:flutter/material.dart';
 

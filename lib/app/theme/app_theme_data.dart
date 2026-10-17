@@ -1,6 +1,6 @@
 // Construit les styles typographiques, les couleurs et les états des contrôles.
 //
-// Référence : doc/landing/fichiers/app_theme_data.md.
+// Référence : doc/landing.md#app_theme_datadart.
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

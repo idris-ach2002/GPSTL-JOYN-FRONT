@@ -1,6 +1,6 @@
 // Dessine les aperçus du profil, de l’offre, des intérêts et de la conversation.
 //
-// Référence : doc/landing/fichiers/journey_preview.md.
+// Référence : doc/landing.md#journey_previewdart.
 
 import 'package:flutter/material.dart';
 

@@ -1,6 +1,6 @@
 // Illustre l’intérêt partagé par une liaison animée entre deux portraits.
 //
-// Référence : doc/landing/fichiers/match_signature.md.
+// Référence : doc/landing.md#match_signaturedart.
 
 import 'package:flutter/material.dart';
 

@@ -1,6 +1,6 @@
 // Compose l’entrée de page et l’accès à l’explication des recommandations.
 //
-// Référence : doc/landing/fichiers/futurist_hero.md.
+// Référence : doc/landing.md#futurist_herodart.
 
 import 'package:flutter/material.dart';
 

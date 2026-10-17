@@ -1,6 +1,6 @@
 // Synchronise une scène de parcours avec le défilement sans remplacer le scroll du navigateur.
 //
-// Référence : doc/landing/fichiers/scroll_journey_section.md.
+// Référence : doc/landing.md#scroll_journey_sectiondart.
 
 import 'package:flutter/material.dart';
 

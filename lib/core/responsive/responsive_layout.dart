@@ -1,6 +1,6 @@
 // Choisit un contenu mobile, tablette ou ordinateur selon la largeur disponible.
 //
-// Référence : doc/landing/fichiers/responsive_layout.md.
+// Référence : doc/landing.md#responsive_layoutdart.
 
 import 'package:flutter/material.dart';
 

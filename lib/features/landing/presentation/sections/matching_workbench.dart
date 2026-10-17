@@ -1,6 +1,6 @@
 // Explique l’analyse initiale du CV, le profil et les offres correspondantes sans calculer de score.
 //
-// Référence : doc/landing/fichiers/matching_workbench.md.
+// Référence : doc/landing.md#matching_workbenchdart.
 
 import 'package:flutter/material.dart';
 

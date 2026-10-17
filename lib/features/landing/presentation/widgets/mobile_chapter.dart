@@ -1,6 +1,6 @@
 // Gère les détails repliables sur mobile tout en conservant l’état des contenus masqués.
 //
-// Référence : doc/landing/fichiers/mobile_chapter.md.
+// Référence : doc/landing.md#mobile_chapterdart.
 
 import 'package:flutter/material.dart';
 
