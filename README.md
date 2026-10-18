@@ -15,3 +15,12 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+Pour lancer le serveur : 
+
+flutter run -d web-server --web-port 8081 --dart-define=SKIP_LOGIN=true
+
+ID test page de connexion : 
+
+etudiant@joyn.fr 
+Joyn2026
