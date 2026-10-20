@@ -13,8 +13,8 @@ import '../widgets/landing_navbar.dart';
 /// Assemblage web uniquement. Aucune dépendance vers le parcours natif.
 ///
 /// Les ancres restent montées afin que ensureVisible fonctionne même pour une
-/// destination éloignée. La navbar vit au-dessus du scroll pour pouvoir se
-/// compacter et rester disponible pendant toute la visite de la landing.
+/// destination éloignée. La navbar reste fixée au-dessus du scroll avec une
+/// géométrie stable pendant toute la visite de la landing.
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
 
@@ -81,10 +81,7 @@ class _LandingScreenState extends State<LandingScreen> {
           right: 0,
           child: SafeArea(
             bottom: false,
-            child: LandingNavbar(
-              onNavigate: _navigate,
-              scrollController: _scrollController,
-            ),
+            child: LandingNavbar(onNavigate: _navigate),
           ),
         ),
       ],
