@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../../../design_system/layout/content_container.dart';
 import '../../../../design_system/tokens/app_colors.dart';
-import '../../domain/landing_content.dart';
-import '../widgets/feature_demo.dart';
+import '../widgets/matching_story_demo.dart';
 import '../widgets/scroll_atmosphere.dart';
 
-/// Changement d'univers : fondu navy/orange/lumière, grille et halos diffus.
-/// Le panneau central illustre le score sans réintroduire une analyse de CV.
+/// Rupture visuelle orange : une démonstration animée remplace l'ancien score
+/// isolé et raconte maintenant le parcours complet côté candidat et entreprise.
 class UniverseSection extends StatelessWidget {
   const UniverseSection({this.scrollController, super.key});
   final ScrollController? scrollController;
@@ -19,26 +18,26 @@ class UniverseSection extends StatelessWidget {
     child: ContentContainer(
       maxWidth: 1240,
       child: Padding(
-        padding: const EdgeInsets.only(top: 160, bottom: 180),
+        padding: const EdgeInsets.only(top: 150, bottom: 170),
         child: Column(
           children: [
             const Text(
-              'LE MATCHING, EN LUMIÈRE',
+              'JOYN, EN MOUVEMENT',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.navy,
                 fontSize: 12,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w900,
                 letterSpacing: 2.1,
               ),
             ),
             const SizedBox(height: 24),
             Text(
-              'Un score utile\ndoit être explicable.',
+              'Le parcours complet,\nen quelques secondes.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.white,
-                fontSize: MediaQuery.sizeOf(context).width < 600 ? 38 : 64,
+                fontSize: MediaQuery.sizeOf(context).width < 600 ? 39 : 64,
                 fontWeight: FontWeight.w900,
                 height: 1.02,
                 letterSpacing: -2,
@@ -51,51 +50,24 @@ class UniverseSection extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            const _UniverseDescription(),
-            const SizedBox(height: 48),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 700),
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.white.withValues(alpha: .18),
-                  borderRadius: BorderRadius.circular(36),
-                  border: Border.all(
-                    color: AppColors.white.withValues(alpha: .45),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.navy.withValues(alpha: .2),
-                      blurRadius: 70,
-                      offset: const Offset(0, 28),
-                    ),
-                  ],
-                ),
-                child: const FeatureDemo(
-                  audience: Audience.candidate,
-                  index: 1,
+            const ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: 700),
+              child: Text(
+                'Passe du profil à l’entretien côté candidat, puis de la publication '
+                'd’une offre au suivi du recrutement côté entreprise.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppColors.navy,
+                  fontSize: 18,
+                  height: 1.6,
                 ),
               ),
             ),
+            const SizedBox(height: 52),
+            const MatchingStoryDemo(),
           ],
         ),
       ),
-    ),
-  );
-}
-
-/// Texte borné pour préserver les proportions du titre sans largeur fixe.
-class _UniverseDescription extends StatelessWidget {
-  const _UniverseDescription();
-
-  @override
-  Widget build(BuildContext context) => ConstrainedBox(
-    constraints: const BoxConstraints(maxWidth: 640),
-    child: const Text(
-      'Derrière un pourcentage, des points concrets. '
-      'Explore les critères, comprends ce qui rapproche un profil et une offre.',
-      textAlign: TextAlign.center,
-      style: TextStyle(color: AppColors.navy, fontSize: 18, height: 1.6),
     ),
   );
 }
