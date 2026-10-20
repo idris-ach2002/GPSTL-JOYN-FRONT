@@ -533,12 +533,11 @@ class _CinematicFrame extends StatelessWidget {
   final bool reduceMotion;
 
   double _aspectRatioFor(double width) {
-    // Environ 30 % moins haut que la version précédente.
-    if (width < 560) return 1.74;
-    if (width < 760) return 1.89;
-    if (width < 1040) return 2.26;
-    if (width < 1400) return 2.40;
-    return 2.49;
+    if (width < 560) return 1.22;
+    if (width < 760) return 1.32;
+    if (width < 1040) return 1.58;
+    if (width < 1400) return 1.68;
+    return 1.74;
   }
 
   @override
@@ -570,8 +569,7 @@ class _CinematicFrame extends StatelessWidget {
                 ),
                 child: Image.asset(
                   story.asset,
-                  fit: BoxFit.cover,
-                  alignment: story.focus,
+                  fit: BoxFit.contain,
                   filterQuality: FilterQuality.high,
                 ),
               ),
