@@ -91,31 +91,8 @@ class _LandingNavbarState extends State<LandingNavbar> {
                   final brand = LandingReveal(
                     duration: const Duration(milliseconds: 420),
                     offset: const Offset(0, -8),
-                    child: TextButton(
+                    child: _BrandButton(
                       onPressed: () => _navigate(LandingSection.hero),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 8,
-                        ),
-                        foregroundColor: AppColors.navy,
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          JoynMark(size: 32),
-                          SizedBox(width: 10),
-                          Text(
-                            'joyn',
-                            style: TextStyle(
-                              fontSize: 23,
-                              color: AppColors.navy,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: -.7,
-                            ),
-                          ),
-                        ],
-                      ),
                     ),
                   );
 
@@ -208,6 +185,167 @@ class _LandingNavbarState extends State<LandingNavbar> {
   }
 }
 
+class _BrandButton extends StatefulWidget {
+  const _BrandButton({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  State<_BrandButton> createState() => _BrandButtonState();
+}
+
+class _BrandButtonState extends State<_BrandButton> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    final scale = _hovered && !reduceMotion ? 1.012 : 1.0;
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: AnimatedScale(
+        scale: scale,
+        duration: reduceMotion
+            ? Duration.zero
+            : const Duration(milliseconds: 190),
+        curve: Curves.easeOutCubic,
+        child: TextButton(
+          onPressed: widget.onPressed,
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            foregroundColor: AppColors.navy,
+            overlayColor: Colors.transparent,
+            splashFactory: NoSplash.splashFactory,
+          ),
+          child: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              JoynMark(size: 32),
+              SizedBox(width: 10),
+              _AnimatedJoynWordmark(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AnimatedJoynWordmark extends StatefulWidget {
+  const _AnimatedJoynWordmark();
+
+  @override
+  State<_AnimatedJoynWordmark> createState() => _AnimatedJoynWordmarkState();
+}
+
+class _AnimatedJoynWordmarkState extends State<_AnimatedJoynWordmark>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 3600),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    if (reduceMotion) {
+      return const Text(
+        'joyn',
+        style: TextStyle(
+          fontSize: 23,
+          color: AppColors.navy,
+          fontWeight: FontWeight.w900,
+          letterSpacing: -.7,
+        ),
+      );
+    }
+
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        final progress = _controller.value;
+        final appear = Curves.easeInOutCubic.transform(
+          ((progress - .06) / .22).clamp(0.0, 1.0),
+        );
+        final disappear = Curves.easeInOutCubic.transform(
+          ((progress - .7) / .18).clamp(0.0, 1.0),
+        );
+        final visibility = (appear * (1 - disappear)).clamp(0.0, 1.0);
+        final dx = 4 * (1 - appear) - 4 * disappear;
+
+        return SizedBox(
+          width: 86,
+          height: 28,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              const Positioned.fill(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 0),
+                    child: Text(
+                      'joyn',
+                      style: TextStyle(
+                        fontSize: 23,
+                        color: AppColors.navy,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -.7,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                left: -2 + dx,
+                top: 0,
+                child: Opacity(
+                  opacity: visibility,
+                  child: Transform.scale(
+                    scale: .97 + (.04 * visibility),
+                    alignment: Alignment.center,
+                    child: Text(
+                      'j',
+                      style: TextStyle(
+                        fontSize: 25,
+                        height: 1,
+                        color: AppColors.orange,
+                        fontWeight: FontWeight.w900,
+                        fontStyle: FontStyle.italic,
+                        shadows: [
+                          Shadow(
+                            color: AppColors.orange.withValues(alpha: .18),
+                            blurRadius: 10,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
 class _NavigationLinks extends StatelessWidget {
   const _NavigationLinks({required this.selected, required this.onNavigate});
 
@@ -255,48 +393,59 @@ class _NavLinkState extends State<_NavLink> {
   bool _hovered = false;
 
   @override
-  Widget build(BuildContext context) => MouseRegion(
-    cursor: SystemMouseCursors.click,
-    onEnter: (_) => setState(() => _hovered = true),
-    onExit: (_) => setState(() => _hovered = false),
-    child: AnimatedContainer(
-      duration: MediaQuery.disableAnimationsOf(context)
-          ? Duration.zero
-          : const Duration(milliseconds: 200),
-      curve: Curves.easeOutCubic,
-      decoration: BoxDecoration(
-        color: widget.selected
-            ? AppColors.white
-            : _hovered
-                ? AppColors.white.withValues(alpha: .72)
-                : Colors.transparent,
-        borderRadius: BorderRadius.circular(14),
-        border: widget.selected
-            ? Border.all(color: AppColors.white)
-            : null,
-        boxShadow: widget.selected
-            ? [
-                BoxShadow(
-                  color: AppColors.navy.withValues(alpha: .07),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ]
-            : const [],
-      ),
-      child: TextButton(
-        onPressed: widget.onPressed,
-        style: TextButton.styleFrom(
-          foregroundColor: widget.selected ? AppColors.orange : AppColors.navy,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+  Widget build(BuildContext context) {
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    final scale = _hovered && !reduceMotion ? 1.04 : 1.0;
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: AnimatedScale(
+        scale: scale,
+        duration: reduceMotion
+            ? Duration.zero
+            : const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic,
+        child: AnimatedContainer(
+          duration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 200),
+          curve: Curves.easeOutCubic,
+          decoration: BoxDecoration(
+            color: widget.selected ? AppColors.white : Colors.transparent,
+            borderRadius: BorderRadius.circular(14),
+            border: widget.selected
+                ? Border.all(color: AppColors.white)
+                : null,
+            boxShadow: widget.selected
+                ? [
+                    BoxShadow(
+                      color: AppColors.navy.withValues(alpha: .07),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                : const [],
+          ),
+          child: TextButton(
+            onPressed: widget.onPressed,
+            style: TextButton.styleFrom(
+              foregroundColor:
+                  widget.selected ? AppColors.orange : AppColors.navy,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              overlayColor: Colors.transparent,
+              splashFactory: NoSplash.splashFactory,
+            ),
+            child: Text(
+              widget.label,
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
+            ),
+          ),
         ),
-        child: Text(
-          widget.label,
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
-        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class _AccountAccessButton extends StatefulWidget {
