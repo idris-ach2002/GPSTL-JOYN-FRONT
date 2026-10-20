@@ -5,10 +5,14 @@ import '../../../../design_system/tokens/app_colors.dart';
 import '../widgets/matching_story_demo.dart';
 import '../widgets/scroll_atmosphere.dart';
 
-/// Rupture visuelle orange : une démonstration animée remplace l'ancien score
-/// isolé et raconte maintenant le parcours complet côté candidat et entreprise.
+/// Rupture visuelle orange consacrée à la visite produit.
+///
+/// Les écrans présentés dans la démonstration proviennent directement de la
+/// maquette JOYN fournie ; la landing anime ces visuels sans reconstruire une
+/// interface parallèle qui risquerait de s'éloigner du produit.
 class UniverseSection extends StatelessWidget {
   const UniverseSection({this.scrollController, super.key});
+
   final ScrollController? scrollController;
 
   @override
@@ -22,7 +26,7 @@ class UniverseSection extends StatelessWidget {
         child: Column(
           children: [
             const Text(
-              'JOYN, EN MOUVEMENT',
+              'LE PRODUIT, EN ACTION',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.navy,
@@ -33,7 +37,7 @@ class UniverseSection extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              'Le parcours complet,\nen quelques secondes.',
+              'De la découverte au match.\nVois JOYN en action.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.white,
@@ -50,11 +54,11 @@ class UniverseSection extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            const ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 700),
-              child: Text(
-                'Passe du profil à l’entretien côté candidat, puis de la publication '
-                'd’une offre au suivi du recrutement côté entreprise.',
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 720),
+              child: const Text(
+                'Choisis ton parcours et suis les écrans clés, du premier '
+                'signal jusqu’au suivi de la candidature ou du recrutement.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AppColors.navy,

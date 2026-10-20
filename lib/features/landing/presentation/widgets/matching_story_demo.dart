@@ -6,12 +6,12 @@ import '../../../../design_system/tokens/app_colors.dart';
 import '../../domain/landing_content.dart';
 import 'audience_selector.dart';
 
-/// Démonstration « vidéo » entièrement dessinée en Flutter.
+/// Visite produit animée construite à partir des écrans Figma JOYN fournis.
 ///
-/// Elle raconte les deux parcours de bout en bout, sans asset vidéo ni appel
-/// réseau : le scénario avance automatiquement, peut être mis en pause et
-/// chaque étape reste accessible au clavier/souris via les contrôles Material.
-/// En mode « réduire les animations », la lecture automatique est désactivée.
+/// Contrairement à l'ancienne démonstration dessinée en widgets génériques,
+/// chaque étape montre désormais le visuel produit lui-même. Flutter ne fait
+/// qu'orchestrer le rythme : changement d'écran, léger mouvement de caméra,
+/// curseur guidé, pause et sélection manuelle des étapes.
 class MatchingStoryDemo extends StatefulWidget {
   const MatchingStoryDemo({super.key});
 
@@ -20,74 +20,147 @@ class MatchingStoryDemo extends StatefulWidget {
 }
 
 class _MatchingStoryDemoState extends State<MatchingStoryDemo> {
-  static const _stepDuration = Duration(milliseconds: 2800);
+  static const _stepDuration = Duration(milliseconds: 3600);
+
   Audience _audience = Audience.candidate;
   int _step = 0;
   bool _playing = true;
+  bool _assetsPrecached = false;
   Timer? _timer;
 
   static const _candidateSteps = [
-    _StoryStep(
-      title: 'Ton profil prend forme',
-      caption: 'Parcours, compétences et préférences sont réunis au même endroit.',
-      icon: Icons.badge_outlined,
+    _ProductStep(
+      shortLabel: 'Dashboard',
+      title: 'Ton tableau de bord, dès l’arrivée',
+      caption:
+          'Matches, candidatures en cours et prochain entretien : l’essentiel '
+          'est réuni sur un seul écran.',
+      asset: 'assets/figma_demo/candidate_dashboard.png',
+      focus: Alignment.center,
+      cursor: Alignment(-.56, -.18),
+      zoom: 1.035,
     ),
-    _StoryStep(
-      title: 'Les offres les plus proches remontent',
-      caption: 'Tu compares le poste, le rythme et les critères qui comptent pour toi.',
-      icon: Icons.auto_awesome_outlined,
+    _ProductStep(
+      shortLabel: 'Matchs',
+      title: 'Découvre les matchs les plus proches',
+      caption:
+          'La vue Matchs rapproche directement l’offre des critères '
+          'd’adéquation visibles dans le produit.',
+      asset: 'assets/figma_demo/candidate_matches.png',
+      focus: Alignment(-.14, .02),
+      cursor: Alignment(.18, .56),
+      zoom: 1.075,
     ),
-    _StoryStep(
-      title: 'L’intérêt devient réciproque',
-      caption: 'Quand le profil et l’offre se rencontrent, le match devient visible.',
-      icon: Icons.favorite_outline,
+    _ProductStep(
+      shortLabel: 'Offre',
+      title: 'Ouvre l’offre avant de décider',
+      caption:
+          'Missions, rythme, compétences et adéquation restent lisibles avant '
+          'de poursuivre la candidature.',
+      asset: 'assets/figma_demo/candidate_offer.png',
+      focus: Alignment(.04, -.55),
+      cursor: Alignment(.62, -.58),
+      zoom: 1.11,
     ),
-    _StoryStep(
-      title: 'Ta candidature reste lisible',
-      caption: 'Envoyée, en étude, entretien : tu sais toujours où tu en es.',
-      icon: Icons.view_kanban_outlined,
+    _ProductStep(
+      shortLabel: 'Suivi',
+      title: 'Suis chaque candidature',
+      caption:
+          'Envoyée, en étude, entretien ou refus : le pipeline donne une vue '
+          'immédiate de l’avancement.',
+      asset: 'assets/figma_demo/candidate_applications.png',
+      focus: Alignment.center,
+      cursor: Alignment(.16, -.02),
+      zoom: 1.045,
     ),
-    _StoryStep(
-      title: 'La conversation commence au bon moment',
-      caption: 'L’échange reste rattaché à l’offre et à la candidature concernées.',
-      icon: Icons.forum_outlined,
+    _ProductStep(
+      shortLabel: 'Messages',
+      title: 'Échange sans perdre le contexte',
+      caption:
+          'La messagerie conserve l’entreprise et la candidature concernées '
+          'dans la même expérience.',
+      asset: 'assets/figma_demo/candidate_messages.png',
+      focus: Alignment(.28, .08),
+      cursor: Alignment(.55, .04),
+      zoom: 1.06,
     ),
   ];
 
   static const _companySteps = [
-    _StoryStep(
-      title: 'Votre entreprise pose son identité',
-      caption: 'Le profil recruteur et la présentation de l’entreprise ouvrent le parcours.',
-      icon: Icons.apartment_outlined,
+    _ProductStep(
+      shortLabel: 'Dashboard',
+      title: 'Pilote tes recrutements depuis le dashboard',
+      caption:
+          'Matches, offres actives, candidatures reçues et délai de réponse '
+          'sont visibles dès l’arrivée.',
+      asset: 'assets/figma_demo/company_dashboard.png',
+      focus: Alignment.center,
+      cursor: Alignment(-.44, -.04),
+      zoom: 1.035,
     ),
-    _StoryStep(
-      title: 'L’offre part avec les bons critères',
-      caption: 'Missions, rythme, localisation et compétences structurent la recherche.',
-      icon: Icons.work_outline,
+    _ProductStep(
+      shortLabel: 'Offres',
+      title: 'Garde tes offres actives sous les yeux',
+      caption:
+          'Le même dashboard permet de retrouver rapidement les recrutements '
+          'en cours et leur état.',
+      asset: 'assets/figma_demo/company_dashboard.png',
+      focus: Alignment(.62, .52),
+      cursor: Alignment(.64, .55),
+      zoom: 1.14,
     ),
-    _StoryStep(
-      title: 'Les profils pertinents apparaissent',
-      caption: 'Les recommandations permettent de concentrer l’attention sur les bons profils.',
-      icon: Icons.people_outline,
+    _ProductStep(
+      shortLabel: 'Talents',
+      title: 'Explore les candidats compatibles',
+      caption:
+          'La vue dédiée présente le profil recommandé et l’adéquation avec '
+          'l’offre sélectionnée.',
+      asset: 'assets/figma_demo/company_candidates.png',
+      focus: Alignment(-.1, .06),
+      cursor: Alignment(-.02, .62),
+      zoom: 1.07,
     ),
-    _StoryStep(
-      title: 'Chaque candidature avance',
-      caption: 'Le statut évolue sans perdre l’historique du recrutement.',
-      icon: Icons.fact_check_outlined,
+    _ProductStep(
+      shortLabel: 'Profil',
+      title: 'Comprends le profil avant de contacter',
+      caption:
+          'Compétences, parcours, CV et test d’adéquation sont réunis dans la '
+          'fiche candidat.',
+      asset: 'assets/figma_demo/company_profile.png',
+      focus: Alignment(.12, -.05),
+      cursor: Alignment(.69, -.63),
+      zoom: 1.08,
     ),
-    _StoryStep(
-      title: 'Le recrutement passe à la conversation',
-      caption: 'Le contexte de l’offre reste disponible pendant l’échange.',
-      icon: Icons.chat_bubble_outline,
+    _ProductStep(
+      shortLabel: 'Pipeline',
+      title: 'Reviens aux candidatures reçues en un geste',
+      caption:
+          'La liste du dashboard garde les nouveaux profils et les actions de '
+          'recrutement à portée de clic.',
+      asset: 'assets/figma_demo/company_dashboard.png',
+      focus: Alignment(-.47, .5),
+      cursor: Alignment(-.45, .36),
+      zoom: 1.14,
     ),
   ];
 
-  List<_StoryStep> get _steps =>
+  List<_ProductStep> get _steps =>
       _audience == Audience.candidate ? _candidateSteps : _companySteps;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
+    if (!_assetsPrecached) {
+      _assetsPrecached = true;
+      for (final asset in {
+        ..._candidateSteps.map((step) => step.asset),
+        ..._companySteps.map((step) => step.asset),
+      }) {
+        precacheImage(AssetImage(asset), context);
+      }
+    }
+
     if (MediaQuery.disableAnimationsOf(context)) {
       _playing = false;
       _timer?.cancel();
@@ -100,6 +173,7 @@ class _MatchingStoryDemoState extends State<MatchingStoryDemo> {
   void _syncTimer() {
     _timer?.cancel();
     if (!_playing || !mounted) return;
+
     _timer = Timer.periodic(_stepDuration, (_) {
       if (!mounted) return;
       setState(() {
@@ -123,8 +197,8 @@ class _MatchingStoryDemoState extends State<MatchingStoryDemo> {
     _syncTimer();
   }
 
-  void _setStep(int step) {
-    setState(() => _step = step);
+  void _setStep(int index) {
+    setState(() => _step = index);
     _syncTimer();
   }
 
@@ -143,95 +217,119 @@ class _MatchingStoryDemoState extends State<MatchingStoryDemo> {
   Widget build(BuildContext context) {
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
     final current = _steps[_step];
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(MediaQuery.sizeOf(context).width < 620 ? 16 : 24),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(34),
-        border: Border.all(color: AppColors.white.withValues(alpha: .65)),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.navy.withValues(alpha: .22),
-            blurRadius: 70,
-            offset: const Offset(0, 28),
+
+    return Column(
+      children: [
+        _DemoToolbar(
+          audience: _audience,
+          playing: _playing,
+          reduceMotion: reduceMotion,
+          onAudienceChanged: _setAudience,
+          onTogglePlayback: _togglePlayback,
+        ),
+        const SizedBox(height: 22),
+        _StoryProgress(
+          step: _step,
+          steps: _steps,
+          onStepSelected: _setStep,
+        ),
+        const SizedBox(height: 20),
+        AnimatedSwitcher(
+          duration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 520),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          transitionBuilder: (child, animation) => FadeTransition(
+            opacity: animation,
+            child: ScaleTransition(
+              scale: Tween(begin: .985, end: 1.0).animate(animation),
+              child: child,
+            ),
           ),
-        ],
-      ),
-      child: Column(
-        children: [
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final controls = Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton.filledTonal(
-                    key: const ValueKey('story-playback'),
-                    tooltip: _playing ? 'Mettre en pause' : 'Lire la démonstration',
-                    onPressed: reduceMotion ? null : _togglePlayback,
-                    icon: Icon(_playing ? Icons.pause_rounded : Icons.play_arrow_rounded),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    _playing && !reduceMotion ? 'Lecture' : 'Pause',
-                    style: const TextStyle(
-                      color: AppColors.blueGreyDark,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              );
-              if (constraints.maxWidth < 650) {
-                return Column(
-                  children: [
-                    AudienceSelector(value: _audience, onChanged: _setAudience),
-                    const SizedBox(height: 12),
-                    controls,
-                  ],
-                );
-              }
-              return Row(
-                children: [
-                  AudienceSelector(value: _audience, onChanged: _setAudience),
-                  const Spacer(),
-                  controls,
-                ],
-              );
-            },
-          ),
-          const SizedBox(height: 22),
-          _StoryProgress(
+          child: _ProductTheater(
+            key: ValueKey('${_audience.name}-$_step'),
+            story: current,
             step: _step,
-            steps: _steps,
-            onStepSelected: _setStep,
+            reduceMotion: reduceMotion,
           ),
-          const SizedBox(height: 26),
-          AnimatedSwitcher(
-            duration: reduceMotion ? Duration.zero : const Duration(milliseconds: 520),
-            switchInCurve: Curves.easeOutCubic,
-            switchOutCurve: Curves.easeInCubic,
-            transitionBuilder: (child, animation) => FadeTransition(
-              opacity: animation,
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(.055, 0),
-                  end: Offset.zero,
-                ).animate(animation),
-                child: child,
-              ),
-            ),
-            child: _StoryFrame(
-              key: ValueKey('${_audience.name}-$_step'),
-              audience: _audience,
-              step: _step,
-              story: current,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
+}
+
+class _DemoToolbar extends StatelessWidget {
+  const _DemoToolbar({
+    required this.audience,
+    required this.playing,
+    required this.reduceMotion,
+    required this.onAudienceChanged,
+    required this.onTogglePlayback,
+  });
+
+  final Audience audience;
+  final bool playing;
+  final bool reduceMotion;
+  final ValueChanged<Audience> onAudienceChanged;
+  final VoidCallback onTogglePlayback;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final playback = Container(
+        decoration: BoxDecoration(
+          color: AppColors.navy.withValues(alpha: .9),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.white.withValues(alpha: .14)),
+        ),
+        child: IconButton(
+          key: const ValueKey('story-playback'),
+          tooltip: playing ? 'Mettre en pause' : 'Lire la démonstration',
+          onPressed: reduceMotion ? null : onTogglePlayback,
+          color: AppColors.white,
+          disabledColor: AppColors.grey,
+          icon: Icon(
+            playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
+          ),
+        ),
+      );
+
+      final selector = Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.navy.withValues(alpha: .12),
+              blurRadius: 24,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: AudienceSelector(
+          value: audience,
+          onChanged: onAudienceChanged,
+        ),
+      );
+
+      if (constraints.maxWidth < 620) {
+        return Column(
+          children: [
+            selector,
+            const SizedBox(height: 10),
+            playback,
+          ],
+        );
+      }
+
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [selector, const SizedBox(width: 12), playback],
+      );
+    },
+  );
 }
 
 class _StoryProgress extends StatelessWidget {
@@ -242,588 +340,387 @@ class _StoryProgress extends StatelessWidget {
   });
 
   final int step;
-  final List<_StoryStep> steps;
+  final List<_ProductStep> steps;
   final ValueChanged<int> onStepSelected;
-
-  @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      for (var index = 0; index < steps.length; index++) ...[
-        Expanded(
-          child: Tooltip(
-            message: steps[index].title,
-            child: InkWell(
-              key: ValueKey('story-step-$index'),
-              borderRadius: BorderRadius.circular(20),
-              onTap: () => onStepSelected(index),
-              child: AnimatedContainer(
-                duration: MediaQuery.disableAnimationsOf(context)
-                    ? Duration.zero
-                    : const Duration(milliseconds: 320),
-                height: 6,
-                decoration: BoxDecoration(
-                  color: index <= step ? AppColors.orange : AppColors.blueGrey10,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
-            ),
-          ),
-        ),
-        if (index != steps.length - 1) const SizedBox(width: 7),
-      ],
-    ],
-  );
-}
-
-class _StoryFrame extends StatelessWidget {
-  const _StoryFrame({
-    required this.audience,
-    required this.step,
-    required this.story,
-    super.key,
-  });
-
-  final Audience audience;
-  final int step;
-  final _StoryStep story;
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
-      final copy = _StoryCopy(story: story, step: step);
-      final scene = _ProductScene(audience: audience, step: step);
-      if (constraints.maxWidth < 760) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [copy, const SizedBox(height: 24), scene],
+      if (constraints.maxWidth < 720) {
+        return Row(
+          children: [
+            for (var index = 0; index < steps.length; index++) ...[
+              Expanded(
+                child: _ProgressSegment(
+                  index: index,
+                  selected: index == step,
+                  completed: index < step,
+                  label: '${index + 1}',
+                  onTap: () => onStepSelected(index),
+                ),
+              ),
+              if (index != steps.length - 1) const SizedBox(width: 7),
+            ],
+          ],
         );
       }
+
       return Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Expanded(flex: 4, child: copy),
-          const SizedBox(width: 32),
-          Expanded(flex: 7, child: scene),
+          for (var index = 0; index < steps.length; index++) ...[
+            Expanded(
+              child: _ProgressSegment(
+                index: index,
+                selected: index == step,
+                completed: index < step,
+                label: steps[index].shortLabel,
+                onTap: () => onStepSelected(index),
+              ),
+            ),
+            if (index != steps.length - 1) const SizedBox(width: 8),
+          ],
         ],
       );
     },
   );
 }
 
-class _StoryCopy extends StatelessWidget {
-  const _StoryCopy({required this.story, required this.step});
-  final _StoryStep story;
-  final int step;
+class _ProgressSegment extends StatelessWidget {
+  const _ProgressSegment({
+    required this.index,
+    required this.selected,
+    required this.completed,
+    required this.label,
+    required this.onTap,
+  });
 
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Container(
-        width: 48,
-        height: 48,
-        decoration: BoxDecoration(
-          color: AppColors.orange.withValues(alpha: .12),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Icon(story.icon, color: AppColors.orange),
-      ),
-      const SizedBox(height: 22),
-      Text(
-        '0${step + 1}',
-        style: const TextStyle(
-          color: AppColors.orange,
-          fontSize: 12,
-          fontWeight: FontWeight.w900,
-          letterSpacing: 1.4,
-        ),
-      ),
-      const SizedBox(height: 8),
-      Text(
-        story.title,
-        style: const TextStyle(
-          color: AppColors.navy,
-          fontSize: 26,
-          height: 1.1,
-          fontWeight: FontWeight.w900,
-          letterSpacing: -.6,
-        ),
-      ),
-      const SizedBox(height: 12),
-      Text(
-        story.caption,
-        style: const TextStyle(
-          color: AppColors.blueGreyDark,
-          fontSize: 14,
-          height: 1.55,
-        ),
-      ),
-    ],
-  );
-}
-
-class _ProductScene extends StatelessWidget {
-  const _ProductScene({required this.audience, required this.step});
-  final Audience audience;
-  final int step;
+  final int index;
+  final bool selected;
+  final bool completed;
+  final String label;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final child = audience == Audience.candidate
-        ? _candidateScene(step)
-        : _companyScene(step);
-    return Container(
-      constraints: const BoxConstraints(minHeight: 320),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.navy,
-        borderRadius: BorderRadius.circular(26),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppColors.navy, AppColors.navyLight, AppColors.cyanBlue],
+    final active = selected || completed;
+    return Tooltip(
+      message: label,
+      child: InkWell(
+        key: ValueKey('story-step-$index'),
+        borderRadius: BorderRadius.circular(14),
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : const Duration(milliseconds: 280),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+          decoration: BoxDecoration(
+            color: selected
+                ? AppColors.navy
+                : AppColors.white.withValues(alpha: active ? .92 : .5),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: selected
+                  ? AppColors.navy
+                  : AppColors.white.withValues(alpha: .65),
+            ),
+          ),
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: selected ? AppColors.white : AppColors.navy,
+              fontSize: 12,
+              fontWeight: selected ? FontWeight.w900 : FontWeight.w700,
+            ),
+          ),
         ),
       ),
-      child: child,
     );
   }
-
-  Widget _candidateScene(int index) => switch (index) {
-    0 => const _ProfileScene(),
-    1 => const _OfferScene(),
-    2 => const _MatchScene(),
-    3 => const _PipelineScene(company: false),
-    _ => const _ConversationScene(company: false),
-  };
-
-  Widget _companyScene(int index) => switch (index) {
-    0 => const _CompanyIdentityScene(),
-    1 => const _PublishedOfferScene(),
-    2 => const _TalentScene(),
-    3 => const _PipelineScene(company: true),
-    _ => const _ConversationScene(company: true),
-  };
 }
 
-class _ProfileScene extends StatelessWidget {
-  const _ProfileScene();
+class _ProductTheater extends StatelessWidget {
+  const _ProductTheater({
+    required this.story,
+    required this.step,
+    required this.reduceMotion,
+    super.key,
+  });
 
-  @override
-  Widget build(BuildContext context) => const _SceneSurface(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _SceneHeader(icon: Icons.badge_outlined, title: 'Camille R.', subtitle: 'Développement mobile · Alternance'),
-        SizedBox(height: 18),
-        _SceneLabel('Profil complété à 92 %'),
-        SizedBox(height: 9),
-        LinearProgressIndicator(value: .92, minHeight: 7),
-        SizedBox(height: 22),
-        Wrap(spacing: 8, runSpacing: 8, children: [
-          _SceneChip('Flutter'),
-          _SceneChip('Dart'),
-          _SceneChip('Git'),
-          _SceneChip('Paris'),
-        ]),
-      ],
-    ),
-  );
-}
-
-class _OfferScene extends StatelessWidget {
-  const _OfferScene();
-
-  @override
-  Widget build(BuildContext context) => const _SceneSurface(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _SceneEyebrow('RECOMMANDÉ POUR TOI'),
-        SizedBox(height: 12),
-        _SceneHeader(icon: Icons.work_outline, title: 'Développeur Flutter', subtitle: 'Nova Studio · Paris · Alternance'),
-        SizedBox(height: 20),
-        Row(children: [
-          Expanded(child: _MiniMetric(value: '94 %', label: 'compatibilité')),
-          SizedBox(width: 10),
-          Expanded(child: _MiniMetric(value: '3/4', label: 'critères clés')),
-        ]),
-        SizedBox(height: 18),
-        Wrap(spacing: 8, runSpacing: 8, children: [
-          _SceneChip('Flutter'),
-          _SceneChip('3 j / 2 j'),
-          _SceneChip('Hybride'),
-        ]),
-      ],
-    ),
-  );
-}
-
-class _MatchScene extends StatelessWidget {
-  const _MatchScene();
-
-  @override
-  Widget build(BuildContext context) => const _SceneSurface(
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _AvatarToken(label: 'CR', accent: AppColors.blue),
-            SizedBox(width: 14),
-            Icon(Icons.favorite_rounded, color: AppColors.orange, size: 38),
-            SizedBox(width: 14),
-            _AvatarToken(label: 'N', accent: AppColors.orange),
-          ],
-        ),
-        SizedBox(height: 22),
-        Text('C’est un match.', style: TextStyle(color: AppColors.navy, fontSize: 28, fontWeight: FontWeight.w900)),
-        SizedBox(height: 8),
-        Text('L’intérêt est réciproque.', style: TextStyle(color: AppColors.blueGreyDark)),
-      ],
-    ),
-  );
-}
-
-class _CompanyIdentityScene extends StatelessWidget {
-  const _CompanyIdentityScene();
-
-  @override
-  Widget build(BuildContext context) => const _SceneSurface(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _SceneEyebrow('ESPACE ENTREPRISE'),
-        SizedBox(height: 12),
-        _SceneHeader(icon: Icons.apartment_outlined, title: 'Atelier Horizon', subtitle: 'Tech · 51–200 collaborateurs'),
-        SizedBox(height: 22),
-        _SceneLine(icon: Icons.language, text: 'Présentation de l’entreprise'),
-        _SceneLine(icon: Icons.location_on_outlined, text: 'Paris · Hybride'),
-        _SceneLine(icon: Icons.verified_outlined, text: 'Profil entreprise validé'),
-      ],
-    ),
-  );
-}
-
-class _PublishedOfferScene extends StatelessWidget {
-  const _PublishedOfferScene();
-
-  @override
-  Widget build(BuildContext context) => const _SceneSurface(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _SceneEyebrow('OFFRE ACTIVE'),
-        SizedBox(height: 12),
-        _SceneHeader(icon: Icons.work_outline, title: 'Développeur Flutter', subtitle: 'Alternance · Paris · Hybride'),
-        SizedBox(height: 20),
-        _SceneLine(icon: Icons.check_circle_outline, text: 'Compétences cibles définies'),
-        _SceneLine(icon: Icons.check_circle_outline, text: 'Rythme et localisation renseignés'),
-        _SceneLine(icon: Icons.check_circle_outline, text: 'Offre publiée'),
-      ],
-    ),
-  );
-}
-
-class _TalentScene extends StatelessWidget {
-  const _TalentScene();
-
-  @override
-  Widget build(BuildContext context) => const _SceneSurface(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _SceneEyebrow('PROFILS RECOMMANDÉS'),
-        SizedBox(height: 14),
-        _TalentRow(initials: 'CR', name: 'Camille R.', skills: 'Flutter · Dart', score: '94 %'),
-        SizedBox(height: 10),
-        _TalentRow(initials: 'AM', name: 'Alex M.', skills: 'Vue · TypeScript', score: '87 %'),
-        SizedBox(height: 10),
-        _TalentRow(initials: 'NS', name: 'Noa S.', skills: 'Java · Spring', score: '82 %'),
-      ],
-    ),
-  );
-}
-
-class _PipelineScene extends StatelessWidget {
-  const _PipelineScene({required this.company});
-  final bool company;
-
-  @override
-  Widget build(BuildContext context) => _SceneSurface(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _SceneEyebrow(company ? 'SUIVI DU RECRUTEMENT' : 'MA CANDIDATURE'),
-        const SizedBox(height: 14),
-        const _SceneHeader(icon: Icons.work_outline, title: 'Développeur Flutter', subtitle: 'Nova Studio · Paris'),
-        const SizedBox(height: 28),
-        const _StatusRail(),
-        const SizedBox(height: 24),
-        _SceneLine(
-          icon: Icons.event_available_outlined,
-          text: company ? 'Entretien proposé au candidat' : 'Entretien confirmé · jeudi, 14:00',
-        ),
-      ],
-    ),
-  );
-}
-
-class _ConversationScene extends StatelessWidget {
-  const _ConversationScene({required this.company});
-  final bool company;
-
-  @override
-  Widget build(BuildContext context) => _SceneSurface(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const _SceneEyebrow('CONVERSATION LIÉE À L’OFFRE'),
-        const SizedBox(height: 14),
-        _MessageBubble(
-          text: company
-              ? 'Bonjour Camille, nous aimerions échanger sur ton parcours.'
-              : 'Bonjour Camille, nous aimerions échanger sur ton parcours.',
-          mine: company,
-        ),
-        const SizedBox(height: 10),
-        _MessageBubble(
-          text: company
-              ? 'Avec plaisir, jeudi à 14 h me convient.'
-              : 'Avec plaisir, jeudi à 14 h me convient.',
-          mine: !company,
-        ),
-        const SizedBox(height: 16),
-        const _SceneLine(icon: Icons.videocam_outlined, text: 'Entretien · jeudi 14:00 · Visio'),
-      ],
-    ),
-  );
-}
-
-class _SceneSurface extends StatelessWidget {
-  const _SceneSurface({required this.child});
-  final Widget child;
+  final _ProductStep story;
+  final int step;
+  final bool reduceMotion;
 
   @override
   Widget build(BuildContext context) => Container(
     width: double.infinity,
-    constraints: const BoxConstraints(minHeight: 280),
-    padding: const EdgeInsets.all(22),
     decoration: BoxDecoration(
-      color: AppColors.white,
-      borderRadius: BorderRadius.circular(20),
+      color: AppColors.navy,
+      borderRadius: BorderRadius.circular(30),
+      border: Border.all(color: AppColors.white.withValues(alpha: .22)),
       boxShadow: [
-        BoxShadow(color: AppColors.navy.withValues(alpha: .15), blurRadius: 28, offset: const Offset(0, 14)),
-      ],
-    ),
-    child: child,
-  );
-}
-
-class _SceneHeader extends StatelessWidget {
-  const _SceneHeader({required this.icon, required this.title, required this.subtitle});
-  final IconData icon;
-  final String title;
-  final String subtitle;
-
-  @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      CircleAvatar(
-        radius: 23,
-        backgroundColor: AppColors.blueGrey10,
-        child: Icon(icon, color: AppColors.navy),
-      ),
-      const SizedBox(width: 14),
-      Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: const TextStyle(color: AppColors.navy, fontSize: 18, fontWeight: FontWeight.w900)),
-            const SizedBox(height: 3),
-            Text(subtitle, style: const TextStyle(color: AppColors.blueGreyDark, fontSize: 12)),
-          ],
+        BoxShadow(
+          color: AppColors.navy.withValues(alpha: .28),
+          blurRadius: 64,
+          offset: const Offset(0, 28),
         ),
+      ],
+    ),
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(29),
+      child: Column(
+        children: [
+          _TheaterHeader(step: step),
+          _CinematicFrame(story: story, reduceMotion: reduceMotion),
+          _TheaterCaption(story: story, step: step),
+        ],
       ),
-    ],
-  );
-}
-
-class _SceneEyebrow extends StatelessWidget {
-  const _SceneEyebrow(this.text);
-  final String text;
-
-  @override
-  Widget build(BuildContext context) => Text(
-    text,
-    style: const TextStyle(color: AppColors.orange, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1),
-  );
-}
-
-class _SceneLabel extends StatelessWidget {
-  const _SceneLabel(this.text);
-  final String text;
-
-  @override
-  Widget build(BuildContext context) => Text(text, style: const TextStyle(color: AppColors.blueGreyDark, fontSize: 12, fontWeight: FontWeight.w700));
-}
-
-class _SceneChip extends StatelessWidget {
-  const _SceneChip(this.text);
-  final String text;
-
-  @override
-  Widget build(BuildContext context) => Chip(
-    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-    side: BorderSide.none,
-    backgroundColor: AppColors.blueGrey10,
-    label: Text(text, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
-  );
-}
-
-class _MiniMetric extends StatelessWidget {
-  const _MiniMetric({required this.value, required this.label});
-  final String value;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(14),
-    decoration: BoxDecoration(color: AppColors.background, borderRadius: BorderRadius.circular(14)),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(value, style: const TextStyle(color: AppColors.navy, fontSize: 22, fontWeight: FontWeight.w900)),
-        const SizedBox(height: 3),
-        Text(label, style: const TextStyle(color: AppColors.blueGreyDark, fontSize: 10)),
-      ],
     ),
   );
 }
 
-class _AvatarToken extends StatelessWidget {
-  const _AvatarToken({required this.label, required this.accent});
-  final String label;
-  final Color accent;
+class _TheaterHeader extends StatelessWidget {
+  const _TheaterHeader({required this.step});
+  final int step;
 
   @override
   Widget build(BuildContext context) => Container(
-    width: 70,
-    height: 70,
-    alignment: Alignment.center,
+    height: 50,
+    padding: const EdgeInsets.symmetric(horizontal: 18),
     decoration: BoxDecoration(
-      shape: BoxShape.circle,
-      color: accent.withValues(alpha: .16),
-      border: Border.all(color: accent, width: 2),
+      color: AppColors.navyLight,
+      border: Border(
+        bottom: BorderSide(color: AppColors.white.withValues(alpha: .09)),
+      ),
     ),
-    child: Text(label, style: const TextStyle(color: AppColors.navy, fontSize: 20, fontWeight: FontWeight.w900)),
-  );
-}
-
-class _SceneLine extends StatelessWidget {
-  const _SceneLine({required this.icon, required this.text});
-  final IconData icon;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: 11),
     child: Row(
       children: [
-        Icon(icon, color: AppColors.cyanBlue, size: 18),
-        const SizedBox(width: 10),
-        Expanded(child: Text(text, style: const TextStyle(color: AppColors.blueGreyDark, fontSize: 12, fontWeight: FontWeight.w600))),
-      ],
-    ),
-  );
-}
-
-class _TalentRow extends StatelessWidget {
-  const _TalentRow({required this.initials, required this.name, required this.skills, required this.score});
-  final String initials;
-  final String name;
-  final String skills;
-  final String score;
-
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(12),
-    decoration: BoxDecoration(color: AppColors.background, borderRadius: BorderRadius.circular(14)),
-    child: Row(
-      children: [
-        CircleAvatar(backgroundColor: AppColors.blueGrey10, child: Text(initials, style: const TextStyle(color: AppColors.navy, fontWeight: FontWeight.w900))),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(name, style: const TextStyle(fontWeight: FontWeight.w900)),
-              Text(skills, style: const TextStyle(color: AppColors.blueGreyDark, fontSize: 11)),
-            ],
+        const _WindowDot(color: AppColors.orange),
+        const SizedBox(width: 7),
+        const _WindowDot(color: AppColors.orangeLight),
+        const SizedBox(width: 7),
+        const _WindowDot(color: AppColors.blue),
+        const Spacer(),
+        Text(
+          'JOYN · VISITE PRODUIT',
+          style: TextStyle(
+            color: AppColors.white.withValues(alpha: .68),
+            fontSize: 10,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 1.25,
           ),
         ),
-        Text(score, style: const TextStyle(color: AppColors.orange, fontWeight: FontWeight.w900)),
+        const Spacer(),
+        Text(
+          '0${step + 1}',
+          style: const TextStyle(
+            color: AppColors.orangeLight,
+            fontSize: 11,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
       ],
     ),
   );
 }
 
-class _StatusRail extends StatelessWidget {
-  const _StatusRail();
+class _WindowDot extends StatelessWidget {
+  const _WindowDot({required this.color});
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: 8,
+    height: 8,
+    decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+  );
+}
+
+class _CinematicFrame extends StatelessWidget {
+  const _CinematicFrame({required this.story, required this.reduceMotion});
+
+  final _ProductStep story;
+  final bool reduceMotion;
 
   @override
   Widget build(BuildContext context) {
-    const labels = ['Envoyée', 'En étude', 'Entretien'];
-    return Row(
-      children: [
-        for (var i = 0; i < labels.length; i++) ...[
-          Expanded(
-            child: Column(
-              children: [
-                CircleAvatar(
-                  radius: 17,
-                  backgroundColor: i < 2 ? AppColors.cyanBlue : AppColors.orange,
-                  child: Icon(i < 2 ? Icons.check_rounded : Icons.event_available_rounded, color: AppColors.white, size: 17),
+    final duration = reduceMotion
+        ? Duration.zero
+        : const Duration(milliseconds: 2900);
+
+    return Container(
+      color: AppColors.navy,
+      padding: EdgeInsets.all(MediaQuery.sizeOf(context).width < 620 ? 10 : 18),
+      child: AspectRatio(
+        aspectRatio: 1.535,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(18),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Container(color: AppColors.navyLight),
+              TweenAnimationBuilder<double>(
+                key: ValueKey('${story.asset}-${story.zoom}-${story.focus}'),
+                tween: Tween(begin: 1, end: story.zoom),
+                duration: duration,
+                curve: Curves.easeInOutCubic,
+                builder: (context, scale, child) => Transform.scale(
+                  scale: scale,
+                  alignment: story.focus,
+                  child: child,
                 ),
-                const SizedBox(height: 7),
-                Text(labels[i], textAlign: TextAlign.center, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700)),
-              ],
-            ),
+                child: Image.asset(
+                  story.asset,
+                  fit: BoxFit.contain,
+                  filterQuality: FilterQuality.high,
+                ),
+              ),
+              if (!reduceMotion)
+                TweenAnimationBuilder<Alignment>(
+                  key: ValueKey('cursor-${story.asset}-${story.cursor}'),
+                  tween: Tween<Alignment>(
+                    begin: const Alignment(-.8, .75),
+                    end: story.cursor,
+                  ),
+                  duration: const Duration(milliseconds: 1350),
+                  curve: Curves.easeOutCubic,
+                  builder: (context, alignment, child) => Align(
+                    alignment: alignment,
+                    child: child,
+                  ),
+                  child: const _GuidedCursor(),
+                ),
+            ],
           ),
-          if (i != labels.length - 1)
-            Expanded(child: Container(height: 2, color: AppColors.blueGrey10)),
-        ],
-      ],
+        ),
+      ),
     );
   }
 }
 
-class _MessageBubble extends StatelessWidget {
-  const _MessageBubble({required this.text, required this.mine});
-  final String text;
-  final bool mine;
+class _GuidedCursor extends StatelessWidget {
+  const _GuidedCursor();
 
   @override
-  Widget build(BuildContext context) => Align(
-    alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
-    child: Container(
-      constraints: const BoxConstraints(maxWidth: 360),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
-      decoration: BoxDecoration(
-        color: mine ? AppColors.navy : AppColors.blueGrey10,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(color: mine ? AppColors.white : AppColors.blueGreyDark, fontSize: 12, height: 1.35),
-      ),
+  Widget build(BuildContext context) => Container(
+    width: 36,
+    height: 36,
+    decoration: BoxDecoration(
+      color: AppColors.white.withValues(alpha: .94),
+      shape: BoxShape.circle,
+      border: Border.all(color: AppColors.orange.withValues(alpha: .8), width: 2),
+      boxShadow: [
+        BoxShadow(
+          color: AppColors.orange.withValues(alpha: .34),
+          blurRadius: 18,
+          spreadRadius: 2,
+        ),
+      ],
+    ),
+    child: const Icon(
+      Icons.near_me_rounded,
+      color: AppColors.orange,
+      size: 19,
     ),
   );
 }
 
-class _StoryStep {
-  const _StoryStep({required this.title, required this.caption, required this.icon});
+class _TheaterCaption extends StatelessWidget {
+  const _TheaterCaption({required this.story, required this.step});
+
+  final _ProductStep story;
+  final int step;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: double.infinity,
+    padding: EdgeInsets.fromLTRB(
+      MediaQuery.sizeOf(context).width < 620 ? 18 : 28,
+      22,
+      MediaQuery.sizeOf(context).width < 620 ? 18 : 28,
+      26,
+    ),
+    decoration: BoxDecoration(
+      color: AppColors.white,
+      border: Border(
+        top: BorderSide(color: AppColors.greyLight.withValues(alpha: .5)),
+      ),
+    ),
+    child: LayoutBuilder(
+      builder: (context, constraints) {
+        final number = Text(
+          '0${step + 1}',
+          style: const TextStyle(
+            color: AppColors.orange,
+            fontSize: 12,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.4,
+          ),
+        );
+        final copy = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              story.title,
+              style: const TextStyle(
+                color: AppColors.navy,
+                fontSize: 21,
+                height: 1.15,
+                fontWeight: FontWeight.w900,
+                letterSpacing: -.35,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              story.caption,
+              style: const TextStyle(
+                color: AppColors.blueGreyDark,
+                fontSize: 13,
+                height: 1.5,
+              ),
+            ),
+          ],
+        );
+
+        if (constraints.maxWidth < 700) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [number, const SizedBox(height: 10), copy],
+          );
+        }
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(width: 46, child: number),
+            const SizedBox(width: 8),
+            Expanded(child: copy),
+          ],
+        );
+      },
+    ),
+  );
+}
+
+@immutable
+class _ProductStep {
+  const _ProductStep({
+    required this.shortLabel,
+    required this.title,
+    required this.caption,
+    required this.asset,
+    required this.focus,
+    required this.cursor,
+    required this.zoom,
+  });
+
+  final String shortLabel;
   final String title;
   final String caption;
-  final IconData icon;
+  final String asset;
+  final Alignment focus;
+  final Alignment cursor;
+  final double zoom;
 }
