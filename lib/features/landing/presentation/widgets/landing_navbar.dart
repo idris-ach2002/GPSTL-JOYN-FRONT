@@ -8,10 +8,9 @@ import 'landing_motion.dart';
 
 /// Navigation web JOYN.
 ///
-/// La barre reste très légère dans le hero puis devient une surface flottante
-/// bleu nuit pendant le scroll. Les CTA d'accès au compte sont volontairement
-/// asymétriques : « Connexion » reste secondaire alors que « Inscription »
-/// porte l'action principale.
+/// La barre reste fixe en haut pendant toute la visite. Le style reste proche
+/// de la maquette validée : surface bleu nuit, navigation centrale en teintes
+/// blanches/grises et CTA plus sobres, sans flèches décoratives.
 class LandingNavbar extends StatefulWidget {
   const LandingNavbar({
     required this.onNavigate,
@@ -42,176 +41,158 @@ class _LandingNavbarState extends State<LandingNavbar> {
   }
 
   @override
-  Widget build(BuildContext context) => AnimatedBuilder(
-    animation: widget.scrollController,
-    builder: (context, _) {
-      final offset = widget.scrollController.hasClients
-          ? widget.scrollController.offset
-          : 0.0;
-      final progress = (offset / 140).clamp(0.0, 1.0).toDouble();
-      final reduceMotion = MediaQuery.disableAnimationsOf(context);
-      final effectiveProgress = reduceMotion && offset > 0 ? 1.0 : progress;
+  Widget build(BuildContext context) => ContentContainer(
+    maxWidth: 1440,
+    child: const Padding(
+      padding: EdgeInsets.only(top: 18, bottom: 8),
+      child: _NavbarSurface(),
+    ),
+  );
+}
 
-      return ContentContainer(
-        maxWidth: 1440 - (220 * effectiveProgress),
-        child: Padding(
-          padding: EdgeInsets.only(
-            top: 18 - (8 * effectiveProgress),
-            bottom: 8,
+class _NavbarSurface extends StatelessWidget {
+  const _NavbarSurface();
+
+  @override
+  Widget build(BuildContext context) {
+    final state = context.findAncestorStateOfType<_LandingNavbarState>();
+    if (state == null) return const SizedBox.shrink();
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.navy,
+        borderRadius: BorderRadius.circular(26),
+        border: Border.all(color: AppColors.white.withValues(alpha: .12)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.navy.withValues(alpha: .18),
+            blurRadius: 28,
+            offset: const Offset(0, 10),
           ),
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppColors.navy.withValues(
-                alpha: .03 + (.94 * effectiveProgress),
-              ),
-              borderRadius: BorderRadius.circular(
-                24 - (5 * effectiveProgress),
-              ),
-              border: Border.all(
-                color: AppColors.white.withValues(
-                  alpha: .02 + (.13 * effectiveProgress),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final compact = constraints.maxWidth < 1100;
+            final narrow = constraints.maxWidth < 760;
+
+            final brand = LandingReveal(
+              duration: const Duration(milliseconds: 460),
+              offset: const Offset(0, -12),
+              child: TextButton(
+                onPressed: () => state._navigate(LandingSection.hero),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  foregroundColor: AppColors.white,
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    JoynMark(size: 34),
+                    SizedBox(width: 12),
+                    Text(
+                      'joyn',
+                      style: TextStyle(
+                        fontSize: 24,
+                        color: AppColors.white,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -.7,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              boxShadow: effectiveProgress == 0
-                  ? const []
-                  : [
-                      BoxShadow(
-                        color: AppColors.navy.withValues(
-                          alpha: .22 * effectiveProgress,
-                        ),
-                        blurRadius: 34 * effectiveProgress,
-                        offset: Offset(0, 14 * effectiveProgress),
-                      ),
-                    ],
-            ),
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: 10 + (6 * effectiveProgress),
-                vertical: 8 - (2 * effectiveProgress),
+            );
+
+            const login = _AccountAccessButton(
+              label: 'Connexion',
+              route: '/connexion',
+            );
+            const register = _AccountAccessButton(
+              label: 'Inscription',
+              route: '/inscription',
+              primary: true,
+            );
+
+            final actions = LandingReveal(
+              delay: const Duration(milliseconds: 220),
+              duration: const Duration(milliseconds: 500),
+              offset: const Offset(0, -10),
+              child: Row(
+                mainAxisSize: narrow ? MainAxisSize.max : MainAxisSize.min,
+                children: [
+                  if (narrow)
+                    const Expanded(child: login)
+                  else
+                    login,
+                  const SizedBox(width: 12),
+                  if (narrow)
+                    const Expanded(child: register)
+                  else
+                    register,
+                ],
               ),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final compact = constraints.maxWidth < 1080;
-                  final narrow = constraints.maxWidth < 690;
+            );
 
-                  final brand = LandingReveal(
-                    duration: const Duration(milliseconds: 460),
-                    offset: const Offset(0, -12),
-                    child: TextButton(
-                      onPressed: () => _navigate(LandingSection.hero),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 8,
-                        ),
-                        foregroundColor: AppColors.white,
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          JoynMark(size: 32),
-                          SizedBox(width: 9),
-                          Text(
-                            'joyn',
-                            style: TextStyle(
-                              fontSize: 23,
-                              color: AppColors.white,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: -.7,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
+            final menu = MenuAnchor(
+              menuChildren: [
+                for (final link in _LandingNavbarState._links.entries)
+                  MenuItemButton(
+                    onPressed: () => state._navigate(link.key),
+                    child: Text(link.value),
+                  ),
+              ],
+              builder: (_, controller, child) => IconButton(
+                tooltip: 'Ouvrir la navigation',
+                onPressed: () => controller.isOpen
+                    ? controller.close()
+                    : controller.open(),
+                color: AppColors.white,
+                icon: const Icon(Icons.menu_rounded),
+              ),
+            );
 
-                  const login = _AccountAccessButton(
-                    label: 'Connexion',
-                    route: '/connexion',
-                  );
-                  const register = _AccountAccessButton(
-                    label: 'Inscription',
-                    route: '/inscription',
-                    primary: true,
-                  );
+            if (narrow) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(children: [brand, const Spacer(), menu]),
+                  const SizedBox(height: 8),
+                  actions,
+                ],
+              );
+            }
 
-                  final actions = LandingReveal(
-                    delay: const Duration(milliseconds: 220),
-                    duration: const Duration(milliseconds: 500),
+            return Row(
+              children: [
+                brand,
+                const Spacer(),
+                if (compact)
+                  menu
+                else
+                  LandingReveal(
+                    delay: const Duration(milliseconds: 110),
+                    duration: const Duration(milliseconds: 480),
                     offset: const Offset(0, -10),
-                    child: Row(
-                      mainAxisSize: narrow ? MainAxisSize.max : MainAxisSize.min,
-                      children: [
-                        if (narrow)
-                          const Expanded(child: login)
-                        else
-                          login,
-                        const SizedBox(width: 9),
-                        if (narrow)
-                          const Expanded(child: register)
-                        else
-                          register,
-                      ],
+                    child: _NavigationLinks(
+                      selected: state._selected,
+                      onNavigate: state._navigate,
                     ),
-                  );
-
-                  final menu = MenuAnchor(
-                    menuChildren: [
-                      for (final link in _links.entries)
-                        MenuItemButton(
-                          onPressed: () => _navigate(link.key),
-                          child: Text(link.value),
-                        ),
-                    ],
-                    builder: (_, controller, child) => IconButton(
-                      tooltip: 'Ouvrir la navigation',
-                      onPressed: () => controller.isOpen
-                          ? controller.close()
-                          : controller.open(),
-                      color: AppColors.white,
-                      icon: const Icon(Icons.menu_rounded),
-                    ),
-                  );
-
-                  if (narrow) {
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(children: [brand, const Spacer(), menu]),
-                        const SizedBox(height: 7),
-                        actions,
-                      ],
-                    );
-                  }
-
-                  return Row(
-                    children: [
-                      brand,
-                      const Spacer(),
-                      if (compact)
-                        menu
-                      else
-                        LandingReveal(
-                          delay: const Duration(milliseconds: 110),
-                          duration: const Duration(milliseconds: 480),
-                          offset: const Offset(0, -10),
-                          child: _NavigationLinks(
-                            selected: _selected,
-                            onNavigate: _navigate,
-                          ),
-                        ),
-                      const Spacer(),
-                      actions,
-                    ],
-                  );
-                },
-              ),
-            ),
-          ),
+                  ),
+                const Spacer(),
+                actions,
+              ],
+            );
+          },
         ),
-      );
-    },
-  );
+      ),
+    );
+  }
 }
 
 class _NavigationLinks extends StatelessWidget {
@@ -222,11 +203,11 @@ class _NavigationLinks extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(4),
+    padding: const EdgeInsets.all(6),
     decoration: BoxDecoration(
-      color: AppColors.white.withValues(alpha: .055),
-      borderRadius: BorderRadius.circular(17),
-      border: Border.all(color: AppColors.white.withValues(alpha: .11)),
+      color: AppColors.white.withValues(alpha: .07),
+      borderRadius: BorderRadius.circular(22),
+      border: Border.all(color: AppColors.white.withValues(alpha: .14)),
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
@@ -269,13 +250,17 @@ class _NavLinkState extends State<_NavLink> {
       duration: MediaQuery.disableAnimationsOf(context)
           ? Duration.zero
           : const Duration(milliseconds: 220),
+      curve: Curves.easeOutCubic,
       decoration: BoxDecoration(
         color: widget.selected
-            ? AppColors.white.withValues(alpha: .11)
+            ? AppColors.white.withValues(alpha: .12)
             : _hovered
-            ? AppColors.white.withValues(alpha: .065)
-            : Colors.transparent,
-        borderRadius: BorderRadius.circular(13),
+                ? AppColors.white.withValues(alpha: .075)
+                : Colors.transparent,
+        borderRadius: BorderRadius.circular(18),
+        border: widget.selected
+            ? Border.all(color: AppColors.white.withValues(alpha: .08))
+            : null,
       ),
       child: TextButton(
         onPressed: widget.onPressed,
@@ -283,22 +268,17 @@ class _NavLinkState extends State<_NavLink> {
           foregroundColor: widget.selected
               ? AppColors.orangeLight
               : AppColors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 15),
         ),
         child: Text(
           widget.label,
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
         ),
       ),
     ),
   );
 }
 
-/// CTA asymétrique de la navbar.
-///
-/// Le secondaire se transforme en surface blanche au survol. Le primaire reste
-/// orange et anime surtout sa pastille terminale, ce qui évite l'effet de deux
-/// boutons Material identiques ou d'une simple capsule « glass ».
 class _AccountAccessButton extends StatefulWidget {
   const _AccountAccessButton({
     required this.label,
@@ -324,14 +304,12 @@ class _AccountAccessButtonState extends State<_AccountAccessButton> {
     final active = (_hovered || _focused) && !reduceMotion;
     final duration = reduceMotion
         ? Duration.zero
-        : const Duration(milliseconds: 300);
+        : const Duration(milliseconds: 280);
 
     final background = widget.primary
         ? (active ? AppColors.orangeLight : AppColors.orange)
-        : (active ? AppColors.white : Colors.transparent);
-    final foreground = widget.primary
-        ? AppColors.white
-        : (active ? AppColors.navy : AppColors.white);
+        : AppColors.navy.withValues(alpha: active ? .15 : .08);
+    final foreground = AppColors.white;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -344,18 +322,16 @@ class _AccountAccessButtonState extends State<_AccountAccessButton> {
           curve: Curves.easeOutCubic,
           decoration: BoxDecoration(
             color: background,
-            borderRadius: BorderRadius.circular(widget.primary ? 15 : 14),
+            borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color: widget.primary
-                  ? AppColors.orange.withValues(alpha: .2)
-                  : active
-                  ? AppColors.white
-                  : AppColors.white.withValues(alpha: .34),
+                  ? AppColors.orange.withValues(alpha: .32)
+                  : AppColors.white.withValues(alpha: active ? .22 : .18),
             ),
             boxShadow: widget.primary && active
                 ? [
                     BoxShadow(
-                      color: AppColors.orange.withValues(alpha: .25),
+                      color: AppColors.orange.withValues(alpha: .22),
                       blurRadius: 24,
                       offset: const Offset(0, 8),
                     ),
@@ -365,68 +341,23 @@ class _AccountAccessButtonState extends State<_AccountAccessButton> {
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              borderRadius: BorderRadius.circular(widget.primary ? 15 : 14),
+              borderRadius: BorderRadius.circular(18),
               onTap: () => Navigator.pushNamed(context, widget.route),
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(
-                  widget.primary ? 16 : 17,
-                  8,
-                  widget.primary ? 8 : 14,
-                  8,
+              child: AnimatedPadding(
+                duration: duration,
+                curve: Curves.easeOutCubic,
+                padding: EdgeInsets.symmetric(
+                  horizontal: active ? 28 : 25,
+                  vertical: active ? 17 : 16,
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    AnimatedSlide(
-                      duration: duration,
-                      curve: Curves.easeOutCubic,
-                      offset: active ? const Offset(-.035, 0) : Offset.zero,
-                      child: Text(
-                        widget.label,
-                        style: TextStyle(
-                          color: foreground,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: widget.primary ? 13 : 9),
-                    if (widget.primary)
-                      AnimatedContainer(
-                        duration: duration,
-                        curve: Curves.easeOutCubic,
-                        width: active ? 36 : 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: active
-                              ? AppColors.white
-                              : AppColors.white.withValues(alpha: .16),
-                        ),
-                        child: AnimatedSlide(
-                          duration: duration,
-                          curve: Curves.easeOutCubic,
-                          offset: active ? const Offset(.08, 0) : Offset.zero,
-                          child: Icon(
-                            Icons.arrow_forward_rounded,
-                            size: 17,
-                            color: active ? AppColors.orange : AppColors.white,
-                          ),
-                        ),
-                      )
-                    else
-                      AnimatedSlide(
-                        duration: duration,
-                        curve: Curves.easeOutCubic,
-                        offset: active ? const Offset(.18, 0) : Offset.zero,
-                        child: Icon(
-                          Icons.north_east_rounded,
-                          size: 17,
-                          color: foreground,
-                        ),
-                      ),
-                  ],
+                child: Text(
+                  widget.label,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: foreground,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
               ),
             ),
