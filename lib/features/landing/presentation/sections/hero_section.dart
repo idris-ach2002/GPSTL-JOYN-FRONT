@@ -7,7 +7,6 @@ import '../../../../design_system/tokens/app_spacing.dart';
 import '../navigation/landing_section.dart';
 import '../widgets/hero_background.dart';
 import '../widgets/hero_match_preview.dart';
-import '../widgets/landing_navbar.dart';
 import '../widgets/landing_motion.dart';
 
 class HeroSection extends StatelessWidget {
@@ -25,8 +24,9 @@ class HeroSection extends StatelessWidget {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              LandingNavbar(onNavigate: onNavigate),
-
+              // La navbar est désormais flottante dans LandingScreen. Ce
+              // dégagement conserve la respiration de la maquette originale.
+              SizedBox(height: constraints.maxWidth < 690 ? 132 : 96),
               ContentContainer(
                 maxWidth: 1440,
                 child: isDesktop
