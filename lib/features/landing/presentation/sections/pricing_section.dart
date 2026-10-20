@@ -323,7 +323,7 @@ class _PlanCarouselState extends State<_PlanCarousel> {
               ],
             ),
             const Text(
-              'Glisse les cartes · ou utilise ← et → après sélection du carrousel',
+              'Glisse les cartes · ou utilise les flèches gauche et droite après sélection du carrousel',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 12, color: AppColors.blueGreyDark),
             ),
@@ -614,7 +614,7 @@ class _BoostPreview extends StatelessWidget {
                 ),
                 if (i == 0)
                   const Text(
-                    '↑ Boost',
+                    'Boost',
                     style: TextStyle(fontSize: 10, color: AppColors.orange),
                   ),
               ],

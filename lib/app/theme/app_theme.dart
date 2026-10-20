@@ -9,6 +9,7 @@ import '../../design_system/tokens/app_colors.dart';
 abstract final class AppTheme {
   static ThemeData get light => ThemeData(
     useMaterial3: true,
+    fontFamily: 'Roboto',
     colorScheme: const ColorScheme.light(
       primary: AppColors.navy,
       onPrimary: AppColors.white,
