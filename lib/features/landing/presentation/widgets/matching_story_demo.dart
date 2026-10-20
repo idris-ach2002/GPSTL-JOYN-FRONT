@@ -228,13 +228,13 @@ class _MatchingStoryDemoState extends State<MatchingStoryDemo> {
           onAudienceChanged: _setAudience,
           onTogglePlayback: _togglePlayback,
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: 14),
         _StoryProgress(
           step: _step,
           steps: _steps,
           onStepSelected: _setStep,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         AnimatedSwitcher(
           duration: reduceMotion
               ? Duration.zero
@@ -414,7 +414,7 @@ class _ProgressSegment extends StatelessWidget {
           duration: MediaQuery.disableAnimationsOf(context)
               ? Duration.zero
               : const Duration(milliseconds: 280),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           decoration: BoxDecoration(
             color: selected
                 ? AppColors.navy
@@ -489,7 +489,7 @@ class _TheaterHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    height: 46,
+    height: 42,
     padding: const EdgeInsets.symmetric(horizontal: 18),
     decoration: BoxDecoration(
       color: AppColors.navyLight,
@@ -562,7 +562,7 @@ class _CinematicFrame extends StatelessWidget {
 
     return Container(
       color: AppColors.navy,
-      padding: EdgeInsets.all(MediaQuery.sizeOf(context).width < 620 ? 10 : 14),
+      padding: EdgeInsets.all(MediaQuery.sizeOf(context).width < 620 ? 8 : 10),
       child: AspectRatio(
         aspectRatio: _aspectRatioFor(MediaQuery.sizeOf(context).width),
         child: ClipRRect(
@@ -648,9 +648,9 @@ class _TheaterCaption extends StatelessWidget {
     width: double.infinity,
     padding: EdgeInsets.fromLTRB(
       MediaQuery.sizeOf(context).width < 620 ? 18 : 28,
-      18,
-      MediaQuery.sizeOf(context).width < 620 ? 18 : 24,
-      22,
+      14,
+      MediaQuery.sizeOf(context).width < 620 ? 18 : 22,
+      16,
     ),
     decoration: BoxDecoration(
       color: AppColors.white,
@@ -676,18 +676,18 @@ class _TheaterCaption extends StatelessWidget {
               story.title,
               style: const TextStyle(
                 color: AppColors.navy,
-                fontSize: 19,
+                fontSize: 18,
                 height: 1.15,
                 fontWeight: FontWeight.w900,
                 letterSpacing: -.35,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Text(
               story.caption,
               style: const TextStyle(
                 color: AppColors.blueGreyDark,
-                fontSize: 12.5,
+                fontSize: 12,
                 height: 1.5,
               ),
             ),

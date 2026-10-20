@@ -16,14 +16,22 @@ class UniverseSection extends StatelessWidget {
   final ScrollController? scrollController;
 
   @override
-  Widget build(BuildContext context) => ScrollAtmosphere(
-    universe: true,
-    scrollController: scrollController,
-    child: ContentContainer(
-      maxWidth: 1240,
-      child: Padding(
-        padding: const EdgeInsets.only(top: 132, bottom: 148),
-        child: Column(
+  Widget build(BuildContext context) {
+    final viewport = MediaQuery.sizeOf(context);
+    final compactLaptop = viewport.width <= 1440 || viewport.height <= 900;
+    final demoMaxWidth = compactLaptop ? 920.0 : 1020.0;
+
+    return ScrollAtmosphere(
+      universe: true,
+      scrollController: scrollController,
+      child: ContentContainer(
+        maxWidth: 1240,
+        child: Padding(
+          padding: EdgeInsets.only(
+            top: compactLaptop ? 112 : 126,
+            bottom: compactLaptop ? 124 : 142,
+          ),
+          child: Column(
           children: [
             const Text(
               'LE PRODUIT, EN ACTION',
@@ -41,7 +49,7 @@ class UniverseSection extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.white,
-                fontSize: MediaQuery.sizeOf(context).width < 600 ? 37 : 60,
+                fontSize: viewport.width < 600 ? 36 : compactLaptop ? 54 : 58,
                 fontWeight: FontWeight.w900,
                 height: 1.02,
                 letterSpacing: -2,
@@ -67,11 +75,15 @@ class UniverseSection extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 40),
-            const MatchingStoryDemo(),
+            SizedBox(height: compactLaptop ? 30 : 36),
+            ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: demoMaxWidth),
+              child: const MatchingStoryDemo(),
+            ),
           ],
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
