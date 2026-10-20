@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import '../features/auth/presentation/auth_screen.dart';
 import '../features/landing/presentation/screens/landing_screen.dart';
 import '../features/startup/mobile_startup_screen.dart';
+import '../features/information/domain/information_content.dart';
+import '../features/information/presentation/information_screen.dart';
 import 'theme/app_theme.dart';
 
 /// L'entrée dépend de la plateforme, jamais de la largeur de fenêtre.
@@ -25,6 +27,8 @@ class JoynApp extends StatelessWidget {
         ? const LandingScreen() : const MobileStartupScreen(),
       '/connexion': (_) => const AuthScreen(),
       '/inscription': (_) => const AuthScreen(registration: true),
+      for (final entry in informationPages.entries)
+        entry.key: (_) => InformationScreen(page: entry.value),
     },
   );
 }

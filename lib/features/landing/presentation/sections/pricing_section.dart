@@ -86,13 +86,15 @@ class _PlanCarouselState extends State<_PlanCarousel> {
   late int _index = widget.initialIndex;
 
   void _move(int direction) {
-    final target = (_index + direction).clamp(0, widget.plans.length - 1);
+    final target = (_index + direction).clamp(0, widget.plans.length - 1).toInt();
     _focus.requestFocus();
     if (target == _index) return;
-    _controller.animateToPage(target,
-      duration: MediaQuery.disableAnimationsOf(context)
-        ? Duration.zero : const Duration(milliseconds: 480),
-      curve: Curves.easeInOutCubic);
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _controller.jumpToPage(target);
+    } else {
+      _controller.animateToPage(target,
+        duration: const Duration(milliseconds: 480), curve: Curves.easeInOutCubic);
+    }
   }
 
   @override

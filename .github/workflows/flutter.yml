@@ -1,7 +1,7 @@
 name: Qualité Flutter
 on:
   push:
-    branches: ['feat/landing-material']
+    branches: ['landing-page', 'feat/landing-material']
   pull_request:
 permissions:
   contents: read
@@ -18,6 +18,6 @@ jobs:
       - run: flutter --version
       - run: flutter pub get
       - run: dart format lib test
-      - run: flutter analyze --no-fatal-infos
+      - run: flutter analyze
       - run: flutter test
       - run: flutter build web --release

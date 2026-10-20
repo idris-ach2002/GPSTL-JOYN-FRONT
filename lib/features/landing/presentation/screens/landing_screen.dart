@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../design_system/layout/content_container.dart';
 import '../navigation/landing_section.dart';
 import '../sections/companies_section.dart';
 import '../sections/features_section.dart';
@@ -49,37 +48,10 @@ class _LandingScreenState extends State<LandingScreen> {
           CompaniesSection(key: _keys[LandingSection.companies]),
           UniverseSection(scrollController: _scrollController),
           PricingSection(key: _keys[LandingSection.pricing], scrollController: _scrollController),
-          _AssistanceSection(key: _keys[LandingSection.assistance]),
-          FooterSection(onNavigate: _navigate),
+          FooterSection(onNavigate: _navigate, scrollController: _scrollController),
         ]),
       ),
     )),
   );
 }
 
-/// Aide locale et factuelle ; aucun lien vers des guides non fournis.
-class _AssistanceSection extends StatelessWidget {
-  const _AssistanceSection({super.key});
-
-  @override
-  Widget build(BuildContext context) => ContentContainer(maxWidth: 1000,
-    child: Padding(padding: const EdgeInsets.symmetric(vertical: 64),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('Questions fréquentes', style: Theme.of(context).textTheme.headlineMedium
-          ?.copyWith(fontWeight: FontWeight.w800)),
-        const SizedBox(height: 24),
-        const ExpansionTile(title: Text('À qui s’adresse JOYN ?'),
-          childrenPadding: EdgeInsets.all(16),
-          children: [Text('JOYN réunit les candidats à une alternance et les '
-            'entreprises qui souhaitent recruter.')]),
-        const ExpansionTile(title: Text('Le Boost remplace-t-il JOYN+ ?'),
-          childrenPadding: EdgeInsets.all(16),
-          children: [Text('Le Boost proposé est un complément ponctuel de visibilité. '
-            'Il ne remplace pas la formule du compte.')]),
-        const ExpansionTile(title: Text('Où retrouver mon espace ?'),
-          childrenPadding: EdgeInsets.all(16),
-          children: [Text('Les boutons Connexion et Inscription ouvrent les '
-            'écrans d’accès. Les comptes ne sont pas encore accessibles dans cette version.')]),
-      ])),
-  );
-}
