@@ -14,7 +14,7 @@ class HeroBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(
-      clipBehavior: Clip.none,
+      clipBehavior: Clip.hardEdge,
       children: [
         const Positioned.fill(
           child: DecoratedBox(
