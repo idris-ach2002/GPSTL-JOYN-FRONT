@@ -1,48 +1,43 @@
-# Importer les fichiers ET les commits
+# Importer la livraison sans écraser le dépôt
 
-Le premier rsync copiait seulement les fichiers : c'est normal que ton Git
-n'affichait pas les sept commits. `git restore .` a ensuite rétabli les fichiers
-suivis, mais a laissé les nouveaux dossiers non suivis.
+La livraison transporte la branche `landing-page` dans un **Git bundle**. C'est
+ce bundle qui applique les commits et les fichiers ; il n'y a plus de second
+`rsync` susceptible de masquer l'état réel de Git.
 
-Cette livraison contient un **bundle Git** de la branche `landing-page`, en plus
-du code source. Le bundle transporte les nouveaux commits et ceux de la première
-livraison, avec leurs auteurs et messages français. Il attend le commit de base
-`f719022`, déjà présent dans le dépôt fourni.
-
-Depuis `GPSTL-JOYN-FRONT` sur ta branche `landing-page`, après téléchargement :
+Depuis `GPSTL-JOYN-FRONT`, sur la branche `landing-page` :
 
 ```sh
 joyn_import_dir="$(mktemp -d)"
-unzip -q ~/Downloads/JOYN-landing-material.zip -d "$joyn_import_dir"
+unzip -q ~/Downloads/JOYN-landing-material-v2.zip -d "$joyn_import_dir"
 bash "$joyn_import_dir/importer-joyn.sh"
 ```
 
-Ne colle pas les commentaires commençant par `#` dans ton terminal Zsh interactif,
-qui les a interprétés comme des commandes dans le journal fourni.
+Le script affiche systématiquement :
 
-Le script :
+- le commit actuellement installé ;
+- le commit contenu dans la livraison ;
+- les huit derniers commits après import.
 
-1. Vérifie que tu es sur `landing-page` et que la livraison est complète.
-2. Importe la branche dans une référence locale `joyn-livraison/landing-page`.
-3. Vérifie que ton HEAD permet une avance rapide ; sinon il s'arrête sans écraser.
-4. Sauvegarde les changements et fichiers non suivis dans un stash local.
-5. Avance `landing-page` avec `git merge --ff-only`.
-6. Synchronise les fichiers avec rsync, sans toucher au dossier `.git`, en conservant les permissions établies par Git.
-7. Affiche l'état et les derniers commits.
+S'ils sont identiques, le script écrit explicitement que la livraison est déjà
+installée et quitte sans prétendre avoir modifié le projet.
 
-Aucune suppression de tes fichiers n'est demandée. Les caches ignorés restent
-sur ta machine. L'ancien travail est accessible via `git stash list` ; ne fais
-pas un `stash pop` automatique, car les anciens fichiers de l'import initial
-recouvriraient la nouvelle version. Inspecte d'abord ce que tu souhaites récupérer.
+## Sécurité
 
-Puis vérifie et lance :
+1. la branche courante doit être `landing-page` ;
+2. le bundle est vérifié avant modification ;
+3. toute divergence d'historique bloque l'import ;
+4. les changements locaux sont sauvegardés dans un stash ;
+5. seul un `merge --ff-only` est accepté ;
+6. le HEAD final est comparé au commit du bundle.
+
+Aucun `reset --hard`, `checkout -f` ou écrasement du dossier `.git` n'est utilisé.
+
+Après import :
 
 ```sh
 flutter pub get
+dart format --output=none --set-exit-if-changed lib test
 flutter analyze
 flutter test
 flutter run -d chrome
 ```
-
-Si l'import signale une divergence, conserve le stash et fournis le résultat de
-`git log --oneline --graph --all -15`. Ne force pas un reset ou un écrasement de `.git`.
