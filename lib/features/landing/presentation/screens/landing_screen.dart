@@ -48,7 +48,7 @@ class _LandingScreenState extends State<LandingScreen> {
           FeaturesSection(key: _keys[LandingSection.features]),
           CompaniesSection(key: _keys[LandingSection.companies]),
           UniverseSection(scrollController: _scrollController),
-          PricingSection(key: _keys[LandingSection.pricing]),
+          PricingSection(key: _keys[LandingSection.pricing], scrollController: _scrollController),
           _AssistanceSection(key: _keys[LandingSection.assistance]),
           FooterSection(onNavigate: _navigate),
         ]),

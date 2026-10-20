@@ -60,7 +60,7 @@ class _AtmospherePainter extends CustomPainter {
     glow(Offset(size.width * .72 + shift, size.height * .33),
       size.width * .38, universe ? AppColors.orangeLight : AppColors.orange, .38);
     glow(Offset(size.width * .15 - shift, size.height * .6),
-      size.width * .3, universe ? AppColors.blue : AppColors.blue, universe ? .2 : .1);
+      size.width * .3, AppColors.blue, universe ? .2 : .1);
     final grid = Paint()..color = (universe ? AppColors.white : AppColors.navy)
       .withValues(alpha: universe ? .055 : .025)..strokeWidth = .7;
     for (var x = 0.0; x < size.width; x += 54) {
