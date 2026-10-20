@@ -125,13 +125,13 @@ void main() {
   testWidgets('La démonstration complète expose les deux parcours', (tester) async {
     await tester.pumpWidget(host(const MatchingStoryDemo()));
     await tester.pump();
-    expect(find.text('Ton profil prend forme'), findsOneWidget);
+    expect(find.text('Ton tableau de bord, dès l’arrivée'), findsOneWidget);
     await tester.tap(find.text('Entreprise'));
     await tester.pump(const Duration(milliseconds: 600));
-    expect(find.text('Votre entreprise pose son identité'), findsOneWidget);
+    expect(find.text('Pilote tes recrutements depuis le dashboard'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('story-step-3')));
     await tester.pump(const Duration(milliseconds: 600));
-    expect(find.text('Chaque candidature avance'), findsOneWidget);
+    expect(find.text('Comprends le profil avant de contacter'), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
   });
 
