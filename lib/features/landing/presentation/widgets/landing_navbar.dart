@@ -48,9 +48,7 @@ class _LandingNavbarState extends State<LandingNavbar> {
           stops: const [0, .52, 1],
         ),
         border: Border(
-          bottom: BorderSide(
-            color: AppColors.greyLight.withValues(alpha: .9),
-          ),
+          bottom: BorderSide(color: AppColors.greyLight.withValues(alpha: .9)),
         ),
         boxShadow: [
           BoxShadow(
@@ -66,9 +64,7 @@ class _LandingNavbarState extends State<LandingNavbar> {
           padding: const EdgeInsets.symmetric(vertical: 10),
           child: Container(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AppColors.white, softerGrey],
-              ),
+              gradient: LinearGradient(colors: [AppColors.white, softerGrey]),
               borderRadius: BorderRadius.circular(22),
               border: Border.all(
                 color: AppColors.greyLight.withValues(alpha: .95),
@@ -111,12 +107,11 @@ class _LandingNavbarState extends State<LandingNavbar> {
                     duration: const Duration(milliseconds: 440),
                     offset: const Offset(0, -8),
                     child: Row(
-                      mainAxisSize: narrow ? MainAxisSize.max : MainAxisSize.min,
+                      mainAxisSize: narrow
+                          ? MainAxisSize.max
+                          : MainAxisSize.min,
                       children: [
-                        if (narrow)
-                          const Expanded(child: login)
-                        else
-                          login,
+                        if (narrow) const Expanded(child: login) else login,
                         const SizedBox(width: 10),
                         if (narrow)
                           const Expanded(child: register)
@@ -225,123 +220,19 @@ class _BrandButtonState extends State<_BrandButton> {
             children: [
               JoynMark(size: 32),
               SizedBox(width: 10),
-              _AnimatedJoynWordmark(),
+              Text(
+                'joyn',
+                style: TextStyle(
+                  fontSize: 23,
+                  color: AppColors.navy,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -.7,
+                ),
+              ),
             ],
           ),
         ),
       ),
-    );
-  }
-}
-
-class _AnimatedJoynWordmark extends StatefulWidget {
-  const _AnimatedJoynWordmark();
-
-  @override
-  State<_AnimatedJoynWordmark> createState() => _AnimatedJoynWordmarkState();
-}
-
-class _AnimatedJoynWordmarkState extends State<_AnimatedJoynWordmark>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 3600),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final reduceMotion = MediaQuery.disableAnimationsOf(context);
-    if (reduceMotion) {
-      return const Text(
-        'joyn',
-        style: TextStyle(
-          fontSize: 23,
-          color: AppColors.navy,
-          fontWeight: FontWeight.w900,
-          letterSpacing: -.7,
-        ),
-      );
-    }
-
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        final progress = _controller.value;
-        final appear = Curves.easeInOutCubic.transform(
-          ((progress - .06) / .22).clamp(0.0, 1.0),
-        );
-        final disappear = Curves.easeInOutCubic.transform(
-          ((progress - .7) / .18).clamp(0.0, 1.0),
-        );
-        final visibility = (appear * (1 - disappear)).clamp(0.0, 1.0);
-        final dx = 4 * (1 - appear) - 4 * disappear;
-
-        return SizedBox(
-          width: 86,
-          height: 28,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              const Positioned.fill(
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 0),
-                    child: Text(
-                      'joyn',
-                      style: TextStyle(
-                        fontSize: 23,
-                        color: AppColors.navy,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: -.7,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                left: -2 + dx,
-                top: 0,
-                child: Opacity(
-                  opacity: visibility,
-                  child: Transform.scale(
-                    scale: .97 + (.04 * visibility),
-                    alignment: Alignment.center,
-                    child: Text(
-                      'j',
-                      style: TextStyle(
-                        fontSize: 25,
-                        height: 1,
-                        color: AppColors.orange,
-                        fontWeight: FontWeight.w900,
-                        fontStyle: FontStyle.italic,
-                        shadows: [
-                          Shadow(
-                            color: AppColors.orange.withValues(alpha: .18),
-                            blurRadius: 10,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 }
@@ -415,9 +306,7 @@ class _NavLinkState extends State<_NavLink> {
           decoration: BoxDecoration(
             color: widget.selected ? AppColors.white : Colors.transparent,
             borderRadius: BorderRadius.circular(14),
-            border: widget.selected
-                ? Border.all(color: AppColors.white)
-                : null,
+            border: widget.selected ? Border.all(color: AppColors.white) : null,
             boxShadow: widget.selected
                 ? [
                     BoxShadow(
@@ -431,8 +320,9 @@ class _NavLinkState extends State<_NavLink> {
           child: TextButton(
             onPressed: widget.onPressed,
             style: TextButton.styleFrom(
-              foregroundColor:
-                  widget.selected ? AppColors.orange : AppColors.navy,
+              foregroundColor: widget.selected
+                  ? AppColors.orange
+                  : AppColors.navy,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               overlayColor: Colors.transparent,
               splashFactory: NoSplash.splashFactory,
@@ -478,8 +368,8 @@ class _AccountAccessButtonState extends State<_AccountAccessButton> {
     final background = widget.primary
         ? (active ? AppColors.orangeLight : AppColors.orange)
         : (active
-            ? AppColors.white
-            : AppColors.greyLight.withValues(alpha: .2));
+              ? AppColors.white
+              : AppColors.greyLight.withValues(alpha: .2));
     final foreground = widget.primary ? AppColors.white : AppColors.navy;
 
     return MouseRegion(
@@ -502,8 +392,9 @@ class _AccountAccessButtonState extends State<_AccountAccessButton> {
             boxShadow: active
                 ? [
                     BoxShadow(
-                      color: (widget.primary ? AppColors.orange : AppColors.navy)
-                          .withValues(alpha: .12),
+                      color:
+                          (widget.primary ? AppColors.orange : AppColors.navy)
+                              .withValues(alpha: .12),
                       blurRadius: 16,
                       offset: const Offset(0, 6),
                     ),
