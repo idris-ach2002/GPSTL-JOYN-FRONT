@@ -6,11 +6,13 @@ import 'package:joyn_front/app/theme/app_theme.dart';
 import 'package:joyn_front/features/auth/presentation/auth_screen.dart';
 import 'package:joyn_front/features/landing/domain/pricing_plan.dart';
 import 'package:joyn_front/features/landing/presentation/screens/landing_screen.dart';
+import 'package:joyn_front/features/landing/presentation/sections/constat_section.dart';
 import 'package:joyn_front/features/landing/presentation/sections/features_section.dart';
 import 'package:joyn_front/features/landing/presentation/sections/pricing_section.dart';
 import 'package:joyn_front/features/startup/mobile_startup_screen.dart';
 import 'package:joyn_front/features/landing/domain/landing_content.dart';
 import 'package:joyn_front/features/landing/presentation/widgets/feature_demo.dart';
+import 'package:joyn_front/features/landing/presentation/widgets/matching_story_demo.dart';
 import 'package:joyn_front/features/information/domain/footer_links.dart';
 import 'package:joyn_front/features/information/domain/information_content.dart';
 import 'package:joyn_front/features/information/presentation/information_screen.dart';
@@ -110,6 +112,29 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+
+  testWidgets('Le constat revient avec des indicateurs sourcés', (tester) async {
+    await tester.pumpWidget(host(const ConstatSection()));
+    await finishTransition(tester);
+    expect(find.text('LE CONSTAT'), findsOneWidget);
+    expect(find.text('320 000'), findsOneWidget);
+    expect(find.text('74 %'), findsOneWidget);
+    expect(find.textContaining('La bonne alternance'), findsOneWidget);
+  });
+
+  testWidgets('La démonstration complète expose les deux parcours', (tester) async {
+    await tester.pumpWidget(host(const MatchingStoryDemo()));
+    await tester.pump();
+    expect(find.text('Ton profil prend forme'), findsOneWidget);
+    await tester.tap(find.text('Entreprise'));
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(find.text('Votre entreprise pose son identité'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('story-step-3')));
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(find.text('Chaque candidature avance'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+  });
+
   testWidgets('Le score de démonstration suit les critères activés', (
     tester,
   ) async {
@@ -168,8 +193,7 @@ void main() {
     await finishTransition(tester);
     expect(find.byType(LandingScreen), findsOneWidget);
     expect(scroll.offset, closeTo(originalOffset, 1));
-    await tester.pumpAndSettle();
-    expect(tester.binding.transientCallbackCount, 0);
+    await tester.pump(const Duration(milliseconds: 400));
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });

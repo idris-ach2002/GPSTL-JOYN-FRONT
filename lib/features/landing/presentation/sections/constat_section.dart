@@ -121,15 +121,15 @@ class _MetricsPanel extends StatelessWidget {
             dark: true,
           );
           if (narrow) {
-            return const Column(
-              children: [first, SizedBox(height: 18), second],
+            return Column(
+              children: [first, const SizedBox(height: 18), second],
             );
           }
-          return const Row(
+          return Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(child: first),
-              SizedBox(width: 18),
+              const SizedBox(width: 18),
               Expanded(child: second),
             ],
           );
