@@ -27,19 +27,20 @@ Le verrou `pubspec.lock` est suivi pour rendre les dépendances reproductibles.
 
 ## Version améliorée
 
+- Section « Le constat » restaurée avec deux indicateurs sourcés et une composition proche de la maquette.
 - Transition navy/orange/lumière avec halos diffus, grille et parallaxe au scroll.
 - Fonctionnalités candidat/entreprise : huit démonstrations locales, schémas et
-  interactions distincts, avec données explicitement fictives.
+  interactions distincts, complétées par un parcours animé de bout en bout.
 - Carrousel de tarifs : glissement, boutons, pagination, focus et flèches clavier.
   JOYN+ reste sombre avec son halo orange ; le Boost retrouve son aperçu visuel.
-- Footer clair avec les rubriques et intitulés de `plans-footer.png`.
-- Dix pages publiques pour les liens qui n'ont pas leur contenu sur la landing.
-- Courbe orange exclusivement liée au scroll, sans animation infinie.
+- Footer clair avec les rubriques Produit, Entreprises, Ressources et Légal.
+- Pages publiques réécrites sans libellé de recette visible ni faux contenu juridique.
+- Fil lumineux autonome, lent, avec un dégradé bleu → orange et respect de la réduction des mouvements.
 - Hero à hauteur naturelle et tests de transitions corrigés.
 
 Le parcours mobile n'a pas été repensé dans cette passe. Les écrans de connexion
-et d'inscription restent des destinations d'intégration. Les pages légales
-expliquent l'absence de documents officiels ; aucune politique n'est inventée.
+et d'inscription restent des destinations d'intégration. Les pages légales restent limitées aux comportements vérifiables de cette interface ;
+aucune identité juridique ou durée de conservation absente des sources n'est inventée.
 Les tarifs et avantages proposés ne sont pas des autorisations backend.
 
 ## Récupérer les commits dans le dépôt existant
