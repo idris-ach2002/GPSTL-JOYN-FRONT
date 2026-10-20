@@ -48,43 +48,34 @@ class _LandingScreenState extends State<LandingScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    body: Stack(
-      children: [
-        SelectionArea(
-          child: Scrollbar(
-            controller: _scrollController,
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              child: Column(
-                children: [
-                  HeroSection(
-                    key: _keys[LandingSection.hero],
-                    onNavigate: _navigate,
-                  ),
-                  const ConstatSection(),
-                  FeaturesSection(key: _keys[LandingSection.features]),
-                  CompaniesSection(key: _keys[LandingSection.companies]),
-                  UniverseSection(scrollController: _scrollController),
-                  PricingSection(
-                    key: _keys[LandingSection.pricing],
-                    scrollController: _scrollController,
-                  ),
-                  FooterSection(onNavigate: _navigate),
-                ],
+    body: SelectionArea(
+      child: Scrollbar(
+        controller: _scrollController,
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          child: Column(
+            children: [
+              SafeArea(
+                bottom: false,
+                child: LandingNavbar(onNavigate: _navigate),
               ),
-            ),
+              HeroSection(
+                key: _keys[LandingSection.hero],
+                onNavigate: _navigate,
+              ),
+              const ConstatSection(),
+              FeaturesSection(key: _keys[LandingSection.features]),
+              CompaniesSection(key: _keys[LandingSection.companies]),
+              UniverseSection(scrollController: _scrollController),
+              PricingSection(
+                key: _keys[LandingSection.pricing],
+                scrollController: _scrollController,
+              ),
+              FooterSection(onNavigate: _navigate),
+            ],
           ),
         ),
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          child: SafeArea(
-            bottom: false,
-            child: LandingNavbar(onNavigate: _navigate),
-          ),
-        ),
-      ],
+      ),
     ),
   );
 }

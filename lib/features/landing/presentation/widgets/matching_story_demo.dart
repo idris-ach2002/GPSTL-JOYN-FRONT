@@ -213,7 +213,6 @@ class _MatchingStoryDemoState extends State<MatchingStoryDemo> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
@@ -229,11 +228,7 @@ class _MatchingStoryDemoState extends State<MatchingStoryDemo> {
           onTogglePlayback: _togglePlayback,
         ),
         const SizedBox(height: 14),
-        _StoryProgress(
-          step: _step,
-          steps: _steps,
-          onStepSelected: _setStep,
-        ),
+        _StoryProgress(step: _step, steps: _steps, onStepSelected: _setStep),
         const SizedBox(height: 12),
         AnimatedSwitcher(
           duration: reduceMotion
@@ -290,9 +285,7 @@ class _DemoToolbar extends StatelessWidget {
           onPressed: reduceMotion ? null : onTogglePlayback,
           color: AppColors.white,
           disabledColor: AppColors.grey,
-          icon: Icon(
-            playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
-          ),
+          icon: Icon(playing ? Icons.pause_rounded : Icons.play_arrow_rounded),
         ),
       );
 
@@ -309,19 +302,12 @@ class _DemoToolbar extends StatelessWidget {
             ),
           ],
         ),
-        child: AudienceSelector(
-          value: audience,
-          onChanged: onAudienceChanged,
-        ),
+        child: AudienceSelector(value: audience, onChanged: onAudienceChanged),
       );
 
       if (constraints.maxWidth < 620) {
         return Column(
-          children: [
-            selector,
-            const SizedBox(height: 10),
-            playback,
-          ],
+          children: [selector, const SizedBox(height: 10), playback],
         );
       }
 
@@ -547,11 +533,12 @@ class _CinematicFrame extends StatelessWidget {
   final bool reduceMotion;
 
   double _aspectRatioFor(double width) {
-    if (width < 560) return 1.22;
-    if (width < 760) return 1.32;
-    if (width < 1040) return 1.58;
-    if (width < 1400) return 1.68;
-    return 1.74;
+    // Environ 30 % moins haut que la version précédente.
+    if (width < 560) return 1.74;
+    if (width < 760) return 1.89;
+    if (width < 1040) return 2.26;
+    if (width < 1400) return 2.40;
+    return 2.49;
   }
 
   @override
@@ -583,7 +570,8 @@ class _CinematicFrame extends StatelessWidget {
                 ),
                 child: Image.asset(
                   story.asset,
-                  fit: BoxFit.contain,
+                  fit: BoxFit.cover,
+                  alignment: story.focus,
                   filterQuality: FilterQuality.high,
                 ),
               ),
@@ -596,10 +584,8 @@ class _CinematicFrame extends StatelessWidget {
                   ),
                   duration: const Duration(milliseconds: 1350),
                   curve: Curves.easeOutCubic,
-                  builder: (context, alignment, child) => Align(
-                    alignment: alignment,
-                    child: child,
-                  ),
+                  builder: (context, alignment, child) =>
+                      Align(alignment: alignment, child: child),
                   child: const _GuidedCursor(),
                 ),
             ],
@@ -620,7 +606,10 @@ class _GuidedCursor extends StatelessWidget {
     decoration: BoxDecoration(
       color: AppColors.white.withValues(alpha: .94),
       shape: BoxShape.circle,
-      border: Border.all(color: AppColors.orange.withValues(alpha: .8), width: 2),
+      border: Border.all(
+        color: AppColors.orange.withValues(alpha: .8),
+        width: 2,
+      ),
       boxShadow: [
         BoxShadow(
           color: AppColors.orange.withValues(alpha: .34),
@@ -629,11 +618,7 @@ class _GuidedCursor extends StatelessWidget {
         ),
       ],
     ),
-    child: const Icon(
-      Icons.near_me_rounded,
-      color: AppColors.orange,
-      size: 19,
-    ),
+    child: const Icon(Icons.near_me_rounded, color: AppColors.orange, size: 19),
   );
 }
 
