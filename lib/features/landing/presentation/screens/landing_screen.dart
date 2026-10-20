@@ -79,7 +79,7 @@ class _AssistanceSection extends StatelessWidget {
         const ExpansionTile(title: Text('Où retrouver mon espace ?'),
           childrenPadding: EdgeInsets.all(16),
           children: [Text('Les boutons Connexion et Inscription ouvrent les '
-            'écrans d’accès. Leur service d’authentification reste à intégrer.')]),
+            'écrans d’accès. Les comptes ne sont pas encore accessibles dans cette version.')]),
       ])),
   );
 }

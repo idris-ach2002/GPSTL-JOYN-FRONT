@@ -27,15 +27,16 @@ class HeroMatchPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
 
-    // Les éléments flottants ont besoin d'une vraie zone de respiration.
-    //
-    // En dessous de cette largeur, on passe sur une composition compacte
-    // conçue spécifiquement pour tablette et mobile.
-    if (screenWidth < 1180) {
-      return Semantics(label: 'Illustration fictive du matching', child: const _CompactMatchPreview());
-    }
-
-    return Semantics(label: 'Illustration fictive du matching', child: const _DesktopMatchPreview());
+    return Semantics(
+      label: 'Illustration fictive du matching',
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        if (screenWidth < 1180) const _CompactMatchPreview()
+          else const _DesktopMatchPreview(),
+        const SizedBox(height: 12),
+        const Text('Aperçu illustratif', style: TextStyle(
+          color: AppColors.white, fontSize: 12)),
+      ]),
+    );
   }
 }
 
@@ -356,7 +357,7 @@ class _MatchActions extends StatelessWidget {
       runSpacing: AppSpacing.sm,
       children: [
         FilledButton.icon(
-          onPressed: () {},
+          onPressed: () => Navigator.pushNamed(context, '/connexion'),
           style: FilledButton.styleFrom(
             backgroundColor: AppColors.white,
             foregroundColor: AppColors.navy,
@@ -369,7 +370,7 @@ class _MatchActions extends StatelessWidget {
           ),
         ),
         OutlinedButton(
-          onPressed: () {},
+          onPressed: () => Navigator.pushNamed(context, '/connexion'),
           style: OutlinedButton.styleFrom(
             foregroundColor: AppColors.white,
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),

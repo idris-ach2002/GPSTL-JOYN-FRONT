@@ -52,11 +52,17 @@ class _LandingNavbarState extends State<LandingNavbar> {
                   color: AppColors.navy, fontWeight: FontWeight.w800)),
               ]),
             );
-            final actions = Row(mainAxisSize: MainAxisSize.min, children: [
-              _AuthButton(label: 'Connexion', route: '/connexion'),
-              const SizedBox(width: 8),
-              _AuthButton(label: 'Inscription', route: '/inscription', filled: true),
-            ]);
+            const login = _AuthButton(label: 'Connexion', route: '/connexion');
+            const register = _AuthButton(label: 'Inscription', route: '/inscription', filled: true);
+            final narrow = constraints.maxWidth < 650;
+            final actions = Row(
+              mainAxisSize: narrow ? MainAxisSize.max : MainAxisSize.min,
+              children: [
+                if (narrow) const Expanded(child: login) else login,
+                const SizedBox(width: 8),
+                if (narrow) const Expanded(child: register) else register,
+              ],
+            );
             final menu = MenuAnchor(
               menuChildren: [
                 for (final link in _links.entries)

@@ -1,0 +1,23 @@
+name: Qualité Flutter
+on:
+  push:
+    branches: ['feat/landing-material']
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verification:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Conserver un SDK qui satisfait environment.sdk dans pubspec.yaml.
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter --version
+      - run: flutter pub get
+      - run: dart format lib test
+      - run: flutter analyze --no-fatal-infos
+      - run: flutter test
+      - run: flutter build web --release

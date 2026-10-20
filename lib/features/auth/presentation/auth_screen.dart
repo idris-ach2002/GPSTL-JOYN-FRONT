@@ -36,7 +36,7 @@ class AuthScreen extends StatelessWidget {
                   : 'La connexion à ton espace sera disponible ici.',
                   textAlign: TextAlign.center),
                 const SizedBox(height: 12),
-                const Text('Écran de connexion à intégrer au service d’authentification.',
+                const Text('L’accès aux comptes n’est pas encore disponible.',
                   textAlign: TextAlign.center),
                 const SizedBox(height: 24),
                 TextButton(
