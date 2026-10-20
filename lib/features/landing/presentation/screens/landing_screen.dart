@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../navigation/landing_section.dart';
 import '../sections/companies_section.dart';
+import '../sections/constat_section.dart';
 import '../sections/features_section.dart';
 import '../sections/footer_section.dart';
 import '../sections/hero_section.dart';
@@ -56,6 +57,7 @@ class _LandingScreenState extends State<LandingScreen> {
                 key: _keys[LandingSection.hero],
                 onNavigate: _navigate,
               ),
+              const ConstatSection(),
               FeaturesSection(key: _keys[LandingSection.features]),
               CompaniesSection(key: _keys[LandingSection.companies]),
               UniverseSection(scrollController: _scrollController),
