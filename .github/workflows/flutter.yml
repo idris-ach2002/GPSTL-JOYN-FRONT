@@ -13,6 +13,7 @@ jobs:
       # Conserver un SDK qui satisfait environment.sdk dans pubspec.yaml.
       - uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.47.7'
           channel: stable
           cache: true
       - run: flutter --version

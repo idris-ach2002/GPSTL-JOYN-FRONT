@@ -72,12 +72,16 @@ abstract final class AppTheme {
         padding: const WidgetStatePropertyAll(
           EdgeInsets.symmetric(horizontal: 22, vertical: 16),
         ),
-        foregroundColor: WidgetStateProperty.resolveWith((states) =>
-          states.contains(WidgetState.selected)
-            ? AppColors.white : AppColors.navy),
-        backgroundColor: WidgetStateProperty.resolveWith((states) =>
-          states.contains(WidgetState.selected)
-            ? AppColors.navy : AppColors.white),
+        foregroundColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? AppColors.white
+              : AppColors.navy,
+        ),
+        backgroundColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? AppColors.navy
+              : AppColors.white,
+        ),
       ),
     ),
   );

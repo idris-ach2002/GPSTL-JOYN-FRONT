@@ -38,70 +38,109 @@ class _LandingNavbarState extends State<LandingNavbar> {
       padding: const EdgeInsets.symmetric(vertical: 24),
       child: Material(
         color: AppColors.white,
-        shape: StadiumBorder(side: BorderSide(
-          color: AppColors.greyLight.withValues(alpha: .6))),
+        shape: StadiumBorder(
+          side: BorderSide(color: AppColors.greyLight.withValues(alpha: .6)),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(10),
-          child: LayoutBuilder(builder: (context, constraints) {
-            final compact = constraints.maxWidth < 1080;
-            final brand = TextButton(
-              onPressed: () => _navigate(LandingSection.hero),
-              child: const Row(mainAxisSize: MainAxisSize.min, children: [
-                JoynMark(size: 34), SizedBox(width: 10),
-                Text('joyn', style: TextStyle(fontSize: 25,
-                  color: AppColors.navy, fontWeight: FontWeight.w800)),
-              ]),
-            );
-            const login = _AuthButton(label: 'Connexion', route: '/connexion');
-            const register = _AuthButton(label: 'Inscription', route: '/inscription', filled: true);
-            final narrow = constraints.maxWidth < 650;
-            final actions = Row(
-              mainAxisSize: narrow ? MainAxisSize.max : MainAxisSize.min,
-              children: [
-                if (narrow) const Expanded(child: login) else login,
-                const SizedBox(width: 8),
-                if (narrow) const Expanded(child: register) else register,
-              ],
-            );
-            final menu = MenuAnchor(
-              menuChildren: [
-                for (final link in _links.entries)
-                  MenuItemButton(onPressed: () => _navigate(link.key),
-                    child: Text(link.value)),
-              ],
-              builder: (_, controller, child) => IconButton(
-                tooltip: 'Ouvrir la navigation',
-                onPressed: () => controller.isOpen
-                  ? controller.close() : controller.open(),
-                icon: const Icon(Icons.menu_rounded),
-              ),
-            );
-            if (constraints.maxWidth < 650) {
-              return Column(mainAxisSize: MainAxisSize.min, children: [
-                Row(children: [brand, const Spacer(), menu]),
-                const SizedBox(height: 6),
-                actions,
-              ]);
-            }
-            return Row(children: [
-              brand, const Spacer(),
-              if (compact) menu else Container(
-                decoration: BoxDecoration(
-                  color: AppColors.blueGrey10,
-                  borderRadius: BorderRadius.circular(100)),
-                child: Row(children: [
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 1080;
+              final brand = TextButton(
+                onPressed: () => _navigate(LandingSection.hero),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    JoynMark(size: 34),
+                    SizedBox(width: 10),
+                    Text(
+                      'joyn',
+                      style: TextStyle(
+                        fontSize: 25,
+                        color: AppColors.navy,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+              const login = _AuthButton(
+                label: 'Connexion',
+                route: '/connexion',
+              );
+              const register = _AuthButton(
+                label: 'Inscription',
+                route: '/inscription',
+                filled: true,
+              );
+              final narrow = constraints.maxWidth < 650;
+              final actions = Row(
+                mainAxisSize: narrow ? MainAxisSize.max : MainAxisSize.min,
+                children: [
+                  if (narrow) const Expanded(child: login) else login,
+                  const SizedBox(width: 8),
+                  if (narrow) const Expanded(child: register) else register,
+                ],
+              );
+              final menu = MenuAnchor(
+                menuChildren: [
                   for (final link in _links.entries)
-                    TextButton(
+                    MenuItemButton(
                       onPressed: () => _navigate(link.key),
-                      style: TextButton.styleFrom(
-                        foregroundColor: _selected == link.key
-                          ? AppColors.orange : AppColors.navy),
-                      child: Text(link.value)),
-                ]),
-              ),
-              const Spacer(), actions,
-            ]);
-          }),
+                      child: Text(link.value),
+                    ),
+                ],
+                builder: (_, controller, child) => IconButton(
+                  tooltip: 'Ouvrir la navigation',
+                  onPressed: () => controller.isOpen
+                      ? controller.close()
+                      : controller.open(),
+                  icon: const Icon(Icons.menu_rounded),
+                ),
+              );
+              if (constraints.maxWidth < 650) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(children: [brand, const Spacer(), menu]),
+                    const SizedBox(height: 6),
+                    actions,
+                  ],
+                );
+              }
+              return Row(
+                children: [
+                  brand,
+                  const Spacer(),
+                  if (compact)
+                    menu
+                  else
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.blueGrey10,
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                      child: Row(
+                        children: [
+                          for (final link in _links.entries)
+                            TextButton(
+                              onPressed: () => _navigate(link.key),
+                              style: TextButton.styleFrom(
+                                foregroundColor: _selected == link.key
+                                    ? AppColors.orange
+                                    : AppColors.navy,
+                              ),
+                              child: Text(link.value),
+                            ),
+                        ],
+                      ),
+                    ),
+                  const Spacer(),
+                  actions,
+                ],
+              );
+            },
+          ),
         ),
       ),
     ),
@@ -111,7 +150,11 @@ class _LandingNavbarState extends State<LandingNavbar> {
 /// Mouvement au survol et au focus uniquement, sans animation perpétuelle.
 /// La préférence système de réduction des mouvements neutralise les effets.
 class _AuthButton extends StatefulWidget {
-  const _AuthButton({required this.label, required this.route, this.filled = false});
+  const _AuthButton({
+    required this.label,
+    required this.route,
+    this.filled = false,
+  });
   final String label;
   final String route;
   final bool filled;
@@ -126,9 +169,11 @@ class _AuthButtonState extends State<_AuthButton> {
 
   @override
   Widget build(BuildContext context) {
-    final active = (_hovered || _focused) && !MediaQuery.disableAnimationsOf(context);
+    final active =
+        (_hovered || _focused) && !MediaQuery.disableAnimationsOf(context);
     final duration = MediaQuery.disableAnimationsOf(context)
-      ? Duration.zero : const Duration(milliseconds: 220);
+        ? Duration.zero
+        : const Duration(milliseconds: 220);
     void open() => Navigator.pushNamed(context, widget.route);
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
@@ -136,20 +181,31 @@ class _AuthButtonState extends State<_AuthButton> {
       child: Focus(
         onFocusChange: (value) => setState(() => _focused = value),
         child: AnimatedScale(
-          scale: active ? 1.04 : 1, duration: duration,
+          scale: active ? 1.04 : 1,
+          duration: duration,
           child: AnimatedContainer(
             duration: duration,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(100),
-              boxShadow: active ? [BoxShadow(
-                color: AppColors.orange.withValues(alpha: .24),
-                blurRadius: 18, offset: const Offset(0, 6))] : [],
+              boxShadow: active
+                  ? [
+                      BoxShadow(
+                        color: AppColors.orange.withValues(alpha: .24),
+                        blurRadius: 18,
+                        offset: const Offset(0, 6),
+                      ),
+                    ]
+                  : [],
             ),
             child: widget.filled
-              ? FilledButton(onPressed: open,
-                  style: FilledButton.styleFrom(backgroundColor: AppColors.orange),
-                  child: Text(widget.label))
-              : OutlinedButton(onPressed: open, child: Text(widget.label)),
+                ? FilledButton(
+                    onPressed: open,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.orange,
+                    ),
+                    child: Text(widget.label),
+                  )
+                : OutlinedButton(onPressed: open, child: Text(widget.label)),
           ),
         ),
       ),

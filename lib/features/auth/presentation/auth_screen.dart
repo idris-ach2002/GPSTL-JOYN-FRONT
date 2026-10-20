@@ -26,24 +26,37 @@ class AuthScreen extends StatelessWidget {
               children: [
                 const JoynMark(size: 72),
                 const SizedBox(height: 32),
-                Text(registration ? 'Rejoins JOYN.' : 'Content de te revoir.',
+                Text(
+                  registration ? 'Rejoins JOYN.' : 'Content de te revoir.',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    color: AppColors.navy, fontWeight: FontWeight.w800)),
+                    color: AppColors.navy,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
                 const SizedBox(height: 16),
-                Text(registration
-                  ? 'L’inscription candidat et entreprise sera disponible ici.'
-                  : 'La connexion à ton espace sera disponible ici.',
-                  textAlign: TextAlign.center),
+                Text(
+                  registration
+                      ? 'L’inscription candidat et entreprise sera disponible ici.'
+                      : 'La connexion à ton espace sera disponible ici.',
+                  textAlign: TextAlign.center,
+                ),
                 const SizedBox(height: 12),
-                const Text('L’accès aux comptes n’est pas encore disponible.',
-                  textAlign: TextAlign.center),
+                const Text(
+                  'L’accès aux comptes n’est pas encore disponible.',
+                  textAlign: TextAlign.center,
+                ),
                 const SizedBox(height: 24),
                 TextButton(
-                  onPressed: () => Navigator.pushReplacementNamed(context,
-                    registration ? '/connexion' : '/inscription'),
-                  child: Text(registration ? 'Déjà un compte ? Connexion'
-                    : 'Pas encore de compte ? Inscription'),
+                  onPressed: () => Navigator.pushReplacementNamed(
+                    context,
+                    registration ? '/connexion' : '/inscription',
+                  ),
+                  child: Text(
+                    registration
+                        ? 'Déjà un compte ? Connexion'
+                        : 'Pas encore de compte ? Inscription',
+                  ),
                 ),
               ],
             ),

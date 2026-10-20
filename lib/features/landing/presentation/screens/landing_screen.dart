@@ -21,15 +21,20 @@ class LandingScreen extends StatefulWidget {
 
 class _LandingScreenState extends State<LandingScreen> {
   final _scrollController = ScrollController();
-  final _keys = {for (final section in LandingSection.values) section: GlobalKey()};
+  final _keys = {
+    for (final section in LandingSection.values) section: GlobalKey(),
+  };
 
   void _navigate(LandingSection section) {
     final destination = _keys[section]?.currentContext;
     if (destination == null) return;
-    Scrollable.ensureVisible(destination,
+    Scrollable.ensureVisible(
+      destination,
       duration: MediaQuery.disableAnimationsOf(context)
-        ? Duration.zero : const Duration(milliseconds: 650),
-      curve: Curves.easeInOutCubic);
+          ? Duration.zero
+          : const Duration(milliseconds: 650),
+      curve: Curves.easeInOutCubic,
+    );
   }
 
   @override
@@ -40,18 +45,32 @@ class _LandingScreenState extends State<LandingScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    body: SelectionArea(child: Scrollbar(controller: _scrollController,
-      child: SingleChildScrollView(controller: _scrollController,
-        child: Column(children: [
-          HeroSection(key: _keys[LandingSection.hero], onNavigate: _navigate),
-          FeaturesSection(key: _keys[LandingSection.features]),
-          CompaniesSection(key: _keys[LandingSection.companies]),
-          UniverseSection(scrollController: _scrollController),
-          PricingSection(key: _keys[LandingSection.pricing], scrollController: _scrollController),
-          FooterSection(onNavigate: _navigate, scrollController: _scrollController),
-        ]),
+    body: SelectionArea(
+      child: Scrollbar(
+        controller: _scrollController,
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          child: Column(
+            children: [
+              HeroSection(
+                key: _keys[LandingSection.hero],
+                onNavigate: _navigate,
+              ),
+              FeaturesSection(key: _keys[LandingSection.features]),
+              CompaniesSection(key: _keys[LandingSection.companies]),
+              UniverseSection(scrollController: _scrollController),
+              PricingSection(
+                key: _keys[LandingSection.pricing],
+                scrollController: _scrollController,
+              ),
+              FooterSection(
+                onNavigate: _navigate,
+                scrollController: _scrollController,
+              ),
+            ],
+          ),
+        ),
       ),
-    )),
+    ),
   );
 }
-

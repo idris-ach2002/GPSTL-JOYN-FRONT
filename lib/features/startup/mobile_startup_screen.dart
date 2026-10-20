@@ -22,7 +22,8 @@ class _MobileStartupScreenState extends State<MobileStartupScreen> {
     super.didChangeDependencies();
     _timer ??= Timer(
       MediaQuery.disableAnimationsOf(context)
-        ? Duration.zero : const Duration(milliseconds: 1600),
+          ? Duration.zero
+          : const Duration(milliseconds: 1600),
       () {
         if (mounted) Navigator.pushReplacementNamed(context, '/connexion');
       },
@@ -42,7 +43,8 @@ class _MobileStartupScreenState extends State<MobileStartupScreen> {
       child: TweenAnimationBuilder<double>(
         tween: Tween(begin: .75, end: 1),
         duration: MediaQuery.disableAnimationsOf(context)
-          ? Duration.zero : const Duration(milliseconds: 1000),
+            ? Duration.zero
+            : const Duration(milliseconds: 1000),
         curve: Curves.easeOutCubic,
         builder: (_, value, child) => Opacity(
           opacity: ((value - .75) * 4).clamp(0.0, 1.0),
@@ -55,10 +57,18 @@ class _MobileStartupScreenState extends State<MobileStartupScreen> {
             children: [
               JoynMark(size: 90),
               SizedBox(height: 24),
-              Text('joyn', style: TextStyle(color: AppColors.white,
-                fontSize: 48, fontWeight: FontWeight.w800)),
-              Text('Le match avant la candidature.',
-                style: TextStyle(color: AppColors.blue, fontSize: 16)),
+              Text(
+                'joyn',
+                style: TextStyle(
+                  color: AppColors.white,
+                  fontSize: 48,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              Text(
+                'Le match avant la candidature.',
+                style: TextStyle(color: AppColors.blue, fontSize: 16),
+              ),
             ],
           ),
         ),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 /// Reveals its child the first time it enters the viewport.
 ///
 /// This intentionally avoids a third-party visibility dependency: the widget
@@ -96,4 +95,3 @@ class _LandingRevealState extends State<LandingReveal>
     );
   }
 }
-

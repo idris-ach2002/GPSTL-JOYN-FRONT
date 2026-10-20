@@ -29,13 +29,20 @@ class HeroMatchPreview extends StatelessWidget {
 
     return Semantics(
       label: 'Illustration fictive du matching',
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        if (screenWidth < 1180) const _CompactMatchPreview()
-          else const _DesktopMatchPreview(),
-        const SizedBox(height: 12),
-        const Text('Aperçu illustratif', style: TextStyle(
-          color: AppColors.white, fontSize: 12)),
-      ]),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (screenWidth < 1180)
+            const _CompactMatchPreview()
+          else
+            const _DesktopMatchPreview(),
+          const SizedBox(height: 12),
+          const Text(
+            'Aperçu illustratif',
+            style: TextStyle(color: AppColors.white, fontSize: 12),
+          ),
+        ],
+      ),
     );
   }
 }

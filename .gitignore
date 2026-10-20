@@ -117,3 +117,6 @@ app.*.symbols
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 !/dev/ci/**/Gemfile.lock
+# Fichiers système et verrou des dépendances de cette application.
+.DS_Store
+!pubspec.lock

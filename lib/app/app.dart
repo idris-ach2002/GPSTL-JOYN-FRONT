@@ -24,7 +24,8 @@ class JoynApp extends StatelessWidget {
     initialRoute: '/',
     routes: {
       '/': (_) => (webOverride ?? kIsWeb)
-        ? const LandingScreen() : const MobileStartupScreen(),
+          ? const LandingScreen()
+          : const MobileStartupScreen(),
       '/connexion': (_) => const AuthScreen(),
       '/inscription': (_) => const AuthScreen(registration: true),
       for (final entry in informationPages.entries)
