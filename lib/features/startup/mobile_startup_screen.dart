@@ -48,9 +48,9 @@ class _MobileStartupScreenState extends State<MobileStartupScreen> {
           opacity: ((value - .75) * 4).clamp(0.0, 1.0),
           child: Transform.scale(scale: value, child: child),
         ),
-        child: const Semantics(
+        child: Semantics(
           label: 'JOYN, ouverture de la connexion',
-          child: Column(
+          child: const Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               JoynMark(size: 90),
