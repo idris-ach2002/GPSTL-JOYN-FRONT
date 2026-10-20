@@ -1,10 +1,10 @@
-/// Rubriques et intitulés de la capture plans-footer.png.
-/// '/tarifs' désigne l'ancre existante ; les autres destinations sont des pages.
+/// Navigation publique du footer. Les intitulés restent orientés utilisateur :
+/// aucun libellé de recette ou de production n'est exposé dans l'interface.
 const footerLinks = <String, Map<String, String>>{
   'Produit': {
     'Comment ça marche': '/comprendre',
     'Joyn+': '/joyn-plus',
-    'Remplace-moi': '/remplace-moi',
+    'Le matching JOYN': '/matching',
   },
   'Entreprises': {
     'Publier une offre': '/publier-offre',
@@ -14,7 +14,7 @@ const footerLinks = <String, Map<String, String>>{
   'Ressources': {
     'Guide de l’alternance': '/guide-alternance',
     'Questions fréquentes': '/questions-frequentes',
-    'Contact': '/contact',
+    'Centre d’aide': '/contact',
   },
   'Légal': {
     'Confidentialité': '/confidentialite',

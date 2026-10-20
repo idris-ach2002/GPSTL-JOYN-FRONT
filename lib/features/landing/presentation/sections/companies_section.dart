@@ -4,8 +4,7 @@ import '../../../../design_system/layout/content_container.dart';
 import '../../../../design_system/tokens/app_colors.dart';
 import '../widgets/section_header.dart';
 
-/// Chapitre entreprise : composition texte / aperçu conforme à l'esprit Figma.
-/// L'aperçu est explicitement illustratif et n'utilise aucune donnée personnelle.
+/// Chapitre entreprise : composition texte / espace recruteur conforme à l'esprit Figma.
 class CompaniesSection extends StatelessWidget {
   const CompaniesSection({super.key});
 
@@ -110,11 +109,6 @@ class _CompanyPreview extends StatelessWidget {
             fontSize: 22,
             fontWeight: FontWeight.w800,
           ),
-        ),
-        const SizedBox(height: 8),
-        const Text(
-          'Aperçu illustratif',
-          style: TextStyle(color: AppColors.white),
         ),
         const SizedBox(height: 24),
         for (final item in const [

@@ -85,7 +85,7 @@ const companyPlans = [
   PricingPlan(
     name: 'Membre premium',
     price: 'Sur devis',
-    period: 'Tarif à définir',
+    period: 'Selon vos besoins',
     subtitle: 'Un espace pour conduire vos recrutements.',
     features: [
       ...companyBaseAccess,

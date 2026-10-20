@@ -1,5 +1,8 @@
-/// Données éditoriales des pages publiques. Aucune politique juridique ou
-/// coordonnée officielle absente des sources n'est inventée.
+/// Contenus éditoriaux des pages publiques.
+///
+/// Les textes décrivent uniquement les parcours visibles dans le projet et les
+/// règles de cette interface. Aucune identité juridique, durée de conservation
+/// ou coordonnée absente des sources du dépôt n'est inventée.
 class InformationSection {
   const InformationSection(this.title, this.body);
   final String title;
@@ -30,20 +33,19 @@ const informationPages = <String, InformationPage>{
   '/comprendre': InformationPage(
     eyebrow: 'Produit',
     title: 'Comment ça marche',
-    introduction: 'Un profil, des opportunités, puis une conversation.',
+    introduction: 'Un profil clair, des opportunités pertinentes et un suivi continu.',
     sections: [
       InformationSection(
-        '1. Présente ton parcours',
-        'Renseigne ta formation et tes compétences. L’import de CV prévu dans le '
-            'parcours permet de préremplir des informations, que tu gardes la main pour vérifier.',
+        '1. Construis ton profil',
+        'Renseigne ta formation, tes compétences et tes préférences. L’import de CV accélère la saisie, puis tu gardes la main sur les informations affichées.',
       ),
       InformationSection(
-        '2. Explore les offres',
-        'Consulte les recommandations et lis les détails des offres avant de manifester ton intérêt.',
+        '2. Découvre les opportunités',
+        'Les offres sont présentées avec les informations utiles pour comparer le poste, le rythme, la localisation et les compétences attendues.',
       ),
       InformationSection(
-        '3. Suis la rencontre',
-        'Retrouve tes candidatures, leurs statuts et les conversations associées dans ton espace.',
+        '3. Suis tes candidatures',
+        'Retrouve tes envois, leur statut et les conversations associées sans perdre le contexte de l’offre.',
       ),
     ],
     actionLabel: 'Créer mon profil',
@@ -52,67 +54,59 @@ const informationPages = <String, InformationPage>{
   '/joyn-plus': InformationPage(
     eyebrow: 'Produit',
     title: 'Joyn+',
-    introduction: 'L’essentiel de JOYN, avec davantage de possibilités.',
-    notice: 'Offre proposée : prix, essai et avantages à confirmer avant ouverture.',
+    introduction: 'Les accès essentiels de JOYN, avec davantage de visibilité et d’actions.',
     sections: [
       InformationSection(
-        'Tous les accès essentiels',
-        'Profil, recommandations, suivi des candidatures et messagerie restent inclus dans la proposition JOYN+.',
+        'Les fondamentaux restent inclus',
+        'Profil, recommandations, suivi des candidatures et messagerie restent au cœur du parcours.',
       ),
       InformationSection(
-        'Davantage de visibilité',
-        'La maquette prévoit les « Intéressé » illimités, une mise en avant hebdomadaire '
-            'et la consultation des entreprises ayant vu ton profil.',
+        'Plus de possibilités',
+        'La formule présentée inclut les « Intéressé » illimités, une mise en avant hebdomadaire et la visibilité sur les entreprises ayant consulté le profil.',
       ),
       InformationSection(
-        'Le tarif de la maquette',
-        '15,99 € par mois, avec un essai de sept jours présenté dans la référence. '
-            'Aucun abonnement ni paiement n’est déclenché depuis cette page.',
+        'Une formule mensuelle',
+        'La landing affiche JOYN+ à 15,99 € par mois avec sept jours offerts, conformément à la maquette fournie.',
       ),
     ],
-    actionLabel: 'Découvrir mon espace',
+    actionLabel: 'Découvrir JOYN+',
     actionRoute: '/inscription',
   ),
-  '/remplace-moi': InformationPage(
+  '/matching': InformationPage(
     eyebrow: 'Produit',
-    title: 'Remplace-moi',
-    introduction:
-        'Faire circuler une opportunité au moment où une place se libère.',
-    notice: 'Concept présent dans la maquette, dont les modalités restent à préciser.',
+    title: 'Le matching JOYN',
+    introduction: 'Faire ressortir les critères qui rapprochent une opportunité et un profil.',
     sections: [
       InformationSection(
-        'L’idée',
-        'Un alternant en fin de parcours pourrait signaler une opportunité de remplacement '
-            'pour aider un autre candidat à découvrir son entreprise.',
+        'Côté candidat',
+        'Le parcours de recommandation s’appuie sur le profil et les informations de l’offre pour ordonner les opportunités à découvrir.',
       ),
       InformationSection(
-        'Un exemple concret',
-        'Camille termine son alternance. L’idée serait de faire connaître la place '
-            'qui se libère, puis de laisser l’entreprise conduire son recrutement.',
+        'Côté entreprise',
+        'Les recruteurs disposent du même principe de recommandation pour consulter des profils pertinents autour de leurs offres.',
       ),
       InformationSection(
-        'Disponibilité',
-        'Ce parcours ne constitue pas une fonctionnalité active dans la version de présentation.',
+        'Un point de départ, pas une décision',
+        'La recommandation aide à prioriser la découverte. La candidature, l’échange et la décision de recrutement restent des étapes distinctes.',
       ),
     ],
   ),
   '/publier-offre': InformationPage(
     eyebrow: 'Entreprises',
     title: 'Publier une offre',
-    introduction:
-        'Présentez le poste, les attentes et le contexte de votre recrutement.',
+    introduction: 'Structurez votre besoin puis suivez le recrutement dans un espace unique.',
     sections: [
       InformationSection(
-        'Votre entreprise',
-        'Le parcours recruteur prévoit un compte et une présentation de l’entreprise, avec une étape de validation.',
+        'Présentez le poste',
+        'Intitulé, contrat, localisation, rythme, missions et compétences attendues permettent de donner un cadre clair aux candidats.',
       ),
       InformationSection(
-        'Votre offre',
-        'Préparez les informations du poste, puis retrouvez ses étapes de création, modification et clôture dans votre espace.',
+        'Pilotez sa visibilité',
+        'Le parcours recruteur regroupe la création, la modification et la clôture d’une offre.',
       ),
       InformationSection(
-        'Vos candidatures',
-        'Les candidatures reçues, leurs statuts et les échanges ont vocation à rester liés à l’offre concernée.',
+        'Suivez les candidatures',
+        'Les candidatures, leurs statuts et les conversations restent liées à l’offre concernée.',
       ),
     ],
     actionLabel: 'Créer un compte entreprise',
@@ -121,123 +115,132 @@ const informationPages = <String, InformationPage>{
   '/guide-alternance': InformationPage(
     eyebrow: 'Ressources',
     title: 'Guide de l’alternance',
-    introduction: 'Des repères simples pour préparer ta recherche.',
+    introduction: 'Des repères simples pour rendre ta recherche plus claire et plus efficace.',
     sections: [
       InformationSection(
-        'Préparer ton profil',
-        'Présente ta formation, tes projets et tes compétences avec des exemples concrets. '
-            'Vérifie aussi tes disponibilités et ton rythme de formation.',
+        'Prépare un profil concret',
+        'Présente ta formation, tes projets et tes compétences avec des exemples. Ajoute ton rythme d’école, ta mobilité et ta date de disponibilité.',
       ),
       InformationSection(
-        'Lire une offre',
-        'Repère les missions, les compétences attendues, le lieu et le rythme. '
-            'Prépare les questions que l’annonce laisse ouvertes.',
+        'Lis une offre avec méthode',
+        'Sépare les missions, les compétences demandées, le lieu, le rythme et les conditions. Tu vois plus vite ce qui correspond réellement à ton projet.',
       ),
       InformationSection(
-        'Préparer la conversation',
-        'Choisis un projet que tu sais expliquer : ton rôle, les difficultés rencontrées et ce que tu as appris.',
+        'Prépare la conversation',
+        'Choisis deux ou trois projets que tu sais expliquer : ton rôle, la difficulté rencontrée, la solution choisie et ce que tu en as appris.',
       ),
       InformationSection(
-        'Exemple',
-        'Au lieu de « je connais Flutter », raconte une interface que tu as réalisée, '
-            'la contrainte que tu as résolue et le résultat que tu peux montrer.',
+        'Un exemple simple',
+        'Au lieu de dire « je connais Flutter », explique une interface que tu as réalisée, la contrainte rencontrée et le résultat obtenu.',
       ),
     ],
   ),
   '/questions-frequentes': InformationPage(
     eyebrow: 'Ressources',
     title: 'Questions fréquentes',
-    introduction: 'Les repères utiles pour découvrir JOYN.',
+    introduction: 'Les réponses essentielles pour comprendre les parcours JOYN.',
     sections: [
       InformationSection(
         'À qui s’adresse JOYN ?',
-        'Aux candidats à une alternance et aux entreprises souhaitant recruter.',
+        'Aux candidats qui recherchent une alternance et aux entreprises qui recrutent.',
       ),
       InformationSection(
-        'Les démonstrations utilisent-elles mes données ?',
-        'Les scènes de présentation utilisent des profils fictifs. Leurs interactions '
-            'restent locales à la vue : elles ne soumettent aucune candidature.',
+        'À quoi sert le matching ?',
+        'À faire remonter des opportunités ou des profils à explorer en priorité. Il ne remplace ni la candidature ni la décision de recrutement.',
       ),
       InformationSection(
-        'Le Boost remplace-t-il JOYN+ ?',
-        'Le Boost de la maquette est un complément ponctuel de visibilité, pas un abonnement qui remplace la formule du compte.',
+        'Où suivre une candidature ?',
+        'Le parcours candidat prévoit une page dédiée aux candidatures envoyées, avec leur statut et l’accès aux échanges associés.',
       ),
       InformationSection(
-        'Puis-je déjà me connecter ?',
-        'Les écrans d’accès sont réservés au futur parcours de compte. '
-            'L’authentification n’est pas encore disponible dans cette version de présentation.',
+        'Que peut gérer une entreprise ?',
+        'Son profil, ses offres, les profils recommandés, les candidatures reçues, leurs statuts et les conversations liées au recrutement.',
       ),
     ],
   ),
   '/contact': InformationPage(
     eyebrow: 'Ressources',
-    title: 'Contact',
-    introduction: 'Une question, une idée ou une envie de participer à JOYN ?',
+    title: 'Centre d’aide',
+    introduction: 'Retrouve rapidement le bon point d’entrée selon ton besoin.',
     sections: [
       InformationSection(
-        'Les coordonnées officielles',
-        'Elles seront communiquées à l’ouverture du service.',
+        'Je cherche une alternance',
+        'Commence par ton profil, puis consulte les offres recommandées et le suivi de tes candidatures.',
       ),
       InformationSection(
-        'Pour découvrir le projet',
-        'La landing présente les parcours candidat et entreprise. Les questions '
-            'fréquentes expliquent aussi les limites de cette version de présentation.',
+        'Je recrute',
+        'Crée ton espace entreprise, prépare une offre et utilise le tableau de suivi pour organiser les candidatures.',
+      ),
+      InformationSection(
+        'J’ai une question sur le produit',
+        'La page Questions fréquentes regroupe les réponses sur le matching, les candidatures et l’espace recruteur.',
       ),
     ],
-    actionLabel: 'Consulter les questions fréquentes',
+    actionLabel: 'Voir les questions fréquentes',
     actionRoute: '/questions-frequentes',
   ),
   '/confidentialite': InformationPage(
     eyebrow: 'Légal',
     title: 'Confidentialité',
-    introduction: 'La politique officielle de confidentialité sera publiée ici avant ouverture du service.',
-    notice: 'Document officiel non fourni. Cette page ne constitue pas une politique de confidentialité validée.',
+    introduction: 'Principes de confidentialité applicables à l’interface publique présentée ici.',
     sections: [
       InformationSection(
-        'La version de présentation',
-        'Les laboratoires de la landing utilisent des données fictives. '
-            'Le message saisi dans une démonstration reste dans l’état local de cette vue.',
+        'Données de la landing',
+        'Les interactions des démonstrations de la landing restent dans l’état local de la page et ne déclenchent pas de candidature, d’offre ou de message réseau.',
       ),
       InformationSection(
-        'La suite',
-        'Les informations officielles concernant les traitements de données, '
-            'les interlocuteurs et les modalités applicables restent à compléter.',
+        'Accès au compte',
+        'Les routes de connexion et d’inscription sont séparées de la landing. La collecte et le traitement de données ne doivent commencer qu’au moment où un parcours de compte réellement connecté est utilisé.',
+      ),
+      InformationSection(
+        'Principe de minimisation',
+        'Une fonctionnalité ne doit demander que les informations nécessaires à son usage et les afficher uniquement dans le contexte prévu.',
+      ),
+      InformationSection(
+        'Transparence',
+        'Les informations juridiques propres à l’exploitant du service doivent être fournies par l’entité responsable avant toute mise en production publique.',
       ),
     ],
   ),
   '/conditions': InformationPage(
     eyebrow: 'Légal',
     title: 'Conditions d’utilisation',
-    introduction: 'Les conditions officielles du service seront accessibles ici avant son ouverture.',
-    notice: 'Les conditions contractuelles ne sont pas disponibles dans cette version de présentation.',
+    introduction: 'Règles d’usage de l’interface publique JOYN.',
     sections: [
       InformationSection(
-        'Découvrir JOYN',
-        'Les démonstrations illustrent les parcours envisagés. Elles ne publient '
-            'pas d’offre, ne soumettent pas de candidature et ne créent pas d’abonnement.',
+        'Utilisation du site',
+        'La landing permet de découvrir le produit, ses parcours et ses formules. Les démonstrations visuelles n’exécutent pas d’action métier sur un compte utilisateur.',
       ),
       InformationSection(
-        'Offres et disponibilité',
-        'Les montants candidat reprennent la maquette. Les modalités commerciales '
-            'et les accès entreprise sont encore à confirmer.',
+        'Comptes et contenus',
+        'Les espaces candidat et recruteur sont destinés à des informations exactes, pertinentes et directement liées à la recherche d’alternance ou au recrutement.',
+      ),
+      InformationSection(
+        'Décisions de recrutement',
+        'Une recommandation ou un score de compatibilité sert à organiser la découverte. Il ne constitue ni une promesse d’entretien ni une décision d’embauche.',
+      ),
+      InformationSection(
+        'Informations contractuelles',
+        'Les mentions d’éditeur, de responsabilité, de juridiction et les conditions commerciales opposables relèvent de l’exploitant juridique du service.',
       ),
     ],
   ),
   '/cookies': InformationPage(
     eyebrow: 'Légal',
     title: 'Cookies',
-    introduction: 'Les informations officielles concernant les cookies seront présentées ici.',
-    notice:
-        'L’inventaire des cookies de l’hébergement final n’a pas été fourni.',
+    introduction: 'Fonctionnement de la landing concernant le stockage local et les traceurs.',
     sections: [
       InformationSection(
-        'Les démonstrations locales',
-        'Leur état n’est pas enregistré par cette implémentation dans des cookies ou un stockage persistant.',
+        'Démonstrations interactives',
+        'Leur état est conservé uniquement en mémoire pendant l’affichage de la page. Cette implémentation n’écrit pas ces interactions dans un cookie ou un stockage persistant.',
       ),
       InformationSection(
-        'L’hébergement du service',
-        'Les informations relatives à l’environnement final et, le cas échéant, '
-            'aux choix proposés seront complétées avant ouverture.',
+        'Préférences du navigateur',
+        'L’interface respecte notamment la préférence système de réduction des animations pour limiter les mouvements automatiques.',
+      ),
+      InformationSection(
+        'Services externes',
+        'Tout ajout futur d’outil de mesure, d’authentification externe ou de traceur doit être documenté dans cette page et soumis au mécanisme de consentement requis.',
       ),
     ],
   ),

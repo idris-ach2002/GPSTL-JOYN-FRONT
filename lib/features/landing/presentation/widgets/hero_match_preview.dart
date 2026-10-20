@@ -28,21 +28,10 @@ class HeroMatchPreview extends StatelessWidget {
     final screenWidth = MediaQuery.sizeOf(context).width;
 
     return Semantics(
-      label: 'Illustration fictive du matching',
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (screenWidth < 1180)
-            const _CompactMatchPreview()
-          else
-            const _DesktopMatchPreview(),
-          const SizedBox(height: 12),
-          const Text(
-            'Aperçu illustratif',
-            style: TextStyle(color: AppColors.white, fontSize: 12),
-          ),
-        ],
-      ),
+      label: 'Illustration du matching JOYN',
+      child: screenWidth < 1180
+          ? const _CompactMatchPreview()
+          : const _DesktopMatchPreview(),
     );
   }
 }

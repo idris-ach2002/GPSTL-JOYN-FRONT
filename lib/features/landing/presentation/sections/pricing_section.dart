@@ -72,12 +72,6 @@ class _PricingSectionState extends State<PricingSection> {
                   },
                 ),
               ),
-              const SizedBox(height: 20),
-              const Text(
-                'Offres proposées : tarifs, essais et limites à confirmer avant ouverture.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.blueGreyDark, fontSize: 12),
-              ),
             ],
           ),
         ),
@@ -322,11 +316,6 @@ class _PlanCarouselState extends State<_PlanCarousel> {
                   ),
               ],
             ),
-            const Text(
-              'Glisse les cartes · ou utilise les flèches gauche et droite après sélection du carrousel',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, color: AppColors.blueGreyDark),
-            ),
           ],
         ),
       ),
@@ -491,7 +480,7 @@ class _PlanCardState extends State<_PlanCard> {
                   ? 'Paiement unique, quand tu en as besoin.'
                   : plan.price == '0 €'
                   ? 'Gratuit, sans limite de durée.'
-                  : 'Modalités à confirmer.',
+                  : 'Une formule adaptée à vos besoins de recrutement.',
               style: TextStyle(
                 color: foreground.withValues(alpha: .78),
                 height: 1.5,
