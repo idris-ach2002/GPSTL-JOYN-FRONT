@@ -112,23 +112,34 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-
-  testWidgets('Le constat revient avec des indicateurs sourcés', (tester) async {
+  testWidgets('Le constat revient avec des indicateurs sourcés', (
+    tester,
+  ) async {
     await tester.pumpWidget(host(const ConstatSection()));
     await finishTransition(tester);
     expect(find.text('LE CONSTAT'), findsOneWidget);
     expect(find.text('320 000'), findsOneWidget);
     expect(find.text('74 %'), findsOneWidget);
-    expect(find.textContaining('La bonne alternance'), findsOneWidget);
+    expect(
+      find.text(
+        'Source : La bonne alternance — Baromètre de l’alternance, T1 2026.',
+      ),
+      findsOneWidget,
+    );
   });
 
-  testWidgets('La démonstration complète expose les deux parcours', (tester) async {
+  testWidgets('La démonstration complète expose les deux parcours', (
+    tester,
+  ) async {
     await tester.pumpWidget(host(const MatchingStoryDemo()));
     await tester.pump();
     expect(find.text('Ton tableau de bord, dès l’arrivée'), findsOneWidget);
     await tester.tap(find.text('Entreprise'));
     await tester.pump(const Duration(milliseconds: 600));
-    expect(find.text('Pilote tes recrutements depuis le dashboard'), findsOneWidget);
+    expect(
+      find.text('Pilote tes recrutements depuis le dashboard'),
+      findsOneWidget,
+    );
     await tester.tap(find.byKey(const ValueKey('story-step-3')));
     await tester.pump(const Duration(milliseconds: 600));
     expect(find.text('Comprends le profil avant de contacter'), findsOneWidget);
@@ -188,7 +199,7 @@ void main() {
     await tester.tap(guide);
     await finishTransition(tester);
     expect(find.byType(InformationScreen), findsOneWidget);
-    expect(find.text('Préparer ton profil'), findsOneWidget);
+    expect(find.text('Prépare un profil concret'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('return-landing')));
     await finishTransition(tester);
     expect(find.byType(LandingScreen), findsOneWidget);

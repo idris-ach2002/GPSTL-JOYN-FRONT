@@ -32,55 +32,59 @@ class UniverseSection extends StatelessWidget {
             bottom: compactLaptop ? 124 : 142,
           ),
           child: Column(
-          children: [
-            const Text(
-              'LE PRODUIT, EN ACTION',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: AppColors.navy,
-                fontSize: 12,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 2.1,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'De la découverte au match.\nVois JOYN en action.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: AppColors.white,
-                fontSize: viewport.width < 600 ? 36 : compactLaptop ? 54 : 58,
-                fontWeight: FontWeight.w900,
-                height: 1.02,
-                letterSpacing: -2,
-                shadows: [
-                  Shadow(
-                    color: AppColors.orangeLight.withValues(alpha: .5),
-                    blurRadius: 35,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 720),
-              child: const Text(
-                'Choisis ton parcours et suis les écrans clés, du premier '
-                'signal jusqu’au suivi de la candidature ou du recrutement.',
+            children: [
+              const Text(
+                'LE PRODUIT, EN ACTION',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AppColors.navy,
-                  fontSize: 18,
-                  height: 1.6,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 2.1,
                 ),
               ),
-            ),
-            SizedBox(height: compactLaptop ? 30 : 36),
-            ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: demoMaxWidth),
-              child: const MatchingStoryDemo(),
-            ),
-          ],
+              const SizedBox(height: 24),
+              Text(
+                'De la découverte au match.\nVois JOYN en action.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppColors.white,
+                  fontSize: viewport.width < 600
+                      ? 36
+                      : compactLaptop
+                      ? 54
+                      : 58,
+                  fontWeight: FontWeight.w900,
+                  height: 1.02,
+                  letterSpacing: -2,
+                  shadows: [
+                    Shadow(
+                      color: AppColors.orangeLight.withValues(alpha: .5),
+                      blurRadius: 35,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 720),
+                child: const Text(
+                  'Choisis ton parcours et suis les écrans clés, du premier '
+                  'signal jusqu’au suivi de la candidature ou du recrutement.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AppColors.navy,
+                    fontSize: 18,
+                    height: 1.6,
+                  ),
+                ),
+              ),
+              SizedBox(height: compactLaptop ? 30 : 36),
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: demoMaxWidth),
+                child: const MatchingStoryDemo(),
+              ),
+            ],
           ),
         ),
       ),

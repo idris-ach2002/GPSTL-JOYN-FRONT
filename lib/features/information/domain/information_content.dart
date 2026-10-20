@@ -33,7 +33,8 @@ const informationPages = <String, InformationPage>{
   '/comprendre': InformationPage(
     eyebrow: 'Produit',
     title: 'Comment ça marche',
-    introduction: 'Un profil clair, des opportunités pertinentes et un suivi continu.',
+    introduction:
+        'Un profil clair, des opportunités pertinentes et un suivi continu.',
     sections: [
       InformationSection(
         '1. Construis ton profil',
@@ -138,7 +139,8 @@ const informationPages = <String, InformationPage>{
   '/questions-frequentes': InformationPage(
     eyebrow: 'Ressources',
     title: 'Questions fréquentes',
-    introduction: 'Les réponses essentielles pour comprendre les parcours JOYN.',
+    introduction:
+        'Les réponses essentielles pour comprendre les parcours JOYN.',
     sections: [
       InformationSection(
         'À qui s’adresse JOYN ?',

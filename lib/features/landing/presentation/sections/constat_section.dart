@@ -175,9 +175,15 @@ class _MetricCardState extends State<_MetricCard> {
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
       child: AnimatedContainer(
-        duration: reduceMotion ? Duration.zero : const Duration(milliseconds: 260),
+        duration: reduceMotion
+            ? Duration.zero
+            : const Duration(milliseconds: 260),
         curve: Curves.easeOutCubic,
-        transform: Matrix4.translationValues(0, _hovered && !reduceMotion ? -7 : 0, 0),
+        transform: Matrix4.translationValues(
+          0,
+          _hovered && !reduceMotion ? -7 : 0,
+          0,
+        ),
         constraints: const BoxConstraints(minHeight: 250),
         padding: const EdgeInsets.all(26),
         decoration: BoxDecoration(

@@ -140,12 +140,34 @@ class _LandingNavbarState extends State<LandingNavbar> {
                   );
 
                   if (narrow) {
+                    final veryNarrow = constraints.maxWidth < 340;
                     return Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Row(children: [brand, const Spacer(), menu]),
+                        Row(
+                          children: [
+                            Flexible(child: brand),
+                            const Spacer(),
+                            menu,
+                          ],
+                        ),
                         const SizedBox(height: 7),
-                        actions,
+                        if (veryNarrow)
+                          Column(
+                            children: [
+                              const SizedBox(
+                                width: double.infinity,
+                                child: login,
+                              ),
+                              const SizedBox(height: 8),
+                              const SizedBox(
+                                width: double.infinity,
+                                child: register,
+                              ),
+                            ],
+                          )
+                        else
+                          actions,
                       ],
                     );
                   }
@@ -215,21 +237,29 @@ class _BrandButtonState extends State<_BrandButton> {
             overlayColor: Colors.transparent,
             splashFactory: NoSplash.splashFactory,
           ),
-          child: const Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              JoynMark(size: 32),
-              SizedBox(width: 10),
-              Text(
-                'joyn',
-                style: TextStyle(
-                  fontSize: 23,
-                  color: AppColors.navy,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: -.7,
-                ),
-              ),
-            ],
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final showWordmark = constraints.maxWidth >= 105;
+
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const JoynMark(size: 32),
+                  if (showWordmark) ...[
+                    const SizedBox(width: 10),
+                    const Text(
+                      'joyn',
+                      style: TextStyle(
+                        fontSize: 23,
+                        color: AppColors.navy,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -.7,
+                      ),
+                    ),
+                  ],
+                ],
+              );
+            },
           ),
         ),
       ),

@@ -65,7 +65,7 @@ class _FooterCurveState extends State<FooterCurve>
 
 class _CurvePainter extends CustomPainter {
   _CurvePainter(this.animation, {required this.reduced})
-      : super(repaint: animation);
+    : super(repaint: animation);
 
   final Animation<double> animation;
   final bool reduced;
@@ -74,7 +74,8 @@ class _CurvePainter extends CustomPainter {
     final path = Path();
     for (var x = -20.0; x <= size.width + 20; x += 2) {
       final normalized = x / math.max(1, size.width);
-      final y = size.height * .54 +
+      final y =
+          size.height * .54 +
           math.sin(normalized * math.pi * 2.15 - .45) * 12 +
           math.sin(normalized * math.pi * 4.3 + .9) * 3;
       if (x <= -19) {

@@ -10,10 +10,7 @@ import '../widgets/joyn_mark.dart';
 /// Footer clair de la maquette : marque puis Produit, Entreprises, Ressources,
 /// Légal. Le fil lumineux autonome reprend le bleu et l’orange de la marque.
 class FooterSection extends StatelessWidget {
-  const FooterSection({
-    required this.onNavigate,
-    super.key,
-  });
+  const FooterSection({required this.onNavigate, super.key});
   final LandingNavigate onNavigate;
 
   void _open(BuildContext context, String route) {

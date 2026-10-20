@@ -471,45 +471,61 @@ class _ProductTheater extends StatelessWidget {
 
 class _TheaterHeader extends StatelessWidget {
   const _TheaterHeader({required this.step});
+
   final int step;
 
   @override
   Widget build(BuildContext context) => Container(
     height: 42,
-    padding: const EdgeInsets.symmetric(horizontal: 18),
+    padding: EdgeInsets.symmetric(
+      horizontal: MediaQuery.sizeOf(context).width < 360 ? 10 : 18,
+    ),
     decoration: BoxDecoration(
       color: AppColors.navyLight,
       border: Border(
         bottom: BorderSide(color: AppColors.white.withValues(alpha: .09)),
       ),
     ),
-    child: Row(
-      children: [
-        const _WindowDot(color: AppColors.orange),
-        const SizedBox(width: 7),
-        const _WindowDot(color: AppColors.orangeLight),
-        const SizedBox(width: 7),
-        const _WindowDot(color: AppColors.blue),
-        const Spacer(),
-        Text(
-          'JOYN · VISITE PRODUIT',
-          style: TextStyle(
-            color: AppColors.white.withValues(alpha: .68),
-            fontSize: 10,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 1.25,
-          ),
-        ),
-        const Spacer(),
-        Text(
-          '0${step + 1}',
-          style: const TextStyle(
-            color: AppColors.orangeLight,
-            fontSize: 11,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-      ],
+    child: LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 300;
+
+        return Row(
+          children: [
+            const _WindowDot(color: AppColors.orange),
+            const SizedBox(width: 7),
+            const _WindowDot(color: AppColors.orangeLight),
+            const SizedBox(width: 7),
+            const _WindowDot(color: AppColors.blue),
+            const Spacer(),
+            if (!compact) ...[
+              Flexible(
+                child: Text(
+                  'JOYN · VISITE PRODUIT',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AppColors.white.withValues(alpha: .68),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.25,
+                  ),
+                ),
+              ),
+              const Spacer(),
+            ],
+            Text(
+              '0${step + 1}',
+              style: const TextStyle(
+                color: AppColors.orangeLight,
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ],
+        );
+      },
     ),
   );
 }
