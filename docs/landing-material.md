@@ -1,154 +1,152 @@
-# Conception et intégration
+# Conception de la landing — version améliorée
 
-## Sources et périmètre
+## Références
 
-Sources utilisateur examinées le 20 octobre 2026 :
+Sources utilisateur examinées : les deux archives de code originales, le socle
+vierge `GPSTL-JOYN-FRONT-New-Branch-landing-page.zip`, la planche Figma,
+`Base.zip`, le Trello, Orbix, puis `univers.png`, `plans-footer.png` et le journal
+`Texte collé(2).txt` fournis pour cette passe.
 
-- `GPSTL-JOYN-FRONT-New-Branch-landing-page.zip` : base vierge, commit `f719022`.
-- `GPSTL-JOYN-FRONT(1).zip` : référence de code pour le hero et les tokens.
-- `maquette-figma-GPSTL JOYN.zip` : planche Figma et exports PNG.
-- `Base.zip` : captures de l'implémentation existante.
-- `orbix-navbar.png` : référence de structure de la navigation.
-- `Capture d’écran 2026-10-20 à 18.57.24.png` : référence du footer bleu nuit.
-- `trello- gpstl-joyn.json` : source du périmètre fonctionnel, pas une preuve de
-  disponibilité des services ni un document de tarification validée.
+La nouvelle capture `plans-footer.png` remplace la référence précédente du footer
+bleu nuit : le footer est désormais clair, avec les mêmes rubriques et intitulés.
+La courbe orange de la proposition précédente est conservée, pilotée par le scroll.
+Les sections avant/après, analyse CV, JOYN dans ta poche, témoignages et carrousel
+d'offres/candidatures restent exclues. Le carrousel demandé ici concerne les tarifs.
 
-La palette `AppColors` est copiée à l'identique depuis l'implémentation fournie.
-Le thème utilise explicitement ses rôles Material : pas de génération de palette
-par `ColorScheme.fromSeed`. Les transparences et gradients déjà présents dans
-le hero sont conservés ; les nouveaux panneaux utilisent les tokens JOYN.
+La palette définie par `AppColors` conserve toutes les valeurs de l'archive de
+référence. Le formatage Dart peut modifier les espaces, jamais ces couleurs.
+Les nouveaux décors utilisent les mêmes tokens et leurs transparences.
 
-## Material UI dans ce projet
+## Material 3 et structure
 
-Le projet est Flutter/Dart. La bibliothèque retenue est **Material 3 intégrée à
-Flutter**, importée via `package:flutter/material.dart`. Aucun package React MUI
-ni bibliothèque Flutter tierce non identifiée n'a été ajouté.
+Le projet reste Flutter/Dart, avec la bibliothèque Material 3 intégrée au SDK.
+Aucun package React MUI, moteur d'animation ou package de carrousel n'est ajouté.
+Roboto est embarquée depuis les ressources du SDK, avec sa licence ; le rendu
+web ne dépend pas d'un téléchargement de police externe.
+`SegmentedButton`, `PageView`, `ListTile`, `Card`, `Chip`, `TextField`, les boutons
+Material, `Shortcuts`, `Actions` et `Focus` portent les interactions standard.
+
+- `lib/app` : thème explicite et déclaration des routes.
+- `lib/features/landing/domain` : contenus fonctionnels et propositions tarifaires.
+- `lib/features/landing/presentation` : sections, démonstrations et décoration.
+- `lib/features/information` : pages éditoriales et catalogue des liens de footer.
+- `lib/features/auth` : destinations de raccordement au parcours de compte.
+- `lib/features/startup` : parcours natif préexistant, non redessiné dans cette passe.
 
 Références officielles Flutter, consultées le 20 octobre 2026 :
+https://docs.flutter.dev/release/breaking-changes/material-3-default
+https://docs.flutter.dev/cookbook/design/themes
+https://docs.flutter.dev/install/manual
 
-- Flutter, « The ThemeData.useMaterial3 flag is true by default » :
-  https://docs.flutter.dev/release/breaking-changes/material-3-default
-- Flutter, « Use themes to share colors and font styles » :
-  https://docs.flutter.dev/cookbook/design/themes
+## Transition d'univers et coût du rendu
 
-L'ancienne landing activait déjà Material 3. Le changement porte donc sur
-l'utilisation des composants prêts à l'emploi et la réduction du code spécifique,
-plutôt que sur une migration d'un moteur Flutter différent.
+`ScrollAtmosphere` dessine une couche indépendante : fondu bleu nuit/orange/fond
+clair, grille discrète, halos au `MaskFilter.blur` et voile lumineux courbe.
+La phase des halos dépend de la position de défilement. Aucun cercle ne traverse
+la page en boucle. Le contenu ne se reconstruit pas à chaque pixel de scroll :
+le painter reçoit directement le contrôleur en tant que Listenable.
 
-## Composition de la page
+`RepaintBoundary` isole la décoration. Le flou est réservé à des formes simples,
+plutôt qu'à un BackdropFilter sur l'ensemble de la page. Mesurer néanmoins le
+rendu sur les machines cibles, particulièrement sur des GPU intégrés.
+La réduction des animations neutralise la parallaxe, les transitions et les
+changements d'échelle ; les informations et interactions restent accessibles.
 
-| Ordre | Section | Décision |
-| --- | --- | --- |
-| 1 | Hero et navbar | Hero conservé ; capsule Orbix blanche, groupe de liens, deux actions côte à côte |
-| 2 | Fonctionnalités | SegmentedButton candidat/entreprise, quatre rubriques par audience et détail sélectionnable |
-| 3 | Entreprises | Panneau bleu nuit, bénéfices issus du backlog et aperçu illustratif |
-| 4 | Changement d'univers | Grande section orange statique ; aucun cercle mobile |
-| 5 | Formules | Même structure candidat, offre entreprise à deux niveaux |
-| 6 | Aide courte | ExpansionTile Material avec réponses locales |
-| 7 | Footer | Bleu nuit, promesse de la capture, quatre colonnes, courbe orange animée |
+## Démonstrations des fonctionnalités
 
-Les sections avant/après, comment ça marche, analyse CV, JOYN dans ta poche,
-témoignages et carrousel d'offres/candidatures ne sont pas intégrées.
-La démo interactive d'analyse n'est pas reprise. La section orange ne calcule ni
-ne simule de score. Les chiffres du hero sont uniquement ceux d'un aperçu
-illustratif ; ils ne représentent pas une mesure de performance du produit.
+Chaque audience possède quatre rubriques et un laboratoire propre :
 
-## Choix des composants
-
-- `SegmentedButton` remplace les sélecteurs faits de Containers et InkWell.
-- `MenuAnchor` / `MenuItemButton` remplacent le mega-menu à OverlayEntry et timers.
-- `FilledButton`, `OutlinedButton`, `TextButton` conservent leurs interactions
-  Material, focus, activation clavier et surface de contact.
-- `Card`, `ListTile`, `Chip`, `ExpansionTile` portent les surfaces et interactions.
-- `AnimatedScale`, `AnimatedContainer`, `AnimatedSwitcher` assurent les transitions
-  simples. Aucun moteur d'animation externe n'est ajouté.
-- Les personnalisations restent limitées au hero repris, au symbole JOYN et à la
-  courbe de footer. Les dessins décoratifs ne portent pas de logique métier.
-
-La navigation est compacte sous 1080 px de largeur utile. Sous 650 px utiles,
-les accès au compte restent côte à côte sur une deuxième ligne. Le navigateur
-mobile conserve ainsi une landing consultable, différente du parcours natif.
-
-## État, navigation et cycle de vie
-
-Chaque sélecteur détient son état local : modifier les fonctionnalités ne change
-pas l'audience des tarifs. Le changement d'audience réinitialise le détail actif.
-Les contenus statiques sont séparés dans des objets immuables et des listes const.
-Pas de gestionnaire d'état global pour une sélection purement visuelle.
-
-`LandingScreen` possède le ScrollController et les clés de sections. Les liens
-utilisent `Scrollable.ensureVisible`. Les sections restent montées, y compris
-lorsqu'elles ne sont pas visibles, afin que les ancres puissent être résolues.
-Ce choix convient à une page marketing courte ; il est à reconsidérer si le
-contenu devient volumineux. Le contrôleur est libéré au démontage.
-
-Les accès `/connexion` et `/inscription` utilisent les routes MaterialApp.
-Le splash choisit son parcours via `kIsWeb`, sans confondre plateforme et largeur.
-Il annule son Timer au démontage et utilise `pushReplacementNamed` pour éviter
-que le bouton Retour rejoue l'introduction.
-
-La préférence `disableAnimations` désactive les apparitions, le survol animé,
-les transitions de sélection et la courbe ; elle court-circuite l'attente native.
-La courbe est décorative, isolée dans une RepaintBoundary, et se repeint via
-CustomPainter.repaint. Son contrôleur est libéré correctement. Elle reste active
-lorsque la landing est montée, même si le footer est hors de l'écran : mesurer
-ce coût sur appareil avant de décider d'une détection de visibilité supplémentaire.
-
-## Traçabilité du contenu fonctionnel
-
-| Audience / rubrique | Cartes Trello |
+| Candidat | Interaction locale |
 | --- | --- |
-| Profil candidat / CV | CA29, CA53, CA56, CA68 |
-| Recommandations d'offres | CA20, CA33 |
-| Candidatures et dashboard | CA27, CA30, CA57, CA76 |
-| Messagerie | CO31, CO26 |
-| Entreprise et validation | R46, R59, R65, A62 |
-| Création, modification, clôture d'offres | R38, R39, R58, R70, R71 |
-| Profils recommandés et dashboard recruteur | R45, R34, R47, R49 |
-| Statuts et échanges recruteur | R72, R74, CO31, CO26 |
+| Profil | Simuler un préremplissage de trois champs, puis réinitialiser |
+| Recommandations | Activer quatre critères ; score pédagogique = critères actifs / 4 × 100 |
+| Candidatures | Faire évoluer Envoyée → En étude → Entretien |
+| Conversation | Ajouter au plus trois messages à l'état de la vue |
 
-Les fonctionnalités ne sont pas annoncées comme déjà connectées à un backend.
-Les anciennes promesses non étayées dans ces cartes (formation Skill Gap,
-Remplace-moi, alertes par seuil) ne sont pas reprises dans le nouveau sélecteur.
+| Entreprise | Interaction locale |
+| --- | --- |
+| Présentation | Passer d'un profil à compléter à un profil renseigné |
+| Offres | Simuler une publication puis une clôture |
+| Profils recommandés | Sélectionner trois profils fictifs et consulter leurs parcours |
+| Candidatures | Faire évoluer le statut d'une candidature fictive |
 
-## Tarifs : référence et propositions
+Le label « Démo interactive · données fictives » est toujours visible.
+Aucun fichier CV n'est lu, aucun message n'est transmis et aucune offre réelle
+n'est créée. Le champ de message est vidé lors de l'ajout ; les messages et le
+TextEditingController sont libérés au démontage. Le nombre de messages est borné.
+Le score local est une illustration expliquée, pas la formule métier du backend.
+Le changement de rubrique recrée la démo et réinitialise ses données.
 
-Les trois montants candidat viennent de Figma : 0 €, 15,99 €/mois, 4,99 €/48 h.
-Le badge de sept jours offerts et le quota gratuit de dix « Intéressé » par jour
-viennent aussi de la maquette. Ils ne sont pas des règles backend existantes.
-JOYN+ reprend explicitement les accès de base, remplace le quota par l'illimité
-et ajoute les avantages visuels de la référence. Le Boost est un complément de
-visibilité, pas un troisième abonnement dont les droits seraient incomplets.
+Traçabilité Trello conservée dans les objets de contenu : CA29/53/56/68 pour le
+profil, CA20/33 pour les recommandations, CA27/30/57/76 pour les candidatures,
+CO31/26 pour les échanges ; R46/59/65/A62 pour l'entreprise, R38/39/58/70/71 pour
+les offres, R45/34/47/49 pour les profils et R72/74 pour les statuts recruteur.
+Ces cartes décrivent le périmètre prévu, pas la disponibilité des services.
 
-La proposition entreprise distingue Membre (présentation) et Membre premium
-(recrutement). Premium inclut tous les droits de Membre et ajoute la gestion des
-offres, les recommandations, les candidatures et la messagerie. Aucun montant
-entreprise n'est inventé : la carte indique « Sur devis / Tarif à définir ».
+## Carrousel de tarification
 
-La page affiche que tarifs, essais et limites restent à confirmer avant ouverture.
-Les CTA ouvrent l'inscription ; ils ne déclenchent aucun paiement. Le backend
-devra être la source de vérité des autorisations et quotas si ces offres sont
-validées. Les textes et listes se modifient dans `pricing_plan.dart`.
+Le `PageView` montre trois cartes sur grand écran et une carte centrale avec
+aperçus latéraux sur une fenêtre étroite. La position initiale est JOYN+ côté
+candidat et Membre premium côté entreprise. Chaque audience possède son contrôleur.
+Un changement de largeur qui modifie le nombre de cartes visibles réinitialise
+ce contrôleur sur la formule centrale : choix volontaire pour conserver une
+composition cohérente après changement de breakpoint.
 
-## Raccordement de l'authentification
+Le déplacement utilise une courbe easeInOutCubic. Les cartes latérales sont
+légèrement abaissées et réduites. Le survol accentue bordure et halo ; la carte
+JOYN+ conserve son fond navy et son aura orange. Le fond est lié au scroll.
+La hauteur du PageView vient d'une mesure réelle hors scène des cartes, sans
+focus ni Spacer, puis est partagée par les cartes visibles. Aucune estimation
+de police ni hauteur fixe n'est utilisée pour leur contenu. La mesure suit le
+texte agrandi et les retours à la ligne, pour éviter de tronquer les cartes.
 
-Les écrans livrés sont des destinations d'attente, sans formulaire ni collecte
-de mot de passe. Les références Git incluses contiennent d'autres travaux :
+Les boutons précédent/suivant et les points de pagination donnent le focus au
+carrousel. `Shortcuts` et `Actions` traitent ←/→ uniquement dans son sous-arbre :
+ils ne capturent pas les touches de la messagerie ou d'autres parties de la page.
+Aux extrémités, les commandes n'avancent pas et le bouton correspondant est désactivé.
+Avec mouvements réduits, le contrôleur utilise `jumpToPage`, sans durée nulle
+passée à une animation de scroll. Tous les contrôleurs et le FocusNode sont libérés.
 
-- `connexion-dashboard` : `lib/features/auth/presentation/login_page.dart`,
-  contrôleur et repository simulé ; sa palette est différente de celle de la
-  landing. Ne pas fusionner ce thème sans adaptation aux tokens JOYN retenus.
-- `feature/inscription` : parcours d'inscription et onboarding, avec dépôts simulés.
+Les montants candidat (0 €, 15,99 €/mois, 4,99 €/48 h), l'essai et les avantages
+visuels viennent des maquettes. Les accès premium reprennent ceux de base.
+Le Boost est un complément de visibilité ; sa scène est un aperçu fictif.
+Les offres entreprise restent des propositions, sans montant inventé.
+La note de confirmation commerciale est visible ; les CTA ne déclenchent pas de paiement.
 
-Ils n'ont pas été fusionnés automatiquement : leur intégration complète dépasse
-la landing et introduirait des écrans, dépendances et simulations supplémentaires.
-Remplacer les builders des routes dans `lib/app/app.dart` lors de l'intégration.
-La navigation native vers `/connexion` est déjà en place.
+## Footer, liens et retour
 
-## Limites de validation
+Le catalogue `footer_links.dart` est partagé avec les tests :
+Produit, Entreprises, Ressources et Légal conservent exactement les intitulés de
+la capture. Tarifs pointe sur l'ancre existante, Espace recruteur sur la connexion.
+Les dix autres liens ouvrent leurs pages publiques via MaterialApp.routes.
 
-Aucun SDK Flutter/Dart n'est installé dans l'environnement de réalisation.
-Le code n'a donc pas été compilé, formaté avec dart format, analysé par Dart ou
-rendu dans un navigateur. La comparaison visuelle au pixel près n'est pas faite.
-Les tests ajoutés et le workflow sont préparés, non exécutés. Le rapport statique
-ne se substitue pas à Flutter analyze ni à la recette visuelle.
+`InformationScreen` conserve une structure commune, un contenu propre à chaque
+route, une action éventuelle et un retour explicite. Le retour dépile les pages
+jusqu'à la landing : son état et sa position de scroll restent montés. Une entrée
+directe sans route précédente utilise le remplacement vers `/`.
+Les routes fonctionnent aussi via les URL nommées du routeur Flutter.
+
+Les documents juridiques et coordonnées officielles n'étant pas fournis, leurs
+pages signalent ce qui reste à publier. Aucune clause contractuelle, adresse ou
+politique de données officielle n'est inventée. Remplace-moi est présenté comme
+un concept de la maquette dont les modalités restent à préciser.
+
+`FooterCurve` n'a plus de Timer ni AnimationController. Sa sinusoïde dépend de
+`scroll.offset / 240`, puis s'immobilise lorsque le défilement s'arrête. Il n'utilise
+plus `TickerMode.of`, mentionné comme déprécié dans le journal utilisateur.
+
+## Erreurs du journal utilisateur
+
+La carte principale du hero avait une hauteur imposée de 340 px alors que son
+contenu pouvait dépasser 400 px. La hauteur fixe est supprimée et la composition
+sur le canvas est agrandie : les cartes conservent leur contenu naturel.
+
+Les tests avançaient l'horloge directement après une action. Le premier frame
+installait alors seulement l'animation, laissant la route sortante ou l'ancien
+contenu d'AnimatedSwitcher encore présents. `finishTransition` installe un frame,
+avance l'animation, puis traite le dernier frame avant les assertions.
+Les nouvelles interactions et le retour depuis le footer ont leurs tests dédiés.
+
+L'arrêt inattendu du compilateur signalé dans le journal ne contient pas sa cause.
+Il ne faut donc pas l'attribuer sans preuve aux échecs de tests. Les résultats de
+la nouvelle compilation et des vérifications sont consignés séparément.

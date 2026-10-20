@@ -1,56 +1,60 @@
 # JOYN — Landing Material 3
 
-Branche `feat/landing-material`, créée depuis `f719022` sur le socle vierge fourni.
-L'historique Git et le remote d'origine sont conservés. Aucun push n'a été réalisé.
+Branche **`landing-page`**, basée sur le socle vierge `f719022` puis la première
+livraison `2eef6de`. Historique Git conservé ; aucun push distant effectué.
 
 ## Démarrer
 
-Utiliser le SDK Flutter du projet dont Dart satisfait `^3.13.5`, puis :
+Environnement de référence : Flutter 3.47.7 / Dart 3.13.5.
 
 ```sh
 flutter pub get
 flutter run -d chrome
 ```
 
-Pour le parcours natif, lancer sur un appareil Android/iOS :
-
-```sh
-flutter run
-```
-
-Le web affiche la landing, même dans un navigateur étroit. Le natif ouvre une
-animation de marque de 1,6 seconde puis remplace la route par `/connexion`.
-La connexion et l'inscription sont des destinations d'intégration explicites :
-aucune authentification ni facturation backend n'est implémentée dans cette branche.
-
 ## Vérifier
 
 ```sh
-dart format lib test
+dart format --output=none --set-exit-if-changed lib test
 flutter analyze
 flutter test
 flutter build web --release
 ```
 
-**État de la livraison :** contrôles de structure et de Git réalisés ; commandes
-Flutter non exécutées, car ni Flutter ni Dart ne sont installés dans l'environnement
-de réalisation. La fidélité visuelle exacte, les débordements et le rendu sur
-appareil restent à vérifier en exécutant l'application. Le workflow GitHub préparé
-n'a pas été déclenché et ne constitue pas une preuve de réussite.
+Les résultats effectivement obtenus figurent dans [verification.md](docs/verification.md).
+Le workflow GitHub utilise la même version de Flutter et inclut `landing-page`.
+Le verrou `pubspec.lock` est suivi pour rendre les dépendances reproductibles.
 
-La contrainte Dart provient du projet fourni. Elle n'a pas été abaissée pour
-contourner une incompatibilité de SDK. Le workflow utilise le canal stable ; si
-son Dart ne satisfait pas `^3.13.5`, choisir le SDK du projet avant de relancer.
+## Version améliorée
 
-## Organisation
+- Transition navy/orange/lumière avec halos diffus, grille et parallaxe au scroll.
+- Fonctionnalités candidat/entreprise : huit démonstrations locales, schémas et
+  interactions distincts, avec données explicitement fictives.
+- Carrousel de tarifs : glissement, boutons, pagination, focus et flèches clavier.
+  JOYN+ reste sombre avec son halo orange ; le Boost retrouve son aperçu visuel.
+- Footer clair avec les rubriques et intitulés de `plans-footer.png`.
+- Dix pages publiques pour les liens qui n'ont pas leur contenu sur la landing.
+- Courbe orange exclusivement liée au scroll, sans animation infinie.
+- Hero à hauteur naturelle et tests de transitions corrigés.
 
-- `lib/app` : entrée, routes et thème Material 3 explicite.
-- `lib/design_system` : palette JOYN inchangée, espacements et conteneur partagé.
-- `lib/features/landing/domain` : contenu et propositions commerciales.
-- `lib/features/landing/presentation` : sections et widgets de la landing web.
-- `lib/features/startup` : introduction de l'application native.
-- `lib/features/auth` : écrans d'attente à remplacer lors de l'intégration.
-- `test/widget_test.dart` : interactions, accès premium, plateformes et largeurs.
+Le parcours mobile n'a pas été repensé dans cette passe. Les écrans de connexion
+et d'inscription restent des destinations d'intégration. Les pages légales
+expliquent l'absence de documents officiels ; aucune politique n'est inventée.
+Les tarifs et avantages proposés ne sont pas des autorisations backend.
 
-Consulter [la conception détaillée](docs/landing-material.md) et
-[la recette visuelle](docs/recette.md).
+## Récupérer les commits dans le dépôt existant
+
+La livraison contient `joyn-landing.bundle` et `importer-joyn.sh` en plus du dossier
+source. Depuis le dépôt local sur `landing-page`, exécuter le script de l'archive
+décompressée. Il importe les commits avec Git puis synchronise les fichiers avec
+`rsync`, en excluant toujours `.git`.
+
+Le script sauvegarde les modifications et fichiers non suivis dans un stash,
+puis accepte uniquement une avance rapide. Il s'arrête en cas de divergence.
+Il ne réapplique pas automatiquement les anciens fichiers de la première copie.
+Les détails sont dans [importer-la-livraison.md](docs/importer-la-livraison.md).
+
+## Architecture et recette
+
+- [Conception, animation et intégration](docs/landing-material.md)
+- [Recette fonctionnelle et visuelle](docs/recette.md)

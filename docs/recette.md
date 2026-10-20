@@ -1,44 +1,61 @@
-# Recette avant fusion
+# Recette avant intégration
 
-## Vérifications automatisées à exécuter
+## Commandes
 
-1. Installer le SDK du projet (Dart compatible avec `^3.13.5`).
-2. Exécuter `flutter pub get` puis `dart format lib test`.
-3. Exécuter `flutter analyze`, corriger les erreurs et avertissements.
-4. Exécuter `flutter test` : droits hérités, bascule des deux sélecteurs,
-   navigation vers la connexion, parcours natif, annulation du timer,
-   réduction des mouvements et affichage web à 320, 768 et 1440 px.
-5. Exécuter `flutter build web --release`.
-6. Ne considérer le workflow GitHub comme validé qu'après sa réussite effective.
+```sh
+flutter pub get
+dart format --output=none --set-exit-if-changed lib test
+flutter analyze
+flutter test
+flutter build web --release
+```
 
-## Comparaison visuelle à effectuer
+Référence de validation : Flutter 3.47.7 / Dart 3.13.5.
+Les résultats exécutés sont consignés dans `verification.md`.
 
-Ouvrir les maquettes et l'application à largeur identique. Les exports PNG seuls
-ne fournissent pas toutes les propriétés Figma, notamment les réglages de chaque
-texte. Ajuster les écarts constatés après rendu, sans modifier AppColors.
+## Contrôles fonctionnels
 
-| Élément | Résultat attendu |
+- Basculer candidat/entreprise et sélectionner chacune des huit démonstrations.
+- Import fictif : les champs se complètent et peuvent être réinitialisés.
+- Compatibilité : quatre critères actifs donnent 100 %, trois donnent 75 % ;
+  aucun score métier n'est prétendu.
+- Candidature : les trois statuts défilent par action explicite.
+- Messagerie : ajouter un message local et quitter la rubrique ; il n'est pas conservé.
+- Carrousel : glisser, utiliser les boutons, les points, Tab puis ←/→.
+- Vérifier les extrémités : absence de retour circulaire et boutons désactivés.
+- Vérifier que les flèches ne sont pas capturées par le carrousel depuis la messagerie.
+- Ouvrir les liens des quatre rubriques du footer et utiliser le retour à JOYN.
+- Confirmer la conservation de la position de défilement au retour d'une page.
+- Confirmer que le fil orange s'arrête quand le scroll s'arrête.
+
+## Contrôles visuels
+
+| Élément | Référence / attendu |
 | --- | --- |
-| Navbar | Capsule Orbix ; palette JOYN ; connexion et inscription côte à côte ; aucun débordement |
-| Hero | Hiérarchie et composition du hero existant ; halos contenus dans la section |
-| Retraits | Aucun avant/après, schéma CV, bloc mobile, témoignage ou carrousel |
-| Fonctionnalités | Candidat et entreprise montrent des contenus distincts ; sélection du détail réinitialisée |
-| Entreprises | Texte et aperçu lisibles, sans données personnelles réelles |
-| Orange | Rupture nette, aucun cercle animé traversant la page |
-| Tarifs candidat | 3 cartes, JOYN+ sombre, montants identiques à la référence |
-| Tarifs entreprise | 2 cartes ; premium comprend les droits de base ; aucun prix chiffré inventé |
-| Footer | Fond navy, texte de la capture, 4 colonnes, fine courbe orange animée |
-| Authentification | Routes accessibles ; disponibilité limitée expliquée ; aucun faux succès de connexion |
+| Navbar | Capsule Orbix, palette JOYN, connexion/inscription côte à côte |
+| Hero | Composition et lumières existantes, contenu sans hauteur forcée |
+| Fonctionnalités | Sélection lisible, schémas et panneaux interactifs distincts |
+| Univers | Fondu navy/orange/clair, halos diffus et grille ; aucun cercle infini |
+| Tarifs | Cartes claires, JOYN+ navy, halo orange, aperçu Boost |
+| Carrousel | Carte active mise en valeur ; aucune troncature des textes |
+| Footer | Fond clair et rubriques Produit, Entreprises, Ressources, Légal de plans-footer.png |
+| Pages | Intitulé propre, contenu associé au lien, retour explicite |
+| Palette | Valeurs AppColors identiques aux sources |
 
-Contrôler à 320, 390, 768, 1024, 1440 et 1920 px, puis avec agrandissement du texte
-et navigation uniquement au clavier. Vérifier aussi les hauteurs courtes en
-paysage et l'ouverture/fermeture du menu compact.
+Contrôler à 320, 390, 768, 1024, 1440 et 1920 px. Vérifier le texte agrandi,
+le clavier seul, les préférences de réduction du mouvement et les hauteurs courtes.
+Les tests automatisés couvrent notamment 320, 768 et 1440 px, ainsi que les tarifs
+avec un facteur de texte de 1,6 à 390 px.
 
-## Parcours natif à exécuter sur Android/iOS
+Une inspection de composition ne prouve pas une identité au pixel près avec
+Figma : contrôler les mêmes dimensions et les états exacts des maquettes avant
+validation finale. Le comportement natif préexistant reste testé, mais sa nouvelle
+conception est différée comme demandé.
 
-- Démarrage : marque sur fond navy puis `/connexion`, sans afficher la landing.
-- Retour : ne revient pas à l'introduction après son remplacement.
-- Réduction des animations système : accès immédiat à la route de connexion.
-- Mise en arrière-plan et retour : absence d'erreur de timer ou de contrôleur.
-- Après intégration de l'authentification : clavier virtuel, champs, validation,
-  appels backend et erreurs réseau à tester dans leur branche métier.
+## Import de la livraison
+
+Sur une copie du dépôt à `f719022`, reproduire des fichiers modifiés et les dossiers
+non suivis du premier rsync. Exécuter `importer-joyn.sh` : vérifier leur sauvegarde
+en stash, l'avance rapide de `landing-page`, les commits et un état propre.
+Tester aussi un historique divergent : le script doit s'arrêter avant toute
+sauvegarde ou modification des fichiers du dépôt cible.
