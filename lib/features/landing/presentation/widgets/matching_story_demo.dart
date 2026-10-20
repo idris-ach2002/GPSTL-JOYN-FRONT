@@ -213,6 +213,7 @@ class _MatchingStoryDemoState extends State<MatchingStoryDemo> {
     super.dispose();
   }
 
+
   @override
   Widget build(BuildContext context) {
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
@@ -227,13 +228,13 @@ class _MatchingStoryDemoState extends State<MatchingStoryDemo> {
           onAudienceChanged: _setAudience,
           onTogglePlayback: _togglePlayback,
         ),
-        const SizedBox(height: 22),
+        const SizedBox(height: 18),
         _StoryProgress(
           step: _step,
           steps: _steps,
           onStepSelected: _setStep,
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
         AnimatedSwitcher(
           duration: reduceMotion
               ? Duration.zero
@@ -471,6 +472,7 @@ class _ProductTheater extends StatelessWidget {
     child: ClipRRect(
       borderRadius: BorderRadius.circular(29),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           _TheaterHeader(step: step),
           _CinematicFrame(story: story, reduceMotion: reduceMotion),
@@ -487,7 +489,7 @@ class _TheaterHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    height: 50,
+    height: 46,
     padding: const EdgeInsets.symmetric(horizontal: 18),
     decoration: BoxDecoration(
       color: AppColors.navyLight,
@@ -544,6 +546,14 @@ class _CinematicFrame extends StatelessWidget {
   final _ProductStep story;
   final bool reduceMotion;
 
+  double _aspectRatioFor(double width) {
+    if (width < 560) return 1.22;
+    if (width < 760) return 1.32;
+    if (width < 1040) return 1.58;
+    if (width < 1400) return 1.68;
+    return 1.74;
+  }
+
   @override
   Widget build(BuildContext context) {
     final duration = reduceMotion
@@ -552,9 +562,9 @@ class _CinematicFrame extends StatelessWidget {
 
     return Container(
       color: AppColors.navy,
-      padding: EdgeInsets.all(MediaQuery.sizeOf(context).width < 620 ? 10 : 18),
+      padding: EdgeInsets.all(MediaQuery.sizeOf(context).width < 620 ? 10 : 14),
       child: AspectRatio(
-        aspectRatio: 1.535,
+        aspectRatio: _aspectRatioFor(MediaQuery.sizeOf(context).width),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(18),
           child: Stack(
@@ -638,9 +648,9 @@ class _TheaterCaption extends StatelessWidget {
     width: double.infinity,
     padding: EdgeInsets.fromLTRB(
       MediaQuery.sizeOf(context).width < 620 ? 18 : 28,
+      18,
+      MediaQuery.sizeOf(context).width < 620 ? 18 : 24,
       22,
-      MediaQuery.sizeOf(context).width < 620 ? 18 : 28,
-      26,
     ),
     decoration: BoxDecoration(
       color: AppColors.white,
@@ -666,7 +676,7 @@ class _TheaterCaption extends StatelessWidget {
               story.title,
               style: const TextStyle(
                 color: AppColors.navy,
-                fontSize: 21,
+                fontSize: 19,
                 height: 1.15,
                 fontWeight: FontWeight.w900,
                 letterSpacing: -.35,
@@ -677,7 +687,7 @@ class _TheaterCaption extends StatelessWidget {
               story.caption,
               style: const TextStyle(
                 color: AppColors.blueGreyDark,
-                fontSize: 13,
+                fontSize: 12.5,
                 height: 1.5,
               ),
             ),

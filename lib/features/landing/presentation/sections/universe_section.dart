@@ -22,7 +22,7 @@ class UniverseSection extends StatelessWidget {
     child: ContentContainer(
       maxWidth: 1240,
       child: Padding(
-        padding: const EdgeInsets.only(top: 150, bottom: 170),
+        padding: const EdgeInsets.only(top: 132, bottom: 148),
         child: Column(
           children: [
             const Text(
@@ -41,7 +41,7 @@ class UniverseSection extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.white,
-                fontSize: MediaQuery.sizeOf(context).width < 600 ? 39 : 64,
+                fontSize: MediaQuery.sizeOf(context).width < 600 ? 37 : 60,
                 fontWeight: FontWeight.w900,
                 height: 1.02,
                 letterSpacing: -2,
@@ -67,7 +67,7 @@ class UniverseSection extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 52),
+            const SizedBox(height: 40),
             const MatchingStoryDemo(),
           ],
         ),
