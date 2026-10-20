@@ -65,10 +65,7 @@ class _LandingScreenState extends State<LandingScreen> {
                 key: _keys[LandingSection.pricing],
                 scrollController: _scrollController,
               ),
-              FooterSection(
-                onNavigate: _navigate,
-                scrollController: _scrollController,
-              ),
+              FooterSection(onNavigate: _navigate),
             ],
           ),
         ),

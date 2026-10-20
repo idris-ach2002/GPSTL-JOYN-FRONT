@@ -147,8 +147,8 @@ class _LandingNavbarState extends State<LandingNavbar> {
   );
 }
 
-/// Mouvement au survol et au focus uniquement, sans animation perpétuelle.
-/// La préférence système de réduction des mouvements neutralise les effets.
+/// CTA d'accès au compte : la micro-interaction combine déplacement, halo,
+/// inversion de surface et mouvement de l'icône. Aucun ticker ne tourne au repos.
 class _AuthButton extends StatefulWidget {
   const _AuthButton({
     required this.label,
@@ -169,43 +169,128 @@ class _AuthButtonState extends State<_AuthButton> {
 
   @override
   Widget build(BuildContext context) {
-    final active =
-        (_hovered || _focused) && !MediaQuery.disableAnimationsOf(context);
-    final duration = MediaQuery.disableAnimationsOf(context)
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    final active = (_hovered || _focused) && !reduceMotion;
+    final duration = reduceMotion
         ? Duration.zero
-        : const Duration(milliseconds: 220);
-    void open() => Navigator.pushNamed(context, widget.route);
+        : const Duration(milliseconds: 360);
+
+    final foreground = widget.filled
+        ? AppColors.white
+        : active
+        ? AppColors.white
+        : AppColors.navy;
+    final background = widget.filled
+        ? null
+        : active
+        ? AppColors.navy
+        : AppColors.white;
+
     return MouseRegion(
+      cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
       child: Focus(
         onFocusChange: (value) => setState(() => _focused = value),
-        child: AnimatedScale(
-          scale: active ? 1.04 : 1,
+        child: TweenAnimationBuilder<double>(
+          tween: Tween(end: active ? 1 : 0),
           duration: duration,
+          curve: Curves.easeOutCubic,
+          builder: (context, value, child) => Transform.translate(
+            offset: Offset(0, -2.5 * value),
+            child: Transform.scale(
+              scale: 1 + .025 * value,
+              child: child,
+            ),
+          ),
           child: AnimatedContainer(
             duration: duration,
+            curve: Curves.easeOutCubic,
             decoration: BoxDecoration(
+              color: background,
+              gradient: widget.filled
+                  ? LinearGradient(
+                      begin: active ? Alignment.centerLeft : Alignment.topLeft,
+                      end: active ? Alignment.centerRight : Alignment.bottomRight,
+                      colors: active
+                          ? const [AppColors.navy, AppColors.orange]
+                          : const [AppColors.orange, AppColors.orangeLight],
+                    )
+                  : null,
               borderRadius: BorderRadius.circular(100),
+              border: Border.all(
+                color: widget.filled
+                    ? AppColors.orange.withValues(alpha: .25)
+                    : active
+                    ? AppColors.orange.withValues(alpha: .8)
+                    : AppColors.navy.withValues(alpha: .18),
+              ),
               boxShadow: active
                   ? [
                       BoxShadow(
-                        color: AppColors.orange.withValues(alpha: .24),
-                        blurRadius: 18,
-                        offset: const Offset(0, 6),
+                        color: (widget.filled ? AppColors.orange : AppColors.blue)
+                            .withValues(alpha: .28),
+                        blurRadius: 28,
+                        spreadRadius: 1,
+                        offset: const Offset(0, 10),
                       ),
                     ]
                   : [],
             ),
-            child: widget.filled
-                ? FilledButton(
-                    onPressed: open,
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.orange,
-                    ),
-                    child: Text(widget.label),
-                  )
-                : OutlinedButton(onPressed: open, child: Text(widget.label)),
+            child: Material(
+              color: Colors.transparent,
+              shape: const StadiumBorder(),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(100),
+                onTap: () => Navigator.pushNamed(context, widget.route),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 12,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      AnimatedDefaultTextStyle(
+                        duration: duration,
+                        style: TextStyle(
+                          color: foreground,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                        ),
+                        child: Text(widget.label),
+                      ),
+                      const SizedBox(width: 9),
+                      AnimatedContainer(
+                        duration: duration,
+                        width: 27,
+                        height: 27,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: active
+                              ? AppColors.white.withValues(alpha: .17)
+                              : widget.filled
+                              ? AppColors.white.withValues(alpha: .16)
+                              : AppColors.blueGrey10,
+                        ),
+                        child: AnimatedSlide(
+                          duration: duration,
+                          offset: active ? const Offset(.12, 0) : Offset.zero,
+                          child: Icon(
+                            widget.filled
+                                ? Icons.north_east_rounded
+                                : Icons.arrow_forward_rounded,
+                            size: 15,
+                            color: foreground,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
       ),

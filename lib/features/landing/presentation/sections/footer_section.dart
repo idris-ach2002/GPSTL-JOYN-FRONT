@@ -8,15 +8,13 @@ import '../widgets/footer_curve.dart';
 import '../widgets/joyn_mark.dart';
 
 /// Footer clair de la maquette : marque puis Produit, Entreprises, Ressources,
-/// Légal. Seule addition conservée : le fil orange lié au défilement.
+/// Légal. Le fil lumineux autonome reprend le bleu et l’orange de la marque.
 class FooterSection extends StatelessWidget {
   const FooterSection({
     required this.onNavigate,
-    required this.scrollController,
     super.key,
   });
   final LandingNavigate onNavigate;
-  final ScrollController scrollController;
 
   void _open(BuildContext context, String route) {
     if (route == '/tarifs') {
@@ -36,7 +34,7 @@ class FooterSection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            FooterCurve(scrollController: scrollController),
+            const FooterCurve(),
             const SizedBox(height: 28),
             LayoutBuilder(
               builder: (context, constraints) {

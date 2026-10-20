@@ -1,24 +1,60 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
 import '../../../../design_system/tokens/app_colors.dart';
 
-/// Fil orange dont la phase dépend exclusivement du défilement de la landing.
-/// Il s'immobilise dès que le scroll s'arrête : aucun ticker ni API dépréciée.
-class FooterCurve extends StatelessWidget {
-  const FooterCurve({required this.scrollController, super.key});
-  final ScrollController scrollController;
+/// Fil lumineux autonome du footer.
+///
+/// Une boucle lente déplace le dégradé du bleu vers l'orange le long de la
+/// courbe. L'animation ne dépend plus du scroll. La préférence système
+/// « réduire les animations » fige le rendu et évite tout ticker répétitif.
+class FooterCurve extends StatefulWidget {
+  const FooterCurve({super.key});
+
+  @override
+  State<FooterCurve> createState() => _FooterCurveState();
+}
+
+class _FooterCurveState extends State<FooterCurve>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 12),
+  );
+  bool? _reduced;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final reduced = MediaQuery.disableAnimationsOf(context);
+    if (_reduced == reduced) return;
+    _reduced = reduced;
+    if (reduced) {
+      _controller
+        ..stop()
+        ..value = .52;
+    } else {
+      _controller.repeat();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => ExcludeSemantics(
     child: RepaintBoundary(
       child: SizedBox(
-        height: 56,
+        height: 74,
         width: double.infinity,
         child: CustomPaint(
           painter: _CurvePainter(
-            scrollController,
+            _controller,
             reduced: MediaQuery.disableAnimationsOf(context),
           ),
         ),
@@ -28,34 +64,72 @@ class FooterCurve extends StatelessWidget {
 }
 
 class _CurvePainter extends CustomPainter {
-  _CurvePainter(this.scroll, {required this.reduced}) : super(repaint: scroll);
-  final ScrollController scroll;
+  _CurvePainter(this.animation, {required this.reduced})
+      : super(repaint: animation);
+
+  final Animation<double> animation;
   final bool reduced;
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (size.width == 0) return;
-    final phase = !reduced && scroll.hasClients ? scroll.offset / 240 : 0.0;
+  Path _path(Size size) {
     final path = Path();
-    for (var x = 0.0; x <= size.width; x += 2) {
-      final y =
-          size.height / 2 + math.sin(x / size.width * math.pi * 2 + phase) * 10;
-      if (x == 0) {
+    for (var x = -20.0; x <= size.width + 20; x += 2) {
+      final normalized = x / math.max(1, size.width);
+      final y = size.height * .54 +
+          math.sin(normalized * math.pi * 2.15 - .45) * 12 +
+          math.sin(normalized * math.pi * 4.3 + .9) * 3;
+      if (x <= -19) {
         path.moveTo(x, y);
       } else {
         path.lineTo(x, y);
       }
     }
+    return path;
+  }
+
+  ui.Gradient _shader(Size size, double phase) {
+    final travel = size.width * 1.8;
+    final start = -size.width * .8 + travel * phase;
+    return ui.Gradient.linear(
+      Offset(start, 0),
+      Offset(start + size.width * .95, 0),
+      [
+        AppColors.blue.withValues(alpha: .02),
+        AppColors.blue,
+        AppColors.orangeLight,
+        AppColors.orange,
+        AppColors.orange.withValues(alpha: .02),
+      ],
+      const [0, .22, .5, .76, 1],
+    );
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.width <= 0) return;
+    final phase = reduced ? .52 : animation.value;
+    final path = _path(size);
+    final shader = _shader(size, phase);
+
     canvas.drawPath(
       path,
       Paint()
-        ..color = AppColors.orange
+        ..shader = shader
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.5,
+        ..strokeCap = StrokeCap.round
+        ..strokeWidth = 14
+        ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 14),
+    );
+    canvas.drawPath(
+      path,
+      Paint()
+        ..shader = shader
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round
+        ..strokeWidth = 2.2,
     );
   }
 
   @override
   bool shouldRepaint(covariant _CurvePainter oldDelegate) =>
-      oldDelegate.scroll != scroll || oldDelegate.reduced != reduced;
+      oldDelegate.animation != animation || oldDelegate.reduced != reduced;
 }
