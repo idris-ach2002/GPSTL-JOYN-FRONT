@@ -16,6 +16,14 @@ Widget host(Widget child) => MaterialApp(
   home: Scaffold(body: SingleChildScrollView(child: child)),
 );
 
+/// Un premier frame installe la transition, les suivants la terminent.
+/// Avancer l'horloge sans ce premier pump laisse l'animation à sa valeur initiale.
+Future<void> finishTransition(WidgetTester tester) async {
+  await tester.pump();
+  await tester.pump(const Duration(seconds: 1));
+  await tester.pump();
+}
+
 void main() {
   test('JOYN+ conserve les accès essentiels et augmente le quota', () {
     final plus = candidatePlans[1];
@@ -34,13 +42,13 @@ void main() {
     await tester.pumpWidget(host(const FeaturesSection()));
     expect(find.byKey(const ValueKey('feature-candidate-0')), findsOneWidget);
     await tester.tap(find.text('Entreprise'));
-    await tester.pump(const Duration(milliseconds: 400));
+    await finishTransition(tester);
     expect(find.byKey(const ValueKey('feature-company-0')), findsOneWidget);
     expect(find.byKey(const ValueKey('feature-candidate-0')), findsNothing);
     final last = find.byKey(const ValueKey('feature-company-3'));
     await tester.ensureVisible(last);
     await tester.tap(last);
-    await tester.pump(const Duration(milliseconds: 400));
+    await finishTransition(tester);
     expect(find.textContaining('Mettez à jour le statut'), findsOneWidget);
   });
 
@@ -48,7 +56,7 @@ void main() {
     await tester.pumpWidget(host(const PricingSection()));
     expect(find.text('15,99 €'), findsOneWidget);
     await tester.tap(find.text('Entreprise'));
-    await tester.pump(const Duration(milliseconds: 400));
+    await finishTransition(tester);
     expect(find.text('Membre premium'), findsOneWidget);
     expect(find.text('Sur devis'), findsOneWidget);
     expect(find.text('15,99 €'), findsNothing);
@@ -59,7 +67,7 @@ void main() {
     expect(find.byType(MobileStartupScreen), findsOneWidget);
     expect(find.byType(LandingScreen), findsNothing);
     await tester.pump(const Duration(milliseconds: 1700));
-    await tester.pump(const Duration(milliseconds: 400));
+    await finishTransition(tester);
     expect(find.byType(AuthScreen), findsOneWidget);
     expect(find.byType(MobileStartupScreen), findsNothing);
   });
@@ -83,7 +91,7 @@ void main() {
       expect(find.byType(MobileStartupScreen), findsNothing);
       expect(tester.takeException(), isNull);
       await tester.tap(find.text('Connexion').first);
-      await tester.pump(const Duration(milliseconds: 400));
+      await finishTransition(tester);
       expect(find.byType(AuthScreen), findsOneWidget);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox());
@@ -96,7 +104,7 @@ void main() {
     addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
     await tester.pumpWidget(const JoynApp(webOverride: false));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
+    await finishTransition(tester);
     expect(find.byType(AuthScreen), findsOneWidget);
   });
 }

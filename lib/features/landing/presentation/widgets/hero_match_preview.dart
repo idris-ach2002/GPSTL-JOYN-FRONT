@@ -51,13 +51,13 @@ class _DesktopMatchPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 450,
+      height: 520,
       child: FittedBox(
         fit: BoxFit.scaleDown,
         alignment: Alignment.center,
         child: SizedBox(
           width: 680,
-          height: 440,
+          height: 540,
           child: Stack(
             clipBehavior: Clip.none,
             children: [
@@ -68,7 +68,6 @@ class _DesktopMatchPreview extends StatelessWidget {
                 left: 105,
                 top: 34,
                 width: 470,
-                height: 340,
                 child: _MainMatchCard(),
               ),
 
@@ -201,6 +200,7 @@ class _MainMatchCard extends StatelessWidget {
         boxShadow: AppShadows.floating,
       ),
       child: const Column(
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           _MatchedProfiles(),
