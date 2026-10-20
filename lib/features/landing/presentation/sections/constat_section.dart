@@ -82,7 +82,7 @@ class _ConstatCopy extends StatelessWidget {
         ),
       ),
       const SizedBox(height: 28),
-      const ConstrainedBox(
+      ConstrainedBox(
         constraints: BoxConstraints(maxWidth: 610),
         child: Text(
           'Candidatures qui restent sans réponse, recherche dispersée, '
