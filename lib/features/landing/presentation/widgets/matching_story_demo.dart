@@ -464,8 +464,8 @@ class _MatchScene extends StatelessWidget {
   @override
   Widget build(BuildContext context) => const _SceneSurface(
     child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Spacer(),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -480,7 +480,6 @@ class _MatchScene extends StatelessWidget {
         Text('C’est un match.', style: TextStyle(color: AppColors.navy, fontSize: 28, fontWeight: FontWeight.w900)),
         SizedBox(height: 8),
         Text('L’intérêt est réciproque.', style: TextStyle(color: AppColors.blueGreyDark)),
-        Spacer(),
       ],
     ),
   );

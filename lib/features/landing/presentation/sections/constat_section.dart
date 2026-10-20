@@ -126,7 +126,7 @@ class _MetricsPanel extends StatelessWidget {
             );
           }
           return Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(child: first),
               const SizedBox(width: 18),
