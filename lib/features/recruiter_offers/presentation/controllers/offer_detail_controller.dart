@@ -25,7 +25,9 @@ class OfferDetailController extends ChangeNotifier {
         errorMessage = 'Offre introuvable.';
       } else {
         final companies = await _repository.fetchCompanies();
-        for (final item in companies) { if (item.id == offer!.companyId) company = item; }
+        for (final item in companies) {
+          if (item.id == offer!.companyId) company = item;
+        }
       }
     } catch (_) {
       errorMessage = 'Impossible de charger cette offre.';

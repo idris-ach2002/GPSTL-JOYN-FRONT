@@ -14,7 +14,10 @@ void main() {
 
     test('expose les entreprises disponibles dans la base', () async {
       final companies = await repository.fetchCompanies();
-      expect(companies.map((company) => company.name), containsAll(['Joyn', 'Orbix', 'Metria', 'Helios']));
+      expect(
+        companies.map((company) => company.name),
+        containsAll(['Joyn', 'Orbix', 'Metria', 'Helios']),
+      );
 
       final found = await repository.findCompanyBySiret('732 829 320 00074');
       expect(found?.name, 'Joyn');
@@ -33,7 +36,10 @@ void main() {
 
       expect(company.name, 'Nova Tech');
       expect((await repository.fetchCompanies()).last.name, 'Nova Tech');
-      expect((await repository.findCompanyBySiret('12345678901234'))?.id, company.id);
+      expect(
+        (await repository.findCompanyBySiret('12345678901234'))?.id,
+        company.id,
+      );
     });
 
     test('crée, met à jour puis clôture une offre', () async {
@@ -48,7 +54,10 @@ void main() {
         skills: ['Flutter', 'Dart'],
       );
 
-      final created = await repository.createOffer(draft, JobOfferStatus.published);
+      final created = await repository.createOffer(
+        draft,
+        JobOfferStatus.published,
+      );
       expect(created.status, JobOfferStatus.published);
       expect(created.publishedAt, isNotNull);
 
@@ -68,7 +77,10 @@ void main() {
       expect(updated.title, 'Lead Flutter');
 
       await repository.closeOffer(created.id, reason: 'Poste pourvu');
-      expect((await repository.fetchOffer(created.id))?.status, JobOfferStatus.closed);
+      expect(
+        (await repository.fetchOffer(created.id))?.status,
+        JobOfferStatus.closed,
+      );
     });
   });
 }

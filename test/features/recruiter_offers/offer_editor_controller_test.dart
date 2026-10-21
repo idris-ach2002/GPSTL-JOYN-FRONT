@@ -40,7 +40,10 @@ void main() {
 
     test('évite les doublons de compétences sans tenir compte de la casse', () {
       expect(controller.addSkill('React'), isFalse);
-      expect(controller.skills.where((skill) => skill.toLowerCase() == 'react'), hasLength(1));
+      expect(
+        controller.skills.where((skill) => skill.toLowerCase() == 'react'),
+        hasLength(1),
+      );
     });
 
     test('crée une entreprise manuelle et la sélectionne', () async {

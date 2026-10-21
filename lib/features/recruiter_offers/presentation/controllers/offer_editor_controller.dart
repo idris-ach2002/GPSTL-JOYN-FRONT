@@ -30,7 +30,13 @@ class OfferEditorController extends ChangeNotifier {
   double? salaryMax = 1800;
   String currency = 'EUR';
   SalaryPeriod salaryPeriod = SalaryPeriod.month;
-  List<String> skills = ['React', 'TypeScript', 'PostgreSQL', 'Docker', 'Spring Boot'];
+  List<String> skills = [
+    'React',
+    'TypeScript',
+    'PostgreSQL',
+    'Docker',
+    'Spring Boot',
+  ];
   String rhythmType = OfferOptions.rhythms.first;
   DateTime? startDate = DateTime(2027, 9, 1);
   int? durationMonths = 12;
@@ -81,7 +87,9 @@ class OfferEditorController extends ChangeNotifier {
   }
 
   void _hydrate(JobOffer offer) {
-    selectedCompany = companies.where((c) => c.id == offer.companyId).firstOrNull;
+    selectedCompany = companies
+        .where((c) => c.id == offer.companyId)
+        .firstOrNull;
     title = offer.title;
     contractType = offer.contractType;
     location = offer.location;
@@ -105,20 +113,81 @@ class OfferEditorController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateTitle(String value) { title = value; _errors.remove('title'); notifyListeners(); }
-  void updateContractType(ContractType value) { contractType = value; notifyListeners(); }
-  void updateLocation(String value) { location = value; _errors.remove('location'); notifyListeners(); }
-  void updateRemoteMode(RemoteMode value) { remoteMode = value; notifyListeners(); }
-  void updateExperienceLevel(ExperienceLevel value) { experienceLevel = value; notifyListeners(); }
-  void updateDescription(String value) { description = value; _errors.remove('description'); notifyListeners(); }
-  void updateSalaryMin(String value) { salaryMin = _parseAmount(value); _errors.remove('salary'); notifyListeners(); }
-  void updateSalaryMax(String value) { salaryMax = _parseAmount(value); _errors.remove('salary'); notifyListeners(); }
-  void updateCurrency(String value) { currency = value; notifyListeners(); }
-  void updateSalaryPeriod(SalaryPeriod value) { salaryPeriod = value; notifyListeners(); }
-  void updateRhythm(String value) { rhythmType = value; notifyListeners(); }
-  void updateStartDate(DateTime? value) { startDate = value; notifyListeners(); }
-  void updateDuration(String value) { durationMonths = int.tryParse(value.trim()); _errors.remove('duration'); notifyListeners(); }
-  void updateDegree(String value) { degreeLevelRequired = value; notifyListeners(); }
+  void updateTitle(String value) {
+    title = value;
+    _errors.remove('title');
+    notifyListeners();
+  }
+
+  void updateContractType(ContractType value) {
+    contractType = value;
+    notifyListeners();
+  }
+
+  void updateLocation(String value) {
+    location = value;
+    _errors.remove('location');
+    notifyListeners();
+  }
+
+  void updateRemoteMode(RemoteMode value) {
+    remoteMode = value;
+    notifyListeners();
+  }
+
+  void updateExperienceLevel(ExperienceLevel value) {
+    experienceLevel = value;
+    notifyListeners();
+  }
+
+  void updateDescription(String value) {
+    description = value;
+    _errors.remove('description');
+    notifyListeners();
+  }
+
+  void updateSalaryMin(String value) {
+    salaryMin = _parseAmount(value);
+    _errors.remove('salary');
+    notifyListeners();
+  }
+
+  void updateSalaryMax(String value) {
+    salaryMax = _parseAmount(value);
+    _errors.remove('salary');
+    notifyListeners();
+  }
+
+  void updateCurrency(String value) {
+    currency = value;
+    notifyListeners();
+  }
+
+  void updateSalaryPeriod(SalaryPeriod value) {
+    salaryPeriod = value;
+    notifyListeners();
+  }
+
+  void updateRhythm(String value) {
+    rhythmType = value;
+    notifyListeners();
+  }
+
+  void updateStartDate(DateTime? value) {
+    startDate = value;
+    notifyListeners();
+  }
+
+  void updateDuration(String value) {
+    durationMonths = int.tryParse(value.trim());
+    _errors.remove('duration');
+    notifyListeners();
+  }
+
+  void updateDegree(String value) {
+    degreeLevelRequired = value;
+    notifyListeners();
+  }
 
   double? _parseAmount(String value) {
     final normalized = value.replaceAll(' ', '').replaceAll(',', '.').trim();
@@ -143,19 +212,28 @@ class OfferEditorController extends ChangeNotifier {
 
   bool validate() {
     _errors.clear();
-    if (selectedCompany == null) _errors['company'] = 'Sélectionnez une entreprise.';
-    if (title.trim().isEmpty) _errors['title'] = 'Indiquez un intitulé de poste.';
-    if (title.trim().length > 200) _errors['title'] = 'Le titre ne doit pas dépasser 200 caractères.';
-    if (location.trim().isEmpty) _errors['location'] = 'Indiquez une localisation.';
-    if (description.trim().isEmpty) _errors['description'] = 'Décrivez le poste et le profil recherché.';
+    if (selectedCompany == null)
+      _errors['company'] = 'Sélectionnez une entreprise.';
+    if (title.trim().isEmpty)
+      _errors['title'] = 'Indiquez un intitulé de poste.';
+    if (title.trim().length > 200)
+      _errors['title'] = 'Le titre ne doit pas dépasser 200 caractères.';
+    if (location.trim().isEmpty)
+      _errors['location'] = 'Indiquez une localisation.';
+    if (description.trim().isEmpty)
+      _errors['description'] = 'Décrivez le poste et le profil recherché.';
     if (skills.isEmpty) _errors['skills'] = 'Ajoutez au moins une compétence.';
-    if (salaryMin != null && salaryMin! < 0 || salaryMax != null && salaryMax! < 0) {
+    if (salaryMin != null && salaryMin! < 0 ||
+        salaryMax != null && salaryMax! < 0) {
       _errors['salary'] = 'Les montants doivent être positifs.';
     }
     if (salaryMin != null && salaryMax != null && salaryMax! < salaryMin!) {
-      _errors['salary'] = 'Le salaire maximum doit être supérieur ou égal au minimum.';
+      _errors['salary'] =
+          'Le salaire maximum doit être supérieur ou égal au minimum.';
     }
-    if (isWorkStudy && durationMonths != null && (durationMonths! < 1 || durationMonths! > 60)) {
+    if (isWorkStudy &&
+        durationMonths != null &&
+        (durationMonths! < 1 || durationMonths! > 60)) {
       _errors['duration'] = 'La durée doit être comprise entre 1 et 60 mois.';
     }
     notifyListeners();
@@ -179,9 +257,7 @@ class OfferEditorController extends ChangeNotifier {
       }
     } else if (mobileStep == 3) {
       if (skills.isEmpty) _errors['skills'] = 'Ajoutez une compétence.';
-      if (salaryMin != null &&
-          salaryMax != null &&
-          salaryMax! < salaryMin!) {
+      if (salaryMin != null && salaryMax != null && salaryMax! < salaryMin!) {
         _errors['salary'] = 'Fourchette de salaire invalide.';
       }
     } else {
@@ -220,7 +296,8 @@ class OfferEditorController extends ChangeNotifier {
           : await _repository.createOffer(draft, status);
       return savedOffer;
     } catch (_) {
-      submitError = 'Une erreur est survenue. Vos informations ont été conservées.';
+      submitError =
+          'Une erreur est survenue. Vos informations ont été conservées.';
       return null;
     } finally {
       isSubmitting = false;
@@ -261,7 +338,9 @@ class OfferEditorController extends ChangeNotifier {
     notifyListeners();
     try {
       companyLookupResult = await _repository.findCompanyBySiret(normalized);
-      companyLookupStatus = companyLookupResult == null ? CompanyLookupStatus.notFound : CompanyLookupStatus.found;
+      companyLookupStatus = companyLookupResult == null
+          ? CompanyLookupStatus.notFound
+          : CompanyLookupStatus.found;
     } catch (_) {
       companyLookupStatus = CompanyLookupStatus.notFound;
       companyLookupError = 'Recherche impossible pour le moment.';
@@ -271,7 +350,10 @@ class OfferEditorController extends ChangeNotifier {
 
   Future<RecruiterCompany?> createCompany(RecruiterCompanyDraft draft) async {
     companyLookupError = null;
-    if (draft.name.trim().isEmpty || draft.sector.trim().isEmpty || draft.sizeRange.trim().isEmpty || draft.city.trim().isEmpty) {
+    if (draft.name.trim().isEmpty ||
+        draft.sector.trim().isEmpty ||
+        draft.sizeRange.trim().isEmpty ||
+        draft.city.trim().isEmpty) {
       companyLookupError = 'Complétez les champs obligatoires de l’entreprise.';
       notifyListeners();
       return null;

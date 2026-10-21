@@ -23,7 +23,10 @@ void main() {
 
     test('filtre par entreprise, statut et recherche', () {
       controller.setCompanyFilter(1);
-      expect(controller.visibleOffers.every((offer) => offer.companyId == 1), isTrue);
+      expect(
+        controller.visibleOffers.every((offer) => offer.companyId == 1),
+        isTrue,
+      );
 
       controller
         ..setCompanyFilter(null)
@@ -42,9 +45,14 @@ void main() {
         (offer) => offer.status == JobOfferStatus.published,
       );
 
-      expect(await controller.closeOffer(published.id, reason: 'Poste pourvu'), isTrue);
       expect(
-        controller.offers.firstWhere((offer) => offer.id == published.id).status,
+        await controller.closeOffer(published.id, reason: 'Poste pourvu'),
+        isTrue,
+      );
+      expect(
+        controller.offers
+            .firstWhere((offer) => offer.id == published.id)
+            .status,
         JobOfferStatus.closed,
       );
     });

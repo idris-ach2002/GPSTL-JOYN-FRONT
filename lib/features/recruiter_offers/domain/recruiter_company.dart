@@ -24,7 +24,8 @@ class RecruiterCompany {
   final String? website;
   final String description;
 
-  String get initial => name.trim().isEmpty ? '?' : name.trim()[0].toUpperCase();
+  String get initial =>
+      name.trim().isEmpty ? '?' : name.trim()[0].toUpperCase();
 }
 
 @immutable

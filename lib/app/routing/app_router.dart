@@ -200,9 +200,9 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
         path: AppRoutes.recruiterJobCreate,
         name: 'recruiterJobCreate',
         builder: (context, state) => ChangeNotifierProvider(
-          create: (context) => OfferEditorController(
-            context.read<RecruiterOffersRepository>(),
-          )..load(),
+          create: (context) =>
+              OfferEditorController(context.read<RecruiterOffersRepository>())
+                ..load(),
           child: useMobile(context)
               ? const MobileOfferEditorScreen()
               : const WebOfferEditorScreen(),

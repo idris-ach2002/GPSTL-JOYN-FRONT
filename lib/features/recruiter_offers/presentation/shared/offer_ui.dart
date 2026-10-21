@@ -48,7 +48,10 @@ class OfferStatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (background, foreground) = switch (status) {
-      JobOfferStatus.published => (AppColors.successTint, AppColors.successDeep),
+      JobOfferStatus.published => (
+        AppColors.successTint,
+        AppColors.successDeep,
+      ),
       JobOfferStatus.draft => (AppColors.warningTint, AppColors.warningDeep),
       JobOfferStatus.closed => (const Color(0xFFE9EEF2), AppColors.slateDark),
       JobOfferStatus.archived => (AppColors.grey20, AppColors.slate),
@@ -80,7 +83,8 @@ class OfferMetaChip extends StatelessWidget {
 }
 
 String salaryLabel(JobOffer offer) {
-  if (offer.salaryMin == null && offer.salaryMax == null) return 'Rémunération selon profil';
+  if (offer.salaryMin == null && offer.salaryMax == null)
+    return 'Rémunération selon profil';
   String amount(double? value) {
     if (value == null) return '—';
     final rounded = value.round();
@@ -103,13 +107,39 @@ String salaryLabel(JobOffer offer) {
 
 String dateLabel(DateTime? date) {
   if (date == null) return '—';
-  const months = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+  const months = [
+    'janv.',
+    'févr.',
+    'mars',
+    'avr.',
+    'mai',
+    'juin',
+    'juil.',
+    'août',
+    'sept.',
+    'oct.',
+    'nov.',
+    'déc.',
+  ];
   return '${date.day} ${months[date.month - 1]} ${date.year}';
 }
 
 String monthYearLabel(DateTime? date) {
   if (date == null) return '—';
-  const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+  const months = [
+    'Janvier',
+    'Février',
+    'Mars',
+    'Avril',
+    'Mai',
+    'Juin',
+    'Juillet',
+    'Août',
+    'Septembre',
+    'Octobre',
+    'Novembre',
+    'Décembre',
+  ];
   return '${months[date.month - 1]} ${date.year}';
 }
 
@@ -182,9 +212,18 @@ class OfferPreviewCard extends StatelessWidget {
                   spacing: 8,
                   runSpacing: 8,
                   children: [
-                    OfferMetaChip(label: offer.contractType.label, icon: Icons.work_outline_rounded),
-                    OfferMetaChip(label: offer.location, icon: Icons.location_on_outlined),
-                    OfferMetaChip(label: offer.remoteMode.label, icon: Icons.laptop_mac_rounded),
+                    OfferMetaChip(
+                      label: offer.contractType.label,
+                      icon: Icons.work_outline_rounded,
+                    ),
+                    OfferMetaChip(
+                      label: offer.location,
+                      icon: Icons.location_on_outlined,
+                    ),
+                    OfferMetaChip(
+                      label: offer.remoteMode.label,
+                      icon: Icons.laptop_mac_rounded,
+                    ),
                   ],
                 ),
                 if (offer.salaryMin != null || offer.salaryMax != null) ...[
@@ -202,13 +241,21 @@ class OfferPreviewCard extends StatelessWidget {
                   Wrap(
                     spacing: 6,
                     runSpacing: 6,
-                    children: offer.skills.take(5).map((skill) => JoynPill(
-                      label: skill,
-                      background: const Color(0xFFEAF4FC),
-                      foreground: const Color(0xFF1976D2),
-                      fontSize: 10,
-                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-                    )).toList(),
+                    children: offer.skills
+                        .take(5)
+                        .map(
+                          (skill) => JoynPill(
+                            label: skill,
+                            background: const Color(0xFFEAF4FC),
+                            foreground: const Color(0xFF1976D2),
+                            fontSize: 10,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 9,
+                              vertical: 5,
+                            ),
+                          ),
+                        )
+                        .toList(),
                   ),
                   const SizedBox(height: 18),
                   Text('Description du poste', style: _sectionStyle),
@@ -217,15 +264,30 @@ class OfferPreviewCard extends StatelessWidget {
                     offer.description,
                     maxLines: 6,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: AppColors.slate, fontSize: 12, height: 1.5),
+                    style: const TextStyle(
+                      color: AppColors.slate,
+                      fontSize: 12,
+                      height: 1.5,
+                    ),
                   ),
                   if (offer.contractType.isWorkStudy) ...[
                     const SizedBox(height: 16),
                     Text('Informations clés', style: _sectionStyle),
                     const SizedBox(height: 8),
-                    _InfoLine(icon: Icons.school_outlined, label: offer.degreeLevelRequired?.replaceAll('_', '+') ?? '—'),
-                    _InfoLine(icon: Icons.schedule_rounded, label: '${offer.durationMonths ?? '—'} mois'),
-                    _InfoLine(icon: Icons.calendar_month_outlined, label: monthYearLabel(offer.startDate)),
+                    _InfoLine(
+                      icon: Icons.school_outlined,
+                      label:
+                          offer.degreeLevelRequired?.replaceAll('_', '+') ??
+                          '—',
+                    ),
+                    _InfoLine(
+                      icon: Icons.schedule_rounded,
+                      label: '${offer.durationMonths ?? '—'} mois',
+                    ),
+                    _InfoLine(
+                      icon: Icons.calendar_month_outlined,
+                      label: monthYearLabel(offer.startDate),
+                    ),
                   ],
                 ],
               ],
@@ -257,17 +319,45 @@ class _OfferBanner extends StatelessWidget {
       gradient: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [AppColors.navy, companyColor(company.id).withValues(alpha: .75)],
+        colors: [
+          AppColors.navy,
+          companyColor(company.id).withValues(alpha: .75),
+        ],
       ),
     ),
     child: Stack(
       children: [
-        Positioned(right: -15, top: -20, child: Container(width: 110, height: 110, decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withValues(alpha: .08)))),
-        Positioned(left: 18, bottom: 6, child: Row(children: [
-          CompanyAvatar(company: company, size: compact ? 38 : 44),
-          const SizedBox(width: 10),
-          Text(company.name, style: TextStyle(color: Colors.white, fontFamily: AppFonts.display, fontSize: compact ? 20 : 24, fontWeight: FontWeight.w800)),
-        ])),
+        Positioned(
+          right: -15,
+          top: -20,
+          child: Container(
+            width: 110,
+            height: 110,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withValues(alpha: .08),
+            ),
+          ),
+        ),
+        Positioned(
+          left: 18,
+          bottom: 6,
+          child: Row(
+            children: [
+              CompanyAvatar(company: company, size: compact ? 38 : 44),
+              const SizedBox(width: 10),
+              Text(
+                company.name,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontFamily: AppFonts.display,
+                  fontSize: compact ? 20 : 24,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     ),
   );
@@ -281,10 +371,21 @@ class _InfoLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(bottom: 7),
-    child: Row(children: [
-      Icon(icon, size: 17, color: AppColors.slate),
-      const SizedBox(width: 8),
-      Expanded(child: Text(label, style: const TextStyle(color: AppColors.slate, fontSize: 12, fontWeight: FontWeight.w600))),
-    ]),
+    child: Row(
+      children: [
+        Icon(icon, size: 17, color: AppColors.slate),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            label,
+            style: const TextStyle(
+              color: AppColors.slate,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
+    ),
   );
 }

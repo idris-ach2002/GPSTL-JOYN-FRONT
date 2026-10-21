@@ -27,7 +27,10 @@ class OfferManagementController extends ChangeNotifier {
     errorMessage = null;
     notifyListeners();
     try {
-      final results = await Future.wait([_repository.fetchCompanies(), _repository.fetchOffers()]);
+      final results = await Future.wait([
+        _repository.fetchCompanies(),
+        _repository.fetchOffers(),
+      ]);
       companies = results[0] as List<RecruiterCompany>;
       offers = results[1] as List<JobOffer>;
     } catch (_) {
@@ -39,19 +42,25 @@ class OfferManagementController extends ChangeNotifier {
   }
 
   RecruiterCompany? companyFor(int id) {
-    for (final company in companies) { if (company.id == id) return company; }
+    for (final company in companies) {
+      if (company.id == id) return company;
+    }
     return null;
   }
 
   List<JobOffer> get visibleOffers {
     final normalized = query.trim().toLowerCase();
     final result = offers.where((offer) {
-      if (companyFilter != null && offer.companyId != companyFilter) return false;
+      if (companyFilter != null && offer.companyId != companyFilter)
+        return false;
       if (statusFilter != null && offer.status != statusFilter) return false;
-      if (contractFilter != null && offer.contractType != contractFilter) return false;
+      if (contractFilter != null && offer.contractType != contractFilter)
+        return false;
       if (normalized.isNotEmpty) {
         final company = companyFor(offer.companyId)?.name.toLowerCase() ?? '';
-        final haystack = '${offer.title} ${offer.location} ${offer.skills.join(' ')} $company'.toLowerCase();
+        final haystack =
+            '${offer.title} ${offer.location} ${offer.skills.join(' ')} $company'
+                .toLowerCase();
         if (!haystack.contains(normalized)) return false;
       }
       return true;
@@ -72,14 +81,34 @@ class OfferManagementController extends ChangeNotifier {
     return result;
   }
 
-  int count(JobOfferStatus status) => offers.where((offer) => offer.status == status).length;
+  int count(JobOfferStatus status) =>
+      offers.where((offer) => offer.status == status).length;
   int get totalCount => offers.length;
 
-  void setCompanyFilter(int? value) { companyFilter = value; notifyListeners(); }
-  void setStatusFilter(JobOfferStatus? value) { statusFilter = value; notifyListeners(); }
-  void setContractFilter(ContractType? value) { contractFilter = value; notifyListeners(); }
-  void setSort(OfferSort value) { sort = value; notifyListeners(); }
-  void setQuery(String value) { query = value; notifyListeners(); }
+  void setCompanyFilter(int? value) {
+    companyFilter = value;
+    notifyListeners();
+  }
+
+  void setStatusFilter(JobOfferStatus? value) {
+    statusFilter = value;
+    notifyListeners();
+  }
+
+  void setContractFilter(ContractType? value) {
+    contractFilter = value;
+    notifyListeners();
+  }
+
+  void setSort(OfferSort value) {
+    sort = value;
+    notifyListeners();
+  }
+
+  void setQuery(String value) {
+    query = value;
+    notifyListeners();
+  }
 
   Future<bool> closeOffer(int id, {String? reason}) async {
     isClosing = true;

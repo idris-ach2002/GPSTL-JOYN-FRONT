@@ -95,7 +95,9 @@ class _JoynAppState extends State<JoynApp> {
         ChangeNotifierProvider<AuthController>.value(value: _authController),
         Provider<DashboardRepository>.value(value: _dashboardRepository),
         Provider<RegistrationRepository>.value(value: _registrationRepository),
-        Provider<RecruiterOffersRepository>.value(value: _recruiterOffersRepository),
+        Provider<RecruiterOffersRepository>.value(
+          value: _recruiterOffersRepository,
+        ),
       ],
       child: MaterialApp.router(
         title: 'JOYN — Le match avant la candidature',

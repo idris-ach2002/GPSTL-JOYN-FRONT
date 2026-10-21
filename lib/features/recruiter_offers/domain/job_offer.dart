@@ -13,7 +13,9 @@ enum ContractType {
   final String apiValue;
   final String label;
 
-  bool get isWorkStudy => this == ContractType.apprenticeship || this == ContractType.professionalization;
+  bool get isWorkStudy =>
+      this == ContractType.apprenticeship ||
+      this == ContractType.professionalization;
 }
 
 enum RemoteMode {
