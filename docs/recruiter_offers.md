@@ -6,7 +6,7 @@ domaine, les repositories, les contrôleurs et les composants `shared`.
 
 ## Parcours livrés
 
-- `/recruiter/jobs` : gestion, recherche, filtres, statuts et clôture.
+- `/recruiter/jobs` : gestion, recherche, filtres, statuts, clôture et menu Options.
 - `/recruiter/jobs/new` : création d'une offre.
 - `/recruiter/jobs/:id/edit` : modification avec le même éditeur pré-rempli.
 - `/recruiter/jobs/:id` : détail natif mobile ; sur web, l'éditeur pré-rempli
@@ -40,3 +40,11 @@ puis de créer l'offre pour cette entreprise. Le POST Spring actuel déduit enco
 l'entreprise depuis le profil recruteur et n'accepte pas `company_id` dans le
 payload. La sélection est donc fonctionnelle avec le mock mais le branchement
 HTTP final devra attendre l'évolution correspondante du backend.
+
+### Suppression vs. clôture
+
+La clôture reste mappée au `DELETE /api/v1/jobs/{id}` actuel du backend, qui
+réalise un soft-delete métier. L’action **Supprimer** ajoutée dans l’IHM est
+volontairement implémentée uniquement par le repository mock : aucune route HTTP
+de suppression définitive n’est inventée tant que le backend ne fournit pas un
+contrat distinct.

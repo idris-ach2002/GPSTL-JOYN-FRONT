@@ -160,7 +160,17 @@ class OfferPreviewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.white,
+            Color.alphaBlend(
+              companyColor(company.id).withValues(alpha: .035),
+              Colors.white,
+            ),
+          ],
+        ),
         borderRadius: BorderRadius.circular(compact ? 22 : 28),
         border: Border.all(color: AppColors.lineSoft),
         boxShadow: AppShadows.card,
@@ -205,6 +215,8 @@ class OfferPreviewCard extends StatelessWidget {
                         ],
                       ),
                     ),
+                    const SizedBox(width: 8),
+                    OfferStatusBadge(status: offer.status),
                   ],
                 ),
                 const SizedBox(height: 14),
@@ -236,57 +248,54 @@ class OfferPreviewCard extends StatelessWidget {
                     fontSize: 11,
                   ),
                 ],
-                if (!compact) ...[
-                  const SizedBox(height: 14),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: offer.skills
-                        .take(5)
-                        .map(
-                          (skill) => JoynPill(
-                            label: skill,
-                            background: const Color(0xFFEAF4FC),
-                            foreground: const Color(0xFF1976D2),
-                            fontSize: 10,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 9,
-                              vertical: 5,
-                            ),
+                const SizedBox(height: 14),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: offer.skills
+                      .take(compact ? 3 : 5)
+                      .map(
+                        (skill) => JoynPill(
+                          label: skill,
+                          background: const Color(0xFFEAF4FC),
+                          foreground: const Color(0xFF1976D2),
+                          fontSize: compact ? 9 : 10,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 9,
+                            vertical: 5,
                           ),
-                        )
-                        .toList(),
+                        ),
+                      )
+                      .toList(),
+                ),
+                const SizedBox(height: 18),
+                Text('Description du poste', style: _sectionStyle),
+                const SizedBox(height: 8),
+                OfferRichText(
+                  value: offer.description,
+                  baseStyle: TextStyle(
+                    color: AppColors.slate,
+                    fontSize: compact ? 11 : 12,
+                    height: 1.5,
                   ),
-                  const SizedBox(height: 18),
-                  Text('Description du poste', style: _sectionStyle),
+                ),
+                if (offer.contractType.isWorkStudy && !compact) ...[
+                  const SizedBox(height: 16),
+                  Text('Informations clés', style: _sectionStyle),
                   const SizedBox(height: 8),
-                  OfferRichText(
-                    value: offer.description,
-                    baseStyle: const TextStyle(
-                      color: AppColors.slate,
-                      fontSize: 12,
-                      height: 1.5,
-                    ),
+                  _InfoLine(
+                    icon: Icons.school_outlined,
+                    label:
+                        offer.degreeLevelRequired?.replaceAll('_', '+') ?? '—',
                   ),
-                  if (offer.contractType.isWorkStudy) ...[
-                    const SizedBox(height: 16),
-                    Text('Informations clés', style: _sectionStyle),
-                    const SizedBox(height: 8),
-                    _InfoLine(
-                      icon: Icons.school_outlined,
-                      label:
-                          offer.degreeLevelRequired?.replaceAll('_', '+') ??
-                          '—',
-                    ),
-                    _InfoLine(
-                      icon: Icons.schedule_rounded,
-                      label: '${offer.durationMonths ?? '—'} mois',
-                    ),
-                    _InfoLine(
-                      icon: Icons.calendar_month_outlined,
-                      label: monthYearLabel(offer.startDate),
-                    ),
-                  ],
+                  _InfoLine(
+                    icon: Icons.schedule_rounded,
+                    label: '${offer.durationMonths ?? '—'} mois',
+                  ),
+                  _InfoLine(
+                    icon: Icons.calendar_month_outlined,
+                    label: monthYearLabel(offer.startDate),
+                  ),
                 ],
               ],
             ),

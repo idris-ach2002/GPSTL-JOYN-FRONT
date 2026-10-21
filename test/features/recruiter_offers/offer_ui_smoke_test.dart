@@ -5,6 +5,7 @@ import 'package:joyn_front/features/recruiter_offers/presentation/controllers/of
 import 'package:joyn_front/features/recruiter_offers/presentation/controllers/offer_management_controller.dart';
 import 'package:joyn_front/features/recruiter_offers/presentation/mobile/mobile_recruiter_offers_screen.dart';
 import 'package:joyn_front/features/recruiter_offers/presentation/web/offer_editor_screen.dart';
+import 'package:joyn_front/features/recruiter_offers/presentation/web/recruiter_offers_screen.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -60,4 +61,32 @@ void main() {
     expect(find.text('Publier l’offre'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('web : les cartes premium et le menu options restent sans overflow', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1440, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final repository = MockRecruiterOffersRepository(latency: Duration.zero);
+    final controller = OfferManagementController(repository);
+    await controller.load();
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider.value(
+        value: controller,
+        child: const MaterialApp(home: WebRecruiterOffersScreen()),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 250));
+
+    expect(find.text('Mes offres'), findsOneWidget);
+    expect(find.byIcon(Icons.settings_outlined), findsWidgets);
+    expect(find.textContaining('Développeur·se Full-Stack'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
 }

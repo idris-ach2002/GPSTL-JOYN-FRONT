@@ -26,16 +26,21 @@ class WebOfferEditorScreen extends StatefulWidget {
 
 class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
   final _skillController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  int? _boundDescriptionOfferId;
+  bool _descriptionBound = false;
 
   @override
   void dispose() {
     _skillController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<OfferEditorController>();
+    if (!controller.isLoading) _bindDescription(controller);
     final width = MediaQuery.sizeOf(context).width;
     final isWide = width >= 1020;
 
@@ -427,59 +432,190 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const _SectionTitle(
-          title: 'Description, missions et profil recherché *',
-          subtitle: 'Présentez le poste, les missions principales et le profil idéal.',
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            const Expanded(
+              child: _SectionTitle(
+                title: 'Description, missions et profil recherché *',
+                subtitle: 'Structurez votre contenu : la mise en forme est reproduite dans l’aperçu candidat.',
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF4F8FB),
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: AppColors.lineSoft),
+              ),
+              child: Text(
+                '${controller.description.length}/5000',
+                style: const TextStyle(
+                  color: AppColors.slate,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 14),
         Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color: controller.errors['description'] == null
-                  ? AppColors.line
+                  ? const Color(0xFFD8E4EC)
                   : AppColors.error,
             ),
             color: Colors.white,
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x0A0A3152),
+                blurRadius: 18,
+                offset: Offset(0, 7),
+              ),
+            ],
           ),
+          clipBehavior: Clip.antiAlias,
           child: Column(
             children: [
               Container(
-                height: 42,
-                padding: const EdgeInsets.symmetric(horizontal: 10),
+                minHeight: 48,
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: const BoxDecoration(
+                  color: Color(0xFFFAFCFE),
                   border: Border(bottom: BorderSide(color: AppColors.lineSoft)),
                 ),
-                child: const Row(
+                child: Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 4,
+                  runSpacing: 4,
                   children: [
-                    _ToolbarIcon(Icons.format_bold_rounded),
-                    _ToolbarIcon(Icons.format_italic_rounded),
-                    _ToolbarIcon(Icons.format_list_bulleted_rounded),
-                    _ToolbarIcon(Icons.format_list_numbered_rounded),
-                    _ToolbarIcon(Icons.link_rounded),
-                    Spacer(),
-                    Text(
-                      '0/5000',
-                      style: TextStyle(
-                        color: AppColors.placeholder,
-                        fontSize: 10,
+                    PopupMenuButton<String>(
+                      tooltip: 'Style de paragraphe',
+                      onSelected: (value) {
+                        if (value == 'h1') _prefixLines(controller, '# ');
+                        if (value == 'h2') _prefixLines(controller, '## ');
+                        if (value == 'quote') _prefixLines(controller, '> ');
+                        if (value == 'paragraph') _clearBlockPrefix(controller);
+                      },
+                      itemBuilder: (context) => const [
+                        PopupMenuItem(value: 'paragraph', child: Text('Paragraphe')),
+                        PopupMenuItem(value: 'h1', child: Text('Titre principal')),
+                        PopupMenuItem(value: 'h2', child: Text('Sous-titre')),
+                        PopupMenuItem(value: 'quote', child: Text('Encadré / citation')),
+                      ],
+                      child: Container(
+                        height: 32,
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(9),
+                          border: Border.all(color: AppColors.lineSoft),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Paragraphe',
+                              style: TextStyle(
+                                color: AppColors.navy,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            SizedBox(width: 5),
+                            Icon(Icons.expand_more_rounded, size: 16, color: AppColors.slate),
+                          ],
+                        ),
                       ),
+                    ),
+                    const SizedBox(width: 3),
+                    _ToolbarButton(
+                      icon: Icons.format_bold_rounded,
+                      tooltip: 'Gras',
+                      onTap: () => _wrapSelection(controller, '**', '**'),
+                    ),
+                    _ToolbarButton(
+                      icon: Icons.format_italic_rounded,
+                      tooltip: 'Italique',
+                      onTap: () => _wrapSelection(controller, '*', '*'),
+                    ),
+                    _ToolbarButton(
+                      icon: Icons.format_list_bulleted_rounded,
+                      tooltip: 'Liste à puces',
+                      onTap: () => _prefixLines(controller, '- '),
+                    ),
+                    _ToolbarButton(
+                      icon: Icons.format_list_numbered_rounded,
+                      tooltip: 'Liste numérotée',
+                      onTap: () => _numberLines(controller),
+                    ),
+                    _ToolbarButton(
+                      icon: Icons.link_rounded,
+                      tooltip: 'Lien',
+                      onTap: () => _insertLink(controller),
+                    ),
+                    Container(width: 1, height: 22, color: AppColors.lineSoft),
+                    _ToolbarButton(
+                      icon: Icons.format_align_left_rounded,
+                      tooltip: 'Aligner à gauche',
+                      onTap: () => _alignLines(controller, 'left'),
+                    ),
+                    _ToolbarButton(
+                      icon: Icons.format_align_center_rounded,
+                      tooltip: 'Centrer',
+                      onTap: () => _alignLines(controller, 'center'),
+                    ),
+                    _ToolbarButton(
+                      icon: Icons.format_align_right_rounded,
+                      tooltip: 'Aligner à droite',
+                      onTap: () => _alignLines(controller, 'right'),
                     ),
                   ],
                 ),
               ),
               TextFormField(
-                key: ValueKey(
-                  'description-${controller.editingOffer?.id ?? 'new'}',
-                ),
-                initialValue: controller.description,
-                minLines: 5,
-                maxLines: 8,
+                controller: _descriptionController,
+                minLines: 8,
+                maxLines: 15,
+                maxLength: 5000,
                 onChanged: controller.updateDescription,
+                style: const TextStyle(
+                  color: AppColors.navy,
+                  fontSize: 13,
+                  height: 1.55,
+                ),
                 decoration: const InputDecoration(
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.all(14),
-                  hintText: 'Décrivez le poste, l’environnement de travail et le profil recherché...',
+                  counterText: '',
+                  contentPadding: EdgeInsets.fromLTRB(16, 16, 16, 18),
+                  hintText: 'Présentez le poste, vos missions, votre équipe et le profil recherché…',
+                ),
+              ),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(14, 9, 14, 9),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFAFCFE),
+                  border: Border(top: BorderSide(color: AppColors.lineSoft)),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.auto_awesome_outlined, size: 15, color: Color(0xFF6956E8)),
+                    SizedBox(width: 7),
+                    Expanded(
+                      child: Text(
+                        'Le texte formaté est conservé dans la description et rendu à l’identique dans l’aperçu.',
+                        style: TextStyle(
+                          color: AppColors.slate,
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -499,6 +635,122 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
       ],
     ),
   );
+
+  void _bindDescription(OfferEditorController controller) {
+    if (_descriptionBound && _boundDescriptionOfferId == controller.offerId) return;
+    _descriptionController.value = TextEditingValue(
+      text: controller.description,
+      selection: TextSelection.collapsed(offset: controller.description.length),
+    );
+    _descriptionBound = true;
+    _boundDescriptionOfferId = controller.offerId;
+  }
+
+  TextSelection _safeSelection() {
+    final text = _descriptionController.text;
+    final selection = _descriptionController.selection;
+    if (!selection.isValid) return TextSelection.collapsed(offset: text.length);
+    return TextSelection(
+      baseOffset: selection.start.clamp(0, text.length).toInt(),
+      extentOffset: selection.end.clamp(0, text.length).toInt(),
+    );
+  }
+
+  void _commitDescription(OfferEditorController controller, String text, int cursor) {
+    _descriptionController.value = TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: cursor.clamp(0, text.length).toInt()),
+    );
+    controller.updateDescription(text);
+  }
+
+  void _wrapSelection(
+    OfferEditorController controller,
+    String before,
+    String after,
+  ) {
+    final text = _descriptionController.text;
+    final selection = _safeSelection();
+    final selected = text.substring(selection.start, selection.end);
+    final content = selected.isEmpty ? 'texte' : selected;
+    final replacement = '$before$content$after';
+    final updated = text.replaceRange(selection.start, selection.end, replacement);
+    _commitDescription(controller, updated, selection.start + replacement.length);
+  }
+
+  void _prefixLines(OfferEditorController controller, String prefix) {
+    final text = _descriptionController.text;
+    final selection = _safeSelection();
+    final lineStart = selection.start == 0
+        ? 0
+        : text.lastIndexOf('\n', selection.start - 1) + 1;
+    final nextBreak = text.indexOf('\n', selection.end);
+    final lineEnd = nextBreak == -1 ? text.length : nextBreak;
+    final block = text.substring(lineStart, lineEnd);
+    final replacement = block.split('\n').map((line) => '$prefix$line').join('\n');
+    final updated = text.replaceRange(lineStart, lineEnd, replacement);
+    _commitDescription(controller, updated, lineStart + replacement.length);
+  }
+
+  void _numberLines(OfferEditorController controller) {
+    final text = _descriptionController.text;
+    final selection = _safeSelection();
+    final lineStart = selection.start == 0
+        ? 0
+        : text.lastIndexOf('\n', selection.start - 1) + 1;
+    final nextBreak = text.indexOf('\n', selection.end);
+    final lineEnd = nextBreak == -1 ? text.length : nextBreak;
+    final block = text.substring(lineStart, lineEnd);
+    final lines = block.split('\n');
+    final replacement = [
+      for (var i = 0; i < lines.length; i++) '${i + 1}. ${lines[i]}',
+    ].join('\n');
+    final updated = text.replaceRange(lineStart, lineEnd, replacement);
+    _commitDescription(controller, updated, lineStart + replacement.length);
+  }
+
+  void _insertLink(OfferEditorController controller) {
+    final text = _descriptionController.text;
+    final selection = _safeSelection();
+    final selected = text.substring(selection.start, selection.end);
+    final replacement = '[${selected.isEmpty ? 'lien' : selected}](https://)';
+    final updated = text.replaceRange(selection.start, selection.end, replacement);
+    _commitDescription(controller, updated, selection.start + replacement.length);
+  }
+
+  void _alignLines(OfferEditorController controller, String alignment) {
+    final text = _descriptionController.text;
+    final selection = _safeSelection();
+    final lineStart = selection.start == 0
+        ? 0
+        : text.lastIndexOf('\n', selection.start - 1) + 1;
+    final nextBreak = text.indexOf('\n', selection.end);
+    final lineEnd = nextBreak == -1 ? text.length : nextBreak;
+    final block = text.substring(lineStart, lineEnd);
+    final replacement = block.split('\n').map((line) {
+      final clean = line.replaceFirst(RegExp(r'^\[(center|right)\]'), '');
+      if (alignment == 'left') return clean;
+      return '[$alignment]$clean';
+    }).join('\n');
+    final updated = text.replaceRange(lineStart, lineEnd, replacement);
+    _commitDescription(controller, updated, lineStart + replacement.length);
+  }
+
+  void _clearBlockPrefix(OfferEditorController controller) {
+    final text = _descriptionController.text;
+    final selection = _safeSelection();
+    final lineStart = selection.start == 0
+        ? 0
+        : text.lastIndexOf('\n', selection.start - 1) + 1;
+    final nextBreak = text.indexOf('\n', selection.end);
+    final lineEnd = nextBreak == -1 ? text.length : nextBreak;
+    final block = text.substring(lineStart, lineEnd);
+    final replacement = block.split('\n').map((line) {
+      return line.replaceFirst(RegExp(r'^(#{1,2} |> )'), '');
+    }).join('\n');
+    final updated = text.replaceRange(lineStart, lineEnd, replacement);
+    _commitDescription(controller, updated, lineStart + replacement.length);
+  }
 
   Widget _skillsSection(OfferEditorController controller) => _WebCard(
     child: Column(
@@ -1181,13 +1433,50 @@ class _DateField extends StatelessWidget {
   );
 }
 
-class _ToolbarIcon extends StatelessWidget {
-  const _ToolbarIcon(this.icon);
+class _ToolbarButton extends StatefulWidget {
+  const _ToolbarButton({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+  });
+
   final IconData icon;
+  final String tooltip;
+  final VoidCallback onTap;
+
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(right: 10),
-    child: Icon(icon, color: AppColors.slateDark, size: 16),
+  State<_ToolbarButton> createState() => _ToolbarButtonState();
+}
+
+class _ToolbarButtonState extends State<_ToolbarButton> {
+  bool hovered = false;
+
+  @override
+  Widget build(BuildContext context) => Tooltip(
+    message: widget.tooltip,
+    child: MouseRegion(
+      onEnter: (_) => setState(() => hovered = true),
+      onExit: (_) => setState(() => hovered = false),
+      child: InkWell(
+        onTap: widget.onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 130),
+          width: 32,
+          height: 32,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: hovered ? const Color(0xFFEAF4FC) : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            widget.icon,
+            color: hovered ? const Color(0xFF1976D2) : AppColors.slateDark,
+            size: 17,
+          ),
+        ),
+      ),
+    ),
   );
 }
 
