@@ -1,6 +1,8 @@
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../design_system/mobile/mobile_entry_transition.dart';
 import '../../features/auth/presentation/auth_controller.dart';
 import '../../features/auth/presentation/mobile/mobile_forgot_password_screen.dart';
 import '../../features/auth/presentation/mobile/mobile_login_screen.dart';
@@ -29,16 +31,22 @@ import '../../features/startup/presentation/mobile/mobile_startup_screen.dart';
 import '../experience/experience_target.dart';
 import 'app_routes.dart';
 
-/// Routeur partagé par deux produits de présentation distincts.
-///
-/// Le domaine, les repositories et les controllers restent communs. Seule la
-/// couche presentation bascule entre web et mobile.
-GoRouter createAppRouter(
-  AuthController auth, {
-  bool? webOverride,
-}) {
-  final target = ExperienceResolver.resolve(webOverride: webOverride);
-  final mobile = target == ExperienceTarget.mobile;
+GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
+  bool useMobile(BuildContext context) {
+    return ExperienceResolver.resolve(
+          webOverride: webOverride,
+          logicalWidth: MediaQuery.sizeOf(context).width,
+        ) ==
+        ExperienceTarget.mobile;
+  }
+
+  Widget adaptiveAuth(
+    BuildContext context, {
+    required Widget mobile,
+    required Widget web,
+  }) {
+    return useMobile(context) ? MobileEntryTransition(child: mobile) : web;
+  }
 
   return GoRouter(
     initialLocation: AppRoutes.landing,
@@ -47,7 +55,8 @@ GoRouter createAppRouter(
       final location = state.matchedLocation;
       final isInformationPage = informationPages.containsKey(location);
       final isRegistration = AppRoutes.registrationRoutes.contains(location);
-      final isPublic = location == AppRoutes.landing ||
+      final isPublic =
+          location == AppRoutes.landing ||
           AppRoutes.authEntryRoutes.contains(location) ||
           location == AppRoutes.forgotPassword ||
           isRegistration ||
@@ -55,7 +64,8 @@ GoRouter createAppRouter(
 
       if (!auth.isAuthenticated && !isPublic) return AppRoutes.login;
 
-      if (auth.isAuthenticated && AppRoutes.authEntryRoutes.contains(location)) {
+      if (auth.isAuthenticated &&
+          AppRoutes.authEntryRoutes.contains(location)) {
         return AppRoutes.dashboard;
       }
 
@@ -65,8 +75,9 @@ GoRouter createAppRouter(
       GoRoute(
         path: AppRoutes.landing,
         name: 'landing',
-        builder: (context, state) =>
-            mobile ? const MobileStartupScreen() : const LandingScreen(),
+        builder: (context, state) => useMobile(context)
+            ? const MobileStartupScreen()
+            : const LandingScreen(),
       ),
       GoRoute(
         path: AppRoutes.connexion,
@@ -79,36 +90,47 @@ GoRouter createAppRouter(
       GoRoute(
         path: AppRoutes.login,
         name: 'login',
-        builder: (context, state) =>
-            mobile ? const MobileLoginScreen() : const LoginPage(),
+        builder: (context, state) => adaptiveAuth(
+          context,
+          mobile: const MobileLoginScreen(),
+          web: const LoginPage(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.forgotPassword,
         name: 'forgotPassword',
-        builder: (context, state) => mobile
-            ? const MobileForgotPasswordScreen()
-            : const ForgotPasswordPage(),
+        builder: (context, state) => adaptiveAuth(
+          context,
+          mobile: const MobileForgotPasswordScreen(),
+          web: const ForgotPasswordPage(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.register,
         name: 'register',
-        builder: (context, state) => mobile
-            ? const MobileRegisterChoiceScreen()
-            : const RegisterChoiceScreen(),
+        builder: (context, state) => adaptiveAuth(
+          context,
+          mobile: const MobileRegisterChoiceScreen(),
+          web: const RegisterChoiceScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.candidateRegister,
         name: 'candidateRegister',
-        builder: (context, state) => mobile
-            ? const MobileStudentRegisterScreen()
-            : const StudentRegisterScreen(),
+        builder: (context, state) => adaptiveAuth(
+          context,
+          mobile: const MobileStudentRegisterScreen(),
+          web: const StudentRegisterScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.recruiterRegister,
         name: 'recruiterRegister',
-        builder: (context, state) => mobile
-            ? const MobileCompanyRegisterScreen()
-            : const CompanyRegisterScreen(),
+        builder: (context, state) => adaptiveAuth(
+          context,
+          mobile: const MobileCompanyRegisterScreen(),
+          web: const CompanyRegisterScreen(),
+        ),
       ),
       ShellRoute(
         builder: (context, state, child) => OnboardingScope(child: child),
@@ -116,14 +138,14 @@ GoRouter createAppRouter(
           GoRoute(
             path: AppRoutes.candidateOnboarding,
             name: 'candidateOnboarding',
-            builder: (context, state) => mobile
+            builder: (context, state) => useMobile(context)
                 ? const MobileOnboardingScreen()
                 : const OnboardingScreen(),
             routes: [
               GoRoute(
                 path: 'cv',
                 name: 'candidateCvImport',
-                builder: (context, state) => mobile
+                builder: (context, state) => useMobile(context)
                     ? const MobileCvImportScreen()
                     : const CvImportScreen(),
               ),
@@ -135,16 +157,17 @@ GoRouter createAppRouter(
         path: AppRoutes.dashboard,
         name: 'dashboard',
         builder: (context, state) => ChangeNotifierProvider(
-          create: (context) => DashboardController(
-            context.read<DashboardRepository>(),
-          )..load(),
-          child: mobile ? const MobileDashboardScreen() : const DashboardPage(),
+          create: (context) =>
+              DashboardController(context.read<DashboardRepository>())..load(),
+          child: useMobile(context)
+              ? const MobileDashboardScreen()
+              : const DashboardPage(),
         ),
       ),
       for (final entry in informationPages.entries)
         GoRoute(
           path: entry.key,
-          builder: (context, state) => mobile
+          builder: (context, state) => useMobile(context)
               ? MobileInformationScreen(page: entry.value)
               : InformationScreen(page: entry.value),
         ),
