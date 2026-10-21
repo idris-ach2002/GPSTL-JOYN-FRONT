@@ -456,7 +456,10 @@ class _ResponsiveFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(builder: (context, constraints) {
-    final maxPerRow = (constraints.maxWidth / minItemWidth).floor().clamp(1, children.length);
+    final maxPerRow = (constraints.maxWidth / minItemWidth)
+        .floor()
+        .clamp(1, children.length)
+        .toInt();
     final gap = 10.0;
     final itemWidth = (constraints.maxWidth - gap * (maxPerRow - 1)) / maxPerRow;
     return Wrap(spacing: gap, runSpacing: 12, children: children.map((child) => SizedBox(width: itemWidth, child: child)).toList());

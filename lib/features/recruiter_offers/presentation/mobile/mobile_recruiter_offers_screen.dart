@@ -8,6 +8,7 @@ import '../../../../design_system/mobile/mobile_app_surface.dart';
 import '../../../../design_system/mobile/mobile_bottom_navigation.dart';
 import '../../../../design_system/tokens/app_colors.dart';
 import '../../domain/job_offer.dart';
+import '../../domain/recruiter_company.dart';
 import '../controllers/offer_management_controller.dart';
 import '../shared/offer_ui.dart';
 
@@ -215,7 +216,7 @@ class _StatusFilter extends StatelessWidget {
 class _MobileOfferCard extends StatelessWidget {
   const _MobileOfferCard({required this.offer, required this.company, required this.onTap, required this.onEdit});
   final JobOffer offer;
-  final dynamic company;
+  final RecruiterCompany? company;
   final VoidCallback onTap;
   final VoidCallback onEdit;
 

@@ -6,6 +6,7 @@ import '../../../../app/routing/app_routes.dart';
 import '../../../../design_system/mobile/mobile_app_surface.dart';
 import '../../../../design_system/tokens/app_colors.dart';
 import '../../domain/job_offer.dart';
+import '../../domain/recruiter_company.dart';
 import '../controllers/offer_detail_controller.dart';
 import '../shared/offer_ui.dart';
 
@@ -134,7 +135,7 @@ class MobileOfferDetailScreen extends StatelessWidget {
 class _Header extends StatelessWidget {
   const _Header({required this.offer, required this.company});
   final JobOffer offer;
-  final dynamic company;
+  final RecruiterCompany company;
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.fromLTRB(12, 10, 12, 46),
