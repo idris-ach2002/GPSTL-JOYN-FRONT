@@ -643,128 +643,128 @@ class _OfferRowState extends State<_OfferRow> {
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-      Expanded(
-        flex: 6,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                OfferStatusBadge(status: offer.status),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _CompanyLine(
-                    company: company,
-                    location: offer.location,
+        Expanded(
+          flex: 6,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  OfferStatusBadge(status: offer.status),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _CompanyLine(
+                      company: company,
+                      location: offer.location,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 7),
+              Text(
+                offer.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: AppColors.navy,
+                  fontFamily: AppFonts.display,
+                  fontSize: 20,
+                  height: 1.12,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -.22,
+                ),
+              ),
+              const SizedBox(height: 7),
+              Text(
+                _plainDescription(offer.description),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: AppColors.slate,
+                  fontSize: 13,
+                  height: 1.42,
+                ),
+              ),
+              const SizedBox(height: 4),
+              InkWell(
+                onTap: widget.onTap,
+                child: const Text(
+                  'Lire la suite  →',
+                  style: TextStyle(
+                    color: Color(0xFF1475D1),
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
+              ),
+              if (offer.skills.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Wrap(spacing: 6, runSpacing: 6, children: _skillTags(offer)),
               ],
-            ),
-            const SizedBox(height: 7),
-            Text(
-              offer.title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: AppColors.navy,
-                fontFamily: AppFonts.display,
-                fontSize: 20,
-                height: 1.12,
-                fontWeight: FontWeight.w900,
-                letterSpacing: -.22,
-              ),
-            ),
-            const SizedBox(height: 7),
-            Text(
-              _plainDescription(offer.description),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: AppColors.slate,
-                fontSize: 13,
-                height: 1.42,
-              ),
-            ),
-            const SizedBox(height: 4),
-            InkWell(
-              onTap: widget.onTap,
-              child: const Text(
-                'Lire la suite  →',
-                style: TextStyle(
-                  color: Color(0xFF1475D1),
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-            if (offer.skills.isNotEmpty) ...[
-              const SizedBox(height: 10),
-              Wrap(spacing: 6, runSpacing: 6, children: _skillTags(offer)),
             ],
-          ],
+          ),
         ),
-      ),
-      const SizedBox(width: 22),
-      Container(width: 1, color: const Color(0xFFDDE7EF)),
-      const SizedBox(width: 22),
-      Expanded(
-        flex: 5,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Wrap(
-                    spacing: 7,
-                    runSpacing: 7,
-                    children: [
-                      OfferMetaChip(
-                        label: offer.contractType.label,
-                        icon: Icons.work_outline_rounded,
-                      ),
-                      OfferMetaChip(
-                        label: offer.location,
-                        icon: Icons.location_on_outlined,
-                      ),
-                      OfferMetaChip(
-                        label: offer.remoteMode.label,
-                        icon: Icons.laptop_mac_rounded,
-                      ),
-                    ],
+        const SizedBox(width: 22),
+        Container(width: 1, color: const Color(0xFFDDE7EF)),
+        const SizedBox(width: 22),
+        Expanded(
+          flex: 5,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Wrap(
+                      spacing: 7,
+                      runSpacing: 7,
+                      children: [
+                        OfferMetaChip(
+                          label: offer.contractType.label,
+                          icon: Icons.work_outline_rounded,
+                        ),
+                        OfferMetaChip(
+                          label: offer.location,
+                          icon: Icons.location_on_outlined,
+                        ),
+                        OfferMetaChip(
+                          label: offer.remoteMode.label,
+                          icon: Icons.laptop_mac_rounded,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                OfferOptionsButton(
-                  status: offer.status,
-                  onEdit: widget.onEdit,
-                  onClose: offer.status == JobOfferStatus.closed
-                      ? null
-                      : widget.onClose,
-                  onDelete: widget.onDelete,
-                  compact: true,
+                  const SizedBox(width: 8),
+                  OfferOptionsButton(
+                    status: offer.status,
+                    onEdit: widget.onEdit,
+                    onClose: offer.status == JobOfferStatus.closed
+                        ? null
+                        : widget.onClose,
+                    onDelete: widget.onDelete,
+                    compact: true,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 13),
+              Wrap(
+                spacing: 20,
+                runSpacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: _metrics(offer),
+              ),
+              if (offer.candidateCount > 0) ...[
+                const SizedBox(height: 10),
+                OfferCandidateAvatars(
+                  count: offer.candidateCount,
+                  size: 31,
+                  maxVisible: 4,
                 ),
               ],
-            ),
-            const SizedBox(height: 13),
-            Wrap(
-              spacing: 20,
-              runSpacing: 8,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: _metrics(offer),
-            ),
-            if (offer.candidateCount > 0) ...[
-              const SizedBox(height: 10),
-              OfferCandidateAvatars(
-                count: offer.candidateCount,
-                size: 31,
-                maxVisible: 4,
-              ),
             ],
-          ],
+          ),
         ),
-      ),
       ],
     ),
   );
@@ -1065,7 +1065,10 @@ class _CompanyFilterTile extends StatelessWidget {
                   ),
                   Text(
                     subtitle,
-                    style: const TextStyle(color: AppColors.slate, fontSize: 11),
+                    style: const TextStyle(
+                      color: AppColors.slate,
+                      fontSize: 11,
+                    ),
                   ),
                 ],
               ),
@@ -1108,7 +1111,7 @@ class _StatCard extends StatelessWidget {
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
       final compact = constraints.maxWidth < 235;
-      final showChart = constraints.maxWidth >= 205;
+      final showChart = label == 'Publiées' && constraints.maxWidth >= 205;
 
       return Container(
         constraints: const BoxConstraints(minHeight: 112),

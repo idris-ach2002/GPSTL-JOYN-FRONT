@@ -310,12 +310,6 @@ class _HeroStat extends StatelessWidget {
   final int value;
   final String label;
 
-  OfferKpiChartStyle get _chartStyle => switch (label) {
-    'Publiées' => OfferKpiChartStyle.bars,
-    'Brouillons' => OfferKpiChartStyle.line,
-    _ => OfferKpiChartStyle.softLine,
-  };
-
   @override
   Widget build(BuildContext context) {
     final (icon, tone, foreground) = switch (label) {
@@ -398,15 +392,18 @@ class _HeroStat extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 5),
-          Align(
-            alignment: Alignment.bottomRight,
-            child: OfferKpiMiniChart(
-              color: foreground,
-              style: _chartStyle,
-              width: 50,
-              height: 23,
-            ),
-          ),
+          if (label == 'Publiées')
+            Align(
+              alignment: Alignment.bottomRight,
+              child: OfferKpiMiniChart(
+                color: foreground,
+                style: OfferKpiChartStyle.bars,
+                width: 50,
+                height: 23,
+              ),
+            )
+          else
+            const SizedBox(height: 23),
         ],
       ),
     );

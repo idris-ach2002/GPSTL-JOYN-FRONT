@@ -165,16 +165,13 @@ class _OfferMetaChipState extends State<OfferMetaChip> {
         ),
         borderRadius: BorderRadius.circular(999),
         border: Border.all(
-          color: _hovered
-              ? const Color(0xFF8CC9FF)
-              : const Color(0xFFCFE7FA),
+          color: _hovered ? const Color(0xFF8CC9FF) : const Color(0xFFCFE7FA),
           width: _hovered ? 1.4 : 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF4CA8F8).withValues(
-              alpha: _hovered ? .18 : .07,
-            ),
+            color: const Color(0xFF4CA8F8)
+                .withValues(alpha: _hovered ? .18 : .07),
             blurRadius: _hovered ? 14 : 8,
             offset: const Offset(0, 4),
           ),
@@ -187,15 +184,9 @@ class _OfferMetaChipState extends State<OfferMetaChip> {
             tween: Tween(begin: 1, end: _hovered ? 1.16 : 1),
             duration: const Duration(milliseconds: 190),
             curve: Curves.easeOutBack,
-            builder: (context, scale, child) => Transform.scale(
-              scale: scale,
-              child: child,
-            ),
-            child: Icon(
-              widget.icon,
-              size: 17,
-              color: const Color(0xFF1488F5),
-            ),
+            builder: (context, scale, child) =>
+                Transform.scale(scale: scale, child: child),
+            child: Icon(widget.icon, size: 17, color: const Color(0xFF1488F5)),
           ),
           const SizedBox(width: 7),
           Text(
@@ -259,8 +250,8 @@ class OfferCardSurface extends StatelessWidget {
       color: Colors.white,
       boxShadow: [
         BoxShadow(
-          color: Color(hovered ? 0x180A3152 : 0x0E0A3152),
-          blurRadius: hovered ? 24 : 16,
+          color: Color(hovered ? 0x1A0A3152 : 0x100A3152),
+          blurRadius: hovered ? 26 : 18,
           offset: Offset(0, hovered ? 9 : 6),
         ),
       ],
@@ -268,6 +259,65 @@ class OfferCardSurface extends StatelessWidget {
     clipBehavior: Clip.hardEdge,
     child: Stack(
       children: [
+        // Couche 1 : blanc -> gris froid -> bleu très clair.
+        const Positioned.fill(
+          child: IgnorePointer(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [
+                    Color(0xFFFFFFFF),
+                    Color(0xFFFCFDFE),
+                    Color(0xFFF4F7FA),
+                    Color(0xFFEEF6FC),
+                    Color(0xFFEAF5FF),
+                  ],
+                  stops: [0, .28, .56, .78, 1],
+                ),
+              ),
+            ),
+          ),
+        ),
+        // Couche 2 : halo bleu supérieur droit.
+        const Positioned.fill(
+          child: IgnorePointer(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  center: Alignment(1.05, -1.0),
+                  radius: 1.18,
+                  colors: [
+                    Color(0x55D7ECFF),
+                    Color(0x22EAF5FF),
+                    Color(0x00FFFFFF),
+                  ],
+                  stops: [0, .48, 1],
+                ),
+              ),
+            ),
+          ),
+        ),
+        // Couche 3 : halo gris-bleu inférieur droit pour donner de la profondeur.
+        const Positioned.fill(
+          child: IgnorePointer(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  center: Alignment(1.1, 1.25),
+                  radius: 1.0,
+                  colors: [
+                    Color(0x3ADBE3EA),
+                    Color(0x20EEF3F7),
+                    Color(0x00FFFFFF),
+                  ],
+                  stops: [0, .52, 1],
+                ),
+              ),
+            ),
+          ),
+        ),
         Positioned(
           top: 0,
           right: 0,
@@ -304,7 +354,7 @@ class _OfferDropletAccentState extends State<OfferDropletAccent>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
-    duration: const Duration(seconds: 16),
+    duration: const Duration(seconds: 24),
   )..repeat();
 
   @override
@@ -330,74 +380,162 @@ class _OfferDropletPainter extends CustomPainter {
 
   final double phase;
 
-  static const _tones = <Color>[
-    Color(0xFFBFDFFF),
-    Color(0xFFDDEEFF),
-    Color(0xFFD9E1E8),
-    Color(0xFFFFFFFF),
-  ];
-
   @override
   void paint(Canvas canvas, Size size) {
     if (size.isEmpty) return;
 
-    final backgroundPaint = Paint()
+    final rect = Offset.zero & size;
+    final tau = math.pi * 2;
+
+    // Mouvement presque imperceptible : le fond reste élégant et calme.
+    final breathe = .5 + .5 * math.sin(tau * phase);
+    final driftX = size.width * (.008 * math.sin(tau * phase));
+    final driftY = size.height * (.015 * math.cos(tau * phase));
+
+    // 1) Voile général blanc -> bleu glacé, uniquement pour donner de la
+    // profondeur à la partie droite de la card sans salir la lisibilité.
+    final wash = Paint()
       ..shader = const LinearGradient(
         begin: Alignment.centerLeft,
         end: Alignment.centerRight,
         colors: [
           Color(0x00FFFFFF),
-          Color(0x34F2F9FF),
-          Color(0x78F8FCFF),
+          Color(0x12F4F9FE),
+          Color(0x2AEAF4FE),
+          Color(0x48DCEBFA),
         ],
-        stops: [0, .42, 1],
-      ).createShader(Offset.zero & size);
-    canvas.drawRect(Offset.zero & size, backgroundPaint);
+        stops: [0, .28, .58, 1],
+      ).createShader(rect);
+    canvas.drawRect(rect, wash);
 
-    final tau = math.pi * 2;
-    for (var i = 0; i < 42; i++) {
-      final seedX = (i * .173 + (i % 5) * .071) % 1;
-      final seedY = (i * .287 + (i % 7) * .043) % 1;
-      final drift = phase * (.08 + (i % 4) * .012);
-      final x = size.width * (.08 + ((seedX + drift) % 1) * .90);
-      final y = size.height * ((seedY + phase * (.035 + (i % 3) * .012)) % 1);
-      final pulse =
-          .55 +
-          .45 * math.sin(tau * phase * (1 + (i % 3) * .12) + i * .73);
-      final radius = 1.8 + (i % 5) * .85;
-      final tone = _tones[i % _tones.length];
+    // 2) Halo principal : grand volume bleu très doux en bas à droite.
+    final mainCenter = Offset(
+      size.width * .82 + driftX,
+      size.height * (.69 + .025 * breathe) + driftY,
+    );
+    final mainRadius = size.width * .46;
+    final mainHalo = Paint()
+      ..shader = const RadialGradient(
+        colors: [
+          Color(0x46A8CCF6),
+          Color(0x2DC5DDF7),
+          Color(0x17E5F1FB),
+          Color(0x00FFFFFF),
+        ],
+        stops: [0, .36, .68, 1],
+      ).createShader(Rect.fromCircle(center: mainCenter, radius: mainRadius));
+    canvas.drawCircle(mainCenter, mainRadius, mainHalo);
 
-      final haloPaint = Paint()
-        ..style = PaintingStyle.fill
-        ..color = tone.withValues(alpha: .07 + pulse * .06);
-      canvas.drawCircle(Offset(x, y), radius * 2.5, haloPaint);
+    // 3) Halo secondaire : un léger contre-volume dans l'angle haut droit.
+    final secondaryCenter = Offset(
+      size.width * .97 - driftX * .35,
+      size.height * (.12 - .012 * breathe),
+    );
+    final secondaryRadius = size.width * .25;
+    final secondaryHalo = Paint()
+      ..shader =
+          const RadialGradient(
+            colors: [Color(0x32C8E0FA), Color(0x18E6F2FD), Color(0x00FFFFFF)],
+            stops: [0, .52, 1],
+          ).createShader(
+            Rect.fromCircle(center: secondaryCenter, radius: secondaryRadius),
+          );
+    canvas.drawCircle(secondaryCenter, secondaryRadius, secondaryHalo);
 
-      final rimPaint = Paint()
-        ..style = PaintingStyle.fill
-        ..color = Colors.white.withValues(alpha: .42 + pulse * .24);
-      canvas.drawCircle(Offset(x, y), radius * 1.42, rimPaint);
+    // 4) Deux voiles translucides superposés : c'est le détail "Option B"
+    // qui donne un fond premium sans motif visible ou artificiel.
+    final lowerVeil = Path()
+      ..moveTo(size.width * .34, size.height)
+      ..cubicTo(
+        size.width * .54,
+        size.height * .76 + driftY,
+        size.width * .71,
+        size.height * .92,
+        size.width,
+        size.height * .66,
+      )
+      ..lineTo(size.width, size.height)
+      ..close();
 
-      final dropPaint = Paint()
-        ..style = PaintingStyle.fill
-        ..color = tone.withValues(alpha: .24 + pulse * .34);
-      canvas.drawCircle(Offset(x, y), radius, dropPaint);
+    final lowerVeilPaint = Paint()
+      ..shader = const LinearGradient(
+        begin: Alignment.centerLeft,
+        end: Alignment.bottomRight,
+        colors: [Color(0x00B9D7F7), Color(0x18BCD8F5), Color(0x30A9CDF4)],
+      ).createShader(rect);
+    canvas.drawPath(lowerVeil, lowerVeilPaint);
 
-      final highlightPaint = Paint()
-        ..style = PaintingStyle.fill
-        ..color = Colors.white.withValues(alpha: .50 + pulse * .28);
-      canvas.drawCircle(
-        Offset(x - radius * .28, y - radius * .30),
-        math.max(.7, radius * .26),
-        highlightPaint,
+    final upperVeil = Path()
+      ..moveTo(size.width * .50, 0)
+      ..cubicTo(
+        size.width * .69,
+        size.height * .18,
+        size.width * .82,
+        size.height * .08 + driftY,
+        size.width,
+        size.height * .25,
+      )
+      ..lineTo(size.width, 0)
+      ..close();
+
+    final upperVeilPaint = Paint()
+      ..shader = const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [Color(0x00FFFFFF), Color(0x18EAF3FC), Color(0x22D7E8F9)],
+      ).createShader(rect);
+    canvas.drawPath(upperVeil, upperVeilPaint);
+
+    // 5) Un seul arc bleu fin et discret. Aucun point, aucune bulle,
+    // aucune ligne sombre et aucune couleur orange.
+    final arc = Path()
+      ..moveTo(size.width * .36, size.height * (.56 + .012 * breathe))
+      ..cubicTo(
+        size.width * .53,
+        size.height * .34 + driftY,
+        size.width * .72,
+        size.height * .27 - driftY,
+        size.width * .91,
+        size.height * .39,
+      )
+      ..cubicTo(
+        size.width * .96,
+        size.height * .42,
+        size.width * 1.01,
+        size.height * .46,
+        size.width * 1.05,
+        size.height * .49,
       );
-    }
+
+    // Aura très légère autour de l'arc.
+    final arcGlow = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 5.5
+      ..color = const Color(0x165FA8FF)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
+    canvas.drawPath(arc, arcGlow);
+
+    final arcCore = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 1.25
+      ..shader = const LinearGradient(
+        colors: [
+          Color(0x005FA8FF),
+          Color(0x765FA8FF),
+          Color(0x4A88BCF4),
+          Color(0x005FA8FF),
+        ],
+        stops: [0, .28, .72, 1],
+      ).createShader(rect);
+    canvas.drawPath(arc, arcCore);
   }
 
   @override
   bool shouldRepaint(covariant _OfferDropletPainter oldDelegate) =>
       oldDelegate.phase != phase;
 }
-
 
 class OfferCandidateAvatars extends StatelessWidget {
   const OfferCandidateAvatars({
