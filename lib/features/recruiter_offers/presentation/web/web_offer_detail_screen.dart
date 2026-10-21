@@ -172,8 +172,8 @@ class _OfferHero extends StatelessWidget {
   final RecruiterCompany company;
 
   @override
-  Widget build(BuildContext context) => OfferGlassSurface(
-    waveWidth: 470,
+  Widget build(BuildContext context) => OfferCardSurface(
+    accentWidth: 470,
     child: Padding(
       padding: const EdgeInsets.fromLTRB(24, 22, 22, 22),
       child: Column(
@@ -432,15 +432,21 @@ class _Panel extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: const Color(0xFF1976D2), size: 20),
-            const SizedBox(width: 9),
-            Text(
-              title,
-              style: const TextStyle(
-                color: AppColors.navy,
-                fontSize: 17,
-                fontWeight: FontWeight.w900,
+            Icon(icon, color: const Color(0xFF1976D2), size: 22),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: AppColors.navy,
+                  fontSize: 18,
+                  height: 1.15,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
             ),
           ],
