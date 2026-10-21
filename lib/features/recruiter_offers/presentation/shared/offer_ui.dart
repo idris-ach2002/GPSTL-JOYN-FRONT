@@ -1,3 +1,6 @@
+import 'dart:math' as math;
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 
 import '../../../../design_system/components/joyn_pill.dart';
@@ -41,6 +44,42 @@ class CompanyAvatar extends StatelessWidget {
   );
 }
 
+class CompanyMiniLogo extends StatelessWidget {
+  const CompanyMiniLogo({super.key, required this.company, this.size = 22});
+
+  final RecruiterCompany company;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: size,
+    height: size,
+    alignment: Alignment.center,
+    decoration: BoxDecoration(
+      color: companyColor(company.id),
+      shape: BoxShape.circle,
+      border: Border.all(color: Colors.white.withValues(alpha: .92), width: 1.5),
+      boxShadow: const [
+        BoxShadow(
+          color: Color(0x14001E3B),
+          blurRadius: 8,
+          offset: Offset(0, 3),
+        ),
+      ],
+    ),
+    child: Text(
+      company.initial,
+      style: TextStyle(
+        color: Colors.white,
+        fontFamily: AppFonts.display,
+        fontSize: size * .42,
+        height: 1,
+        fontWeight: FontWeight.w900,
+      ),
+    ),
+  );
+}
+
 class OfferStatusBadge extends StatelessWidget {
   const OfferStatusBadge({super.key, required this.status});
   final JobOfferStatus status;
@@ -49,19 +88,42 @@ class OfferStatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final (background, foreground) = switch (status) {
       JobOfferStatus.published => (
-        AppColors.successTint,
+        AppColors.successTint.withValues(alpha: .82),
         AppColors.successDeep,
       ),
-      JobOfferStatus.draft => (AppColors.warningTint, AppColors.warningDeep),
+      JobOfferStatus.draft => (
+        AppColors.warningTint.withValues(alpha: .86),
+        AppColors.warningDeep,
+      ),
       JobOfferStatus.closed => (const Color(0xFFE9EEF2), AppColors.slateDark),
       JobOfferStatus.archived => (AppColors.grey20, AppColors.slate),
     };
-    return JoynPill(
-      label: status.label,
-      background: background,
-      foreground: foreground,
-      fontSize: 11,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(7),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(color: foreground, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            status.label,
+            style: TextStyle(
+              color: foreground,
+              fontSize: 10.5,
+              height: 1,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -72,14 +134,185 @@ class OfferMetaChip extends StatelessWidget {
   final IconData icon;
 
   @override
-  Widget build(BuildContext context) => JoynPill(
-    label: label,
-    icon: icon,
-    background: const Color(0xFFEAF4FC),
-    foreground: const Color(0xFF1565C0),
-    fontSize: 11,
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+    decoration: BoxDecoration(
+      color: const Color(0xFFF4F9FD).withValues(alpha: .9),
+      borderRadius: BorderRadius.circular(8),
+      border: Border.all(color: const Color(0xFFDCEAF5)),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: const Color(0xFF1976D2)),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: const TextStyle(
+            color: Color(0xFF1769C2),
+            fontSize: 10.5,
+            height: 1,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    ),
   );
+}
+
+class OfferSkillTag extends StatelessWidget {
+  const OfferSkillTag({super.key, required this.label});
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+    decoration: BoxDecoration(
+      color: Colors.white.withValues(alpha: .66),
+      borderRadius: BorderRadius.circular(7),
+      border: Border.all(color: const Color(0xFFDDEAF5)),
+    ),
+    child: Text(
+      label,
+      style: const TextStyle(
+        color: Color(0xFF1769C2),
+        fontSize: 9.5,
+        height: 1,
+        fontWeight: FontWeight.w700,
+      ),
+    ),
+  );
+}
+
+class OfferGlassSurface extends StatelessWidget {
+  const OfferGlassSurface({
+    super.key,
+    required this.child,
+    this.hovered = false,
+    this.waveWidth = 380,
+  });
+
+  final Widget child;
+  final bool hovered;
+  final double waveWidth;
+
+  @override
+  Widget build(BuildContext context) => AnimatedContainer(
+    duration: const Duration(milliseconds: 180),
+    curve: Curves.easeOutCubic,
+    decoration: BoxDecoration(
+      color: Colors.white.withValues(alpha: hovered ? .86 : .80),
+      boxShadow: [
+        BoxShadow(
+          color: Color(hovered ? 0x180A3152 : 0x100A3152),
+          blurRadius: hovered ? 26 : 18,
+          offset: Offset(0, hovered ? 10 : 7),
+        ),
+      ],
+    ),
+    clipBehavior: Clip.hardEdge,
+    child: BackdropFilter(
+      filter: ui.ImageFilter.blur(sigmaX: 9, sigmaY: 9),
+      child: Stack(
+        children: [
+          Positioned(
+            top: 0,
+            right: 0,
+            bottom: 0,
+            width: waveWidth,
+            child: const IgnorePointer(child: OfferWaveAccent()),
+          ),
+          Positioned.fill(
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  border: Border(
+                    top: BorderSide(color: Colors.white, width: .7),
+                    bottom: BorderSide(color: Color(0xFFDCE7F0), width: .7),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          child,
+        ],
+      ),
+    ),
+  );
+}
+
+class OfferWaveAccent extends StatefulWidget {
+  const OfferWaveAccent({super.key});
+
+  @override
+  State<OfferWaveAccent> createState() => _OfferWaveAccentState();
+}
+
+class _OfferWaveAccentState extends State<OfferWaveAccent>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 14),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => RepaintBoundary(
+    child: AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) => CustomPaint(
+        painter: _OfferWavePainter(phase: _controller.value),
+        child: const SizedBox.expand(),
+      ),
+    ),
+  );
+}
+
+class _OfferWavePainter extends CustomPainter {
+  const _OfferWavePainter({required this.phase});
+  final double phase;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final base = Paint()..style = PaintingStyle.fill;
+    final phaseRadians = phase * math.pi * 2;
+    final layers = <(double, double, Color)>[
+      (.56, 15, const Color(0xFFEAF6FF)),
+      (.69, 12, const Color(0xFFDFF1FF)),
+      (.81, 9, const Color(0xFFF7FBFF)),
+    ];
+
+    for (var layerIndex = 0; layerIndex < layers.length; layerIndex++) {
+      final (baseline, amplitude, color) = layers[layerIndex];
+      final path = Path()..moveTo(0, size.height);
+      final double step = math.max(5.0, size.width / 42).toDouble();
+      for (double x = 0; x <= size.width + step; x += step) {
+        final normalized = x / math.max(size.width, 1.0);
+        final y = size.height * baseline +
+            math.sin(
+                  normalized * math.pi * 2.2 +
+                      phaseRadians +
+                      layerIndex * .9,
+                ) *
+                amplitude;
+        path.lineTo(x, y);
+      }
+      path
+        ..lineTo(size.width, size.height)
+        ..close();
+      base.color = color.withValues(alpha: .58 - layerIndex * .08);
+      canvas.drawPath(path, base);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _OfferWavePainter oldDelegate) =>
+      oldDelegate.phase != phase;
 }
 
 String salaryLabel(JobOffer offer) {
