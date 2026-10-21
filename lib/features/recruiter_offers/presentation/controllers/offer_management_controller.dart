@@ -51,11 +51,13 @@ class OfferManagementController extends ChangeNotifier {
   List<JobOffer> get visibleOffers {
     final normalized = query.trim().toLowerCase();
     final result = offers.where((offer) {
-      if (companyFilter != null && offer.companyId != companyFilter)
+      if (companyFilter != null && offer.companyId != companyFilter) {
         return false;
+      }
       if (statusFilter != null && offer.status != statusFilter) return false;
-      if (contractFilter != null && offer.contractType != contractFilter)
+      if (contractFilter != null && offer.contractType != contractFilter) {
         return false;
+      }
       if (normalized.isNotEmpty) {
         final company = companyFor(offer.companyId)?.name.toLowerCase() ?? '';
         final haystack =

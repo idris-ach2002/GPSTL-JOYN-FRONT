@@ -83,8 +83,9 @@ class OfferMetaChip extends StatelessWidget {
 }
 
 String salaryLabel(JobOffer offer) {
-  if (offer.salaryMin == null && offer.salaryMax == null)
+  if (offer.salaryMin == null && offer.salaryMax == null) {
     return 'Rémunération selon profil';
+  }
   String amount(double? value) {
     if (value == null) return '—';
     final rounded = value.round();

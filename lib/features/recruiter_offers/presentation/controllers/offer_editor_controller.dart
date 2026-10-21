@@ -212,16 +212,21 @@ class OfferEditorController extends ChangeNotifier {
 
   bool validate() {
     _errors.clear();
-    if (selectedCompany == null)
+    if (selectedCompany == null) {
       _errors['company'] = 'Sélectionnez une entreprise.';
-    if (title.trim().isEmpty)
+    }
+    if (title.trim().isEmpty) {
       _errors['title'] = 'Indiquez un intitulé de poste.';
-    if (title.trim().length > 200)
+    }
+    if (title.trim().length > 200) {
       _errors['title'] = 'Le titre ne doit pas dépasser 200 caractères.';
-    if (location.trim().isEmpty)
+    }
+    if (location.trim().isEmpty) {
       _errors['location'] = 'Indiquez une localisation.';
-    if (description.trim().isEmpty)
+    }
+    if (description.trim().isEmpty) {
       _errors['description'] = 'Décrivez le poste et le profil recherché.';
+    }
     if (skills.isEmpty) _errors['skills'] = 'Ajoutez au moins une compétence.';
     if (salaryMin != null && salaryMin! < 0 ||
         salaryMax != null && salaryMax! < 0) {
