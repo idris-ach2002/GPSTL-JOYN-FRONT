@@ -66,10 +66,16 @@ class MobileRecruiterOffersScreen extends StatelessWidget {
                                     onEdit: () => context.go(
                                       AppRoutes.recruiterJobEdit(offer.id),
                                     ),
-                                    onClose: () =>
-                                        _confirmClose(context, controller, offer),
-                                    onDelete: () =>
-                                        _confirmDelete(context, controller, offer),
+                                    onClose: () => _confirmClose(
+                                      context,
+                                      controller,
+                                      offer,
+                                    ),
+                                    onDelete: () => _confirmDelete(
+                                      context,
+                                      controller,
+                                      offer,
+                                    ),
                                   ),
                                   const SizedBox(height: 10),
                                 ],
@@ -139,7 +145,9 @@ class MobileRecruiterOffersScreen extends StatelessWidget {
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(ok ? 'Offre clôturée.' : 'Impossible de clôturer l’offre.'),
+        content: Text(
+          ok ? 'Offre clôturée.' : 'Impossible de clôturer l’offre.',
+        ),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -303,29 +311,29 @@ class _HeroStat extends StatelessWidget {
   final String label;
 
   OfferKpiChartStyle get _chartStyle => switch (label) {
-        'Publiées' => OfferKpiChartStyle.bars,
-        'Brouillons' => OfferKpiChartStyle.line,
-        _ => OfferKpiChartStyle.softLine,
-      };
+    'Publiées' => OfferKpiChartStyle.bars,
+    'Brouillons' => OfferKpiChartStyle.line,
+    _ => OfferKpiChartStyle.softLine,
+  };
 
   @override
   Widget build(BuildContext context) {
     final (icon, tone, foreground) = switch (label) {
       'Publiées' => (
-          Icons.description_outlined,
-          AppColors.successTint,
-          AppColors.successDeep,
-        ),
+        Icons.description_outlined,
+        AppColors.successTint,
+        AppColors.successDeep,
+      ),
       'Brouillons' => (
-          Icons.schedule_rounded,
-          AppColors.warningTint,
-          AppColors.warningDeep,
-        ),
+        Icons.schedule_rounded,
+        AppColors.warningTint,
+        AppColors.warningDeep,
+      ),
       _ => (
-          Icons.inventory_2_outlined,
-          const Color(0xFFEAF0F4),
-          AppColors.slateDark,
-        ),
+        Icons.inventory_2_outlined,
+        const Color(0xFFEAF0F4),
+        AppColors.slateDark,
+      ),
     };
     return Container(
       padding: const EdgeInsets.fromLTRB(11, 10, 9, 8),

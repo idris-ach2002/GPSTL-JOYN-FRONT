@@ -37,7 +37,11 @@ class WebOfferDetailScreen extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.error_outline_rounded, size: 38, color: AppColors.error),
+              const Icon(
+                Icons.error_outline_rounded,
+                size: 38,
+                color: AppColors.error,
+              ),
               const SizedBox(height: 12),
               Text(
                 controller.errorMessage ?? 'Offre introuvable.',
@@ -92,8 +96,12 @@ class WebOfferDetailScreen extends StatelessWidget {
                         Row(
                           children: [
                             TextButton.icon(
-                              onPressed: () => context.go(AppRoutes.recruiterJobs),
-                              icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+                              onPressed: () =>
+                                  context.go(AppRoutes.recruiterJobs),
+                              icon: const Icon(
+                                Icons.arrow_back_rounded,
+                                color: Colors.white,
+                              ),
                               label: const Text(
                                 'Retour aux offres',
                                 style: TextStyle(color: Colors.white),
@@ -203,7 +211,10 @@ class _OfferHero extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 7),
-                        const Text('·', style: TextStyle(color: AppColors.placeholder)),
+                        const Text(
+                          '·',
+                          style: TextStyle(color: AppColors.placeholder),
+                        ),
                         const SizedBox(width: 7),
                         Text(
                           offer.location,
@@ -248,7 +259,8 @@ class _OfferHero extends StatelessWidget {
             children: [
               _HeroMetric(
                 icon: Icons.group_outlined,
-                label: '${offer.candidateCount} candidat${offer.candidateCount > 1 ? 's' : ''}',
+                label:
+                    '${offer.candidateCount} candidat${offer.candidateCount > 1 ? 's' : ''}',
               ),
               _HeroMetric(
                 icon: Icons.calendar_today_outlined,
@@ -296,7 +308,9 @@ class _DescriptionPanel extends StatelessWidget {
         Wrap(
           spacing: 7,
           runSpacing: 7,
-          children: [for (final skill in offer.skills) OfferSkillTag(label: skill)],
+          children: [
+            for (final skill in offer.skills) OfferSkillTag(label: skill),
+          ],
         ),
       ],
     ),
@@ -338,7 +352,9 @@ class _DetailsPanel extends StatelessWidget {
               _DetailLine('Date de début', monthYearLabel(offer.startDate)),
               _DetailLine(
                 'Durée',
-                offer.durationMonths == null ? '—' : '${offer.durationMonths} mois',
+                offer.durationMonths == null
+                    ? '—'
+                    : '${offer.durationMonths} mois',
               ),
               _DetailLine(
                 'Niveau d’études',

@@ -489,7 +489,8 @@ class _MobileOfferEditorScreenState extends State<MobileOfferEditorScreen> {
                 height: 1.5,
               ),
               decoration: const InputDecoration(
-                hintText: 'Présentez le poste, les missions et le profil idéal…',
+                hintText:
+                    'Présentez le poste, les missions et le profil idéal…',
                 counterText: '',
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.all(14),
@@ -512,7 +513,11 @@ class _MobileOfferEditorScreenState extends State<MobileOfferEditorScreen> {
         child: const Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(Icons.auto_awesome_rounded, color: Color(0xFF6956E8), size: 19),
+            Icon(
+              Icons.auto_awesome_rounded,
+              color: Color(0xFF6956E8),
+              size: 19,
+            ),
             SizedBox(width: 9),
             Expanded(
               child: Text(
@@ -532,7 +537,9 @@ class _MobileOfferEditorScreenState extends State<MobileOfferEditorScreen> {
   );
 
   void _bindDescription(OfferEditorController controller) {
-    if (_descriptionBound && _boundDescriptionOfferId == controller.offerId) return;
+    if (_descriptionBound && _boundDescriptionOfferId == controller.offerId) {
+      return;
+    }
     _description.value = TextEditingValue(
       text: controller.description,
       selection: TextSelection.collapsed(offset: controller.description.length),
@@ -558,7 +565,9 @@ class _MobileOfferEditorScreenState extends State<MobileOfferEditorScreen> {
   ) {
     _description.value = TextEditingValue(
       text: text,
-      selection: TextSelection.collapsed(offset: cursor.clamp(0, text.length).toInt()),
+      selection: TextSelection.collapsed(
+        offset: cursor.clamp(0, text.length).toInt(),
+      ),
     );
     controller.updateDescription(text);
   }
@@ -572,8 +581,16 @@ class _MobileOfferEditorScreenState extends State<MobileOfferEditorScreen> {
     final selection = _descriptionSelection();
     final selected = text.substring(selection.start, selection.end);
     final replacement = '$before${selected.isEmpty ? 'texte' : selected}$after';
-    final updated = text.replaceRange(selection.start, selection.end, replacement);
-    _commitMobileDescription(controller, updated, selection.start + replacement.length);
+    final updated = text.replaceRange(
+      selection.start,
+      selection.end,
+      replacement,
+    );
+    _commitMobileDescription(
+      controller,
+      updated,
+      selection.start + replacement.length,
+    );
   }
 
   void _prefixDescription(OfferEditorController controller, String prefix) {
@@ -585,9 +602,16 @@ class _MobileOfferEditorScreenState extends State<MobileOfferEditorScreen> {
     final nextBreak = text.indexOf('\n', selection.end);
     final lineEnd = nextBreak == -1 ? text.length : nextBreak;
     final block = text.substring(lineStart, lineEnd);
-    final replacement = block.split('\n').map((line) => '$prefix$line').join('\n');
+    final replacement = block
+        .split('\n')
+        .map((line) => '$prefix$line')
+        .join('\n');
     final updated = text.replaceRange(lineStart, lineEnd, replacement);
-    _commitMobileDescription(controller, updated, lineStart + replacement.length);
+    _commitMobileDescription(
+      controller,
+      updated,
+      lineStart + replacement.length,
+    );
   }
 
   void _numberDescription(OfferEditorController controller) {
@@ -603,7 +627,11 @@ class _MobileOfferEditorScreenState extends State<MobileOfferEditorScreen> {
       for (var i = 0; i < lines.length; i++) '${i + 1}. ${lines[i]}',
     ].join('\n');
     final updated = text.replaceRange(lineStart, lineEnd, replacement);
-    _commitMobileDescription(controller, updated, lineStart + replacement.length);
+    _commitMobileDescription(
+      controller,
+      updated,
+      lineStart + replacement.length,
+    );
   }
 
   void _linkDescription(OfferEditorController controller) {
@@ -611,8 +639,16 @@ class _MobileOfferEditorScreenState extends State<MobileOfferEditorScreen> {
     final selection = _descriptionSelection();
     final selected = text.substring(selection.start, selection.end);
     final replacement = '[${selected.isEmpty ? 'lien' : selected}](https://)';
-    final updated = text.replaceRange(selection.start, selection.end, replacement);
-    _commitMobileDescription(controller, updated, selection.start + replacement.length);
+    final updated = text.replaceRange(
+      selection.start,
+      selection.end,
+      replacement,
+    );
+    _commitMobileDescription(
+      controller,
+      updated,
+      selection.start + replacement.length,
+    );
   }
 
   Widget _skillsSalaryStep(OfferEditorController controller) => Column(

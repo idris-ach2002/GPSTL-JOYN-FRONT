@@ -482,7 +482,10 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
             children: [
               Container(
                 constraints: const BoxConstraints(minHeight: 48),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: const BoxDecoration(
                   color: Color(0xFFFAFCFE),
                   border: Border(bottom: BorderSide(color: AppColors.lineSoft)),
@@ -501,10 +504,19 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
                         if (value == 'paragraph') _clearBlockPrefix(controller);
                       },
                       itemBuilder: (context) => const [
-                        PopupMenuItem(value: 'paragraph', child: Text('Paragraphe')),
-                        PopupMenuItem(value: 'h1', child: Text('Titre principal')),
+                        PopupMenuItem(
+                          value: 'paragraph',
+                          child: Text('Paragraphe'),
+                        ),
+                        PopupMenuItem(
+                          value: 'h1',
+                          child: Text('Titre principal'),
+                        ),
                         PopupMenuItem(value: 'h2', child: Text('Sous-titre')),
-                        PopupMenuItem(value: 'quote', child: Text('Encadré / citation')),
+                        PopupMenuItem(
+                          value: 'quote',
+                          child: Text('Encadré / citation'),
+                        ),
                       ],
                       child: Container(
                         height: 32,
@@ -526,7 +538,11 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
                               ),
                             ),
                             SizedBox(width: 5),
-                            Icon(Icons.expand_more_rounded, size: 16, color: AppColors.slate),
+                            Icon(
+                              Icons.expand_more_rounded,
+                              size: 16,
+                              color: AppColors.slate,
+                            ),
                           ],
                         ),
                       ),
@@ -603,7 +619,11 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.auto_awesome_outlined, size: 15, color: Color(0xFF6956E8)),
+                    Icon(
+                      Icons.auto_awesome_outlined,
+                      size: 15,
+                      color: Color(0xFF6956E8),
+                    ),
                     SizedBox(width: 7),
                     Expanded(
                       child: Text(
@@ -637,7 +657,9 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
   );
 
   void _bindDescription(OfferEditorController controller) {
-    if (_descriptionBound && _boundDescriptionOfferId == controller.offerId) return;
+    if (_descriptionBound && _boundDescriptionOfferId == controller.offerId) {
+      return;
+    }
     _descriptionController.value = TextEditingValue(
       text: controller.description,
       selection: TextSelection.collapsed(offset: controller.description.length),
@@ -656,10 +678,16 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
     );
   }
 
-  void _commitDescription(OfferEditorController controller, String text, int cursor) {
+  void _commitDescription(
+    OfferEditorController controller,
+    String text,
+    int cursor,
+  ) {
     _descriptionController.value = TextEditingValue(
       text: text,
-      selection: TextSelection.collapsed(offset: cursor.clamp(0, text.length).toInt()),
+      selection: TextSelection.collapsed(
+        offset: cursor.clamp(0, text.length).toInt(),
+      ),
     );
     controller.updateDescription(text);
   }
@@ -674,8 +702,16 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
     final selected = text.substring(selection.start, selection.end);
     final content = selected.isEmpty ? 'texte' : selected;
     final replacement = '$before$content$after';
-    final updated = text.replaceRange(selection.start, selection.end, replacement);
-    _commitDescription(controller, updated, selection.start + replacement.length);
+    final updated = text.replaceRange(
+      selection.start,
+      selection.end,
+      replacement,
+    );
+    _commitDescription(
+      controller,
+      updated,
+      selection.start + replacement.length,
+    );
   }
 
   void _prefixLines(OfferEditorController controller, String prefix) {
@@ -687,7 +723,10 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
     final nextBreak = text.indexOf('\n', selection.end);
     final lineEnd = nextBreak == -1 ? text.length : nextBreak;
     final block = text.substring(lineStart, lineEnd);
-    final replacement = block.split('\n').map((line) => '$prefix$line').join('\n');
+    final replacement = block
+        .split('\n')
+        .map((line) => '$prefix$line')
+        .join('\n');
     final updated = text.replaceRange(lineStart, lineEnd, replacement);
     _commitDescription(controller, updated, lineStart + replacement.length);
   }
@@ -714,8 +753,16 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
     final selection = _safeSelection();
     final selected = text.substring(selection.start, selection.end);
     final replacement = '[${selected.isEmpty ? 'lien' : selected}](https://)';
-    final updated = text.replaceRange(selection.start, selection.end, replacement);
-    _commitDescription(controller, updated, selection.start + replacement.length);
+    final updated = text.replaceRange(
+      selection.start,
+      selection.end,
+      replacement,
+    );
+    _commitDescription(
+      controller,
+      updated,
+      selection.start + replacement.length,
+    );
   }
 
   void _alignLines(OfferEditorController controller, String alignment) {
@@ -727,11 +774,14 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
     final nextBreak = text.indexOf('\n', selection.end);
     final lineEnd = nextBreak == -1 ? text.length : nextBreak;
     final block = text.substring(lineStart, lineEnd);
-    final replacement = block.split('\n').map((line) {
-      final clean = line.replaceFirst(RegExp(r'^\[(center|right)\]'), '');
-      if (alignment == 'left') return clean;
-      return '[$alignment]$clean';
-    }).join('\n');
+    final replacement = block
+        .split('\n')
+        .map((line) {
+          final clean = line.replaceFirst(RegExp(r'^\[(center|right)\]'), '');
+          if (alignment == 'left') return clean;
+          return '[$alignment]$clean';
+        })
+        .join('\n');
     final updated = text.replaceRange(lineStart, lineEnd, replacement);
     _commitDescription(controller, updated, lineStart + replacement.length);
   }
@@ -745,9 +795,12 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
     final nextBreak = text.indexOf('\n', selection.end);
     final lineEnd = nextBreak == -1 ? text.length : nextBreak;
     final block = text.substring(lineStart, lineEnd);
-    final replacement = block.split('\n').map((line) {
-      return line.replaceFirst(RegExp(r'^(#{1,2} |> )'), '');
-    }).join('\n');
+    final replacement = block
+        .split('\n')
+        .map((line) {
+          return line.replaceFirst(RegExp(r'^(#{1,2} |> )'), '');
+        })
+        .join('\n');
     final updated = text.replaceRange(lineStart, lineEnd, replacement);
     _commitDescription(controller, updated, lineStart + replacement.length);
   }

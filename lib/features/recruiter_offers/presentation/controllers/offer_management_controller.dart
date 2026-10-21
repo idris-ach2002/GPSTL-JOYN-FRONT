@@ -128,6 +128,7 @@ class OfferManagementController extends ChangeNotifier {
       notifyListeners();
     }
   }
+
   Future<bool> deleteOffer(int id) async {
     isDeleting = true;
     errorMessage = null;
@@ -144,5 +145,4 @@ class OfferManagementController extends ChangeNotifier {
       notifyListeners();
     }
   }
-
 }

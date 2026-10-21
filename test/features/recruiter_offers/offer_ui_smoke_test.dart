@@ -35,9 +35,11 @@ void main() {
     expect(find.text('Mes offres'), findsOneWidget);
     expect(find.textContaining('Développeur·se Full-Stack'), findsOneWidget);
     expect(find.textContaining('Lire la suite'), findsWidgets);
-    final mobileDescription = tester.widgetList<Text>(find.byType(Text)).where(
-      (widget) => widget.data?.contains('Rejoignez notre équipe') ?? false,
-    );
+    final mobileDescription = tester
+        .widgetList<Text>(find.byType(Text))
+        .where(
+          (widget) => widget.data?.contains('Rejoignez notre équipe') ?? false,
+        );
     expect(mobileDescription.any((widget) => widget.maxLines == 2), isTrue);
     expect(tester.takeException(), isNull);
   });
@@ -69,37 +71,41 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('web : les cartes premium et le menu options restent sans overflow', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(1440, 1000);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+  testWidgets(
+    'web : les cartes premium et le menu options restent sans overflow',
+    (tester) async {
+      tester.view.physicalSize = const Size(1440, 1000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
 
-    final repository = MockRecruiterOffersRepository(latency: Duration.zero);
-    final controller = OfferManagementController(repository);
-    await controller.load();
+      final repository = MockRecruiterOffersRepository(latency: Duration.zero);
+      final controller = OfferManagementController(repository);
+      await controller.load();
 
-    await tester.pumpWidget(
-      ChangeNotifierProvider.value(
-        value: controller,
-        child: const MaterialApp(home: WebRecruiterOffersScreen()),
-      ),
-    );
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 250));
+      await tester.pumpWidget(
+        ChangeNotifierProvider.value(
+          value: controller,
+          child: const MaterialApp(home: WebRecruiterOffersScreen()),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 250));
 
-    expect(find.text('Mes offres'), findsOneWidget);
-    expect(find.byIcon(Icons.settings_outlined), findsWidgets);
-    expect(find.textContaining('Développeur·se Full-Stack'), findsOneWidget);
-    expect(find.textContaining('Lire la suite'), findsWidgets);
-    final webDescription = tester.widgetList<Text>(find.byType(Text)).where(
-      (widget) => widget.data?.contains('Rejoignez notre équipe') ?? false,
-    );
-    expect(webDescription.any((widget) => widget.maxLines == 2), isTrue);
-    expect(tester.takeException(), isNull);
-  });
+      expect(find.text('Mes offres'), findsOneWidget);
+      expect(find.byIcon(Icons.settings_outlined), findsWidgets);
+      expect(find.textContaining('Développeur·se Full-Stack'), findsOneWidget);
+      expect(find.textContaining('Lire la suite'), findsWidgets);
+      final webDescription = tester
+          .widgetList<Text>(find.byType(Text))
+          .where(
+            (widget) =>
+                widget.data?.contains('Rejoignez notre équipe') ?? false,
+          );
+      expect(webDescription.any((widget) => widget.maxLines == 2), isTrue);
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('web : le détail affiche toute l’offre en lecture seule', (
     tester,
@@ -129,5 +135,4 @@ void main() {
     expect(find.textContaining('Développeur·se Full-Stack'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
-
 }

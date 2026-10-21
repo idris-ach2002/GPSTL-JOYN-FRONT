@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../../../design_system/components/joyn_pill.dart';
@@ -56,7 +57,10 @@ class CompanyMiniLogo extends StatelessWidget {
     decoration: BoxDecoration(
       color: companyColor(company.id),
       shape: BoxShape.circle,
-      border: Border.all(color: Colors.white.withValues(alpha: .92), width: 1.5),
+      border: Border.all(
+        color: Colors.white.withValues(alpha: .92),
+        width: 1.5,
+      ),
       boxShadow: const [
         BoxShadow(
           color: Color(0x14001E3B),
@@ -108,7 +112,10 @@ class OfferStatusBadge extends StatelessWidget {
           Container(
             width: 6,
             height: 6,
-            decoration: BoxDecoration(color: foreground, shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: foreground,
+              shape: BoxShape.circle,
+            ),
           ),
           const SizedBox(width: 6),
           Text(
@@ -196,44 +203,44 @@ class OfferGlassSurface extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOutCubic,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Color(hovered ? 0x180A3152 : 0x0E0A3152),
-              blurRadius: hovered ? 24 : 16,
-              offset: Offset(0, hovered ? 9 : 6),
-            ),
-          ],
+    duration: const Duration(milliseconds: 180),
+    curve: Curves.easeOutCubic,
+    decoration: BoxDecoration(
+      color: Colors.white,
+      boxShadow: [
+        BoxShadow(
+          color: Color(hovered ? 0x180A3152 : 0x0E0A3152),
+          blurRadius: hovered ? 24 : 16,
+          offset: Offset(0, hovered ? 9 : 6),
         ),
-        clipBehavior: Clip.hardEdge,
-        child: Stack(
-          children: [
-            Positioned(
-              top: 0,
-              right: 0,
-              bottom: 0,
-              width: waveWidth,
-              child: const IgnorePointer(child: OfferWaveAccent()),
-            ),
-            Positioned.fill(
-              child: IgnorePointer(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    border: Border(
-                      top: BorderSide(color: Color(0xFFF0F4F7), width: .8),
-                      bottom: BorderSide(color: Color(0xFFE4EBF1), width: .8),
-                    ),
-                  ),
+      ],
+    ),
+    clipBehavior: Clip.hardEdge,
+    child: Stack(
+      children: [
+        Positioned(
+          top: 0,
+          right: 0,
+          bottom: 0,
+          width: waveWidth,
+          child: const IgnorePointer(child: OfferWaveAccent()),
+        ),
+        Positioned.fill(
+          child: IgnorePointer(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(color: Color(0xFFF0F4F7), width: .8),
+                  bottom: BorderSide(color: Color(0xFFE4EBF1), width: .8),
                 ),
               ),
             ),
-            child,
-          ],
+          ),
         ),
-      );
+        child,
+      ],
+    ),
+  );
 }
 
 class OfferWaveAccent extends StatefulWidget {
@@ -258,14 +265,14 @@ class _OfferWaveAccentState extends State<OfferWaveAccent>
 
   @override
   Widget build(BuildContext context) => RepaintBoundary(
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, _) => CustomPaint(
-            painter: _OfferWavePainter(phase: _controller.value),
-            child: const SizedBox.expand(),
-          ),
-        ),
-      );
+    child: AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) => CustomPaint(
+        painter: _OfferWavePainter(phase: _controller.value),
+        child: const SizedBox.expand(),
+      ),
+    ),
+  );
 }
 
 class _OfferWavePainter extends CustomPainter {
@@ -291,7 +298,8 @@ class _OfferWavePainter extends CustomPainter {
       for (double x = 0; x <= size.width + step; x += step) {
         final normalized = x / math.max(size.width, 1.0);
         final direction = layerIndex.isEven ? 1.0 : -0.78;
-        final y = size.height * baseline +
+        final y =
+            size.height * baseline +
             math.sin(
                   normalized * math.pi * (2.05 + layerIndex * .13) +
                       phaseRadians * direction +
@@ -342,8 +350,8 @@ class OfferCandidateAvatars extends StatelessWidget {
     final visible = math.min(math.min(count, maxVisible), _assets.length);
     final overlap = size * .34;
     final extra = count - visible;
-    final totalWidth = size + (visible - 1) * (size - overlap) +
-        (extra > 0 ? size * .98 : 0);
+    final totalWidth =
+        size + (visible - 1) * (size - overlap) + (extra > 0 ? size * .98 : 0);
 
     return SizedBox(
       width: totalWidth,
@@ -418,10 +426,10 @@ class OfferKpiMiniChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-        width: width,
-        height: height,
-        child: CustomPaint(painter: _OfferKpiChartPainter(color, style)),
-      );
+    width: width,
+    height: height,
+    child: CustomPaint(painter: _OfferKpiChartPainter(color, style)),
+  );
 }
 
 class _OfferKpiChartPainter extends CustomPainter {
@@ -461,7 +469,9 @@ class _OfferKpiChartPainter extends CustomPainter {
       Offset(size.width, size.height * .18),
     ];
     final line = Path()..moveTo(points.first.dx, points.first.dy);
-    for (final p in points.skip(1)) line.lineTo(p.dx, p.dy);
+    for (final p in points.skip(1)) {
+      line.lineTo(p.dx, p.dy);
+    }
 
     if (style == OfferKpiChartStyle.area) {
       final area = Path.from(line)
@@ -474,7 +484,10 @@ class _OfferKpiChartPainter extends CustomPainter {
           ..shader = LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [color.withValues(alpha: .22), color.withValues(alpha: .02)],
+            colors: [
+              color.withValues(alpha: .22),
+              color.withValues(alpha: .02),
+            ],
           ).createShader(Offset.zero & size),
       );
     }
@@ -1020,7 +1033,9 @@ class OfferRichText extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                 ),
-                Expanded(child: _InlineMarkup(text: line.substring(2), style: style)),
+                Expanded(
+                  child: _InlineMarkup(text: line.substring(2), style: style),
+                ),
               ],
             ),
           ),
@@ -1048,7 +1063,9 @@ class OfferRichText extends StatelessWidget {
                     ),
                   ),
                 ),
-                Expanded(child: _InlineMarkup(text: body, style: style)),
+                Expanded(
+                  child: _InlineMarkup(text: body, style: style),
+                ),
               ],
             ),
           ),
@@ -1066,7 +1083,9 @@ class OfferRichText extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
             decoration: const BoxDecoration(
               color: Color(0xFFF4F1FF),
-              border: Border(left: BorderSide(color: Color(0xFF6956E8), width: 3)),
+              border: Border(
+                left: BorderSide(color: Color(0xFF6956E8), width: 3),
+              ),
             ),
             child: _InlineMarkup(
               text: line.substring(2),
@@ -1146,6 +1165,9 @@ class _InlineMarkup extends StatelessWidget {
     }
     if (index < text.length) spans.add(TextSpan(text: text.substring(index)));
 
-    return Text.rich(TextSpan(style: style, children: spans), textAlign: textAlign);
+    return Text.rich(
+      TextSpan(style: style, children: spans),
+      textAlign: textAlign,
+    );
   }
 }
