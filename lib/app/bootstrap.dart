@@ -8,6 +8,8 @@ import '../features/dashboard/data/fake_dashboard_repository.dart';
 import '../features/registration/data/auth_registration_repository.dart';
 import '../features/registration/data/mock_registration_repository.dart';
 import '../features/registration/data/registration_repository.dart';
+import '../features/recruiter_offers/data/mock_recruiter_offers_repository.dart';
+import '../features/recruiter_offers/data/recruiter_offers_repository.dart';
 import 'app.dart';
 
 /// Initialise les dépendances partagées puis lance l'expérience demandée.
@@ -16,6 +18,8 @@ Future<void> bootstrapJoyn({bool? webOverride}) async {
 
   final AuthRepository authRepository = FakeAuthRepository();
   final DashboardRepository dashboardRepository = FakeDashboardRepository();
+  final RecruiterOffersRepository recruiterOffersRepository =
+      MockRecruiterOffersRepository();
   final RegistrationRepository registrationRepository =
       AuthRegistrationRepository(
         authRepository,
@@ -31,6 +35,7 @@ Future<void> bootstrapJoyn({bool? webOverride}) async {
       authController: authController,
       dashboardRepository: dashboardRepository,
       registrationRepository: registrationRepository,
+      recruiterOffersRepository: recruiterOffersRepository,
     ),
   );
 }
