@@ -1,0 +1,81 @@
+import 'package:flutter/material.dart';
+
+import 'package:joyn_front/features/landing/presentation/navigation/landing_section.dart';
+import 'package:joyn_front/features/landing/presentation/sections/companies_section.dart';
+import 'package:joyn_front/features/landing/presentation/sections/constat_section.dart';
+import 'package:joyn_front/features/landing/presentation/sections/features_section.dart';
+import 'package:joyn_front/features/landing/presentation/sections/footer_section.dart';
+import 'package:joyn_front/features/landing/presentation/sections/hero_section.dart';
+import 'package:joyn_front/features/landing/presentation/sections/pricing_section.dart';
+import 'package:joyn_front/features/landing/presentation/sections/universe_section.dart';
+import 'package:joyn_front/features/landing/presentation/widgets/landing_navbar.dart';
+
+/// Assemblage web uniquement. Aucune dépendance vers le parcours natif.
+///
+/// Les ancres restent montées afin que ensureVisible fonctionne même pour une
+/// destination éloignée. La navbar reste fixée au-dessus du scroll avec une
+/// géométrie stable pendant toute la visite de la landing.
+class LandingScreen extends StatefulWidget {
+  const LandingScreen({super.key});
+
+  @override
+  State<LandingScreen> createState() => _LandingScreenState();
+}
+
+class _LandingScreenState extends State<LandingScreen> {
+  final _scrollController = ScrollController();
+  final _keys = {
+    for (final section in LandingSection.values) section: GlobalKey(),
+  };
+
+  void _navigate(LandingSection section) {
+    final destination = _keys[section]?.currentContext;
+    if (destination == null) return;
+    Scrollable.ensureVisible(
+      destination,
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : const Duration(milliseconds: 650),
+      curve: Curves.easeInOutCubic,
+    );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    body: SelectionArea(
+      child: Scrollbar(
+        controller: _scrollController,
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          child: Column(
+            children: [
+              SafeArea(
+                bottom: false,
+                child: LandingNavbar(onNavigate: _navigate),
+              ),
+              HeroSection(
+                key: _keys[LandingSection.hero],
+                onNavigate: _navigate,
+              ),
+              const ConstatSection(),
+              FeaturesSection(key: _keys[LandingSection.features]),
+              CompaniesSection(key: _keys[LandingSection.companies]),
+              UniverseSection(scrollController: _scrollController),
+              PricingSection(
+                key: _keys[LandingSection.pricing],
+                scrollController: _scrollController,
+              ),
+              FooterSection(onNavigate: _navigate),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
