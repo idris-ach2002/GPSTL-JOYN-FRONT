@@ -30,7 +30,7 @@ class _MobileStartupScreenState extends State<MobileStartupScreen>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2200),
+      duration: const Duration(milliseconds: 6200),
     );
   }
 
@@ -46,7 +46,7 @@ class _MobileStartupScreenState extends State<MobileStartupScreen>
     }
 
     _controller.forward();
-    _timer = Timer(const Duration(milliseconds: 2450), _openNext);
+    _timer = Timer(const Duration(milliseconds: 6400), _openNext);
   }
 
   void _openNext() {
@@ -72,16 +72,16 @@ class _MobileStartupScreenState extends State<MobileStartupScreen>
         builder: (context, _) {
           final t = _controller.value;
           final scene = Curves.easeOutBack.transform(
-            (t / .38).clamp(0.0, 1.0).toDouble(),
+            (t / .22).clamp(0.0, 1.0).toDouble(),
           );
           final connect = Curves.easeInOutCubic.transform(
-            ((t - .18) / .34).clamp(0.0, 1.0).toDouble(),
+            ((t - .16) / .40).clamp(0.0, 1.0).toDouble(),
           );
           final brand = Curves.easeOutCubic.transform(
-            ((t - .52) / .28).clamp(0.0, 1.0).toDouble(),
+            ((t - .58) / .24).clamp(0.0, 1.0).toDouble(),
           );
           final exit = Curves.easeInCubic.transform(
-            ((t - .90) / .10).clamp(0.0, 1.0).toDouble(),
+            ((t - .88) / .12).clamp(0.0, 1.0).toDouble(),
           );
 
           return Opacity(
@@ -195,23 +195,15 @@ class _StartupIllustration extends StatelessWidget {
           Positioned(
             top: 4,
             left: 14 + pull,
-            child: Transform.rotate(
-              angle: -.07,
-              child: const _ProfileCard(),
-            ),
+            child: Transform.rotate(angle: -.07, child: const _ProfileCard()),
           ),
           Positioned(
             right: 8 + pull,
             bottom: 16,
-            child: Transform.rotate(
-              angle: .06,
-              child: const _OfferCard(),
-            ),
+            child: Transform.rotate(angle: .06, child: const _OfferCard()),
           ),
           Positioned.fill(
-            child: CustomPaint(
-              painter: _ConnectionPainter(progress: progress),
-            ),
+            child: CustomPaint(painter: _ConnectionPainter(progress: progress)),
           ),
           Transform.scale(
             scale: .65 + (.35 * progress),

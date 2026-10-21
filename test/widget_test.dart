@@ -10,7 +10,6 @@ import 'package:joyn_front/features/landing/presentation/sections/constat_sectio
 import 'package:joyn_front/features/landing/presentation/sections/features_section.dart';
 import 'package:joyn_front/features/landing/presentation/sections/pricing_section.dart';
 import 'package:joyn_front/features/startup/mobile_startup_screen.dart';
-import 'package:joyn_front/features/registration/presentation/screens/register_choice_screen.dart';
 import 'package:joyn_front/features/landing/domain/landing_content.dart';
 import 'package:joyn_front/features/landing/presentation/widgets/feature_demo.dart';
 import 'package:joyn_front/features/landing/presentation/widgets/matching_story_demo.dart';
@@ -248,7 +247,7 @@ void main() {
     await tester.pumpWidget(const JoynApp(webOverride: false));
     expect(find.byType(MobileStartupScreen), findsOneWidget);
     expect(find.byType(LandingScreen), findsNothing);
-    await tester.pump(const Duration(milliseconds: 2500));
+    await tester.pump(const Duration(milliseconds: 6800));
     await finishTransition(tester);
     expect(find.byType(MobileLoginScreen), findsOneWidget);
     expect(find.byType(MobileStartupScreen), findsNothing);
@@ -258,7 +257,7 @@ void main() {
     'Depuis la connexion mobile, créer un compte ouvre le choix de profil',
     (tester) async {
       await tester.pumpWidget(const JoynApp(webOverride: false));
-      await tester.pump(const Duration(milliseconds: 2500));
+      await tester.pump(const Duration(milliseconds: 6800));
       await finishTransition(tester);
       expect(find.byType(MobileLoginScreen), findsOneWidget);
 
@@ -311,6 +310,6 @@ void main() {
     await tester.pumpWidget(const JoynApp(webOverride: false));
     await tester.pump();
     await finishTransition(tester);
-    expect(find.byType(LoginPage), findsOneWidget);
+    expect(find.byType(MobileLoginScreen), findsOneWidget);
   });
 }
