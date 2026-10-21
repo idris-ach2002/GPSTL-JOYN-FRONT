@@ -14,6 +14,7 @@ class OfferManagementController extends ChangeNotifier {
   List<JobOffer> offers = const [];
   bool isLoading = false;
   bool isClosing = false;
+  bool isDeleting = false;
   String? errorMessage;
 
   int? companyFilter;
@@ -127,4 +128,21 @@ class OfferManagementController extends ChangeNotifier {
       notifyListeners();
     }
   }
+  Future<bool> deleteOffer(int id) async {
+    isDeleting = true;
+    errorMessage = null;
+    notifyListeners();
+    try {
+      await _repository.deleteOffer(id);
+      offers = await _repository.fetchOffers();
+      return true;
+    } catch (_) {
+      errorMessage = 'Impossible de supprimer cette offre.';
+      return false;
+    } finally {
+      isDeleting = false;
+      notifyListeners();
+    }
+  }
+
 }

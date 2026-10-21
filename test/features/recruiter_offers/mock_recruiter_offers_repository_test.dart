@@ -81,6 +81,9 @@ void main() {
         (await repository.fetchOffer(created.id))?.status,
         JobOfferStatus.closed,
       );
+
+      await repository.deleteOffer(created.id);
+      expect(await repository.fetchOffer(created.id), isNull);
     });
   });
 }

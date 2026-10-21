@@ -56,5 +56,14 @@ void main() {
         JobOfferStatus.closed,
       );
     });
+
+    test('supprime définitivement une offre dans le mock', () async {
+      final offer = controller.offers.first;
+      final before = controller.totalCount;
+
+      expect(await controller.deleteOffer(offer.id), isTrue);
+      expect(controller.totalCount, before - 1);
+      expect(controller.offers.any((item) => item.id == offer.id), isFalse);
+    });
   });
 }

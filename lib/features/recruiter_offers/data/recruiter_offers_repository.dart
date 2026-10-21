@@ -11,4 +11,5 @@ abstract interface class RecruiterOffersRepository {
   Future<JobOffer> createOffer(JobOfferDraft draft, JobOfferStatus status);
   Future<JobOffer> updateOffer(int id, JobOfferDraft draft);
   Future<void> closeOffer(int id, {String? reason});
+  Future<void> deleteOffer(int id);
 }

@@ -298,4 +298,12 @@ class MockRecruiterOffersRepository implements RecruiterOffersRepository {
       updatedAt: DateTime.now(),
     );
   }
+
+  @override
+  Future<void> deleteOffer(int id) async {
+    await _wait();
+    final index = _offers.indexWhere((offer) => offer.id == id);
+    if (index < 0) throw StateError('Offre introuvable');
+    _offers.removeAt(index);
+  }
 }
