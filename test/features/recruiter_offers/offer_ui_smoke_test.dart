@@ -26,7 +26,8 @@ void main() {
         child: const MaterialApp(home: MobileRecruiterOffersScreen()),
       ),
     );
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.text('Mes offres'), findsOneWidget);
     expect(find.textContaining('Développeur·se Full-Stack'), findsOneWidget);
