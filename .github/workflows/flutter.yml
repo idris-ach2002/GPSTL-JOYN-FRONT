@@ -1,24 +1,86 @@
-name: Qualité Flutter
+name: Flutter CI/CD
+
 on:
   push:
-    branches: ['landing-page', 'feat/landing-material']
+    branches:
+      - main
+      - landing-page
   pull_request:
+    branches:
+      - main
+      - landing-page
+  workflow_dispatch:
+
 permissions:
   contents: read
+
+concurrency:
+  group: flutter-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  verification:
+  verify-and-build:
+    name: Vérifier le merge, tester et construire
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+
     steps:
-      - uses: actions/checkout@v4
-      # Conserver un SDK qui satisfait environment.sdk dans pubspec.yaml.
-      - uses: subosito/flutter-action@v2
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Simuler le merge de la pull request
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --detach "$BASE_SHA"
+          git merge --no-commit --no-ff "$HEAD_SHA"
+
+      - name: Installer Flutter
+        uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.47.7'
           channel: stable
           cache: true
-      - run: flutter --version
-      - run: flutter pub get
-      - run: dart format lib test
-      - run: flutter analyze
-      - run: flutter test
-      - run: flutter build web --release
+
+      - name: Afficher les versions
+        run: |
+          flutter --version
+          dart --version
+
+      - name: Installer les dépendances
+        run: flutter pub get
+
+      - name: Vérifier le format Dart
+        run: dart format --output=none --set-exit-if-changed lib test
+
+      - name: Analyse statique
+        run: flutter analyze
+
+      - name: Tests
+        run: flutter test
+
+      - name: Build web release
+        run: flutter build web --release
+
+      - name: Build Android debug
+        run: flutter build apk --debug
+
+      - name: Publier le build web
+        uses: actions/upload-artifact@v4
+        with:
+          name: joyn-web-${{ github.sha }}
+          path: build/web
+          retention-days: 7
+
+      - name: Publier l'APK Android
+        uses: actions/upload-artifact@v4
+        with:
+          name: joyn-android-${{ github.sha }}
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 7
