@@ -21,13 +21,13 @@ void main() {
       );
     });
 
-    test('le SIRET de démo retrouve Nébula Pay et pré-remplit', () async {
+    test('le SIRET de démo retrouve Alex Dupont et pré-remplit', () async {
       final form = _controller()..updateSiret('12345678900012');
       expect(form.siret, '123 456 789 00012');
 
       await form.searchCompany();
       expect(form.companyFound, isTrue);
-      expect(form.companyName, 'Nébula Pay');
+      expect(form.companyName, 'Alex Dupont');
       expect(form.sector, 'Fintech');
       expect(form.sizeRange, '50 – 249');
       expect(form.errorFor(CompanyRegisterField.siret), isNull);

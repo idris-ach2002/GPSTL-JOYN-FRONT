@@ -18,9 +18,9 @@ Future<void> bootstrapJoyn({bool? webOverride}) async {
   final DashboardRepository dashboardRepository = FakeDashboardRepository();
   final RegistrationRepository registrationRepository =
       AuthRegistrationRepository(
-    authRepository,
-    companyLookupRepository: MockRegistrationRepository(),
-  );
+        authRepository,
+        companyLookupRepository: MockRegistrationRepository(),
+      );
 
   final authController = AuthController(authRepository);
   await authController.restoreSession();

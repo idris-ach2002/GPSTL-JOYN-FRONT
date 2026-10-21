@@ -138,7 +138,7 @@ class _MiniOfferCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Nébula Pay',
+                      'Alex Dupont',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,

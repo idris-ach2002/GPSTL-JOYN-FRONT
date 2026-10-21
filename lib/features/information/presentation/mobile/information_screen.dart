@@ -19,7 +19,10 @@ class MobileInformationScreen extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: Row(
               children: [
-                IconButton(onPressed: () => context.pop(), icon: const Icon(Icons.arrow_back_rounded)),
+                IconButton(
+                  onPressed: () => context.pop(),
+                  icon: const Icon(Icons.arrow_back_rounded),
+                ),
                 const SizedBox(width: 8),
                 const MobileBrandMark(compact: true),
               ],
@@ -31,16 +34,54 @@ class MobileInformationScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(page.eyebrow, style: const TextStyle(color: AppColors.orange, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                  Text(
+                    page.eyebrow,
+                    style: const TextStyle(
+                      color: AppColors.orange,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1,
+                    ),
+                  ),
                   const SizedBox(height: 10),
-                  Text(page.title, style: const TextStyle(color: AppColors.navy, fontSize: 30, height: 1.02, fontWeight: FontWeight.w900, letterSpacing: -1)),
+                  Text(
+                    page.title,
+                    style: const TextStyle(
+                      color: AppColors.navy,
+                      fontSize: 30,
+                      height: 1.02,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -1,
+                    ),
+                  ),
                   const SizedBox(height: 12),
-                  Text(page.introduction, style: const TextStyle(color: AppColors.slate, fontSize: 14, height: 1.5)),
+                  Text(
+                    page.introduction,
+                    style: const TextStyle(
+                      color: AppColors.slate,
+                      fontSize: 14,
+                      height: 1.5,
+                    ),
+                  ),
                   const SizedBox(height: 26),
                   for (final section in page.sections) ...[
-                    Text(section.title, style: const TextStyle(color: AppColors.navy, fontSize: 18, fontWeight: FontWeight.w900)),
+                    Text(
+                      section.title,
+                      style: const TextStyle(
+                        color: AppColors.navy,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
                     const SizedBox(height: 8),
-                    Text(section.body, style: const TextStyle(color: AppColors.slate, fontSize: 13, height: 1.55)),
+                    Text(
+                      section.body,
+                      style: const TextStyle(
+                        color: AppColors.slate,
+                        fontSize: 13,
+                        height: 1.55,
+                      ),
+                    ),
                     const SizedBox(height: 22),
                   ],
                 ],

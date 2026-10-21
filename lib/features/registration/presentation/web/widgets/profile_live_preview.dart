@@ -27,7 +27,7 @@ class ProfileLivePreview extends StatelessWidget {
       card: PreviewCard(
         floating: const PreviewFloatingChip(
           leading: JoynScoreRing(score: 92),
-          title: 'Nébula Pay',
+          title: 'Alex Dupont',
           subtitle: "Exemple d'offre compatible",
         ),
         children: [
@@ -143,7 +143,7 @@ class ProfileLivePreview extends StatelessWidget {
         badges: [
           PreviewBadge(
             'N',
-            'Nébula Pay',
+            'Alex Dupont',
             AppColors.textPrimary,
             AppColors.white,
           ),

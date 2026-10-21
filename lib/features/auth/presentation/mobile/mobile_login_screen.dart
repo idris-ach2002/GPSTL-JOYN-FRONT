@@ -94,7 +94,12 @@ class _LoginHero extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: compact ? 245 : 285,
-      padding: EdgeInsets.fromLTRB(compact ? 20 : 24, 20, compact ? 20 : 24, 24),
+      padding: EdgeInsets.fromLTRB(
+        compact ? 20 : 24,
+        20,
+        compact ? 20 : 24,
+        24,
+      ),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -170,7 +175,7 @@ class _HeroMatchCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Nébula Pay',
+                      'Candidate',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -245,7 +250,12 @@ class _LoginBody extends StatelessWidget {
     final width = MediaQuery.sizeOf(context).width;
     final compact = width < 350;
     return Padding(
-      padding: EdgeInsets.fromLTRB(compact ? 18 : 24, 26, compact ? 18 : 24, 34),
+      padding: EdgeInsets.fromLTRB(
+        compact ? 18 : 24,
+        26,
+        compact ? 18 : 24,
+        34,
+      ),
       child: AutofillGroup(
         child: Form(
           key: formKey,
@@ -300,7 +310,9 @@ class _LoginBody extends StatelessWidget {
                 suffixIcon: IconButton(
                   onPressed: onToggleObscure,
                   icon: Icon(
-                    obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                    obscure
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
                     color: AppColors.navy,
                   ),
                 ),
@@ -360,13 +372,25 @@ class _LoginBody extends StatelessWidget {
               LayoutBuilder(
                 builder: (context, constraints) {
                   final buttons = [
-                    _SocialButton(label: 'Google', icon: 'G', onPressed: onGoogle),
-                    _SocialButton(label: 'LinkedIn', icon: 'in', onPressed: onLinkedIn),
+                    _SocialButton(
+                      label: 'Google',
+                      icon: 'G',
+                      onPressed: onGoogle,
+                    ),
+                    _SocialButton(
+                      label: 'LinkedIn',
+                      icon: 'in',
+                      onPressed: onLinkedIn,
+                    ),
                   ];
                   if (constraints.maxWidth < 300) {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [buttons[0], const SizedBox(height: 10), buttons[1]],
+                      children: [
+                        buttons[0],
+                        const SizedBox(height: 10),
+                        buttons[1],
+                      ],
                     );
                   }
                   return Row(
@@ -439,7 +463,11 @@ class _DividerLabel extends StatelessWidget {
 }
 
 class _SocialButton extends StatelessWidget {
-  const _SocialButton({required this.label, required this.icon, required this.onPressed});
+  const _SocialButton({
+    required this.label,
+    required this.icon,
+    required this.onPressed,
+  });
 
   final String label;
   final String icon;
@@ -454,7 +482,9 @@ class _SocialButton extends StatelessWidget {
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.navy,
           side: const BorderSide(color: Color(0xFFD6DDD6)),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -463,7 +493,9 @@ class _SocialButton extends StatelessWidget {
             Text(
               icon,
               style: TextStyle(
-                color: icon == 'G' ? const Color(0xFF4285F4) : const Color(0xFF0A66C2),
+                color: icon == 'G'
+                    ? const Color(0xFF4285F4)
+                    : const Color(0xFF0A66C2),
                 fontSize: icon == 'G' ? 18 : 13,
                 fontWeight: FontWeight.w900,
               ),

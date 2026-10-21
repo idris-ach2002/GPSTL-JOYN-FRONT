@@ -12,10 +12,12 @@ class MobileForgotPasswordScreen extends StatefulWidget {
   const MobileForgotPasswordScreen({super.key});
 
   @override
-  State<MobileForgotPasswordScreen> createState() => _MobileForgotPasswordScreenState();
+  State<MobileForgotPasswordScreen> createState() =>
+      _MobileForgotPasswordScreenState();
 }
 
-class _MobileForgotPasswordScreenState extends State<MobileForgotPasswordScreen> {
+class _MobileForgotPasswordScreenState
+    extends State<MobileForgotPasswordScreen> {
   final _form = GlobalKey<FormState>();
   final _email = TextEditingController();
   bool _sent = false;
@@ -73,12 +75,22 @@ class _MobileForgotPasswordScreenState extends State<MobileForgotPasswordScreen>
               const SizedBox(height: 24),
               const Text(
                 'Mot de passe oublié ?',
-                style: TextStyle(color: AppColors.navy, fontSize: 30, height: 1, fontWeight: FontWeight.w900, letterSpacing: -1),
+                style: TextStyle(
+                  color: AppColors.navy,
+                  fontSize: 30,
+                  height: 1,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -1,
+                ),
               ),
               const SizedBox(height: 10),
               const Text(
                 'Entre ton e-mail et on t’envoie les instructions de réinitialisation.',
-                style: TextStyle(color: AppColors.slate, fontSize: 13, height: 1.45),
+                style: TextStyle(
+                  color: AppColors.slate,
+                  fontSize: 13,
+                  height: 1.45,
+                ),
               ),
               const SizedBox(height: 28),
               MobileField(
@@ -92,12 +104,25 @@ class _MobileForgotPasswordScreenState extends State<MobileForgotPasswordScreen>
                 const SizedBox(height: 16),
                 Container(
                   padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(color: const Color(0xFFEAF6EF), borderRadius: BorderRadius.circular(16)),
-                  child: const Text('Si ce compte existe, un e-mail vient d’être envoyé.', style: TextStyle(color: AppColors.success, fontWeight: FontWeight.w700)),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEAF6EF),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Text(
+                    'Si ce compte existe, un e-mail vient d’être envoyé.',
+                    style: TextStyle(
+                      color: AppColors.success,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
               ],
               const SizedBox(height: 22),
-              MobilePrimaryButton(label: 'Envoyer le lien', backgroundColor: AppColors.orange, onPressed: _submit),
+              MobilePrimaryButton(
+                label: 'Envoyer le lien',
+                backgroundColor: AppColors.orange,
+                onPressed: _submit,
+              ),
             ],
           ),
         ),

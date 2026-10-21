@@ -146,7 +146,7 @@ class _MatchIllustration extends StatelessWidget {
                         ),
                       ),
                     ),
-                    name: 'Nébula Pay',
+                    name: 'Alex Dupont',
                     subtitle: 'Fintech · Paris 9e',
                     tags: const ['Full-Stack', '3 sem / 1 sem'],
                   ),

@@ -351,7 +351,7 @@ class _OfferCard extends StatelessWidget {
               SizedBox(width: 9),
               Expanded(
                 child: Text(
-                  'Nébula Pay',
+                  'Alex Dupont',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(

@@ -34,8 +34,8 @@ class MockRegistrationRepository implements RegistrationRepository {
   static const Map<String, CompanyInfo> demoCompanies = {
     '12345678900012': CompanyInfo(
       siret: '12345678900012',
-      legalName: 'Nébula Pay SAS',
-      displayName: 'Nébula Pay',
+      legalName: 'Alex Dupont SAS',
+      displayName: 'Alex Dupont',
       city: 'Paris 9e',
       activity: 'Services de paiement',
       emailDomain: 'nebulapay.fr',

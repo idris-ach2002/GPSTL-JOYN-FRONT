@@ -33,21 +33,14 @@ class MobileAppSurface extends StatelessWidget {
 }
 
 class MobileBrandMark extends StatelessWidget {
-  const MobileBrandMark({
-    super.key,
-    this.onDark = false,
-    this.compact = false,
-  });
+  const MobileBrandMark({super.key, this.onDark = false, this.compact = false});
 
   final bool onDark;
   final bool compact;
 
   @override
   Widget build(BuildContext context) {
-    return JoynLogo(
-      onDark: onDark,
-      markSize: compact ? 34 : 40,
-    );
+    return JoynLogo(onDark: onDark, markSize: compact ? 34 : 40);
   }
 }
 
@@ -198,10 +191,7 @@ class MobileField extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(
-                color: AppColors.orange,
-                width: 1.6,
-              ),
+              borderSide: const BorderSide(color: AppColors.orange, width: 1.6),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),

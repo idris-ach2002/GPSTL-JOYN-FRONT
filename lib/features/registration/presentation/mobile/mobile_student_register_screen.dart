@@ -13,10 +13,12 @@ class MobileStudentRegisterScreen extends StatefulWidget {
   const MobileStudentRegisterScreen({super.key});
 
   @override
-  State<MobileStudentRegisterScreen> createState() => _MobileStudentRegisterScreenState();
+  State<MobileStudentRegisterScreen> createState() =>
+      _MobileStudentRegisterScreenState();
 }
 
-class _MobileStudentRegisterScreenState extends State<MobileStudentRegisterScreen> {
+class _MobileStudentRegisterScreenState
+    extends State<MobileStudentRegisterScreen> {
   late final StudentRegisterController _form;
   final _firstName = TextEditingController();
   final _lastName = TextEditingController();
@@ -26,7 +28,9 @@ class _MobileStudentRegisterScreenState extends State<MobileStudentRegisterScree
   @override
   void initState() {
     super.initState();
-    _form = StudentRegisterController(repository: context.read<RegistrationRepository>());
+    _form = StudentRegisterController(
+      repository: context.read<RegistrationRepository>(),
+    );
   }
 
   @override
@@ -58,7 +62,9 @@ class _MobileStudentRegisterScreenState extends State<MobileStudentRegisterScree
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _MobileRegisterHeader(onBack: () => context.go(AppRoutes.register)),
+              _MobileRegisterHeader(
+                onBack: () => context.go(AppRoutes.register),
+              ),
               const SizedBox(height: 30),
               const _StepPill(label: 'Étape 2 sur 2 · Candidat'),
               const SizedBox(height: 16),
@@ -75,7 +81,11 @@ class _MobileStudentRegisterScreenState extends State<MobileStudentRegisterScree
               const SizedBox(height: 8),
               const Text(
                 'Quelques informations et ton profil JOYN peut commencer à matcher.',
-                style: TextStyle(color: AppColors.slate, fontSize: 13, height: 1.45),
+                style: TextStyle(
+                  color: AppColors.slate,
+                  fontSize: 13,
+                  height: 1.45,
+                ),
               ),
               const SizedBox(height: 26),
               MobileField(
@@ -84,7 +94,9 @@ class _MobileStudentRegisterScreenState extends State<MobileStudentRegisterScree
                 controller: _firstName,
                 onChanged: _form.updateFirstName,
               ),
-              _FieldError(_form.visibleErrorFor(StudentRegisterField.firstName)),
+              _FieldError(
+                _form.visibleErrorFor(StudentRegisterField.firstName),
+              ),
               const SizedBox(height: 14),
               MobileField(
                 label: 'Nom',
@@ -112,7 +124,9 @@ class _MobileStudentRegisterScreenState extends State<MobileStudentRegisterScree
                 suffixIcon: IconButton(
                   onPressed: _form.togglePasswordVisibility,
                   icon: Icon(
-                    _form.passwordVisible ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                    _form.passwordVisible
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
                     color: AppColors.navy,
                   ),
                 ),
@@ -156,12 +170,15 @@ class _MobileRegisterHeader extends StatelessWidget {
   final VoidCallback onBack;
   @override
   Widget build(BuildContext context) => Row(
-        children: [
-          IconButton.filledTonal(onPressed: onBack, icon: const Icon(Icons.arrow_back_rounded)),
-          const Spacer(),
-          const MobileBrandMark(compact: true),
-        ],
-      );
+    children: [
+      IconButton.filledTonal(
+        onPressed: onBack,
+        icon: const Icon(Icons.arrow_back_rounded),
+      ),
+      const Spacer(),
+      const MobileBrandMark(compact: true),
+    ],
+  );
 }
 
 class _StepPill extends StatelessWidget {
@@ -169,19 +186,23 @@ class _StepPill extends StatelessWidget {
   final String label;
   @override
   Widget build(BuildContext context) => Align(
-        alignment: Alignment.centerLeft,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-          decoration: BoxDecoration(
-            color: const Color(0xFFE8F3FF),
-            borderRadius: BorderRadius.circular(999),
-          ),
-          child: Text(
-            label,
-            style: const TextStyle(color: AppColors.navy, fontSize: 11, fontWeight: FontWeight.w800),
-          ),
+    alignment: Alignment.centerLeft,
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE8F3FF),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: AppColors.navy,
+          fontSize: 11,
+          fontWeight: FontWeight.w800,
         ),
-      );
+      ),
+    ),
+  );
 }
 
 class _FieldError extends StatelessWidget {
@@ -192,7 +213,14 @@ class _FieldError extends StatelessWidget {
       ? const SizedBox.shrink()
       : Padding(
           padding: const EdgeInsets.only(top: 6),
-          child: Text(message!, style: const TextStyle(color: AppColors.error, fontSize: 11, fontWeight: FontWeight.w700)),
+          child: Text(
+            message!,
+            style: const TextStyle(
+              color: AppColors.error,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
         );
 }
 
@@ -201,47 +229,58 @@ class _StrengthBar extends StatelessWidget {
   final double value;
   @override
   Widget build(BuildContext context) => ClipRRect(
-        borderRadius: BorderRadius.circular(999),
-        child: LinearProgressIndicator(
-          minHeight: 5,
-          value: value.clamp(0.0, 1.0).toDouble(),
-          backgroundColor: const Color(0xFFE6EAE6),
-          valueColor: const AlwaysStoppedAnimation(AppColors.orange),
-        ),
-      );
+    borderRadius: BorderRadius.circular(999),
+    child: LinearProgressIndicator(
+      minHeight: 5,
+      value: value.clamp(0.0, 1.0).toDouble(),
+      backgroundColor: const Color(0xFFE6EAE6),
+      valueColor: const AlwaysStoppedAnimation(AppColors.orange),
+    ),
+  );
 }
 
 class _CheckLine extends StatelessWidget {
-  const _CheckLine({required this.value, required this.onChanged, required this.text});
+  const _CheckLine({
+    required this.value,
+    required this.onChanged,
+    required this.text,
+  });
   final bool value;
   final ValueChanged<bool> onChanged;
   final String text;
   @override
   Widget build(BuildContext context) => InkWell(
-        onTap: () => onChanged(!value),
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 7),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Checkbox(
-                value: value,
-                onChanged: (next) => onChanged(next ?? false),
-                activeColor: AppColors.orange,
-                visualDensity: VisualDensity.compact,
-              ),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: Text(text, style: const TextStyle(color: AppColors.slate, fontSize: 12, height: 1.35)),
+    onTap: () => onChanged(!value),
+    borderRadius: BorderRadius.circular(12),
+    child: Padding(
+      padding: const EdgeInsets.symmetric(vertical: 7),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Checkbox(
+            value: value,
+            onChanged: (next) => onChanged(next ?? false),
+            activeColor: AppColors.orange,
+            visualDensity: VisualDensity.compact,
+          ),
+          const SizedBox(width: 4),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Text(
+                text,
+                style: const TextStyle(
+                  color: AppColors.slate,
+                  fontSize: 12,
+                  height: 1.35,
                 ),
               ),
-            ],
+            ),
           ),
-        ),
-      );
+        ],
+      ),
+    ),
+  );
 }
 
 class _ErrorCard extends StatelessWidget {
@@ -249,8 +288,17 @@ class _ErrorCard extends StatelessWidget {
   final String message;
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: const Color(0xFFFFEEEE), borderRadius: BorderRadius.circular(14)),
-        child: Text(message, style: const TextStyle(color: AppColors.error, fontWeight: FontWeight.w700)),
-      );
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(
+      color: const Color(0xFFFFEEEE),
+      borderRadius: BorderRadius.circular(14),
+    ),
+    child: Text(
+      message,
+      style: const TextStyle(
+        color: AppColors.error,
+        fontWeight: FontWeight.w700,
+      ),
+    ),
+  );
 }

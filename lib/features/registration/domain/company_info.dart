@@ -17,10 +17,10 @@ class CompanyInfo {
   /// 14 chiffres, sans espaces.
   final String siret;
 
-  /// Raison sociale : « Nébula Pay SAS ».
+  /// Raison sociale : « Alex Dupont SAS ».
   final String legalName;
 
-  /// Nom d'usage : « Nébula Pay ».
+  /// Nom d'usage : « Alex Dupont ».
   final String displayName;
   final String city;
 

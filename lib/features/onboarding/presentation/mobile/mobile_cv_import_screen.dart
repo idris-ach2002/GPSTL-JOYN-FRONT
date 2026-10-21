@@ -54,7 +54,11 @@ class MobileCvImportScreen extends StatelessWidget {
             const SizedBox(height: 10),
             const Text(
               'Importe ton CV. JOYN pré-remplit ton profil, tu gardes le contrôle sur tout.',
-              style: TextStyle(color: AppColors.slate, fontSize: 13, height: 1.45),
+              style: TextStyle(
+                color: AppColors.slate,
+                fontSize: 13,
+                height: 1.45,
+              ),
             ),
             const SizedBox(height: 28),
             AnimatedBuilder(
@@ -78,31 +82,47 @@ class MobileCvImportScreen extends StatelessWidget {
                             color: Color(0xFFFFE9E1),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.description_rounded, color: AppColors.orange, size: 34),
+                          child: const Icon(
+                            Icons.description_rounded,
+                            color: AppColors.orange,
+                            size: 34,
+                          ),
                         ),
                         const SizedBox(height: 18),
                         Text(
                           cv.file?.name ?? 'PDF ou document CV',
                           textAlign: TextAlign.center,
-                          style: const TextStyle(color: AppColors.navy, fontSize: 16, fontWeight: FontWeight.w900),
+                          style: const TextStyle(
+                            color: AppColors.navy,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w900,
+                          ),
                         ),
                         const SizedBox(height: 6),
                         const Text(
                           'Le document est analysé localement dans cette démo.',
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: AppColors.slate, fontSize: 12, height: 1.4),
+                          style: TextStyle(
+                            color: AppColors.slate,
+                            fontSize: 12,
+                            height: 1.4,
+                          ),
                         ),
                         if (cv.isAnalyzing) ...[
                           const SizedBox(height: 18),
                           LinearProgressIndicator(
                             value: cv.progress,
                             backgroundColor: const Color(0xFFE7EBE7),
-                            valueColor: const AlwaysStoppedAnimation(AppColors.orange),
+                            valueColor: const AlwaysStoppedAnimation(
+                              AppColors.orange,
+                            ),
                           ),
                         ],
                         const SizedBox(height: 20),
                         MobilePrimaryButton(
-                          label: cv.hasResult ? 'Choisir un autre CV' : 'Importer mon CV',
+                          label: cv.hasResult
+                              ? 'Choisir un autre CV'
+                              : 'Importer mon CV',
                           loading: cv.isAnalyzing,
                           backgroundColor: AppColors.orange,
                           onPressed: cv.pickAndAnalyze,
@@ -112,7 +132,10 @@ class MobileCvImportScreen extends StatelessWidget {
                   ),
                   if (cv.pickError != null || cv.error != null) ...[
                     const SizedBox(height: 12),
-                    _MessageCard(message: cv.pickError ?? cv.error!, error: true),
+                    _MessageCard(
+                      message: cv.pickError ?? cv.error!,
+                      error: true,
+                    ),
                   ],
                   if (cv.hasResult) ...[
                     const SizedBox(height: 18),
@@ -126,7 +149,9 @@ class MobileCvImportScreen extends StatelessWidget {
                   const SizedBox(height: 12),
                   TextButton(
                     onPressed: () => context.go(AppRoutes.candidateOnboarding),
-                    child: const Text('Je préfère remplir mon profil à la main'),
+                    child: const Text(
+                      'Je préfère remplir mon profil à la main',
+                    ),
                   ),
                 ],
               ),
@@ -146,21 +171,48 @@ class _ResultCard extends StatelessWidget {
     final extraction = cv.extraction!;
     return Container(
       padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(color: AppColors.navy, borderRadius: BorderRadius.circular(24)),
+      decoration: BoxDecoration(
+        color: AppColors.navy,
+        borderRadius: BorderRadius.circular(24),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Row(
             children: [
-              Icon(Icons.auto_awesome_rounded, color: AppColors.orangeLight, size: 20),
+              Icon(
+                Icons.auto_awesome_rounded,
+                color: AppColors.orangeLight,
+                size: 20,
+              ),
               SizedBox(width: 8),
-              Text('Profil détecté', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900)),
+              Text(
+                'Profil détecté',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 14),
-          Text(extraction.fullName, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900)),
+          Text(
+            extraction.fullName,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
           const SizedBox(height: 4),
-          Text('${extraction.city} · ${extraction.skills.take(3).join(' · ')}', style: const TextStyle(color: Color(0xFFBDD2E3), fontSize: 12, height: 1.4)),
+          Text(
+            '${extraction.city} · ${extraction.skills.take(3).join(' · ')}',
+            style: const TextStyle(
+              color: Color(0xFFBDD2E3),
+              fontSize: 12,
+              height: 1.4,
+            ),
+          ),
         ],
       ),
     );
@@ -173,14 +225,17 @@ class _MessageCard extends StatelessWidget {
   final bool error;
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: error ? const Color(0xFFFFEEEE) : const Color(0xFFEAF6EF),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Text(
-          message,
-          style: TextStyle(color: error ? AppColors.error : AppColors.success, fontWeight: FontWeight.w700),
-        ),
-      );
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(
+      color: error ? const Color(0xFFFFEEEE) : const Color(0xFFEAF6EF),
+      borderRadius: BorderRadius.circular(14),
+    ),
+    child: Text(
+      message,
+      style: TextStyle(
+        color: error ? AppColors.error : AppColors.success,
+        fontWeight: FontWeight.w700,
+      ),
+    ),
+  );
 }
