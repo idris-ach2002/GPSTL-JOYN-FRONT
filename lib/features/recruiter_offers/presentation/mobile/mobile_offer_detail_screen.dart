@@ -177,6 +177,32 @@ class MobileOfferDetailScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 12),
                         _Section(
+                          title: 'Candidatures',
+                          child: Row(
+                            children: [
+                              if (offer.candidateCount > 0)
+                                OfferCandidateAvatars(
+                                  count: offer.candidateCount,
+                                  size: 32,
+                                  maxVisible: 4,
+                                ),
+                              if (offer.candidateCount > 0)
+                                const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  '${offer.candidateCount} candidat${offer.candidateCount > 1 ? 's' : ''}',
+                                  style: const TextStyle(
+                                    color: AppColors.navy,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        _Section(
                           title: 'Entreprise',
                           child: Column(
                             children: [

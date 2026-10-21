@@ -350,6 +350,31 @@ class _DetailsPanel extends StatelessWidget {
       ],
       const SizedBox(height: 14),
       _Panel(
+        title: 'Candidatures',
+        icon: Icons.groups_2_outlined,
+        child: Row(
+          children: [
+            if (offer.candidateCount > 0)
+              OfferCandidateAvatars(
+                count: offer.candidateCount,
+                size: 34,
+                maxVisible: 5,
+              ),
+            if (offer.candidateCount > 0) const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                '${offer.candidateCount} candidat${offer.candidateCount > 1 ? 's' : ''} sur cette offre',
+                style: const TextStyle(
+                  color: AppColors.navy,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 14),
+      _Panel(
         title: 'Entreprise',
         icon: Icons.apartment_outlined,
         child: Column(
