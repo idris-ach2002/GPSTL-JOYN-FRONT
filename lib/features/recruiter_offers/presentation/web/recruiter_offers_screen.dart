@@ -127,6 +127,8 @@ class WebRecruiterOffersScreen extends StatelessWidget {
                                   ),
                                   onClose: () =>
                                       _confirmClose(context, controller, offer),
+                                  onDelete: () =>
+                                      _confirmDelete(context, controller, offer),
                                 ),
                                 const SizedBox(height: 9),
                               ],
@@ -244,6 +246,70 @@ class WebRecruiterOffersScreen extends StatelessWidget {
       }
     }
     reason.dispose();
+  }
+
+  Future<void> _confirmDelete(
+    BuildContext context,
+    OfferManagementController controller,
+    JobOffer offer,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: const Row(
+          children: [
+            CircleAvatar(
+              backgroundColor: Color(0xFFFFECE8),
+              child: Icon(Icons.delete_outline_rounded, color: AppColors.error),
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Supprimer cette offre ?',
+                style: TextStyle(
+                  color: AppColors.navy,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: const SizedBox(
+          width: 440,
+          child: Text(
+            'Cette action retire définitivement l’offre de votre espace JOYN. Cette suppression est simulée côté Front tant que l’API dédiée n’est pas disponible.',
+            style: TextStyle(color: AppColors.slate, height: 1.45),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Annuler'),
+          ),
+          FilledButton.icon(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.error,
+              foregroundColor: Colors.white,
+            ),
+            icon: const Icon(Icons.delete_outline_rounded, size: 18),
+            label: const Text('Supprimer'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    final ok = await controller.deleteOffer(offer.id);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(ok ? 'Offre supprimée.' : 'Suppression impossible.'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 }
 
@@ -488,22 +554,33 @@ class _CompanySelect extends StatelessWidget {
   );
 }
 
-class _OfferRow extends StatelessWidget {
+class _OfferRow extends StatefulWidget {
   const _OfferRow({
     required this.offer,
     required this.company,
     required this.onEdit,
     required this.onClose,
+    required this.onDelete,
   });
+
   final JobOffer offer;
   final RecruiterCompany? company;
   final VoidCallback onEdit;
   final VoidCallback onClose;
+  final VoidCallback onDelete;
+
+  @override
+  State<_OfferRow> createState() => _OfferRowState();
+}
+
+class _OfferRowState extends State<_OfferRow> {
+  bool _hovered = false;
 
   @override
   Widget build(BuildContext context) {
-    final c =
-        company ??
+    final offer = widget.offer;
+    final company =
+        widget.company ??
         const RecruiterCompany(
           id: 99,
           name: 'Entreprise',
@@ -513,213 +590,271 @@ class _OfferRow extends StatelessWidget {
           sizeRange: '',
           city: '',
         );
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 180),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.lineSoft),
-        boxShadow: AppShadows.card,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CompanyAvatar(company: c, size: 46),
-          const SizedBox(width: 13),
-          Expanded(
-            flex: 5,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  offer.title,
-                  style: const TextStyle(
-                    color: AppColors.navy,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  '${c.name} · ${offer.location}',
-                  style: const TextStyle(
-                    color: AppColors.slate,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  offer.description,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.slate,
-                    fontSize: 10,
-                    height: 1.35,
-                  ),
-                ),
-                const SizedBox(height: 7),
-                Wrap(
-                  spacing: 5,
-                  runSpacing: 5,
-                  children: offer.skills
-                      .take(5)
-                      .map(
-                        (skill) => JoynPill(
-                          label: skill,
-                          background: const Color(0xFFEAF4FC),
-                          foreground: const Color(0xFF1976D2),
-                          fontSize: 9,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                        ),
-                      )
-                      .toList(),
-                ),
-              ],
-            ),
+    final accent = companyColor(company.id);
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 190),
+        curve: Curves.easeOutCubic,
+        transform: Matrix4.translationValues(0, _hovered ? -2.5 : 0, 0),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.white,
+              Color.alphaBlend(accent.withValues(alpha: .035), Colors.white),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            flex: 4,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: [
-                    OfferMetaChip(
-                      label: offer.contractType.label,
-                      icon: Icons.work_outline_rounded,
-                    ),
-                    OfferMetaChip(
-                      label: offer.location,
-                      icon: Icons.location_on_outlined,
-                    ),
-                    OfferMetaChip(
-                      label: offer.remoteMode.label,
-                      icon: Icons.home_outlined,
-                    ),
-                  ],
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: _hovered
+                ? const Color(0xFF98C8F2)
+                : const Color(0xFFE1E8EE),
+            width: _hovered ? 1.25 : 1,
+          ),
+          boxShadow: _hovered
+              ? [
+                  const BoxShadow(
+                    color: Color(0x1A0A3152),
+                    blurRadius: 26,
+                    offset: Offset(0, 12),
+                  ),
+                ]
+              : const [
+                  BoxShadow(
+                    color: Color(0x0D0A3152),
+                    blurRadius: 14,
+                    offset: Offset(0, 7),
+                  ),
+                ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Stack(
+          children: [
+            Positioned(
+              left: 0,
+              top: 18,
+              bottom: 18,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 190),
+                width: _hovered ? 4 : 3,
+                decoration: BoxDecoration(
+                  color: accent,
+                  borderRadius: BorderRadius.circular(99),
                 ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.group_outlined,
-                      size: 15,
-                      color: AppColors.slate,
+              ),
+            ),
+            Positioned(
+              right: -44,
+              top: -54,
+              child: IgnorePointer(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 240),
+                  width: _hovered ? 175 : 150,
+                  height: _hovered ? 175 : 150,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        accent.withValues(alpha: _hovered ? .075 : .04),
+                        accent.withValues(alpha: 0),
+                      ],
                     ),
-                    const SizedBox(width: 5),
-                    Text(
-                      '${offer.candidateCount} candidat${offer.candidateCount > 1 ? 's' : ''}',
-                      style: const TextStyle(
-                        color: AppColors.slate,
-                        fontSize: 10,
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 17, 16, 15),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final compact = constraints.maxWidth < 860;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CompanyAvatar(company: company, size: 48),
+                          const SizedBox(width: 13),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  offer.title,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: AppColors.navy,
+                                    fontFamily: AppFonts.display,
+                                    fontSize: 15.5,
+                                    height: 1.12,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: -.2,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${company.name} · ${company.city.isEmpty ? offer.location : company.city}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: AppColors.slate,
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          OfferStatusBadge(status: offer.status),
+                          const SizedBox(width: 8),
+                          OfferOptionsButton(
+                            status: offer.status,
+                            onEdit: widget.onEdit,
+                            onClose: offer.status == JobOfferStatus.closed
+                                ? null
+                                : widget.onClose,
+                            onDelete: widget.onDelete,
+                            compact: true,
+                          ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    const Icon(
-                      Icons.calendar_today_outlined,
-                      size: 14,
-                      color: AppColors.slate,
-                    ),
-                    const SizedBox(width: 5),
-                    Flexible(
-                      child: Text(
-                        offer.publishedAt == null
-                            ? 'Modifiée le ${dateLabel(offer.updatedAt)}'
-                            : 'Publiée le ${dateLabel(offer.publishedAt)}',
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 7,
+                        runSpacing: 7,
+                        children: [
+                          OfferMetaChip(
+                            label: offer.contractType.label,
+                            icon: Icons.work_outline_rounded,
+                          ),
+                          OfferMetaChip(
+                            label: offer.location,
+                            icon: Icons.location_on_outlined,
+                          ),
+                          OfferMetaChip(
+                            label: offer.remoteMode.label,
+                            icon: Icons.laptop_mac_rounded,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 11),
+                      Text(
+                        offer.description.replaceAll(RegExp(r'[*#>\[\]]'), ''),
+                        maxLines: compact ? 2 : 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           color: AppColors.slate,
-                          fontSize: 10,
+                          fontSize: 10.5,
+                          height: 1.42,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-          SizedBox(
-            width: 190,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    OfferStatusBadge(status: offer.status),
-                    const SizedBox(width: 5),
-                    PopupMenuButton<String>(
-                      tooltip: 'Actions',
-                      icon: const Icon(
-                        Icons.more_vert_rounded,
-                        size: 19,
-                        color: AppColors.slate,
-                      ),
-                      onSelected: (value) {
-                        if (value == 'edit') onEdit();
-                        if (value == 'close') onClose();
-                      },
-                      itemBuilder: (context) => [
-                        const PopupMenuItem(
-                          value: 'edit',
-                          child: Text('Modifier'),
+                      const SizedBox(height: 12),
+                      Container(height: 1, color: const Color(0xFFEAF0F4)),
+                      const SizedBox(height: 11),
+                      if (compact) ...[
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: _skillPills(offer),
                         ),
-                        if (offer.status != JobOfferStatus.closed)
-                          const PopupMenuItem(
-                            value: 'close',
-                            child: Text('Clôturer'),
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
-                if (offer.status != JobOfferStatus.closed) ...[
-                  const SizedBox(height: 12),
-                  Wrap(
-                    alignment: WrapAlignment.end,
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: [
-                      OutlinedButton.icon(
-                        onPressed: onEdit,
-                        icon: const Icon(Icons.edit_outlined, size: 14),
-                        label: const Text('Modifier'),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: const Color(0xFF1976D2),
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                        const SizedBox(height: 10),
+                        Wrap(
+                          spacing: 18,
+                          runSpacing: 7,
+                          children: _metrics(offer),
                         ),
-                      ),
-                      if (offer.status == JobOfferStatus.published) ...[
-                        OutlinedButton(
-                          onPressed: onClose,
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.orange,
-                            side: const BorderSide(color: AppColors.orangeLine),
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                          ),
-                          child: const Text('Clôturer'),
+                      ] else
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Wrap(
+                                spacing: 6,
+                                runSpacing: 6,
+                                children: _skillPills(offer),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            ..._metrics(offer).expand(
+                              (metric) => [metric, const SizedBox(width: 16)],
+                            ),
+                          ],
                         ),
-                      ],
                     ],
-                  ),
-                ],
-              ],
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
+
+  List<Widget> _skillPills(JobOffer offer) {
+    final visible = offer.skills.take(5).toList();
+    return [
+      for (final skill in visible)
+        JoynPill(
+          label: skill,
+          background: const Color(0xFFEAF4FC),
+          foreground: const Color(0xFF1976D2),
+          fontSize: 9,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        ),
+      if (offer.skills.length > visible.length)
+        JoynPill(
+          label: '+${offer.skills.length - visible.length}',
+          background: const Color(0xFFF0F3F6),
+          foreground: AppColors.slateDark,
+          fontSize: 9,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        ),
+    ];
+  }
+
+  List<Widget> _metrics(JobOffer offer) => [
+    _OfferMetric(
+      icon: Icons.group_outlined,
+      label: '${offer.candidateCount} candidat${offer.candidateCount > 1 ? 's' : ''}',
+    ),
+    _OfferMetric(
+      icon: Icons.calendar_today_outlined,
+      label: offer.publishedAt == null
+          ? 'Modifiée le ${dateLabel(offer.updatedAt)}'
+          : 'Publiée le ${dateLabel(offer.publishedAt)}',
+    ),
+  ];
+}
+
+class _OfferMetric extends StatelessWidget {
+  const _OfferMetric({required this.icon, required this.label});
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Icon(icon, size: 14, color: AppColors.slate),
+      const SizedBox(width: 5),
+      Text(
+        label,
+        style: const TextStyle(
+          color: AppColors.slate,
+          fontSize: 9.5,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    ],
+  );
 }
 
 class _Card extends StatelessWidget {
