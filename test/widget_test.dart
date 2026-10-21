@@ -17,6 +17,8 @@ import 'package:joyn_front/features/landing/presentation/widgets/matching_story_
 import 'package:joyn_front/features/information/domain/footer_links.dart';
 import 'package:joyn_front/features/information/domain/information_content.dart';
 import 'package:joyn_front/features/information/presentation/information_screen.dart';
+import 'package:joyn_front/features/auth/presentation/mobile/mobile_login_screen.dart';
+import 'package:joyn_front/features/registration/presentation/mobile/mobile_register_choice_screen.dart';
 
 /// Hôte isolé des composants. Les animations sont finies ou liées au scroll.
 Widget host(Widget child) => MaterialApp(
@@ -248,7 +250,7 @@ void main() {
     expect(find.byType(LandingScreen), findsNothing);
     await tester.pump(const Duration(milliseconds: 2500));
     await finishTransition(tester);
-    expect(find.byType(LoginPage), findsOneWidget);
+    expect(find.byType(MobileLoginScreen), findsOneWidget);
     expect(find.byType(MobileStartupScreen), findsNothing);
   });
 
@@ -258,7 +260,7 @@ void main() {
       await tester.pumpWidget(const JoynApp(webOverride: false));
       await tester.pump(const Duration(milliseconds: 2500));
       await finishTransition(tester);
-      expect(find.byType(LoginPage), findsOneWidget);
+      expect(find.byType(MobileLoginScreen), findsOneWidget);
 
       final createAccount = find.text('Créer un compte').first;
       await tester.ensureVisible(createAccount);
@@ -266,7 +268,7 @@ void main() {
       await tester.tap(createAccount);
       await finishTransition(tester);
 
-      expect(find.byType(RegisterChoiceScreen), findsOneWidget);
+      expect(find.byType(MobileRegisterChoiceScreen), findsOneWidget);
     },
   );
 
