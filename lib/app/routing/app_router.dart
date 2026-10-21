@@ -1,34 +1,44 @@
-import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../features/auth/presentation/auth_controller.dart';
-import '../../features/auth/presentation/forgot_password_page.dart';
-import '../../features/auth/presentation/login_page.dart';
+import '../../features/auth/presentation/mobile/mobile_forgot_password_screen.dart';
+import '../../features/auth/presentation/mobile/mobile_login_screen.dart';
+import '../../features/auth/presentation/web/forgot_password_page.dart';
+import '../../features/auth/presentation/web/login_page.dart';
 import '../../features/dashboard/data/dashboard_repository.dart';
 import '../../features/dashboard/presentation/dashboard_controller.dart';
-import '../../features/dashboard/presentation/dashboard_page.dart';
+import '../../features/dashboard/presentation/mobile/mobile_dashboard_screen.dart';
+import '../../features/dashboard/presentation/web/dashboard_page.dart';
 import '../../features/information/domain/information_content.dart';
-import '../../features/information/presentation/information_screen.dart';
-import '../../features/landing/presentation/screens/landing_screen.dart';
+import '../../features/information/presentation/mobile/information_screen.dart';
+import '../../features/information/presentation/web/information_screen.dart';
+import '../../features/landing/presentation/web/landing_screen.dart';
+import '../../features/onboarding/presentation/mobile/mobile_cv_import_screen.dart';
+import '../../features/onboarding/presentation/mobile/mobile_onboarding_screen.dart';
 import '../../features/onboarding/presentation/onboarding_scope.dart';
-import '../../features/onboarding/presentation/screens/cv_import_screen.dart';
-import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
-import '../../features/registration/presentation/screens/company_register_screen.dart';
-import '../../features/registration/presentation/screens/register_choice_screen.dart';
-import '../../features/registration/presentation/screens/student_register_screen.dart';
-import '../../features/startup/mobile_startup_screen.dart';
+import '../../features/onboarding/presentation/web/cv_import_screen.dart';
+import '../../features/onboarding/presentation/web/onboarding_screen.dart';
+import '../../features/registration/presentation/mobile/mobile_company_register_screen.dart';
+import '../../features/registration/presentation/mobile/mobile_register_choice_screen.dart';
+import '../../features/registration/presentation/mobile/mobile_student_register_screen.dart';
+import '../../features/registration/presentation/web/company_register_screen.dart';
+import '../../features/registration/presentation/web/register_choice_screen.dart';
+import '../../features/registration/presentation/web/student_register_screen.dart';
+import '../../features/startup/presentation/mobile/mobile_startup_screen.dart';
+import '../experience/experience_target.dart';
 import 'app_routes.dart';
 
-/// Routeur unique pour le web et les applications natives.
+/// Routeur partagé par deux produits de présentation distincts.
 ///
-/// - Web : `/` affiche la landing marketing.
-/// - Android/iOS : `/` affiche l'animation d'entrée, puis bascule vers la
-///   connexion ou l'espace connecté selon la session restaurée.
-/// - Les écrans d'authentification, d'inscription et d'onboarding partagent le
-///   même graphe de navigation et le même [AuthController].
-GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
-  final web = webOverride ?? kIsWeb;
+/// Le domaine, les repositories et les controllers restent communs. Seule la
+/// couche presentation bascule entre web et mobile.
+GoRouter createAppRouter(
+  AuthController auth, {
+  bool? webOverride,
+}) {
+  final target = ExperienceResolver.resolve(webOverride: webOverride);
+  final mobile = target == ExperienceTarget.mobile;
 
   return GoRouter(
     initialLocation: AppRoutes.landing,
@@ -37,22 +47,15 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
       final location = state.matchedLocation;
       final isInformationPage = informationPages.containsKey(location);
       final isRegistration = AppRoutes.registrationRoutes.contains(location);
-      final isPublic =
-          location == AppRoutes.landing ||
+      final isPublic = location == AppRoutes.landing ||
           AppRoutes.authEntryRoutes.contains(location) ||
           location == AppRoutes.forgotPassword ||
           isRegistration ||
           isInformationPage;
 
-      if (!auth.isAuthenticated && !isPublic) {
-        return AppRoutes.login;
-      }
+      if (!auth.isAuthenticated && !isPublic) return AppRoutes.login;
 
-      // Une connexion réussie doit quitter l'écran de connexion. On ne force
-      // pas la sortie des écrans d'inscription afin de laisser leur transition
-      // vers l'onboarding se terminer proprement.
-      if (auth.isAuthenticated &&
-          AppRoutes.authEntryRoutes.contains(location)) {
+      if (auth.isAuthenticated && AppRoutes.authEntryRoutes.contains(location)) {
         return AppRoutes.dashboard;
       }
 
@@ -63,7 +66,7 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
         path: AppRoutes.landing,
         name: 'landing',
         builder: (context, state) =>
-            web ? const LandingScreen() : const MobileStartupScreen(),
+            mobile ? const MobileStartupScreen() : const LandingScreen(),
       ),
       GoRoute(
         path: AppRoutes.connexion,
@@ -76,27 +79,36 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
       GoRoute(
         path: AppRoutes.login,
         name: 'login',
-        builder: (context, state) => LoginPage(mobile: !web),
+        builder: (context, state) =>
+            mobile ? const MobileLoginScreen() : const LoginPage(),
       ),
       GoRoute(
         path: AppRoutes.forgotPassword,
         name: 'forgotPassword',
-        builder: (context, state) => const ForgotPasswordPage(),
+        builder: (context, state) => mobile
+            ? const MobileForgotPasswordScreen()
+            : const ForgotPasswordPage(),
       ),
       GoRoute(
         path: AppRoutes.register,
         name: 'register',
-        builder: (context, state) => RegisterChoiceScreen(mobile: !web),
+        builder: (context, state) => mobile
+            ? const MobileRegisterChoiceScreen()
+            : const RegisterChoiceScreen(),
       ),
       GoRoute(
         path: AppRoutes.candidateRegister,
         name: 'candidateRegister',
-        builder: (context, state) => const StudentRegisterScreen(),
+        builder: (context, state) => mobile
+            ? const MobileStudentRegisterScreen()
+            : const StudentRegisterScreen(),
       ),
       GoRoute(
         path: AppRoutes.recruiterRegister,
         name: 'recruiterRegister',
-        builder: (context, state) => const CompanyRegisterScreen(),
+        builder: (context, state) => mobile
+            ? const MobileCompanyRegisterScreen()
+            : const CompanyRegisterScreen(),
       ),
       ShellRoute(
         builder: (context, state, child) => OnboardingScope(child: child),
@@ -104,12 +116,16 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
           GoRoute(
             path: AppRoutes.candidateOnboarding,
             name: 'candidateOnboarding',
-            builder: (context, state) => const OnboardingScreen(),
+            builder: (context, state) => mobile
+                ? const MobileOnboardingScreen()
+                : const OnboardingScreen(),
             routes: [
               GoRoute(
                 path: 'cv',
                 name: 'candidateCvImport',
-                builder: (context, state) => const CvImportScreen(),
+                builder: (context, state) => mobile
+                    ? const MobileCvImportScreen()
+                    : const CvImportScreen(),
               ),
             ],
           ),
@@ -119,15 +135,18 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
         path: AppRoutes.dashboard,
         name: 'dashboard',
         builder: (context, state) => ChangeNotifierProvider(
-          create: (context) =>
-              DashboardController(context.read<DashboardRepository>())..load(),
-          child: const DashboardPage(),
+          create: (context) => DashboardController(
+            context.read<DashboardRepository>(),
+          )..load(),
+          child: mobile ? const MobileDashboardScreen() : const DashboardPage(),
         ),
       ),
       for (final entry in informationPages.entries)
         GoRoute(
           path: entry.key,
-          builder: (context, state) => InformationScreen(page: entry.value),
+          builder: (context, state) => mobile
+              ? MobileInformationScreen(page: entry.value)
+              : InformationScreen(page: entry.value),
         ),
     ],
   );

@@ -5,16 +5,13 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import 'package:joyn_front/app/routing/app_routes.dart';
-import 'package:joyn_front/core/theme/app_colors.dart';
-import 'package:joyn_front/core/widgets/joyn_logo.dart';
-import 'package:joyn_front/features/auth/presentation/auth_controller.dart';
+import '../../../../app/routing/app_routes.dart';
+import '../../../../design_system/mobile/mobile_app_surface.dart';
+import '../../../../design_system/tokens/app_colors.dart';
+import '../../../auth/presentation/auth_controller.dart';
 
-/// Intro native JOYN.
-///
-/// Cette scène est volontairement différente de la landing web : deux cartes
-/// de profil se rapprochent, le match est confirmé, puis la marque prend le
-/// relais avant l'ouverture de l'authentification.
+/// Splash natif JOYN inspiré du rythme d'une vraie application mobile :
+/// illustration centrale, révélation de marque, puis ouverture de la session.
 class MobileStartupScreen extends StatefulWidget {
   const MobileStartupScreen({super.key});
 
@@ -25,7 +22,7 @@ class MobileStartupScreen extends StatefulWidget {
 class _MobileStartupScreenState extends State<MobileStartupScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
-  Timer? _navigationTimer;
+  Timer? _timer;
   bool _started = false;
 
   @override
@@ -33,7 +30,7 @@ class _MobileStartupScreenState extends State<MobileStartupScreen>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2250),
+      duration: const Duration(milliseconds: 2200),
     );
   }
 
@@ -49,7 +46,7 @@ class _MobileStartupScreenState extends State<MobileStartupScreen>
     }
 
     _controller.forward();
-    _navigationTimer = Timer(const Duration(milliseconds: 2550), _openNext);
+    _timer = Timer(const Duration(milliseconds: 2450), _openNext);
   }
 
   void _openNext() {
@@ -60,337 +57,208 @@ class _MobileStartupScreenState extends State<MobileStartupScreen>
 
   @override
   void dispose() {
-    _navigationTimer?.cancel();
+    _timer?.cancel();
     _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
-      child: Scaffold(
-        backgroundColor: AppColors.navy,
-        body: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final compact =
-                  constraints.maxHeight < 650 || constraints.maxWidth < 360;
-              final tiny = constraints.maxWidth < 330;
-              return AnimatedBuilder(
-                animation: _controller,
-                builder: (context, _) {
-                  final t = _controller.value;
-                  final entrance = Curves.easeOutBack.transform(
-                    (t / .34).clamp(0.0, 1.0).toDouble(),
-                  );
-                  final meet = Curves.easeInOutCubic.transform(
-                    ((t - .16) / .34).clamp(0.0, 1.0).toDouble(),
-                  );
-                  final pulse = Curves.easeOutBack.transform(
-                    ((t - .43) / .22).clamp(0.0, 1.0).toDouble(),
-                  );
-                  final brand = Curves.easeOutCubic.transform(
-                    ((t - .58) / .24).clamp(0.0, 1.0).toDouble(),
-                  );
-                  final curtain = Curves.easeInCubic.transform(
-                    ((t - .88) / .12).clamp(0.0, 1.0).toDouble(),
-                  );
+    return MobileAppSurface(
+      systemUiOverlayStyle: SystemUiOverlayStyle.dark,
+      backgroundColor: const Color(0xFFF7F8F2),
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, _) {
+          final t = _controller.value;
+          final scene = Curves.easeOutBack.transform(
+            (t / .38).clamp(0.0, 1.0).toDouble(),
+          );
+          final connect = Curves.easeInOutCubic.transform(
+            ((t - .18) / .34).clamp(0.0, 1.0).toDouble(),
+          );
+          final brand = Curves.easeOutCubic.transform(
+            ((t - .52) / .28).clamp(0.0, 1.0).toDouble(),
+          );
+          final exit = Curves.easeInCubic.transform(
+            ((t - .90) / .10).clamp(0.0, 1.0).toDouble(),
+          );
 
-                  return Stack(
-                    fit: StackFit.expand,
+          return Opacity(
+            opacity: 1 - exit,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final compact = constraints.maxHeight < 620;
+                return Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    28,
+                    compact ? 28 : 48,
+                    28,
+                    compact ? 30 : 48,
+                  ),
+                  child: Column(
                     children: [
-                      const _StartupBackground(),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(
-                          tiny ? 16 : 24,
-                          compact ? 22 : 40,
-                          tiny ? 16 : 24,
-                          compact ? 20 : 34,
+                      const Align(
+                        alignment: Alignment.centerLeft,
+                        child: MobileBrandMark(compact: true),
+                      ),
+                      const Spacer(),
+                      Transform.scale(
+                        scale: .82 + (.18 * scene),
+                        child: Opacity(
+                          opacity: scene.clamp(0.0, 1.0).toDouble(),
+                          child: _StartupIllustration(progress: connect),
                         ),
-                        child: Column(
-                          children: [
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Opacity(
-                                opacity: entrance.clamp(0.0, 1.0).toDouble(),
-                                child: const Hero(
-                                  tag: 'joyn-mobile-brand',
-                                  child: Material(
-                                    color: Colors.transparent,
-                                    child: JoynLogo(
-                                      size: 34,
-                                      showWordmark: true,
-                                      wordmarkColor: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const Spacer(),
-                            Semantics(
-                              label: 'Animation de matching JOYN',
-                              child: _MatchScene(
-                                entrance: entrance,
-                                meet: meet,
-                                pulse: pulse,
-                                compact: compact,
-                              ),
-                            ),
-                            SizedBox(height: compact ? 20 : 34),
-                            Transform.translate(
-                              offset: Offset(0, 14 * (1 - brand)),
-                              child: Opacity(
-                                opacity: brand,
-                                child: Column(
+                      ),
+                      SizedBox(height: compact ? 28 : 40),
+                      Transform.translate(
+                        offset: Offset(0, 16 * (1 - brand)),
+                        child: Opacity(
+                          opacity: brand,
+                          child: const Column(
+                            children: [
+                              Text.rich(
+                                TextSpan(
+                                  text: 'joyn',
                                   children: [
-                                    const FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      child: Text.rich(
-                                        TextSpan(
-                                          text: 'joyn',
-                                          children: [
-                                            TextSpan(
-                                              text: '.',
-                                              style: TextStyle(
-                                                color: AppColors.coral,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 46,
-                                          height: .95,
-                                          fontWeight: FontWeight.w900,
-                                          letterSpacing: -2.1,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    Text(
-                                      'Le match avant la candidature.',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        color: const Color(0xFFD7E6F1),
-                                        fontSize: compact ? 13 : 15,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                    TextSpan(
+                                      text: '.',
+                                      style: TextStyle(color: AppColors.orange),
                                     ),
                                   ],
                                 ),
-                              ),
-                            ),
-                            const Spacer(),
-                            Opacity(
-                              opacity: brand,
-                              child: const Text(
-                                'Trouve. Matche. Échange.',
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  color: Color(0xFFAFC5D7),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: .7,
+                                  color: AppColors.navy,
+                                  fontSize: 48,
+                                  height: .95,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: -2.5,
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (curtain > 0)
-                        IgnorePointer(
-                          child: Opacity(
-                            opacity: curtain,
-                            child: const ColoredBox(
-                              color: AppColors.background,
-                            ),
+                              SizedBox(height: 12),
+                              Text(
+                                'Le match avant la candidature.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: AppColors.slate,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
+                      ),
+                      const Spacer(),
+                      Opacity(
+                        opacity: brand,
+                        child: const Text(
+                          'Trouve · Matche · Échange',
+                          style: TextStyle(
+                            color: AppColors.placeholder,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: .6,
+                          ),
+                        ),
+                      ),
                     ],
-                  );
-                },
-              );
-            },
-          ),
-        ),
+                  ),
+                );
+              },
+            ),
+          );
+        },
       ),
     );
   }
 }
 
-class _StartupBackground extends StatelessWidget {
-  const _StartupBackground();
+class _StartupIllustration extends StatelessWidget {
+  const _StartupIllustration({required this.progress});
+
+  final double progress;
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        const DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFF001A34), AppColors.navy, Color(0xFF052B52)],
-            ),
-          ),
-        ),
-        Positioned(
-          top: -100,
-          right: -80,
-          child: Container(
-            width: 260,
-            height: 260,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.sky.withValues(alpha: .10),
-            ),
-          ),
-        ),
-        Positioned(
-          left: -100,
-          bottom: 40,
-          child: Container(
-            width: 250,
-            height: 250,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.coral.withValues(alpha: .10),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _MatchScene extends StatelessWidget {
-  const _MatchScene({
-    required this.entrance,
-    required this.meet,
-    required this.pulse,
-    required this.compact,
-  });
-
-  final double entrance;
-  final double meet;
-  final double pulse;
-  final bool compact;
-
-  @override
-  Widget build(BuildContext context) {
-    final width = compact ? 272.0 : 320.0;
-    final height = compact ? 196.0 : 245.0;
-    final cardWidth = compact ? 152.0 : 188.0;
-    final cardHeight = compact ? 108.0 : 128.0;
-    final x = compact ? 58.0 : 78.0;
-
-    final leftOffset = Offset.lerp(
-      Offset(-x, 18),
-      Offset(compact ? -20 : -26, 4),
-      meet,
-    )!;
-    final rightOffset = Offset.lerp(
-      Offset(x, -12),
-      Offset(compact ? 21 : 27, -6),
-      meet,
-    )!;
+    final width = MediaQuery.sizeOf(context).width;
+    final sceneWidth = (width - 56).clamp(240.0, 340.0).toDouble();
+    final pull = 44 * (1 - progress);
 
     return SizedBox(
-      width: width,
-      height: height,
+      width: sceneWidth,
+      height: 230,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Transform.translate(
-            offset: leftOffset,
-            child: Transform.rotate(
-              angle: -.10 * (1 - meet),
-              child: Opacity(
-                opacity: entrance.clamp(0.0, 1.0).toDouble(),
-                child: _ProfileCard(
-                  width: cardWidth,
-                  height: cardHeight,
-                  accent: AppColors.sky,
-                  icon: Icons.person_outline_rounded,
-                  title: 'Alex Dupont',
-                  subtitle: 'Développeur Full-Stack',
-                  tag: 'Candidat',
-                ),
-              ),
-            ),
-          ),
-          Transform.translate(
-            offset: rightOffset,
-            child: Transform.rotate(
-              angle: .10 * (1 - meet),
-              child: Opacity(
-                opacity: entrance.clamp(0.0, 1.0).toDouble(),
-                child: _ProfileCard(
-                  width: cardWidth,
-                  height: cardHeight,
-                  accent: AppColors.coral,
-                  icon: Icons.apartment_rounded,
-                  title: 'Nébula Pay',
-                  subtitle: 'Alternance · Paris',
-                  tag: 'Entreprise',
-                ),
-              ),
-            ),
-          ),
-          if (pulse > 0)
-            Transform.scale(
-              scale: .76 + (.24 * pulse),
-              child: Opacity(
-                opacity: pulse.clamp(0.0, 1.0).toDouble(),
-                child: Container(
-                  width: compact ? 68 : 88,
-                  height: compact ? 68 : 88,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.coral,
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: .78),
-                      width: 5,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.coral.withValues(alpha: .40),
-                        blurRadius: 34,
-                        spreadRadius: 6,
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.favorite_rounded,
-                    color: Colors.white,
-                    size: 34,
-                  ),
-                ),
-              ),
-            ),
           Positioned(
-            top: 8,
-            right: 14,
+            top: 4,
+            left: 14 + pull,
+            child: Transform.rotate(
+              angle: -.07,
+              child: const _ProfileCard(),
+            ),
+          ),
+          Positioned(
+            right: 8 + pull,
+            bottom: 16,
+            child: Transform.rotate(
+              angle: .06,
+              child: const _OfferCard(),
+            ),
+          ),
+          Positioned.fill(
+            child: CustomPaint(
+              painter: _ConnectionPainter(progress: progress),
+            ),
+          ),
+          Transform.scale(
+            scale: .65 + (.35 * progress),
             child: Opacity(
-              opacity: pulse.clamp(0.0, 1.0).toDouble(),
+              opacity: progress,
+              child: Container(
+                width: 74,
+                height: 74,
+                decoration: BoxDecoration(
+                  color: AppColors.orange,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.orange.withValues(alpha: .28),
+                      blurRadius: 28,
+                      spreadRadius: 6,
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.favorite_rounded,
+                  color: Colors.white,
+                  size: 31,
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            child: Opacity(
+              opacity: progress,
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
+                  horizontal: 14,
+                  vertical: 7,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.navy,
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: const Text(
-                  '92 % MATCH',
+                  '92 % · MATCH',
                   style: TextStyle(
-                    color: AppColors.navy,
+                    color: Colors.white,
                     fontSize: 10,
                     fontWeight: FontWeight.w900,
-                    letterSpacing: .35,
+                    letterSpacing: .5,
                   ),
                 ),
               ),
@@ -403,96 +271,48 @@ class _MatchScene extends StatelessWidget {
 }
 
 class _ProfileCard extends StatelessWidget {
-  const _ProfileCard({
-    required this.width,
-    required this.height,
-    required this.accent,
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.tag,
-  });
-
-  final double width;
-  final double height;
-  final Color accent;
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final String tag;
+  const _ProfileCard();
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: width,
-      height: height,
-      padding: EdgeInsets.all(width < 170 ? 11 : 14),
+      width: 146,
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: .96),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withValues(alpha: .60)),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
-            color: Colors.black.withValues(alpha: .16),
-            blurRadius: 28,
-            offset: const Offset(0, 14),
+            color: Color(0x17001E3B),
+            blurRadius: 30,
+            offset: Offset(0, 14),
           ),
         ],
       ),
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            children: [
-              Container(
-                width: width < 170 ? 30 : 34,
-                height: width < 170 ? 30 : 34,
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: .16),
-                  borderRadius: BorderRadius.circular(11),
-                ),
-                child: Icon(icon, color: accent, size: width < 170 ? 18 : 20),
-              ),
-              const Spacer(),
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: width < 170 ? 6 : 8,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: .11),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Text(
-                  tag,
-                  style: TextStyle(
-                    color: accent,
-                    fontSize: width < 170 ? 8 : 9,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ],
+          CircleAvatar(
+            radius: 22,
+            backgroundColor: Color(0xFFE6F3FF),
+            child: Icon(Icons.person_rounded, color: AppColors.navy),
           ),
-          const Spacer(),
+          SizedBox(height: 12),
           Text(
-            title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+            'Alex',
             style: TextStyle(
               color: AppColors.navy,
-              fontSize: width < 170 ? 13 : 15,
+              fontSize: 16,
               fontWeight: FontWeight.w900,
             ),
           ),
-          const SizedBox(height: 3),
+          SizedBox(height: 4),
           Text(
-            subtitle,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+            'React · Node.js',
             style: TextStyle(
-              color: AppColors.textMuted,
-              fontSize: width < 170 ? 10 : 11,
+              color: AppColors.slate,
+              fontSize: 10,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -500,4 +320,100 @@ class _ProfileCard extends StatelessWidget {
       ),
     );
   }
+}
+
+class _OfferCard extends StatelessWidget {
+  const _OfferCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 168,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.navy,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x22001E3B),
+            blurRadius: 30,
+            offset: Offset(0, 14),
+          ),
+        ],
+      ),
+      child: const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 18,
+                backgroundColor: AppColors.orange,
+                child: Icon(
+                  Icons.business_rounded,
+                  color: Colors.white,
+                  size: 18,
+                ),
+              ),
+              SizedBox(width: 9),
+              Expanded(
+                child: Text(
+                  'Nébula Pay',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 12),
+          Text(
+            'Développeur·se\nFull-Stack',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              height: 1.1,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            'Paris · Alternance',
+            style: TextStyle(
+              color: Color(0xFFBDD2E3),
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ConnectionPainter extends CustomPainter {
+  const _ConnectionPainter({required this.progress});
+
+  final double progress;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = AppColors.orange.withValues(alpha: .7 * progress)
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round;
+    final start = Offset(size.width * .42, size.height * .38);
+    final end = Offset(size.width * .62, size.height * .61);
+    final current = Offset.lerp(start, end, progress)!;
+    canvas.drawLine(start, current, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _ConnectionPainter oldDelegate) =>
+      oldDelegate.progress != progress;
 }

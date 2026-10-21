@@ -3,122 +3,87 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/routing/app_routes.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/joyn_logo.dart';
+import '../../../../design_system/mobile/mobile_app_surface.dart';
+import '../../../../design_system/tokens/app_colors.dart';
 
-/// Entrée d'inscription dédiée aux applications mobiles.
-///
-/// Elle réutilise ensuite les parcours étudiant / entreprise existants, mais
-/// évite d'afficher les grandes cartes de la mise en page web sur téléphone.
 class MobileRegisterChoiceScreen extends StatelessWidget {
   const MobileRegisterChoiceScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark,
-      child: Scaffold(
-        backgroundColor: AppColors.background,
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(18, 16, 18, 28),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+    return MobileAppSurface(
+      systemUiOverlayStyle: SystemUiOverlayStyle.dark,
+      backgroundColor: const Color(0xFFF7F8F2),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 18, 20, 32),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
               children: [
-                Row(
-                  children: [
-                    IconButton.filledTonal(
-                      key: const ValueKey('mobile-register-back'),
-                      tooltip: 'Retour à la connexion',
-                      onPressed: () => context.go(AppRoutes.login),
-                      icon: const Icon(Icons.arrow_back_rounded),
-                    ),
-                    const Spacer(),
-                    const Flexible(
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: JoynLogo(size: 34),
-                      ),
-                    ),
-                    const Spacer(),
-                    const SizedBox(width: 48),
-                  ],
+                IconButton.filledTonal(
+                  onPressed: () => context.go(AppRoutes.login),
+                  icon: const Icon(Icons.arrow_back_rounded),
                 ),
-                const SizedBox(height: 34),
-                const Text(
-                  'Bienvenue sur joyn.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: AppColors.navy,
-                    fontSize: 31,
-                    height: 1.04,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: -1.2,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Choisis ton espace. Tu pourras compléter ton profil juste après.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 14,
-                    height: 1.45,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 30),
-                _ProfileChoiceCard(
-                  key: const ValueKey('mobile-choice-student'),
-                  accent: AppColors.sky,
-                  icon: Icons.school_rounded,
-                  eyebrow: 'CANDIDAT',
-                  title: 'Je cherche une alternance',
-                  description: 'Crée ton profil, découvre tes meilleurs matchs et échange au bon moment.',
-                  chips: const ['Profil CV', 'Score clair', 'Match réciproque'],
-                  onTap: () => context.go(AppRoutes.candidateRegister),
-                ),
-                const SizedBox(height: 14),
-                _ProfileChoiceCard(
-                  key: const ValueKey('mobile-choice-company'),
-                  accent: AppColors.coral,
-                  icon: Icons.apartment_rounded,
-                  eyebrow: 'ENTREPRISE',
-                  title: 'Je recrute',
-                  description: 'Publie une offre et identifie les profils vraiment compatibles avec ton besoin.',
-                  chips: const ['Offres', 'Talents', 'Pipeline'],
-                  onTap: () => context.go(AppRoutes.recruiterRegister),
-                ),
-                const SizedBox(height: 24),
-                Wrap(
-                  alignment: WrapAlignment.center,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    const Text(
-                      'Déjà inscrit ?',
-                      style: TextStyle(
-                        color: AppColors.textMuted,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    TextButton(
-                      key: const ValueKey('mobile-register-login'),
-                      onPressed: () => context.go(AppRoutes.login),
-                      child: const Text(
-                        'Se connecter',
-                        style: TextStyle(
-                          color: AppColors.navy,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                const Spacer(),
+                const MobileBrandMark(compact: true),
               ],
             ),
-          ),
+            const SizedBox(height: 34),
+            const Text(
+              'Quel est ton profil ?',
+              style: TextStyle(
+                color: AppColors.navy,
+                fontSize: 32,
+                height: 1,
+                fontWeight: FontWeight.w900,
+                letterSpacing: -1.2,
+              ),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'On adapte JOYN à ton objectif dès le départ.',
+              style: TextStyle(
+                color: AppColors.slate,
+                fontSize: 14,
+                height: 1.45,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 28),
+            _ProfileChoiceCard(
+              key: const ValueKey('mobile-register-student'),
+              icon: Icons.school_rounded,
+              accent: const Color(0xFFE7F3FF),
+              title: 'Je cherche une alternance',
+              description: 'Crée ton profil, découvre tes meilleurs matchs et échange avec les entreprises.',
+              badge: 'Candidat',
+              onTap: () => context.go(AppRoutes.candidateRegister),
+            ),
+            const SizedBox(height: 16),
+            _ProfileChoiceCard(
+              key: const ValueKey('mobile-register-company'),
+              icon: Icons.business_center_rounded,
+              accent: const Color(0xFFFFE9E1),
+              title: 'Je recrute',
+              description: 'Publie tes besoins et rencontre les profils les plus compatibles.',
+              badge: 'Entreprise',
+              onTap: () => context.go(AppRoutes.recruiterRegister),
+            ),
+            const SizedBox(height: 28),
+            Center(
+              child: TextButton(
+                onPressed: () => context.go(AppRoutes.login),
+                child: const Text(
+                  'Déjà inscrit ? Se connecter',
+                  style: TextStyle(
+                    color: AppColors.navy,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -128,129 +93,89 @@ class MobileRegisterChoiceScreen extends StatelessWidget {
 class _ProfileChoiceCard extends StatelessWidget {
   const _ProfileChoiceCard({
     super.key,
-    required this.accent,
     required this.icon,
-    required this.eyebrow,
+    required this.accent,
     required this.title,
     required this.description,
-    required this.chips,
+    required this.badge,
     required this.onTap,
   });
 
-  final Color accent;
   final IconData icon;
-  final String eyebrow;
+  final Color accent;
   final String title;
   final String description;
-  final List<String> chips;
+  final String badge;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.transparent,
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(28),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(28),
-        child: Ink(
+        child: Padding(
           padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: const Color(0xFFE1E9EE)),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.navy.withValues(alpha: .06),
-                blurRadius: 24,
-                offset: const Offset(0, 12),
-              ),
-            ],
-          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
                   Container(
-                    width: 52,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: accent.withValues(alpha: .14),
-                      borderRadius: BorderRadius.circular(17),
-                    ),
-                    child: Icon(icon, color: accent, size: 27),
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
+                    child: Icon(icon, color: AppColors.navy),
                   ),
                   const Spacer(),
                   Container(
-                    width: 42,
-                    height: 42,
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: AppColors.navy,
-                      borderRadius: BorderRadius.circular(14),
+                      color: accent,
+                      borderRadius: BorderRadius.circular(999),
                     ),
-                    child: const Icon(
-                      Icons.arrow_forward_rounded,
-                      color: Colors.white,
+                    child: Text(
+                      badge,
+                      style: const TextStyle(
+                        color: AppColors.navy,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 22),
-              Text(
-                eyebrow,
-                style: TextStyle(
-                  color: accent,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.1,
-                ),
-              ),
-              const SizedBox(height: 7),
+              const SizedBox(height: 24),
               Text(
                 title,
                 style: const TextStyle(
                   color: AppColors.navy,
-                  fontSize: 23,
+                  fontSize: 21,
                   height: 1.08,
                   fontWeight: FontWeight.w900,
-                  letterSpacing: -.7,
+                  letterSpacing: -.5,
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 9),
               Text(
                 description,
                 style: const TextStyle(
-                  color: AppColors.textMuted,
+                  color: AppColors.slate,
                   fontSize: 13,
                   height: 1.45,
                   fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 18),
-              Wrap(
-                spacing: 7,
-                runSpacing: 7,
-                children: [
-                  for (final chip in chips)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 7,
-                      ),
-                      decoration: BoxDecoration(
-                        color: accent.withValues(alpha: .09),
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: Text(
-                        chip,
-                        style: TextStyle(
-                          color: accent,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                ],
+              const Align(
+                alignment: Alignment.centerRight,
+                child: CircleAvatar(
+                  radius: 20,
+                  backgroundColor: AppColors.navy,
+                  child: Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 20),
+                ),
               ),
             ],
           ),
