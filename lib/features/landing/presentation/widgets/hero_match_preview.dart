@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../design_system/tokens/app_colors.dart';
 import '../../../../design_system/tokens/app_radius.dart';
@@ -353,7 +354,7 @@ class _MatchActions extends StatelessWidget {
       runSpacing: AppSpacing.sm,
       children: [
         FilledButton.icon(
-          onPressed: () => Navigator.pushNamed(context, '/connexion'),
+          onPressed: () => context.push('/connexion'),
           style: FilledButton.styleFrom(
             backgroundColor: AppColors.white,
             foregroundColor: AppColors.navy,
@@ -366,7 +367,7 @@ class _MatchActions extends StatelessWidget {
           ),
         ),
         OutlinedButton(
-          onPressed: () => Navigator.pushNamed(context, '/connexion'),
+          onPressed: () => context.push('/connexion'),
           style: OutlinedButton.styleFrom(
             foregroundColor: AppColors.white,
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),

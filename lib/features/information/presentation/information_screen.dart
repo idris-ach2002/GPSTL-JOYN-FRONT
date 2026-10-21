@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../design_system/layout/content_container.dart';
 import '../../../design_system/tokens/app_colors.dart';
@@ -12,11 +13,10 @@ class InformationScreen extends StatelessWidget {
   final InformationPage page;
 
   void _returnToLanding(BuildContext context) {
-    final navigator = Navigator.of(context);
-    if (navigator.canPop()) {
-      navigator.popUntil((route) => route.isFirst);
+    if (context.canPop()) {
+      context.pop();
     } else {
-      navigator.pushReplacementNamed('/');
+      context.go('/');
     }
   }
 
@@ -122,7 +122,7 @@ class InformationScreen extends StatelessWidget {
                   if (page.actionRoute != null)
                     FilledButton.icon(
                       onPressed: () =>
-                          Navigator.pushNamed(context, page.actionRoute!),
+                          context.push(page.actionRoute!),
                       icon: const Icon(Icons.arrow_forward),
                       label: Text(page.actionLabel!),
                     ),

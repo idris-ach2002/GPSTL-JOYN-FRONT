@@ -83,4 +83,30 @@ class AppColors {
   static const Color textOnDark = white;
 
   static const Color border = grey20;
+
+  // -------------------------------------------------------------------------
+  // Compléments maquette (inscription, onboarding, matching)
+  // -------------------------------------------------------------------------
+
+  static const Color skyTint = Color(0xFFE4F3FB);
+  static const Color skyMist = Color(0xFFD6E9F3);
+  static const Color orangeTint = Color(0xFFFFF0EA);
+  static const Color orangeMist = Color(0xFFFFF7F3);
+  static const Color orangeLine = Color(0xFFFFE0D2);
+  static const Color orangeDeep = Color(0xFFB23A12);
+  static const Color successTint = Color(0xFFE7F5EE);
+  static const Color successDeep = Color(0xFF17714A);
+  static const Color warningDeep = Color(0xFF8A5A00);
+  static const Color warningTint = Color(0xFFFFF6E0);
+  static const Color successLine = Color(0xFFCBE9D8);
+  static const Color surfaceSubtle = Color(0xFFFBFCFD);
+  static const Color errorTint = Color(0xFFFFF5F5);
+  static const Color errorDeep = Color(0xFFB42318);
+  static const Color slate = Color(0xFF56656F);
+  static const Color slateDark = Color(0xFF384852);
+  static const Color placeholder = Color(0xFF8A98A1);
+  static const Color line = Color(0xFFD3DDE3);
+  static const Color lineSoft = Color(0xFFE2E9ED);
+  static const Color lineDashed = Color(0xFFC6D2D9);
+  static const Color track = Color(0xFFE6EDF1);
 }

@@ -1,83 +1,67 @@
 import 'package:flutter/material.dart';
 
-/// Palette de couleurs Joyn.
+import '../../design_system/tokens/app_colors.dart' as brand;
+
+/// Compatibilité pour les écrans connexion / dashboard issus de la branche
+/// `connexion-dashboard`.
 ///
-/// Valeurs relevées sur les maquettes : à ajuster ici uniquement si le
-/// design évolue, jamais en dur dans les widgets.
+/// Les couleurs de marque pointent désormais vers la palette officielle JOYN
+/// utilisée par la landing et l'inscription.
 abstract final class AppColors {
-  // --- Bleus ---------------------------------------------------------------
-  /// Bleu nuit : panneaux sombres, bouton principal.
-  static const Color navy = Color(0xFF0B1F3A);
+  static const Color navy = brand.AppColors.navy;
+  static const Color navyLight = brand.AppColors.navyLight;
+  static const Color teal = brand.AppColors.cyanBlue;
 
-  /// Bleu plus clair, utilisé en fin de dégradé du bouton principal.
-  static const Color navyLight = Color(0xFF1E4A78);
+  static const Color ink = brand.AppColors.blueGreyDark;
+  static const Color textMuted = brand.AppColors.grey;
 
-  /// Bleu-vert des fonds en dégradé (écrans de swipe, etc.).
-  static const Color teal = Color(0xFF1B6B7A);
+  static const Color coral = brand.AppColors.orange;
+  static const Color coralSoft = Color(0xFFFFE7DE);
 
-  // --- Textes --------------------------------------------------------------
-  /// Texte principal (bleu nuit foncé).
-  static const Color ink = Color(0xFF10233F);
+  static const Color skySoft = Color(0xFFEAF4FF);
+  static const Color sky = brand.AppColors.blue;
 
-  /// Texte secondaire (sous-titres, aides).
-  static const Color textMuted = Color(0xFF5B6B80);
+  static const Color background = brand.AppColors.background;
+  static const Color surface = brand.AppColors.white;
+  static const Color surfaceMuted = Color(0xFFF1F4F7);
+  static const Color border = brand.AppColors.greyLight;
 
-  // --- Accent --------------------------------------------------------------
-  /// Orange / corail : CTA secondaires, cœur, badges.
-  static const Color coral = Color(0xFFFF6B3D);
-  static const Color coralSoft = Color(0xFFFFE4D9);
+  static const Color error = brand.AppColors.error;
+  static const Color errorSoft = Color(0xFFFFEAEA);
+  static const Color success = brand.AppColors.success;
+  static const Color successSoft = Color(0xFFE9F5E8);
+  static const Color info = brand.AppColors.blue;
 
-  /// Bleu très clair des badges / tags.
-  static const Color skySoft = Color(0xFFDCEBF7);
-
-  /// Bleu ciel des avatars à initiales.
-  static const Color sky = Color(0xFF5AAEE0);
-
-  // --- Surfaces ------------------------------------------------------------
-  static const Color background = Color(0xFFF1F4F8);
-  static const Color surface = Color(0xFFFFFFFF);
-  static const Color surfaceMuted = Color(0xFFEEF2F7);
-  static const Color border = Color(0xFFDCE3EC);
-
-  // --- États ---------------------------------------------------------------
-  static const Color error = Color(0xFFD93025);
-  static const Color errorSoft = Color(0xFFFDECEA);
-  static const Color success = Color(0xFF1E8E5A);
-  static const Color successSoft = Color(0xFFDDF3E6);
-
-  /// Bleu des badges d'information (ex. « Conforme »).
-  static const Color info = Color(0xFF2F6FB5);
-
-  // --- Pastilles du parcours (fond, lettre), utilisées à tour de rôle -------
   static const List<(Color, Color)> tilePalette = [
-    (Color(0xFFFCE4F3), Color(0xFFC0269C)),
-    (Color(0xFFEDE4FD), Color(0xFF6D3FD6)),
-    (Color(0xFFDCEBF7), Color(0xFF1E4A78)),
+    (Color(0xFFFFE6F5), Color(0xFFC0269C)),
+    (Color(0xFFEDE7FF), Color(0xFF6D3FD6)),
+    (Color(0xFFEAF4FF), brand.AppColors.navyLight),
   ];
 
-  // --- Dégradés ------------------------------------------------------------
   static const LinearGradient primaryButtonGradient = LinearGradient(
-    colors: [Color(0xFF12294A), navyLight],
+    colors: [brand.AppColors.navy, brand.AppColors.navyLight],
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
   );
 
   static const LinearGradient logoGradient = LinearGradient(
-    colors: [Color(0xFFFF8A3D), Color(0xFFE8432E)],
+    colors: [brand.AppColors.orangeLight, brand.AppColors.orange],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  /// Bandeau du haut des pages connectées (dashboard…).
   static const LinearGradient headerGradient = LinearGradient(
-    colors: [navy, Color(0xFF1B4F72), Color(0xFF3D7FA6)],
+    colors: [
+      brand.AppColors.navy,
+      brand.AppColors.navyLight,
+      brand.AppColors.cyanBlue,
+    ],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );
 
-  /// Fond bleu nuit → bleu-vert des écrans principaux de l'application.
   static const LinearGradient backgroundGradient = LinearGradient(
-    colors: [navy, teal],
+    colors: [brand.AppColors.navy, brand.AppColors.cyanBlue],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );

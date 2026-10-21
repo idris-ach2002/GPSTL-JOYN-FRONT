@@ -3,13 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:joyn_front/app/app.dart';
 import 'package:joyn_front/app/theme/app_theme.dart';
-import 'package:joyn_front/features/auth/presentation/auth_screen.dart';
+import 'package:joyn_front/features/auth/presentation/login_page.dart';
 import 'package:joyn_front/features/landing/domain/pricing_plan.dart';
 import 'package:joyn_front/features/landing/presentation/screens/landing_screen.dart';
 import 'package:joyn_front/features/landing/presentation/sections/constat_section.dart';
 import 'package:joyn_front/features/landing/presentation/sections/features_section.dart';
 import 'package:joyn_front/features/landing/presentation/sections/pricing_section.dart';
 import 'package:joyn_front/features/startup/mobile_startup_screen.dart';
+import 'package:joyn_front/features/registration/presentation/screens/register_choice_screen.dart';
 import 'package:joyn_front/features/landing/domain/landing_content.dart';
 import 'package:joyn_front/features/landing/presentation/widgets/feature_demo.dart';
 import 'package:joyn_front/features/landing/presentation/widgets/matching_story_demo.dart';
@@ -245,10 +246,25 @@ void main() {
     await tester.pumpWidget(const JoynApp(webOverride: false));
     expect(find.byType(MobileStartupScreen), findsOneWidget);
     expect(find.byType(LandingScreen), findsNothing);
-    await tester.pump(const Duration(milliseconds: 1700));
+    await tester.pump(const Duration(milliseconds: 2500));
     await finishTransition(tester);
-    expect(find.byType(AuthScreen), findsOneWidget);
+    expect(find.byType(LoginPage), findsOneWidget);
     expect(find.byType(MobileStartupScreen), findsNothing);
+  });
+
+
+  testWidgets('Depuis la connexion mobile, créer un compte ouvre le choix de profil', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const JoynApp(webOverride: false));
+    await tester.pump(const Duration(milliseconds: 2500));
+    await finishTransition(tester);
+    expect(find.byType(LoginPage), findsOneWidget);
+
+    await tester.tap(find.text('Créer un compte'));
+    await finishTransition(tester);
+
+    expect(find.byType(RegisterChoiceScreen), findsOneWidget);
   });
 
   testWidgets('Démonter l’introduction annule sa navigation différée', (
@@ -275,7 +291,7 @@ void main() {
       expect(tester.takeException(), isNull);
       await tester.tap(find.text('Connexion').first);
       await finishTransition(tester);
-      expect(find.byType(AuthScreen), findsOneWidget);
+      expect(find.byType(LoginPage), findsOneWidget);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox());
     });
@@ -290,6 +306,6 @@ void main() {
     await tester.pumpWidget(const JoynApp(webOverride: false));
     await tester.pump();
     await finishTransition(tester);
-    expect(find.byType(AuthScreen), findsOneWidget);
+    expect(find.byType(LoginPage), findsOneWidget);
   });
 }

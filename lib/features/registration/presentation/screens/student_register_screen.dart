@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../app/routing/app_routes.dart';
+import '../../../auth/presentation/auth_controller.dart';
+import '../../data/registration_repository.dart';
 import '../../../../core/feedback/coming_soon.dart';
 import '../../../../design_system/components/joyn_button.dart';
 import '../../../../design_system/components/joyn_field_message.dart';
@@ -24,12 +27,20 @@ class StudentRegisterScreen extends StatefulWidget {
 }
 
 class _StudentRegisterScreenState extends State<StudentRegisterScreen> {
-  final _form = StudentRegisterController();
+  late final StudentRegisterController _form;
 
   final _firstName = TextEditingController();
   final _lastName = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _form = StudentRegisterController(
+      repository: context.read<RegistrationRepository>(),
+    );
+  }
 
   @override
   void dispose() {
@@ -45,6 +56,9 @@ class _StudentRegisterScreenState extends State<StudentRegisterScreen> {
     FocusScope.of(context).unfocus();
     final created = await _form.submit();
     if (!mounted || !created) return;
+
+    await context.read<AuthController>().restoreSession();
+    if (!mounted) return;
     context.go(AppRoutes.candidateOnboarding);
   }
 

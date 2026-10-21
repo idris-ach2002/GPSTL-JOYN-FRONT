@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../design_system/layout/content_container.dart';
 import '../../../../design_system/tokens/app_colors.dart';
@@ -435,7 +436,7 @@ class _AccountAccessButtonState extends State<_AccountAccessButton> {
             color: Colors.transparent,
             child: InkWell(
               borderRadius: BorderRadius.circular(15),
-              onTap: () => Navigator.pushNamed(context, widget.route),
+              onTap: () => context.push(widget.route),
               child: AnimatedPadding(
                 duration: duration,
                 curve: Curves.easeOutCubic,

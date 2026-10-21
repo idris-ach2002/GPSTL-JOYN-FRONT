@@ -1,10 +1,10 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/routing/app_routes.dart';
-import '../../../../core/feedback/coming_soon.dart';
 import '../../../../design_system/components/joyn_button.dart';
 import '../../../../design_system/components/joyn_logo.dart';
 import '../../../../design_system/components/joyn_pill.dart';
@@ -109,7 +109,7 @@ class _Header extends StatelessWidget {
           label: "Joyn, retour à l'accueil",
           excludeSemantics: true,
           child: InkWell(
-            onTap: () => context.go(AppRoutes.landing),
+            onTap: () => context.go(kIsWeb ? AppRoutes.landing : AppRoutes.login),
             borderRadius: BorderRadius.circular(12),
             child: const Padding(
               padding: EdgeInsets.all(4),
@@ -132,7 +132,7 @@ class _Header extends StatelessWidget {
               variant: JoynButtonVariant.outlineOnDark,
               height: 42,
               fontSize: 14,
-              onPressed: () => showComingSoon(context, 'La connexion'),
+              onPressed: () => context.go(AppRoutes.login),
             ),
           ],
         ),

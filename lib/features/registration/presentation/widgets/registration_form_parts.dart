@@ -1,8 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/routing/app_routes.dart';
-import '../../../../core/feedback/coming_soon.dart';
 import '../../../../design_system/components/joyn_logo.dart';
 import '../../../../design_system/components/joyn_pill.dart';
 import '../../../../design_system/components/joyn_text_link.dart';
@@ -32,7 +32,7 @@ class RegistrationFormHeader extends StatelessWidget {
           label: "Joyn, retour à l'accueil",
           excludeSemantics: true,
           child: InkWell(
-            onTap: () => context.go(AppRoutes.landing),
+            onTap: () => context.go(kIsWeb ? AppRoutes.landing : AppRoutes.login),
             borderRadius: BorderRadius.circular(12),
             child: const Padding(
               padding: EdgeInsets.all(4),
@@ -50,7 +50,7 @@ class RegistrationFormHeader extends StatelessWidget {
               ),
             JoynTextLink(
               label: 'Se connecter',
-              onTap: () => showComingSoon(context, 'La connexion'),
+              onTap: () => context.go(AppRoutes.login),
             ),
           ],
         ),

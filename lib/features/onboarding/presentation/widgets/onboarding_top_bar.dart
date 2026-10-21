@@ -28,7 +28,7 @@ class OnboardingTopBar extends StatelessWidget {
       label: "Joyn, retour à l'accueil",
       excludeSemantics: true,
       child: InkWell(
-        onTap: () => context.go(AppRoutes.landing),
+        onTap: () => context.go(AppRoutes.dashboard),
         borderRadius: BorderRadius.circular(10),
         child: const Padding(
           padding: EdgeInsets.all(4),

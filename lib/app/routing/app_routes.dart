@@ -1,16 +1,17 @@
-class AppRoutes {
-  AppRoutes._();
-
-  // Public
+abstract final class AppRoutes {
+  // Entrées publiques
   static const String landing = '/';
   static const String login = '/login';
+  static const String connexion = '/connexion';
+  static const String forgotPassword = '/forgot-password';
 
-  // Registration
+  // Inscription
   static const String register = '/register';
+  static const String inscription = '/inscription';
   static const String candidateRegister = '/register/candidate';
   static const String recruiterRegister = '/register/recruiter';
 
-  // Candidate
+  // Candidat
   static const String candidate = '/candidate';
   static const String candidateDiscover = '/candidate/discover';
   static const String candidateProfile = '/candidate/profile';
@@ -18,17 +19,24 @@ class AppRoutes {
   static const String candidateOnboarding = '/candidate/onboarding';
   static const String candidateCvImport = '/candidate/onboarding/cv';
 
-  // Recruiter
+  // Entreprise / espace connecté
+  static const String dashboard = '/dashboard';
   static const String recruiter = '/recruiter';
   static const String recruiterJobs = '/recruiter/jobs';
   static const String recruiterCandidates = '/recruiter/candidates';
   static const String recruiterCompany = '/recruiter/company';
 
-  // Messaging
   static const String messages = '/messages';
 
-  // Admin
-  static const String admin = '/admin';
-  static const String adminUsers = '/admin/users';
-  static const String adminCompanies = '/admin/companies';
+  static const Set<String> authEntryRoutes = {
+    login,
+    connexion,
+  };
+
+  static const Set<String> registrationRoutes = {
+    register,
+    inscription,
+    candidateRegister,
+    recruiterRegister,
+  };
 }

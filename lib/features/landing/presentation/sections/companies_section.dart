@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../design_system/layout/content_container.dart';
 import '../../../../design_system/tokens/app_colors.dart';
@@ -59,7 +60,7 @@ class CompaniesSection extends StatelessWidget {
                   ),
                 const SizedBox(height: 16),
                 FilledButton.icon(
-                  onPressed: () => Navigator.pushNamed(context, '/inscription'),
+                  onPressed: () => context.push('/inscription'),
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.orange,
                   ),

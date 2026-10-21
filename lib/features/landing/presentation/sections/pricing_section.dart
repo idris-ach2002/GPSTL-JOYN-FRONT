@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../design_system/layout/content_container.dart';
@@ -534,7 +535,7 @@ class _PlanCardState extends State<_PlanCard> {
             SizedBox(
               width: double.infinity,
               child: FilledButton(
-                onPressed: () => Navigator.pushNamed(context, '/inscription'),
+                onPressed: () => context.push('/inscription'),
                 style: FilledButton.styleFrom(
                   backgroundColor: plan.highlighted
                       ? AppColors.orange

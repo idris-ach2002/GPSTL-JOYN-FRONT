@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../design_system/layout/content_container.dart';
 import '../../../../design_system/tokens/app_colors.dart';
@@ -17,7 +18,7 @@ class FooterSection extends StatelessWidget {
     if (route == '/tarifs') {
       onNavigate(LandingSection.pricing);
     } else {
-      Navigator.pushNamed(context, route);
+      context.push(route);
     }
   }
 

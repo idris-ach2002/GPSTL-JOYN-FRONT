@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
+import '../../../app/routing/app_routes.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/joyn_logo.dart';
 import 'widgets/auth_showcase_panel.dart';
@@ -122,10 +124,7 @@ class _SignUpLink extends StatelessWidget {
           style: AppTextStyles.caption.copyWith(fontSize: 14),
         ),
         TextButton(
-          // TODO(inscription): rediriger vers la page d'inscription quand elle
-          // sera prête, ex. `context.go(AppRoutes.signup)` (route à ajouter
-          // dans app_routes.dart et app_router.dart).
-          onPressed: () {},
+          onPressed: () => context.go(AppRoutes.register),
           child: const Text('Créer un compte'),
         ),
       ],

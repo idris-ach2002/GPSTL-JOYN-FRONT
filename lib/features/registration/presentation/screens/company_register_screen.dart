@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../app/routing/app_routes.dart';
+import '../../../auth/presentation/auth_controller.dart';
+import '../../data/registration_repository.dart';
 import '../../../../design_system/components/joyn_button.dart';
 import '../../../../design_system/components/joyn_choice_chip.dart';
 import '../../../../design_system/components/joyn_field_message.dart';
@@ -28,7 +31,7 @@ class CompanyRegisterScreen extends StatefulWidget {
 }
 
 class _CompanyRegisterScreenState extends State<CompanyRegisterScreen> {
-  final _form = CompanyRegisterController();
+  late final CompanyRegisterController _form;
 
   final _siret = TextEditingController();
   final _firstName = TextEditingController();
@@ -36,6 +39,14 @@ class _CompanyRegisterScreenState extends State<CompanyRegisterScreen> {
   final _phone = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _form = CompanyRegisterController(
+      repository: context.read<RegistrationRepository>(),
+    );
+  }
 
   @override
   void dispose() {
@@ -59,17 +70,9 @@ class _CompanyRegisterScreenState extends State<CompanyRegisterScreen> {
     final created = await _form.submit();
     if (!mounted || !created) return;
 
-    // TODO(lot suivant) : rediriger vers l'écran E1 « Décrivez vos besoins ».
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Espace entreprise créé. La description de vos besoins arrive bientôt.',
-          ),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+    await context.read<AuthController>().restoreSession();
+    if (!mounted) return;
+    context.go(AppRoutes.dashboard);
   }
 
   @override
