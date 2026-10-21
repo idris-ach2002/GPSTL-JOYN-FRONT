@@ -73,7 +73,10 @@ void main() {
     expect(find.text('15,99 €'), findsOneWidget);
     await tester.tap(find.text('Entreprise'));
     await finishTransition(tester);
-    expect(find.text('Membre premium'), findsOneWidget);
+    final currentPlan = tester.widget<Text>(
+      find.byKey(const ValueKey('pricing-current')),
+    );
+    expect(currentPlan.data, 'Membre premium');
     expect(find.text('Sur devis'), findsOneWidget);
     expect(find.text('15,99 €'), findsNothing);
   });
@@ -96,38 +99,36 @@ void main() {
   ) async {
     await tester.pumpWidget(host(const PricingSection()));
     await finishTransition(tester);
-    expect(find.text('Formule 2 sur 3 · joyn+'), findsOneWidget);
+    Text currentPlan() =>
+        tester.widget<Text>(find.byKey(const ValueKey('pricing-current')));
+
+    expect(currentPlan().data, 'joyn+');
     final next = find.byKey(const ValueKey('pricing-next'));
     await tester.ensureVisible(next);
     await tester.tap(next);
     await finishTransition(tester);
-    expect(find.text('Formule 3 sur 3 · Boost 48 h'), findsOneWidget);
+    expect(currentPlan().data, 'Boost 48 h');
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
     await finishTransition(tester);
-    expect(find.text('Formule 2 sur 3 · joyn+'), findsOneWidget);
+    expect(currentPlan().data, 'joyn+');
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
     await finishTransition(tester);
-    expect(find.text('Formule 1 sur 3 · joyn'), findsOneWidget);
+    expect(currentPlan().data, 'joyn');
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
     await finishTransition(tester);
-    expect(find.text('Formule 1 sur 3 · joyn'), findsOneWidget);
+    expect(currentPlan().data, 'joyn');
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('Le constat revient avec des indicateurs sourcés', (
+  testWidgets('Le constat affiche les indicateurs nationaux 2026', (
     tester,
   ) async {
     await tester.pumpWidget(host(const ConstatSection()));
     await finishTransition(tester);
     expect(find.text('LE CONSTAT'), findsOneWidget);
-    expect(find.text('320 000'), findsOneWidget);
-    expect(find.text('74 %'), findsOneWidget);
-    expect(
-      find.text(
-        'Source : La bonne alternance — Baromètre de l’alternance, T1 2026.',
-      ),
-      findsOneWidget,
-    );
+    expect(find.text('207 000+'), findsOneWidget);
+    expect(find.text('44 %'), findsOneWidget);
+    expect(find.textContaining('Source :'), findsNothing);
   });
 
   testWidgets('La démonstration complète expose les deux parcours', (

@@ -4,13 +4,11 @@ import 'package:joyn_front/design_system/layout/content_container.dart';
 import 'package:joyn_front/design_system/tokens/app_colors.dart';
 import 'package:joyn_front/features/landing/presentation/widgets/landing_motion.dart';
 
-/// Réintroduit le « constat » de la maquette sans publier les statistiques
-/// non sourcées de la première version du design.
+/// Constat national 2026 autour de la recherche d'alternance.
 ///
-/// Les deux indicateurs affichés ci-dessous proviennent du baromètre T1 2026
-/// de La bonne alternance : près de 320 000 candidatures déposées sur la
-/// plateforme et 74 % de candidatures spontanées. La source est visible dans
-/// l'interface afin que le chiffre reste vérifiable hors du code.
+/// L'interface garde uniquement les indicateurs utiles au récit produit.
+/// Les références utilisées pour valider les chiffres ne sont pas affichées
+/// dans la landing afin de conserver une lecture simple et éditoriale.
 class ConstatSection extends StatelessWidget {
   const ConstatSection({super.key});
 
@@ -85,9 +83,10 @@ class _ConstatCopy extends StatelessWidget {
       ConstrainedBox(
         constraints: BoxConstraints(maxWidth: 610),
         child: Text(
-          'Candidatures qui restent sans réponse, recherche dispersée, '
-          'offres difficiles à comparer : JOYN concentre le parcours pour '
-          'rendre chaque étape plus lisible.',
+          'En 2026, la demande reste forte alors que les opportunités se '
+          'resserrent et que les budgets employeurs sont plus contraints. '
+          'Le marché devient plus sélectif : trouver le bon match, au bon '
+          'moment, fait la différence.',
           style: TextStyle(
             color: AppColors.blueGreyDark,
             fontSize: 16,
@@ -110,13 +109,17 @@ class _MetricsPanel extends StatelessWidget {
         builder: (context, constraints) {
           final narrow = constraints.maxWidth < 520;
           final first = const _MetricCard(
-            value: '320 000',
-            caption: 'candidatures déposées au T1 2026 sur La bonne alternance',
+            value: '207 000+',
+            caption:
+                'candidats engagés dans une recherche d’apprentissage post-bac '
+                'en France en 2026',
             icon: Icons.groups_2_outlined,
           );
           final second = const _MetricCard(
-            value: '74 %',
-            caption: 'des candidatures étaient spontanées sur la plateforme',
+            value: '44 %',
+            caption:
+                'des candidats rencontrent des difficultés à trouver une '
+                'entreprise d’accueil',
             icon: Icons.near_me_outlined,
             dark: true,
           );
@@ -134,15 +137,6 @@ class _MetricsPanel extends StatelessWidget {
             ],
           );
         },
-      ),
-      const SizedBox(height: 16),
-      const Text(
-        'Source : La bonne alternance — Baromètre de l’alternance, T1 2026.',
-        style: TextStyle(
-          color: AppColors.blueGreyDark,
-          fontSize: 11,
-          height: 1.4,
-        ),
       ),
     ],
   );

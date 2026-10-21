@@ -191,7 +191,7 @@ class _PlanCarouselState extends State<_PlanCarousel> {
                     child: Semantics(
                       liveRegion: true,
                       child: Text(
-                        'Formule ${_index + 1} sur ${widget.plans.length} · ${widget.plans[_index].name}',
+                        widget.plans[_index].name,
                         key: const ValueKey('pricing-current'),
                         textAlign: TextAlign.center,
                         style: const TextStyle(fontWeight: FontWeight.w700),
@@ -231,6 +231,7 @@ class _PlanCarouselState extends State<_PlanCarousel> {
                                   _PlanCard(
                                     key: _measurementKeys[i],
                                     plan: widget.plans[i],
+                                    active: true,
                                     natural: true,
                                   ),
                               ],
@@ -253,7 +254,10 @@ class _PlanCarouselState extends State<_PlanCarousel> {
                               setState(() => _index = value),
                           itemBuilder: (context, index) => AnimatedBuilder(
                             animation: _controller,
-                            child: _PlanCard(plan: widget.plans[index]),
+                            child: _PlanCard(
+                              plan: widget.plans[index],
+                              active: index == _index,
+                            ),
                             builder: (context, child) {
                               final page =
                                   _controller.hasClients &&
@@ -339,7 +343,14 @@ List<String> _displayFeatures(PricingPlan plan) {
 }
 
 class _PlanCard extends StatefulWidget {
-  const _PlanCard({required this.plan, this.natural = false, super.key});
+  const _PlanCard({
+    required this.plan,
+    required this.active,
+    this.natural = false,
+    super.key,
+  });
+
+  final bool active;
   final bool natural;
   final PricingPlan plan;
 
@@ -353,11 +364,11 @@ class _PlanCardState extends State<_PlanCard> {
   @override
   Widget build(BuildContext context) {
     final plan = widget.plan;
-    final foreground = plan.highlighted ? AppColors.white : AppColors.navy;
+    final foreground = widget.active ? AppColors.white : AppColors.navy;
     final plus = plan.name == 'joyn+';
     final duration = MediaQuery.disableAnimationsOf(context)
         ? Duration.zero
-        : const Duration(milliseconds: 260);
+        : const Duration(milliseconds: 420);
     return MouseRegion(
       onEnter: (_) => setState(() => _hover = true),
       onExit: (_) => setState(() => _hover = false),
@@ -365,25 +376,25 @@ class _PlanCardState extends State<_PlanCard> {
         duration: duration,
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: plan.highlighted ? AppColors.navy : AppColors.white,
+          color: widget.active ? AppColors.navy : AppColors.white,
           borderRadius: BorderRadius.circular(22),
           border: Border.all(
             color: _hover
                 ? AppColors.orange
-                : plan.highlighted
+                : widget.active
                 ? AppColors.orange.withValues(alpha: .25)
                 : AppColors.greyLight,
           ),
           boxShadow: [
             BoxShadow(
-              color: (plan.highlighted ? AppColors.orange : AppColors.navy)
+              color: (widget.active ? AppColors.orange : AppColors.navy)
                   .withValues(
-                    alpha: plan.highlighted
+                    alpha: widget.active
                         ? (_hover ? .38 : .24)
                         : (_hover ? .12 : .035),
                   ),
               blurRadius: _hover ? 42 : 28,
-              spreadRadius: plan.highlighted ? 3 : 0,
+              spreadRadius: widget.active ? 3 : 0,
               offset: const Offset(0, 12),
             ),
           ],
@@ -492,11 +503,11 @@ class _PlanCardState extends State<_PlanCard> {
             Divider(color: foreground.withValues(alpha: .12)),
             const SizedBox(height: 20),
             Text(
-              plan.highlighted
+              widget.active
                   ? 'Tout ${plus ? 'JOYN' : 'Membre'}, plus :'
                   : 'INCLUS',
               style: TextStyle(
-                color: plan.highlighted ? AppColors.orange : AppColors.cyanBlue,
+                color: widget.active ? AppColors.orange : AppColors.cyanBlue,
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
               ),
@@ -510,7 +521,7 @@ class _PlanCardState extends State<_PlanCard> {
                   children: [
                     Icon(
                       Icons.check_circle,
-                      color: plan.highlighted
+                      color: widget.active
                           ? AppColors.orange
                           : AppColors.cyanBlue,
                       size: 18,
@@ -537,7 +548,7 @@ class _PlanCardState extends State<_PlanCard> {
               child: FilledButton(
                 onPressed: () => context.push('/inscription'),
                 style: FilledButton.styleFrom(
-                  backgroundColor: plan.highlighted
+                  backgroundColor: widget.active
                       ? AppColors.orange
                       : AppColors.navy,
                   foregroundColor: AppColors.white,
