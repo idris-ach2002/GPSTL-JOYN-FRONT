@@ -634,9 +634,10 @@ class _OfferRowState extends State<_OfferRow> {
     BuildContext context,
     JobOffer offer,
     RecruiterCompany company,
-  ) => Row(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
+  ) => IntrinsicHeight(
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
       Expanded(
         flex: 6,
         child: Column(
@@ -759,7 +760,8 @@ class _OfferRowState extends State<_OfferRow> {
           ],
         ),
       ),
-    ],
+      ],
+    ),
   );
 
   Widget _buildCompact(
