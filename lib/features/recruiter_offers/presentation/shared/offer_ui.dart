@@ -87,7 +87,7 @@ String salaryLabel(JobOffer offer) {
     final text = rounded.toString();
     final chunks = <String>[];
     for (var i = text.length; i > 0; i -= 3) {
-      final start = (i - 3).clamp(0, i);
+      final start = (i - 3).clamp(0, i).toInt();
       chunks.insert(0, text.substring(start, i));
     }
     return chunks.join(' ');

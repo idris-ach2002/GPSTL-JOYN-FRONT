@@ -164,21 +164,28 @@ class OfferEditorController extends ChangeNotifier {
 
   bool validateMobileStep() {
     _errors.clear();
-    switch (mobileStep) {
-      case 0:
-        if (selectedCompany == null) _errors['company'] = 'Sélectionnez une entreprise.';
-      case 1:
-        if (title.trim().isEmpty) _errors['title'] = 'Indiquez un intitulé.';
-        if (location.trim().isEmpty) _errors['location'] = 'Indiquez une localisation.';
-      case 2:
-        if (description.trim().isEmpty) _errors['description'] = 'Ajoutez une description.';
-      case 3:
-        if (skills.isEmpty) _errors['skills'] = 'Ajoutez une compétence.';
-        if (salaryMin != null && salaryMax != null && salaryMax! < salaryMin!) {
-          _errors['salary'] = 'Fourchette de salaire invalide.';
-        }
-      case 4:
-        return validate();
+    if (mobileStep == 0) {
+      if (selectedCompany == null) {
+        _errors['company'] = 'Sélectionnez une entreprise.';
+      }
+    } else if (mobileStep == 1) {
+      if (title.trim().isEmpty) _errors['title'] = 'Indiquez un intitulé.';
+      if (location.trim().isEmpty) {
+        _errors['location'] = 'Indiquez une localisation.';
+      }
+    } else if (mobileStep == 2) {
+      if (description.trim().isEmpty) {
+        _errors['description'] = 'Ajoutez une description.';
+      }
+    } else if (mobileStep == 3) {
+      if (skills.isEmpty) _errors['skills'] = 'Ajoutez une compétence.';
+      if (salaryMin != null &&
+          salaryMax != null &&
+          salaryMax! < salaryMin!) {
+        _errors['salary'] = 'Fourchette de salaire invalide.';
+      }
+    } else {
+      return validate();
     }
     notifyListeners();
     return _errors.isEmpty;
@@ -196,7 +203,7 @@ class OfferEditorController extends ChangeNotifier {
   }
 
   void jumpToMobileStep(int step) {
-    mobileStep = step.clamp(0, 4);
+    mobileStep = step.clamp(0, 4).toInt();
     notifyListeners();
   }
 

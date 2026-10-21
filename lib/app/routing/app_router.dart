@@ -221,14 +221,21 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
         builder: (context, state) {
           final id = int.tryParse(state.pathParameters['jobId'] ?? '');
           if (id == null) return const SizedBox.shrink();
+          if (useMobile(context)) {
+            return ChangeNotifierProvider(
+              create: (context) => OfferDetailController(
+                context.read<RecruiterOffersRepository>(),
+                id,
+              )..load(),
+              child: const MobileOfferDetailScreen(),
+            );
+          }
           return ChangeNotifierProvider(
-            create: (context) => OfferDetailController(
+            create: (context) => OfferEditorController(
               context.read<RecruiterOffersRepository>(),
-              id,
+              offerId: id,
             )..load(),
-            child: useMobile(context)
-                ? const MobileOfferDetailScreen()
-                : const WebRecruiterOffersScreen(),
+            child: const WebOfferEditorScreen(),
           );
         },
       ),

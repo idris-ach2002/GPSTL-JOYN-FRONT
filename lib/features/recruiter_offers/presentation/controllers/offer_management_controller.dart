@@ -59,10 +59,15 @@ class OfferManagementController extends ChangeNotifier {
     switch (sort) {
       case OfferSort.recent:
         result.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+        break;
       case OfferSort.oldest:
         result.sort((a, b) => a.updatedAt.compareTo(b.updatedAt));
+        break;
       case OfferSort.title:
-        result.sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
+        result.sort(
+          (a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()),
+        );
+        break;
     }
     return result;
   }
