@@ -1,0 +1,162 @@
+name: JOYN CI/CD
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  merge_group:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: joyn-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: '3.47.6'
+
+jobs:
+  guard:
+    name: Guard / Architecture & Git
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Vérifier le nom de branche
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_HEAD_REF: ${{ github.head_ref }}
+        run: bash scripts/ci/check_branch_name.sh
+
+      - name: Vérifier que la PR se merge sans conflit
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --detach "$BASE_SHA"
+          git merge --no-commit --no-ff "$HEAD_SHA"
+          git merge --abort || true
+          git checkout --detach "$HEAD_SHA"
+
+      - name: Vérifier les frontières web / mobile
+        run: python3 scripts/ci/check_architecture.py
+
+      - name: Vérifier les espaces et marqueurs de conflit
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git diff --check "${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}"
+          else
+            git diff --check
+          fi
+          if git grep -n -E '^(<<<<<<<|=======|>>>>>>>)' -- ':!*.lock'; then
+            echo "::error::Des marqueurs de conflit Git sont présents dans le dépôt."
+            exit 1
+          fi
+
+  quality:
+    name: Quality / Format & Analyze
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Installer Flutter ${{ env.FLUTTER_VERSION }}
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Versions
+        run: |
+          flutter --version
+          dart --version
+
+      - name: Installer les dépendances
+        run: flutter pub get
+
+      - name: Vérifier le format Dart
+        run: dart format --output=none --set-exit-if-changed lib test
+
+      - name: Analyse statique
+        run: flutter analyze
+
+  tests:
+    name: Tests / Flutter
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Installer Flutter ${{ env.FLUTTER_VERSION }}
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Installer les dépendances
+        run: flutter pub get
+
+      - name: Lancer toute la suite de tests
+        run: flutter test
+
+  build:
+    name: Build / Web + Android
+    needs:
+      - guard
+      - quality
+      - tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Installer Flutter ${{ env.FLUTTER_VERSION }}
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Installer les dépendances
+        run: flutter pub get
+
+      - name: Construire JOYN Web
+        run: flutter build web --release -t lib/main_web.dart
+
+      - name: Construire JOYN Android
+        run: flutter build apk --debug -t lib/main_mobile.dart
+
+      - name: Publier le build Web de main
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: joyn-web-${{ github.sha }}
+          path: build/web
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: Publier l'APK Android de main
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: joyn-android-${{ github.sha }}
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 14
+          if-no-files-found: error
