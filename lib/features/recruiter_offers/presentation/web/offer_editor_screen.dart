@@ -481,7 +481,7 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
           child: Column(
             children: [
               Container(
-                minHeight: 48,
+                constraints: const BoxConstraints(minHeight: 48),
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: const BoxDecoration(
                   color: Color(0xFFFAFCFE),
