@@ -118,7 +118,7 @@ class _MobileOfferEditorScreenState extends State<MobileOfferEditorScreen> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: controller.companies.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        separatorBuilder: (_, _) => const SizedBox(width: 10),
         itemBuilder: (context, index) {
           final company = controller.companies[index];
           final selected = controller.selectedCompany?.id == company.id;

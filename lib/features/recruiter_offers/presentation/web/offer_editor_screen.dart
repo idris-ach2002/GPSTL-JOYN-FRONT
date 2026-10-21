@@ -240,12 +240,12 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
     child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       const _SectionTitle(title: 'Détails de l’alternance', subtitle: 'Précisez les modalités du contrat en alternance.'),
       const SizedBox(height: 15),
-      _ResponsiveFields(children: [
+      _ResponsiveFields(minItemWidth: 150, children: [
         _Field(label: 'Rythme *', child: DropdownButtonFormField<String>(initialValue: controller.rhythmType, items: OfferOptions.rhythms.map((value) => DropdownMenuItem(value: value, child: Text(value, overflow: TextOverflow.ellipsis))).toList(), onChanged: (value) { if (value != null) controller.updateRhythm(value); }, decoration: _inputDecoration('Rythme', icon: Icons.calendar_view_week_outlined))),
         _Field(label: 'Date de début *', child: _DateField(value: controller.startDate, onChanged: controller.updateStartDate)),
         _Field(label: 'Durée *', error: controller.errors['duration'], child: TextFormField(key: ValueKey('duration-${controller.editingOffer?.id ?? 'new'}'), initialValue: controller.durationMonths?.toString() ?? '', onChanged: controller.updateDuration, keyboardType: TextInputType.number, decoration: _inputDecoration('12 mois', icon: Icons.schedule_rounded, suffix: 'mois'))),
         _Field(label: 'Niveau d’études requis *', child: DropdownButtonFormField<String>(initialValue: controller.degreeLevelRequired, items: OfferOptions.degreeLevels.map((value) => DropdownMenuItem(value: value, child: Text(_degreeLabel(value)))).toList(), onChanged: (value) { if (value != null) controller.updateDegree(value); }, decoration: _inputDecoration('Bac+5', icon: Icons.school_outlined))),
-      ], minItemWidth: 150),
+      ]),
     ]),
   );
 
@@ -323,12 +323,12 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
     child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       const _SectionTitle(title: 'Rémunération', subtitle: 'Indiquez la fourchette de rémunération proposée.'),
       const SizedBox(height: 15),
-      _ResponsiveFields(children: [
+      _ResponsiveFields(minItemWidth: 145, children: [
         _Field(label: 'Salaire minimum', child: TextFormField(key: ValueKey('min-${controller.editingOffer?.id ?? 'new'}'), initialValue: controller.salaryMin?.toStringAsFixed(0) ?? '', onChanged: controller.updateSalaryMin, keyboardType: TextInputType.number, decoration: _inputDecoration('1 200', suffix: '€'))),
         _Field(label: 'Salaire maximum', child: TextFormField(key: ValueKey('max-${controller.editingOffer?.id ?? 'new'}'), initialValue: controller.salaryMax?.toStringAsFixed(0) ?? '', onChanged: controller.updateSalaryMax, keyboardType: TextInputType.number, decoration: _inputDecoration('1 800', suffix: '€'))),
         _Field(label: 'Devise', child: DropdownButtonFormField<String>(initialValue: controller.currency, items: const ['EUR', 'CHF', 'GBP', 'USD'].map((value) => DropdownMenuItem(value: value, child: Text(value))).toList(), onChanged: (value) { if (value != null) controller.updateCurrency(value); }, decoration: _inputDecoration('EUR'))),
         _Field(label: 'Période', child: DropdownButtonFormField<SalaryPeriod>(initialValue: controller.salaryPeriod, items: SalaryPeriod.values.map((value) => DropdownMenuItem(value: value, child: Text(value.label))).toList(), onChanged: (value) { if (value != null) controller.updateSalaryPeriod(value); }, decoration: _inputDecoration('Mensuel'))),
-      ], minItemWidth: 145),
+      ]),
       if (controller.errors['salary'] != null) ...[
         const SizedBox(height: 8),
         Text(controller.errors['salary']!, style: const TextStyle(color: AppColors.error, fontSize: 11, fontWeight: FontWeight.w700)),

@@ -275,7 +275,8 @@ class _CompanyPickerDrawerState extends State<_CompanyPickerDrawer> {
         isLoading: widget.controller.isCreatingCompany,
         onPressed: () async {
           final company = await widget.controller.createCompany(RecruiterCompanyDraft(name: _name.text, sector: _sector ?? '', sizeRange: _size ?? '', city: _city.text, siret: _manualSiret.text, website: _website.text, description: _description.text));
-          if (company != null && mounted) Navigator.pop(context);
+          if (company == null || !context.mounted) return;
+          Navigator.pop(context);
         },
       )),
     ]),

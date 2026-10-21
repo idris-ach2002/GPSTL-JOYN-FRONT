@@ -114,7 +114,8 @@ class _MobileCompanyPickerState extends State<_MobileCompanyPicker> {
                 loading: widget.controller.isCreatingCompany,
                 onPressed: () async {
                   final company = await widget.controller.createCompany(RecruiterCompanyDraft(name: name.text, sector: sector, sizeRange: size, city: city.text, siret: manualSiret.text, website: website.text, description: description.text));
-                  if (company != null && mounted) Navigator.pop(context);
+                  if (company == null || !context.mounted) return;
+                  Navigator.pop(context);
                 },
               ),
             ]),

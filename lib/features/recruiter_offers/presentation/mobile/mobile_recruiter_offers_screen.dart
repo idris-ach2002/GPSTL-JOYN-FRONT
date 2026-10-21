@@ -155,7 +155,7 @@ class _CompanyFilters extends StatelessWidget {
     child: ListView.separated(
       scrollDirection: Axis.horizontal,
       itemCount: controller.companies.length + 1,
-      separatorBuilder: (_, __) => const SizedBox(width: 7),
+      separatorBuilder: (_, _) => const SizedBox(width: 7),
       itemBuilder: (context, index) {
         if (index == 0) {
           final active = controller.companyFilter == null;
