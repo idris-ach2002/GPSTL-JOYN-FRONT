@@ -90,22 +90,10 @@ class MobileOfferDetailScreen extends StatelessWidget {
                               Wrap(
                                 spacing: 6,
                                 runSpacing: 6,
-                                children: offer.skills
-                                    .map(
-                                      (skill) => Chip(
-                                        label: Text(skill),
-                                        backgroundColor: const Color(
-                                          0xFFEAF4FC,
-                                        ),
-                                        side: BorderSide.none,
-                                        labelStyle: const TextStyle(
-                                          color: Color(0xFF1976D2),
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                    )
-                                    .toList(),
+                                children: [
+                                  for (final skill in offer.skills)
+                                    OfferSkillTag(label: skill),
+                                ],
                               ),
                             ],
                           ),
@@ -123,36 +111,106 @@ class MobileOfferDetailScreen extends StatelessWidget {
                               _Info(
                                 icon: Icons.location_on_outlined,
                                 label: 'Localisation',
-                                value:
-                                    '${offer.location} (${offer.remoteMode.label})',
+                                value: offer.location,
                               ),
                               _Info(
-                                icon: Icons.school_outlined,
-                                label: 'Niveau d’études',
-                                value:
-                                    offer.degreeLevelRequired?.replaceAll(
-                                      'BAC_',
-                                      'Bac+',
-                                    ) ??
-                                    '—',
+                                icon: Icons.laptop_mac_rounded,
+                                label: 'Mode de travail',
+                                value: offer.remoteMode.label,
                               ),
                               _Info(
-                                icon: Icons.calendar_month_outlined,
-                                label: 'Date de début',
-                                value: monthYearLabel(offer.startDate),
-                              ),
-                              _Info(
-                                icon: Icons.schedule_rounded,
-                                label: 'Durée',
-                                value: offer.durationMonths == null
-                                    ? '—'
-                                    : '${offer.durationMonths} mois',
+                                icon: Icons.trending_up_rounded,
+                                label: 'Niveau d’expérience',
+                                value: offer.experienceLevel.label,
                               ),
                               _Info(
                                 icon: Icons.euro_rounded,
                                 label: 'Rémunération',
                                 value: salaryLabel(offer),
                               ),
+                              _Info(
+                                icon: Icons.flag_outlined,
+                                label: 'Statut',
+                                value: offer.status.label,
+                              ),
+                              _Info(
+                                icon: Icons.publish_outlined,
+                                label: 'Publication',
+                                value: dateLabel(offer.publishedAt),
+                              ),
+                              _Info(
+                                icon: Icons.update_rounded,
+                                label: 'Dernière modification',
+                                value: dateLabel(offer.updatedAt),
+                              ),
+                              if (offer.contractType.isWorkStudy) ...[
+                                _Info(
+                                  icon: Icons.school_outlined,
+                                  label: 'Niveau d’études',
+                                  value:
+                                      offer.degreeLevelRequired?.replaceAll(
+                                        'BAC_',
+                                        'Bac+',
+                                      ) ??
+                                      '—',
+                                ),
+                                _Info(
+                                  icon: Icons.sync_alt_rounded,
+                                  label: 'Rythme',
+                                  value: offer.rhythmType ?? '—',
+                                ),
+                                _Info(
+                                  icon: Icons.calendar_month_outlined,
+                                  label: 'Date de début',
+                                  value: monthYearLabel(offer.startDate),
+                                ),
+                                _Info(
+                                  icon: Icons.schedule_rounded,
+                                  label: 'Durée',
+                                  value: offer.durationMonths == null
+                                      ? '—'
+                                      : '${offer.durationMonths} mois',
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        _Section(
+                          title: 'Entreprise',
+                          child: Column(
+                            children: [
+                              _Info(
+                                icon: Icons.apartment_outlined,
+                                label: 'Nom',
+                                value: company.name,
+                              ),
+                              _Info(
+                                icon: Icons.category_outlined,
+                                label: 'Activité',
+                                value: company.activity,
+                              ),
+                              _Info(
+                                icon: Icons.business_center_outlined,
+                                label: 'Secteur',
+                                value: company.sector,
+                              ),
+                              _Info(
+                                icon: Icons.groups_2_outlined,
+                                label: 'Taille',
+                                value: company.sizeRange,
+                              ),
+                              _Info(
+                                icon: Icons.location_city_outlined,
+                                label: 'Ville',
+                                value: company.city,
+                              ),
+                              if ((company.website ?? '').isNotEmpty)
+                                _Info(
+                                  icon: Icons.language_rounded,
+                                  label: 'Site',
+                                  value: company.website!,
+                                ),
                             ],
                           ),
                         ),

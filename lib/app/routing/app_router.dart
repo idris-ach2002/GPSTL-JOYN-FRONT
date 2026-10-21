@@ -37,6 +37,7 @@ import '../../features/recruiter_offers/presentation/mobile/mobile_offer_editor_
 import '../../features/recruiter_offers/presentation/mobile/mobile_recruiter_offers_screen.dart';
 import '../../features/recruiter_offers/presentation/web/offer_editor_screen.dart';
 import '../../features/recruiter_offers/presentation/web/recruiter_offers_screen.dart';
+import '../../features/recruiter_offers/presentation/web/web_offer_detail_screen.dart';
 import '../../features/startup/presentation/mobile/mobile_startup_screen.dart';
 import '../experience/experience_target.dart';
 import 'app_routes.dart';
@@ -241,11 +242,11 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
             );
           }
           return ChangeNotifierProvider(
-            create: (context) => OfferEditorController(
+            create: (context) => OfferDetailController(
               context.read<RecruiterOffersRepository>(),
-              offerId: id,
+              id,
             )..load(),
-            child: const WebOfferEditorScreen(),
+            child: const WebOfferDetailScreen(),
           );
         },
       ),
