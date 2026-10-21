@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/routing/app_routes.dart';
 import '../../../../design_system/components/joyn_button.dart';
-import '../../../../design_system/components/joyn_pill.dart';
 import '../../../../design_system/components/joyn_removable_chip.dart';
 import '../../../../design_system/tokens/app_colors.dart';
 import '../../../../design_system/tokens/app_fonts.dart';
