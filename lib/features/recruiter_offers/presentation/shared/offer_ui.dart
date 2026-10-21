@@ -1,6 +1,4 @@
 import 'dart:math' as math;
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 
 import '../../../../design_system/components/joyn_pill.dart';
@@ -198,47 +196,44 @@ class OfferGlassSurface extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AnimatedContainer(
-    duration: const Duration(milliseconds: 180),
-    curve: Curves.easeOutCubic,
-    decoration: BoxDecoration(
-      color: Colors.white.withValues(alpha: hovered ? .86 : .80),
-      boxShadow: [
-        BoxShadow(
-          color: Color(hovered ? 0x180A3152 : 0x100A3152),
-          blurRadius: hovered ? 26 : 18,
-          offset: Offset(0, hovered ? 10 : 7),
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Color(hovered ? 0x180A3152 : 0x0E0A3152),
+              blurRadius: hovered ? 24 : 16,
+              offset: Offset(0, hovered ? 9 : 6),
+            ),
+          ],
         ),
-      ],
-    ),
-    clipBehavior: Clip.hardEdge,
-    child: BackdropFilter(
-      filter: ui.ImageFilter.blur(sigmaX: 9, sigmaY: 9),
-      child: Stack(
-        children: [
-          Positioned(
-            top: 0,
-            right: 0,
-            bottom: 0,
-            width: waveWidth,
-            child: const IgnorePointer(child: OfferWaveAccent()),
-          ),
-          Positioned.fill(
-            child: IgnorePointer(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  border: Border(
-                    top: BorderSide(color: Colors.white, width: .7),
-                    bottom: BorderSide(color: Color(0xFFDCE7F0), width: .7),
+        clipBehavior: Clip.hardEdge,
+        child: Stack(
+          children: [
+            Positioned(
+              top: 0,
+              right: 0,
+              bottom: 0,
+              width: waveWidth,
+              child: const IgnorePointer(child: OfferWaveAccent()),
+            ),
+            Positioned.fill(
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    border: Border(
+                      top: BorderSide(color: Color(0xFFF0F4F7), width: .8),
+                      bottom: BorderSide(color: Color(0xFFE4EBF1), width: .8),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          child,
-        ],
-      ),
-    ),
-  );
+            child,
+          ],
+        ),
+      );
 }
 
 class OfferWaveAccent extends StatefulWidget {
@@ -252,7 +247,7 @@ class _OfferWaveAccentState extends State<OfferWaveAccent>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
-    duration: const Duration(seconds: 14),
+    duration: const Duration(seconds: 22),
   )..repeat();
 
   @override
@@ -263,14 +258,14 @@ class _OfferWaveAccentState extends State<OfferWaveAccent>
 
   @override
   Widget build(BuildContext context) => RepaintBoundary(
-    child: AnimatedBuilder(
-      animation: _controller,
-      builder: (context, _) => CustomPaint(
-        painter: _OfferWavePainter(phase: _controller.value),
-        child: const SizedBox.expand(),
-      ),
-    ),
-  );
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (context, _) => CustomPaint(
+            painter: _OfferWavePainter(phase: _controller.value),
+            child: const SizedBox.expand(),
+          ),
+        ),
+      );
 }
 
 class _OfferWavePainter extends CustomPainter {
@@ -279,25 +274,28 @@ class _OfferWavePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final base = Paint()..style = PaintingStyle.fill;
+    if (size.isEmpty) return;
+    final paint = Paint()..style = PaintingStyle.fill;
     final phaseRadians = phase * math.pi * 2;
-    final layers = <(double, double, Color)>[
-      (.56, 15, const Color(0xFFEAF6FF)),
-      (.69, 12, const Color(0xFFDFF1FF)),
-      (.81, 9, const Color(0xFFF7FBFF)),
+    final layers = <(double, double, Color, double)>[
+      (.50, 17, const Color(0xFFEAF7FF), .42),
+      (.64, 14, const Color(0xFFF3FAFF), .50),
+      (.77, 11, const Color(0xFFDFF2FF), .31),
+      (.88, 8, Colors.white, .62),
     ];
 
     for (var layerIndex = 0; layerIndex < layers.length; layerIndex++) {
-      final (baseline, amplitude, color) = layers[layerIndex];
+      final (baseline, amplitude, color, alpha) = layers[layerIndex];
       final path = Path()..moveTo(0, size.height);
-      final double step = math.max(5.0, size.width / 42).toDouble();
+      final step = math.max(4.0, size.width / 48).toDouble();
       for (double x = 0; x <= size.width + step; x += step) {
         final normalized = x / math.max(size.width, 1.0);
+        final direction = layerIndex.isEven ? 1.0 : -0.78;
         final y = size.height * baseline +
             math.sin(
-                  normalized * math.pi * 2.2 +
-                      phaseRadians +
-                      layerIndex * .9,
+                  normalized * math.pi * (2.05 + layerIndex * .13) +
+                      phaseRadians * direction +
+                      layerIndex * .82,
                 ) *
                 amplitude;
         path.lineTo(x, y);
@@ -305,14 +303,198 @@ class _OfferWavePainter extends CustomPainter {
       path
         ..lineTo(size.width, size.height)
         ..close();
-      base.color = color.withValues(alpha: .58 - layerIndex * .08);
-      canvas.drawPath(path, base);
+      paint.color = color.withValues(alpha: alpha);
+      canvas.drawPath(path, paint);
     }
   }
 
   @override
   bool shouldRepaint(covariant _OfferWavePainter oldDelegate) =>
       oldDelegate.phase != phase;
+}
+
+class OfferCandidateAvatars extends StatelessWidget {
+  const OfferCandidateAvatars({
+    super.key,
+    required this.count,
+    this.size = 28,
+    this.maxVisible = 4,
+  });
+
+  final int count;
+  final double size;
+  final int maxVisible;
+
+  static const _assets = [
+    'assets/images/candidate_avatar_1.png',
+    'assets/images/candidate_avatar_2.png',
+    'assets/images/candidate_avatar_3.png',
+    'assets/images/candidate_avatar_4.png',
+    'assets/images/candidate_avatar_5.png',
+    'assets/images/candidate_avatar_6.png',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    if (count <= 0) {
+      return const SizedBox.shrink();
+    }
+    final visible = math.min(math.min(count, maxVisible), _assets.length);
+    final overlap = size * .34;
+    final extra = count - visible;
+    final totalWidth = size + (visible - 1) * (size - overlap) +
+        (extra > 0 ? size * .98 : 0);
+
+    return SizedBox(
+      width: totalWidth,
+      height: size,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          for (var i = 0; i < visible; i++)
+            Positioned(
+              left: i * (size - overlap),
+              child: Container(
+                width: size,
+                height: size,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x14001E3B),
+                      blurRadius: 5,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Image.asset(_assets[i], fit: BoxFit.cover),
+              ),
+            ),
+          if (extra > 0)
+            Positioned(
+              left: visible * (size - overlap) + 2,
+              child: Container(
+                height: size,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEAF2F8),
+                  borderRadius: BorderRadius.circular(size / 2),
+                  border: Border.all(color: Colors.white, width: 1.5),
+                ),
+                child: Text(
+                  '+$extra',
+                  style: const TextStyle(
+                    color: AppColors.slateDark,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+enum OfferKpiChartStyle { bars, line, softLine, area }
+
+class OfferKpiMiniChart extends StatelessWidget {
+  const OfferKpiMiniChart({
+    super.key,
+    required this.color,
+    required this.style,
+    this.width = 58,
+    this.height = 34,
+  });
+
+  final Color color;
+  final OfferKpiChartStyle style;
+  final double width;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+        width: width,
+        height: height,
+        child: CustomPaint(painter: _OfferKpiChartPainter(color, style)),
+      );
+}
+
+class _OfferKpiChartPainter extends CustomPainter {
+  const _OfferKpiChartPainter(this.color, this.style);
+
+  final Color color;
+  final OfferKpiChartStyle style;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty) return;
+    if (style == OfferKpiChartStyle.bars) {
+      final heights = [.28, .42, .38, .62, .78, 1.0];
+      final barWidth = size.width / 10;
+      for (var i = 0; i < heights.length; i++) {
+        final left = i * (barWidth * 1.55);
+        final h = size.height * heights[i];
+        final rect = RRect.fromRectAndRadius(
+          Rect.fromLTWH(left, size.height - h, barWidth, h),
+          const Radius.circular(2),
+        );
+        canvas.drawRRect(
+          rect,
+          Paint()..color = color.withValues(alpha: .18 + i * .11),
+        );
+      }
+      return;
+    }
+
+    final points = <Offset>[
+      Offset(0, size.height * .76),
+      Offset(size.width * .18, size.height * .62),
+      Offset(size.width * .35, size.height * .68),
+      Offset(size.width * .52, size.height * .46),
+      Offset(size.width * .70, size.height * .55),
+      Offset(size.width * .86, size.height * .35),
+      Offset(size.width, size.height * .18),
+    ];
+    final line = Path()..moveTo(points.first.dx, points.first.dy);
+    for (final p in points.skip(1)) line.lineTo(p.dx, p.dy);
+
+    if (style == OfferKpiChartStyle.area) {
+      final area = Path.from(line)
+        ..lineTo(size.width, size.height)
+        ..lineTo(0, size.height)
+        ..close();
+      canvas.drawPath(
+        area,
+        Paint()
+          ..shader = LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [color.withValues(alpha: .22), color.withValues(alpha: .02)],
+          ).createShader(Offset.zero & size),
+      );
+    }
+
+    canvas.drawPath(
+      line,
+      Paint()
+        ..color = color.withValues(
+          alpha: style == OfferKpiChartStyle.softLine ? .42 : .82,
+        )
+        ..strokeWidth = style == OfferKpiChartStyle.softLine ? 1.5 : 1.8
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _OfferKpiChartPainter oldDelegate) =>
+      oldDelegate.color != color || oldDelegate.style != style;
 }
 
 String salaryLabel(JobOffer offer) {
