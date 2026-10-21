@@ -76,7 +76,7 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
       GoRoute(
         path: AppRoutes.login,
         name: 'login',
-        builder: (context, state) => const LoginPage(),
+        builder: (context, state) => LoginPage(mobile: !web),
       ),
       GoRoute(
         path: AppRoutes.forgotPassword,

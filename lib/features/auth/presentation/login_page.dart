@@ -6,6 +6,7 @@ import '../../../core/theme/app_dimens.dart';
 import '../../../app/routing/app_routes.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/joyn_logo.dart';
+import 'mobile/mobile_login_screen.dart';
 import 'widgets/auth_showcase_panel.dart';
 import 'widgets/login_form.dart';
 
@@ -14,10 +15,14 @@ import 'widgets/login_form.dart';
 /// - Grand écran (web) : formulaire à gauche, panneau illustré à droite.
 /// - Petit écran (mobile) : formulaire seul, en pleine largeur.
 class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+  const LoginPage({super.key, this.mobile = false});
+
+  final bool mobile;
 
   @override
   Widget build(BuildContext context) {
+    if (mobile) return const MobileLoginScreen();
+
     final size = MediaQuery.sizeOf(context);
     final isWide =
         size.width >= AppBreakpoints.desktop &&
