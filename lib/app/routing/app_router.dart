@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../design_system/mobile/mobile_entry_transition.dart';
+import '../../features/auth/domain/user_role.dart';
 import '../../features/auth/presentation/auth_controller.dart';
 import '../../features/auth/presentation/mobile/mobile_forgot_password_screen.dart';
 import '../../features/auth/presentation/mobile/mobile_login_screen.dart';
@@ -72,6 +73,15 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
           isInformationPage;
 
       if (!auth.isAuthenticated && !isPublic) return AppRoutes.login;
+
+      final isRecruiterArea =
+          location == AppRoutes.recruiter ||
+          location.startsWith('${AppRoutes.recruiter}/');
+      if (auth.isAuthenticated &&
+          isRecruiterArea &&
+          auth.user?.role != UserRole.company) {
+        return AppRoutes.dashboard;
+      }
 
       if (auth.isAuthenticated &&
           AppRoutes.authEntryRoutes.contains(location)) {
