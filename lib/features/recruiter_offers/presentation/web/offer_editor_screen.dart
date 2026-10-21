@@ -258,12 +258,17 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
             _Field(
               label: 'Type de contrat *',
               child: DropdownButtonFormField<ContractType>(
+                isExpanded: true,
                 initialValue: controller.contractType,
                 items: ContractType.values
                     .map(
                       (value) => DropdownMenuItem(
                         value: value,
-                        child: Text(value.label),
+                        child: Text(
+                          value.label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     )
                     .toList(),
@@ -343,12 +348,17 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
             _Field(
               label: 'Rythme *',
               child: DropdownButtonFormField<String>(
+                isExpanded: true,
                 initialValue: controller.rhythmType,
                 items: OfferOptions.rhythms
                     .map(
                       (value) => DropdownMenuItem(
                         value: value,
-                        child: Text(value, overflow: TextOverflow.ellipsis),
+                        child: Text(
+                          value,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     )
                     .toList(),
@@ -388,6 +398,7 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
             _Field(
               label: 'Niveau d’études requis *',
               child: DropdownButtonFormField<String>(
+                isExpanded: true,
                 initialValue: controller.degreeLevelRequired,
                 items: OfferOptions.degreeLevels
                     .map(
@@ -614,6 +625,7 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
             _Field(
               label: 'Devise',
               child: DropdownButtonFormField<String>(
+                isExpanded: true,
                 initialValue: controller.currency,
                 items: const ['EUR', 'CHF', 'GBP', 'USD']
                     .map(
@@ -630,12 +642,17 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
             _Field(
               label: 'Période',
               child: DropdownButtonFormField<SalaryPeriod>(
+                isExpanded: true,
                 initialValue: controller.salaryPeriod,
                 items: SalaryPeriod.values
                     .map(
                       (value) => DropdownMenuItem(
                         value: value,
-                        child: Text(value.label),
+                        child: Text(
+                          value.label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     )
                     .toList(),
