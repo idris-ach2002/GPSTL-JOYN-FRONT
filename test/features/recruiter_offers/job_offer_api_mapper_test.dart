@@ -5,7 +5,7 @@ import 'package:joyn_front/features/recruiter_offers/domain/job_offer_draft.dart
 
 void main() {
   test('le payload de création reprend les noms JSON du backend Spring', () {
-    const draft = JobOfferDraft(
+    final draft = JobOfferDraft(
       companyId: 42,
       title: 'Développeur·se Full-Stack en alternance',
       contractType: ContractType.apprenticeship,
