@@ -302,20 +302,41 @@ class _HeroStat extends StatelessWidget {
   final int value;
   final String label;
 
+  OfferKpiChartStyle get _chartStyle => switch (label) {
+        'Publiées' => OfferKpiChartStyle.bars,
+        'Brouillons' => OfferKpiChartStyle.line,
+        _ => OfferKpiChartStyle.softLine,
+      };
+
   @override
   Widget build(BuildContext context) {
     final (icon, tone, foreground) = switch (label) {
-      'Publiées' => (Icons.description_outlined, AppColors.successTint, AppColors.successDeep),
-      'Brouillons' => (Icons.schedule_rounded, AppColors.warningTint, AppColors.warningDeep),
-      _ => (Icons.inventory_2_outlined, const Color(0xFFEAF0F4), AppColors.slateDark),
+      'Publiées' => (
+          Icons.description_outlined,
+          AppColors.successTint,
+          AppColors.successDeep,
+        ),
+      'Brouillons' => (
+          Icons.schedule_rounded,
+          AppColors.warningTint,
+          AppColors.warningDeep,
+        ),
+      _ => (
+          Icons.inventory_2_outlined,
+          const Color(0xFFEAF0F4),
+          AppColors.slateDark,
+        ),
     };
     return Container(
-      padding: const EdgeInsets.fromLTRB(12, 10, 9, 10),
+      padding: const EdgeInsets.fromLTRB(11, 10, 9, 8),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Colors.white, Color.alphaBlend(tone.withValues(alpha: .45), Colors.white)],
+          colors: [
+            Colors.white,
+            Color.alphaBlend(tone.withValues(alpha: .36), Colors.white),
+          ],
         ),
         borderRadius: BorderRadius.circular(15),
         border: Border.all(color: Colors.white.withValues(alpha: .7)),
@@ -327,40 +348,56 @@ class _HeroStat extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '$value',
-                  style: const TextStyle(
-                    color: AppColors.navy,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w900,
-                  ),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '$value',
+                      style: const TextStyle(
+                        color: AppColors.navy,
+                        fontSize: 20,
+                        height: 1,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.slate,
+                        fontSize: 8.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.slate,
-                    fontSize: 8.5,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
+              ),
+              Container(
+                width: 27,
+                height: 27,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(color: tone, shape: BoxShape.circle),
+                child: Icon(icon, size: 14, color: foreground),
+              ),
+            ],
           ),
-          Container(
-            width: 28,
-            height: 28,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(color: tone, shape: BoxShape.circle),
-            child: Icon(icon, size: 14, color: foreground),
+          const SizedBox(height: 5),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: OfferKpiMiniChart(
+              color: foreground,
+              style: _chartStyle,
+              width: 44,
+              height: 20,
+            ),
           ),
         ],
       ),
@@ -550,9 +587,9 @@ class _MobileOfferCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: OfferGlassSurface(
-          waveWidth: 165,
+          waveWidth: 155,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 13, 13),
+            padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -563,23 +600,12 @@ class _MobileOfferCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            offer.title,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: AppColors.navy,
-                              fontSize: 13.5,
-                              height: 1.15,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: -.15,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
                           Row(
                             children: [
-                              CompanyMiniLogo(company: c, size: 20),
-                              const SizedBox(width: 7),
+                              OfferStatusBadge(status: offer.status),
+                              const SizedBox(width: 8),
+                              CompanyMiniLogo(company: c, size: 18),
+                              const SizedBox(width: 5),
                               Flexible(
                                 child: Text(
                                   c.name,
@@ -587,7 +613,7 @@ class _MobileOfferCard extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
                                     color: AppColors.navy,
-                                    fontSize: 9.5,
+                                    fontSize: 9.2,
                                     fontWeight: FontWeight.w800,
                                   ),
                                 ),
@@ -605,36 +631,42 @@ class _MobileOfferCard extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
                                     color: AppColors.slate,
-                                    fontSize: 9.2,
+                                    fontSize: 8.8,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ),
                             ],
                           ),
+                          const SizedBox(height: 7),
+                          Text(
+                            offer.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: AppColors.navy,
+                              fontSize: 13.5,
+                              height: 1.15,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: -.15,
+                            ),
+                          ),
                         ],
                       ),
                     ),
                     const SizedBox(width: 7),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        OfferStatusBadge(status: offer.status),
-                        const SizedBox(height: 7),
-                        OfferOptionsButton(
-                          status: offer.status,
-                          onEdit: onEdit,
-                          onClose: offer.status == JobOfferStatus.closed
-                              ? null
-                              : onClose,
-                          onDelete: onDelete,
-                          compact: true,
-                        ),
-                      ],
+                    OfferOptionsButton(
+                      status: offer.status,
+                      onEdit: onEdit,
+                      onClose: offer.status == JobOfferStatus.closed
+                          ? null
+                          : onClose,
+                      onDelete: onDelete,
+                      compact: true,
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 9),
                 Text(
                   _plainDescription(offer.description),
                   maxLines: 2,
@@ -645,7 +677,7 @@ class _MobileOfferCard extends StatelessWidget {
                     height: 1.35,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 3),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: InkWell(
@@ -660,7 +692,7 @@ class _MobileOfferCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 9),
+                const SizedBox(height: 8),
                 Wrap(
                   spacing: 6,
                   runSpacing: 6,
@@ -676,7 +708,7 @@ class _MobileOfferCard extends StatelessWidget {
                   ],
                 ),
                 if (offer.skills.isNotEmpty) ...[
-                  const SizedBox(height: 9),
+                  const SizedBox(height: 8),
                   Wrap(
                     spacing: 6,
                     runSpacing: 6,
@@ -688,39 +720,47 @@ class _MobileOfferCard extends StatelessWidget {
                     ],
                   ),
                 ],
-                const SizedBox(height: 10),
-                Container(height: 1, color: const Color(0xFFDDE7EF)),
                 const SizedBox(height: 9),
+                Container(height: 1, color: const Color(0xFFDDE7EF)),
+                const SizedBox(height: 8),
                 Row(
                   children: [
+                    if (offer.candidateCount > 0) ...[
+                      OfferCandidateAvatars(
+                        count: offer.candidateCount,
+                        size: 23,
+                        maxVisible: 3,
+                      ),
+                      const SizedBox(width: 7),
+                    ],
                     const Icon(
                       Icons.group_outlined,
-                      size: 13,
+                      size: 12,
                       color: AppColors.slate,
                     ),
-                    const SizedBox(width: 5),
+                    const SizedBox(width: 4),
                     Text(
                       '${offer.candidateCount} candidat${offer.candidateCount > 1 ? 's' : ''}',
                       style: const TextStyle(
                         color: AppColors.slate,
-                        fontSize: 9,
+                        fontSize: 8.8,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     const Spacer(),
                     const Icon(
                       Icons.calendar_today_outlined,
-                      size: 12,
+                      size: 11,
                       color: AppColors.slate,
                     ),
-                    const SizedBox(width: 5),
+                    const SizedBox(width: 4),
                     Flexible(
                       child: Text(
                         dateLabel(offer.publishedAt ?? offer.updatedAt),
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           color: AppColors.slate,
-                          fontSize: 9,
+                          fontSize: 8.8,
                           fontWeight: FontWeight.w700,
                         ),
                       ),

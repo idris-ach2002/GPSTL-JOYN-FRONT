@@ -632,17 +632,27 @@ class _OfferRowState extends State<_OfferRow> {
     BuildContext context,
     JobOffer offer,
     RecruiterCompany company,
-  ) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  ) => Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
             flex: 6,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Row(
+                  children: [
+                    OfferStatusBadge(status: offer.status),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _CompanyLine(
+                        company: company,
+                        location: offer.location,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 7),
                 Text(
                   offer.title,
                   maxLines: 1,
@@ -656,34 +666,7 @@ class _OfferRowState extends State<_OfferRow> {
                     letterSpacing: -.22,
                   ),
                 ),
-                const SizedBox(height: 6),
-                _CompanyLine(company: company, location: offer.location),
-              ],
-            ),
-          ),
-          const SizedBox(width: 18),
-          OfferStatusBadge(status: offer.status),
-          const SizedBox(width: 8),
-          OfferOptionsButton(
-            status: offer.status,
-            onEdit: widget.onEdit,
-            onClose: offer.status == JobOfferStatus.closed
-                ? null
-                : widget.onClose,
-            onDelete: widget.onDelete,
-            compact: true,
-          ),
-        ],
-      ),
-      const SizedBox(height: 12),
-      Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            flex: 6,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+                const SizedBox(height: 7),
                 Text(
                   _plainDescription(offer.description),
                   maxLines: 2,
@@ -694,7 +677,7 @@ class _OfferRowState extends State<_OfferRow> {
                     height: 1.38,
                   ),
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 4),
                 InkWell(
                   onTap: widget.onTap,
                   child: const Text(
@@ -702,161 +685,208 @@ class _OfferRowState extends State<_OfferRow> {
                     style: TextStyle(
                       color: Color(0xFF1475D1),
                       fontSize: 10,
-                      height: 1,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
                 ),
-                const SizedBox(height: 11),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: _skillTags(offer),
-                ),
+                if (offer.skills.isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: _skillTags(offer),
+                  ),
+                ],
               ],
             ),
           ),
           const SizedBox(width: 22),
-          Container(width: 1, height: 78, color: const Color(0xFFDDE7EF)),
+          Container(width: 1, color: const Color(0xFFDDE7EF)),
           const SizedBox(width: 22),
           Expanded(
             flex: 5,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Wrap(
-                  spacing: 7,
-                  runSpacing: 7,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    OfferMetaChip(
-                      label: offer.contractType.label,
-                      icon: Icons.work_outline_rounded,
+                    Expanded(
+                      child: Wrap(
+                        spacing: 7,
+                        runSpacing: 7,
+                        children: [
+                          OfferMetaChip(
+                            label: offer.contractType.label,
+                            icon: Icons.work_outline_rounded,
+                          ),
+                          OfferMetaChip(
+                            label: offer.location,
+                            icon: Icons.location_on_outlined,
+                          ),
+                          OfferMetaChip(
+                            label: offer.remoteMode.label,
+                            icon: Icons.laptop_mac_rounded,
+                          ),
+                        ],
+                      ),
                     ),
-                    OfferMetaChip(
-                      label: offer.location,
-                      icon: Icons.location_on_outlined,
-                    ),
-                    OfferMetaChip(
-                      label: offer.remoteMode.label,
-                      icon: Icons.laptop_mac_rounded,
+                    const SizedBox(width: 8),
+                    OfferOptionsButton(
+                      status: offer.status,
+                      onEdit: widget.onEdit,
+                      onClose: offer.status == JobOfferStatus.closed
+                          ? null
+                          : widget.onClose,
+                      onDelete: widget.onDelete,
+                      compact: true,
                     ),
                   ],
                 ),
-                const SizedBox(height: 15),
+                const SizedBox(height: 13),
                 Wrap(
                   spacing: 20,
                   runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: _metrics(offer),
                 ),
+                if (offer.candidateCount > 0) ...[
+                  const SizedBox(height: 10),
+                  OfferCandidateAvatars(
+                    count: offer.candidateCount,
+                    size: 27,
+                    maxVisible: 4,
+                  ),
+                ],
               ],
             ),
           ),
         ],
-      ),
-    ],
-  );
+      );
 
   Widget _buildCompact(
     BuildContext context,
     JobOffer offer,
     RecruiterCompany company,
   ) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  offer.title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.navy,
-                    fontFamily: AppFonts.display,
-                    fontSize: 15,
-                    height: 1.12,
-                    fontWeight: FontWeight.w900,
-                  ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        OfferStatusBadge(status: offer.status),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _CompanyLine(
+                            company: company,
+                            location: offer.location,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 7),
+                    Text(
+                      offer.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.navy,
+                        fontFamily: AppFonts.display,
+                        fontSize: 15,
+                        height: 1.12,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 6),
-                _CompanyLine(company: company, location: offer.location),
-              ],
+              ),
+              const SizedBox(width: 8),
+              OfferOptionsButton(
+                status: offer.status,
+                onEdit: widget.onEdit,
+                onClose: offer.status == JobOfferStatus.closed
+                    ? null
+                    : widget.onClose,
+                onDelete: widget.onDelete,
+                compact: true,
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            _plainDescription(offer.description),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: AppColors.slate,
+              fontSize: 10.5,
+              height: 1.38,
             ),
           ),
-          const SizedBox(width: 8),
-          OfferStatusBadge(status: offer.status),
-          const SizedBox(width: 7),
-          OfferOptionsButton(
-            status: offer.status,
-            onEdit: widget.onEdit,
-            onClose: offer.status == JobOfferStatus.closed
-                ? null
-                : widget.onClose,
-            onDelete: widget.onDelete,
-            compact: true,
+          const SizedBox(height: 4),
+          InkWell(
+            onTap: widget.onTap,
+            child: const Text(
+              'Lire la suite  →',
+              style: TextStyle(
+                color: Color(0xFF1475D1),
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
           ),
-        ],
-      ),
-      const SizedBox(height: 11),
-      Text(
-        _plainDescription(offer.description),
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(
-          color: AppColors.slate,
-          fontSize: 10.5,
-          height: 1.38,
-        ),
-      ),
-      const SizedBox(height: 5),
-      InkWell(
-        onTap: widget.onTap,
-        child: const Text(
-          'Lire la suite  →',
-          style: TextStyle(
-            color: Color(0xFF1475D1),
-            fontSize: 10,
-            fontWeight: FontWeight.w800,
+          const SizedBox(height: 9),
+          Wrap(
+            spacing: 7,
+            runSpacing: 7,
+            children: [
+              OfferMetaChip(
+                label: offer.contractType.label,
+                icon: Icons.work_outline_rounded,
+              ),
+              OfferMetaChip(
+                label: offer.location,
+                icon: Icons.location_on_outlined,
+              ),
+              OfferMetaChip(
+                label: offer.remoteMode.label,
+                icon: Icons.laptop_mac_rounded,
+              ),
+            ],
           ),
-        ),
-      ),
-      const SizedBox(height: 10),
-      Wrap(
-        spacing: 7,
-        runSpacing: 7,
-        children: [
-          OfferMetaChip(
-            label: offer.contractType.label,
-            icon: Icons.work_outline_rounded,
-          ),
-          OfferMetaChip(
-            label: offer.remoteMode.label,
-            icon: Icons.laptop_mac_rounded,
-          ),
-        ],
-      ),
-      const SizedBox(height: 11),
-      Row(
-        children: [
-          Expanded(
-            child: Wrap(
+          if (offer.skills.isNotEmpty) ...[
+            const SizedBox(height: 9),
+            Wrap(
               spacing: 6,
               runSpacing: 6,
               children: _skillTags(offer),
             ),
-          ),
-          const SizedBox(width: 12),
-          ..._metrics(offer).expand(
-            (metric) => [metric, const SizedBox(width: 12)],
+          ],
+          const SizedBox(height: 10),
+          Container(height: 1, color: const Color(0xFFDDE7EF)),
+          const SizedBox(height: 9),
+          Wrap(
+            spacing: 12,
+            runSpacing: 9,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              if (offer.candidateCount > 0)
+                OfferCandidateAvatars(
+                  count: offer.candidateCount,
+                  size: 24,
+                  maxVisible: 3,
+                ),
+              ..._metrics(offer),
+            ],
           ),
         ],
-      ),
-    ],
-  );
+      );
 
   String _plainDescription(String value) => value
       .replaceAll(RegExp(r'[*#>\[\]`]'), '')
@@ -1060,173 +1090,120 @@ class _StatCard extends StatelessWidget {
   final Color iconColor;
   final Color tint;
 
+  OfferKpiChartStyle get _chartStyle => switch (label) {
+        'Publiées' => OfferKpiChartStyle.bars,
+        'Brouillons' => OfferKpiChartStyle.line,
+        'Clôturées' => OfferKpiChartStyle.softLine,
+        _ => OfferKpiChartStyle.area,
+      };
+
+  String get _trend => switch (label) {
+        'Brouillons' => 'En cours',
+        'Total' => 'Toutes vos offres',
+        _ => '+1 cette semaine',
+      };
+
   @override
   Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, constraints) {
-      final compact = constraints.maxWidth < 235;
-      final showSparkline = constraints.maxWidth >= 220;
+        builder: (context, constraints) {
+          final compact = constraints.maxWidth < 235;
+          final showChart = constraints.maxWidth >= 205;
 
-      return Container(
-        constraints: const BoxConstraints(minHeight: 96),
-        padding: EdgeInsets.fromLTRB(
-          compact ? 12 : 14,
-          12,
-          compact ? 10 : 12,
-          12,
-        ),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.white,
-              Color.alphaBlend(tint.withValues(alpha: .32), Colors.white),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(17),
-          border: Border.all(color: const Color(0xFFE4EBF0)),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x0D0A3152),
-              blurRadius: 16,
-              offset: Offset(0, 8),
+          return Container(
+            constraints: const BoxConstraints(minHeight: 96),
+            padding: EdgeInsets.fromLTRB(
+              compact ? 12 : 14,
+              12,
+              compact ? 10 : 12,
+              12,
             ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: compact ? 42 : 46,
-              height: compact ? 42 : 46,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: tint,
-                borderRadius: BorderRadius.circular(15),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white,
+                  Color.alphaBlend(tint.withValues(alpha: .28), Colors.white),
+                ],
               ),
-              child: Icon(icon, color: iconColor, size: 21),
+              borderRadius: BorderRadius.circular(17),
+              border: Border.all(color: const Color(0xFFE4EBF0)),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x0D0A3152),
+                  blurRadius: 16,
+                  offset: Offset(0, 8),
+                ),
+              ],
             ),
-            SizedBox(width: compact ? 9 : 11),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: AppColors.navy,
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w800,
-                    ),
+            child: Row(
+              children: [
+                Container(
+                  width: compact ? 42 : 46,
+                  height: compact ? 42 : 46,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: tint,
+                    borderRadius: BorderRadius.circular(15),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '$value',
-                    style: const TextStyle(
-                      color: AppColors.navy,
-                      fontSize: 24,
-                      height: 1,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
+                  child: Icon(icon, color: iconColor, size: 21),
+                ),
+                SizedBox(width: compact ? 9 : 11),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(
-                        value == 0
-                            ? Icons.remove_rounded
-                            : Icons.trending_up_rounded,
-                        size: 12,
-                        color: value == 0
-                            ? AppColors.placeholder
-                            : AppColors.successDeep,
+                      Text(
+                        '$value',
+                        style: const TextStyle(
+                          color: AppColors.navy,
+                          fontSize: 24,
+                          height: 1,
+                          fontWeight: FontWeight.w900,
+                        ),
                       ),
-                      const SizedBox(width: 3),
-                      Expanded(
-                        child: Text(
-                          value == 0 ? 'stable' : 'activité récente',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: value == 0
-                                ? AppColors.placeholder
-                                : AppColors.successDeep,
-                            fontSize: 7.5,
-                            fontWeight: FontWeight.w700,
-                          ),
+                      const SizedBox(height: 2),
+                      Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColors.navy,
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        _trend,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: label == 'Brouillons' || label == 'Total'
+                              ? AppColors.placeholder
+                              : AppColors.successDeep,
+                          fontSize: 7.5,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
-            if (showSparkline) ...[
-              const SizedBox(width: 6),
-              SizedBox(
-                width: compact ? 42 : 54,
-                height: 34,
-                child: CustomPaint(
-                  painter: _SparklinePainter(color: iconColor, seed: value),
                 ),
-              ),
-            ],
-          ],
-        ),
+                if (showChart) ...[
+                  const SizedBox(width: 6),
+                  OfferKpiMiniChart(
+                    color: iconColor,
+                    style: _chartStyle,
+                    width: compact ? 48 : 66,
+                    height: 38,
+                  ),
+                ],
+              ],
+            ),
+          );
+        },
       );
-    },
-  );
-}
-
-class _SparklinePainter extends CustomPainter {
-  const _SparklinePainter({required this.color, required this.seed});
-  final Color color;
-  final int seed;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final baseline = size.height * .72;
-    final points = <Offset>[
-      Offset(0, baseline),
-      Offset(size.width * .18, size.height * (.64 - (seed % 2) * .05)),
-      Offset(size.width * .36, size.height * .7),
-      Offset(size.width * .55, size.height * (.48 + (seed % 3) * .035)),
-      Offset(size.width * .73, size.height * .55),
-      Offset(size.width, size.height * (.26 + (seed % 2) * .08)),
-    ];
-    final area = Path()..moveTo(points.first.dx, size.height);
-    final line = Path()..moveTo(points.first.dx, points.first.dy);
-    for (final point in points.skip(1)) {
-      line.lineTo(point.dx, point.dy);
-      area.lineTo(point.dx, point.dy);
-    }
-    area
-      ..lineTo(size.width, size.height)
-      ..close();
-    canvas.drawPath(
-      area,
-      Paint()
-        ..shader = LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [color.withValues(alpha: .16), color.withValues(alpha: 0)],
-        ).createShader(Offset.zero & size),
-    );
-    canvas.drawPath(
-      line,
-      Paint()
-        ..color = color.withValues(alpha: .55)
-        ..strokeWidth = 1.6
-        ..style = PaintingStyle.stroke
-        ..strokeCap = StrokeCap.round,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant _SparklinePainter oldDelegate) =>
-      oldDelegate.color != color || oldDelegate.seed != seed;
 }
 
 class _StatusChip extends StatelessWidget {
