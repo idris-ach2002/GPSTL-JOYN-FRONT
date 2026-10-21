@@ -78,9 +78,9 @@ class MobileOfferDetailScreen extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              Text(
-                                offer.description,
-                                style: const TextStyle(
+                              OfferRichText(
+                                value: offer.description,
+                                baseStyle: const TextStyle(
                                   color: AppColors.slateDark,
                                   fontSize: 12,
                                   height: 1.5,

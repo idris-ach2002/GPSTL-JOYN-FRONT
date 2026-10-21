@@ -66,6 +66,10 @@ class MobileRecruiterOffersScreen extends StatelessWidget {
                                     onEdit: () => context.go(
                                       AppRoutes.recruiterJobEdit(offer.id),
                                     ),
+                                    onClose: () =>
+                                        _confirmClose(context, controller, offer),
+                                    onDelete: () =>
+                                        _confirmDelete(context, controller, offer),
                                   ),
                                   const SizedBox(height: 10),
                                 ],
@@ -110,6 +114,61 @@ class MobileRecruiterOffersScreen extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _confirmClose(
+    BuildContext context,
+    OfferManagementController controller,
+    JobOffer offer,
+  ) async {
+    final confirmed = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => _ActionSheet(
+        icon: Icons.pause_circle_outline_rounded,
+        title: 'Clôturer cette offre ?',
+        message: 'Elle ne sera plus proposée aux candidats, mais restera visible dans vos offres clôturées.',
+        actionLabel: 'Clôturer l’offre',
+        onConfirm: () => Navigator.pop(sheetContext, true),
+      ),
+    );
+    if (confirmed != true) return;
+    final ok = await controller.closeOffer(offer.id);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(ok ? 'Offre clôturée.' : 'Impossible de clôturer l’offre.'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  Future<void> _confirmDelete(
+    BuildContext context,
+    OfferManagementController controller,
+    JobOffer offer,
+  ) async {
+    final confirmed = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => _ActionSheet(
+        icon: Icons.delete_outline_rounded,
+        title: 'Supprimer cette offre ?',
+        message: 'Cette action supprime définitivement l’offre de votre espace JOYN.',
+        actionLabel: 'Supprimer l’offre',
+        destructive: true,
+        onConfirm: () => Navigator.pop(sheetContext, true),
+      ),
+    );
+    if (confirmed != true) return;
+    final ok = await controller.deleteOffer(offer.id);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(ok ? 'Offre supprimée.' : 'Suppression impossible.'),
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
@@ -426,140 +485,291 @@ class _MobileOfferCard extends StatelessWidget {
     required this.company,
     required this.onTap,
     required this.onEdit,
+    required this.onClose,
+    required this.onDelete,
   });
 
   final JobOffer offer;
   final RecruiterCompany? company;
   final VoidCallback onTap;
   final VoidCallback onEdit;
+  final VoidCallback onClose;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
     final c = company;
+    final accent = companyColor(c?.id ?? offer.companyId);
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final compact = constraints.maxWidth < 310;
-
-        return Material(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(18),
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (c != null) CompanyAvatar(company: c, size: 42),
-                      if (c != null) const SizedBox(width: 10),
-
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(21),
+        child: Ink(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white,
+                Color.alphaBlend(accent.withValues(alpha: .045), Colors.white),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(21),
+            border: Border.all(color: const Color(0xFFE4EBF0)),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x0D0A3152),
+                blurRadius: 16,
+                offset: Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              Positioned(
+                left: 0,
+                top: 18,
+                bottom: 18,
+                child: Container(
+                  width: 3,
+                  decoration: BoxDecoration(
+                    color: accent,
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 15, 13, 13),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (c != null) CompanyAvatar(company: c, size: 43),
+                        if (c != null) const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                offer.title,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: AppColors.navy,
+                                  fontSize: 13.5,
+                                  height: 1.15,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: -.15,
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                '${c?.name ?? 'Entreprise'} · ${offer.location}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: AppColors.slate,
+                                  fontSize: 9.5,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text(
-                              offer.title,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: AppColors.navy,
-                                fontSize: 13,
-                                height: 1.15,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              '${c?.name ?? 'Entreprise'} · ${offer.location}',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: AppColors.slate,
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                              ),
+                            OfferStatusBadge(status: offer.status),
+                            const SizedBox(height: 6),
+                            OfferOptionsButton(
+                              status: offer.status,
+                              onEdit: onEdit,
+                              onClose: offer.status == JobOfferStatus.closed
+                                  ? null
+                                  : onClose,
+                              onDelete: onDelete,
+                              compact: true,
                             ),
                           ],
                         ),
-                      ),
-
-                      if (!compact) ...[
-                        const SizedBox(width: 6),
-                        OfferStatusBadge(status: offer.status),
                       ],
-
-                      const SizedBox(width: 2),
-
-                      PopupMenuButton<String>(
-                        padding: EdgeInsets.zero,
-                        icon: const Icon(
-                          Icons.more_vert_rounded,
-                          color: AppColors.slate,
-                          size: 19,
+                    ),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        OfferMetaChip(
+                          label: offer.contractType.label,
+                          icon: Icons.work_outline_rounded,
                         ),
-                        onSelected: (value) {
-                          if (value == 'edit') {
-                            onEdit();
-                          }
-                        },
-                        itemBuilder: (context) => const [
-                          PopupMenuItem(value: 'edit', child: Text('Modifier')),
-                        ],
+                        OfferMetaChip(
+                          label: offer.remoteMode.label,
+                          icon: Icons.laptop_mac_rounded,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 9),
+                    Text(
+                      offer.description.replaceAll(RegExp(r'[*#>\[\]]'), ''),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.slate,
+                        fontSize: 9.5,
+                        height: 1.35,
                       ),
-                    ],
-                  ),
-
-                  if (compact) ...[
-                    const SizedBox(height: 8),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: OfferStatusBadge(status: offer.status),
+                    ),
+                    const SizedBox(height: 11),
+                    Container(height: 1, color: const Color(0xFFEAF0F4)),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.group_outlined,
+                          size: 13,
+                          color: AppColors.slate,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          '${offer.candidateCount} candidat${offer.candidateCount > 1 ? 's' : ''}',
+                          style: const TextStyle(
+                            color: AppColors.slate,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const Spacer(),
+                        const Icon(
+                          Icons.calendar_today_outlined,
+                          size: 12,
+                          color: AppColors.slate,
+                        ),
+                        const SizedBox(width: 5),
+                        Flexible(
+                          child: Text(
+                            dateLabel(offer.publishedAt ?? offer.updatedAt),
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: AppColors.slate,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
-                  const SizedBox(height: 9),
+class _ActionSheet extends StatelessWidget {
+  const _ActionSheet({
+    required this.icon,
+    required this.title,
+    required this.message,
+    required this.actionLabel,
+    required this.onConfirm,
+    this.destructive = false,
+  });
 
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: [
-                      OfferMetaChip(
-                        label: offer.contractType.label,
-                        icon: Icons.work_outline_rounded,
-                      ),
-                      OfferMetaChip(
-                        label: offer.remoteMode.label,
-                        icon: Icons.laptop_mac_rounded,
-                      ),
-                    ],
-                  ),
+  final IconData icon;
+  final String title;
+  final String message;
+  final String actionLabel;
+  final VoidCallback onConfirm;
+  final bool destructive;
 
-                  const SizedBox(height: 8),
-
-                  Text(
-                    '${offer.candidateCount} candidat'
-                    '${offer.candidateCount > 1 ? 's' : ''} · '
-                    '${offer.publishedAt == null ? 'Modifiée' : 'Publiée'} '
-                    'le ${dateLabel(offer.publishedAt ?? offer.updatedAt)}',
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: AppColors.placeholder,
-                      fontSize: 9,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
+  @override
+  Widget build(BuildContext context) {
+    final actionColor = destructive ? AppColors.error : AppColors.orange;
+    return SafeArea(
+      top: false,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 42,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.line,
+                borderRadius: BorderRadius.circular(99),
               ),
             ),
-          ),
-        );
-      },
+            const SizedBox(height: 20),
+            Container(
+              width: 58,
+              height: 58,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: actionColor.withValues(alpha: .1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: actionColor, size: 28),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: AppColors.navy,
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 7),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: AppColors.slate,
+                fontSize: 11,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 18),
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: FilledButton.icon(
+                onPressed: onConfirm,
+                style: FilledButton.styleFrom(
+                  backgroundColor: actionColor,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                icon: Icon(icon, size: 18),
+                label: Text(actionLabel),
+              ),
+            ),
+            const SizedBox(height: 7),
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Annuler'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
