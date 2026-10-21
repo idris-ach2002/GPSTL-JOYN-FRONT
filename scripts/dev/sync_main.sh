@@ -25,3 +25,4 @@ echo "==> Rebase de $branch sur origin/main"
 git rebase origin/main
 
 echo "✅ $branch est à jour avec main"
+echo "ℹ️ Si cette branche a déjà été poussée, republie-la avec ./scripts/dev/push_branch.sh"

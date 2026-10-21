@@ -1,61 +1,275 @@
-# JOYN — Landing Material 3
+# JOYN
 
-Branche **`landing-page`**, basée sur le socle vierge `f719022` puis la première
-livraison `2eef6de`. Historique Git conservé ; aucun push distant effectué.
+**JOYN** est une application de mise en relation entre candidats et entreprises pour l'emploi, le stage et surtout l'alternance.
 
-## Démarrer
+Le projet part d'un constat simple : une candidature ne dépend pas seulement d'un intitulé de poste. Le bon match dépend aussi des compétences, de la localisation, du rythme, des disponibilités, des attentes du candidat et des contraintes de recrutement de l'entreprise.
 
-Environnement de référence : Flutter 3.47.7 / Dart 3.13.5.
+JOYN cherche donc à **faire le match avant la candidature** : mieux qualifier les profils et les opportunités, réduire les candidatures peu pertinentes et rendre le parcours plus lisible des deux côtés.
 
-```sh
+## Ce que le produit doit permettre
+
+Pour un **candidat**, JOYN doit permettre de créer son profil, importer ou compléter ses informations, préciser ses préférences et accéder à des opportunités pertinentes.
+
+Pour une **entreprise**, JOYN doit permettre de présenter son besoin, consulter des profils compatibles et concentrer le recrutement sur les candidats les plus pertinents.
+
+Le produit possède deux expériences distinctes :
+
+- **Web** : landing, authentification, inscription, onboarding, dashboard et pages d'information ;
+- **Mobile** : expérience native dédiée avec startup animé, authentification, inscription, onboarding et dashboard mobile.
+
+La logique métier reste partagée entre les deux expériences.
+
+## Documentation
+
+Le README reste volontairement une façade. La documentation utile se trouve dans [`docs/`](docs/README.md).
+
+| Document | À lire pour |
+| --- | --- |
+| [Vision produit](docs/product.md) | comprendre le problème auquel JOYN répond et les principes du produit |
+| [Fonctionnalités](docs/features.md) | voir les features existantes et leur responsabilité |
+| [Architecture](docs/architecture.md) | comprendre la séparation Web / Mobile et les couches partagées |
+| [Workflow & CI/CD](docs/workflow.md) | savoir exactement comment travailler avec Git, les scripts, les PR et la CI |
+
+## Lancer le projet
+
+Installer les dépendances :
+
+```bash
 flutter pub get
+```
+
+Prévisualiser explicitement le Web :
+
+```bash
+flutter run -t lib/main_web.dart -d chrome
+```
+
+Prévisualiser explicitement le Mobile dans Chrome :
+
+```bash
+flutter run -t lib/main_mobile.dart -d chrome
+```
+
+L'entrée standard reste disponible :
+
+```bash
 flutter run -d chrome
 ```
 
-## Vérifier
+Sur un petit viewport, elle sélectionne l'expérience mobile ; sur un viewport desktop, elle sélectionne l'expérience web.
 
-```sh
-dart format --output=none --set-exit-if-changed lib test
-flutter analyze
-flutter test
-flutter build web --release
+---
+
+# Règles de travail
+
+`main` est la **seule branche d'intégration** et elle est protégée par un ruleset GitHub.
+
+On ne développe **jamais directement sur `main`**.
+
+Chaque changement suit ce cycle :
+
+```text
+main à jour
+   ↓
+branche courte feat/fix/docs/...
+   ↓
+développement + commits
+   ↓
+synchronisation régulière avec main
+   ↓
+validation locale
+   ↓
+push
+   ↓
+Pull Request vers main
+   ↓
+CI verte + review
+   ↓
+Squash & Merge
+   ↓
+main
 ```
 
-Les résultats effectivement obtenus figurent dans [verification.md](docs/verification.md).
-Le workflow GitHub utilise la même version de Flutter et inclut `landing-page`.
-Le verrou `pubspec.lock` est suivi pour rendre les dépendances reproductibles.
+## Toujours utiliser `scripts/`
 
-## Version améliorée
+Les opérations répétitives et sensibles passent par les scripts du dépôt :
 
-- Section « Le constat » restaurée avec deux indicateurs sourcés et une composition proche de la maquette.
-- Transition navy/orange/lumière avec halos diffus, grille et parallaxe au scroll.
-- Fonctionnalités candidat/entreprise : huit démonstrations locales, schémas et
-  interactions distincts, complétées par un parcours animé de bout en bout.
-- Carrousel de tarifs : glissement, boutons, pagination, focus et flèches clavier.
-  JOYN+ reste sombre avec son halo orange ; le Boost retrouve son aperçu visuel.
-- Footer clair avec les rubriques Produit, Entreprises, Ressources et Légal.
-- Pages publiques réécrites sans libellé de recette visible ni faux contenu juridique.
-- Fil lumineux autonome, lent, avec un dégradé bleu → orange et respect de la réduction des mouvements.
-- Hero à hauteur naturelle et tests de transitions corrigés.
+```text
+scripts/dev/start_branch.sh     créer une branche depuis le dernier main
+scripts/dev/sync_main.sh        rebaser la branche sur origin/main
+scripts/dev/check_before_pr.sh  lancer toutes les validations locales
+scripts/dev/push_branch.sh      pousser la branche de façon sûre, même après un rebase
+```
 
-Le parcours mobile n'a pas été repensé dans cette passe. Les écrans de connexion
-et d'inscription restent des destinations d'intégration. Les pages légales restent limitées aux comportements vérifiables de cette interface ;
-aucune identité juridique ou durée de conservation absente des sources n'est inventée.
-Les tarifs et avantages proposés ne sont pas des autorisations backend.
+Cela évite que chaque membre applique sa propre procédure Git.
 
-## Récupérer les commits dans le dépôt existant
+## Exemple concret : une feature du début à la fin
 
-La livraison contient `joyn-landing.bundle` et `importer-joyn.sh` en plus du dossier
-source. Depuis le dépôt local sur `landing-page`, exécuter le script de l'archive
-décompressée. Il importe les commits avec Git puis synchronise les fichiers avec
-`rsync`, en excluant toujours `.git`.
+### 1. Commencer une nouvelle feature
 
-Le script sauvegarde les modifications et fichiers non suivis dans un stash,
-puis accepte uniquement une avance rapide. Il s'arrête en cas de divergence.
-Il ne réapplique pas automatiquement les anciens fichiers de la première copie.
-Les détails sont dans [importer-la-livraison.md](docs/importer-la-livraison.md).
+Depuis un working tree propre :
 
-## Architecture et recette
+```bash
+./scripts/dev/start_branch.sh feat notifications
+```
 
-- [Conception, animation et intégration](docs/landing-material.md)
-- [Recette fonctionnelle et visuelle](docs/recette.md)
+Le script récupère le dernier `main`, met `main` à jour puis crée :
+
+```text
+feat/notifications
+```
+
+### 2. Travailler normalement
+
+Modifier le code puis créer des commits cohérents :
+
+```bash
+git add lib/features/notifications test/features/notifications
+git commit -m "feat(notifications): ajouter le centre de notifications"
+```
+
+Les commits intermédiaires sont autorisés : la PR sera fusionnée avec **Squash & Merge**.
+
+### 3. En plein milieu du travail, récupérer les changements de `main`
+
+Avant la synchronisation, le working tree doit être propre. Committer le travail en cours si nécessaire.
+
+Puis :
+
+```bash
+./scripts/dev/sync_main.sh
+```
+
+Le script exécute un rebase sur le dernier `origin/main`.
+
+S'il n'y a pas de conflit, continuer à travailler.
+
+S'il y a un conflit :
+
+```bash
+git status
+```
+
+Corriger les fichiers concernés, puis :
+
+```bash
+git add <fichiers-corrigés>
+git rebase --continue
+```
+
+Répéter jusqu'à la fin du rebase.
+
+Pour abandonner le rebase et revenir à l'état précédent :
+
+```bash
+git rebase --abort
+```
+
+Après un rebase, pousser uniquement avec le script prévu :
+
+```bash
+./scripts/dev/push_branch.sh
+```
+
+Il utilise un push normal quand c'est possible et `--force-with-lease` uniquement lorsque le rebase l'impose. Il n'écrase pas silencieusement le travail distant d'un autre développeur.
+
+### 4. Continuer la feature
+
+Faire les modifications restantes et committer :
+
+```bash
+git add <fichiers>
+git commit -m "test(notifications): couvrir le parcours principal"
+```
+
+### 5. Avant la Pull Request
+
+Se resynchroniser une dernière fois :
+
+```bash
+./scripts/dev/sync_main.sh
+```
+
+Puis lancer la validation complète :
+
+```bash
+./scripts/dev/check_before_pr.sh
+```
+
+Cette commande vérifie notamment :
+
+- les frontières Web / Mobile ;
+- le format Dart ;
+- `flutter analyze` ;
+- tous les tests ;
+- le build Web ;
+- le build Android ;
+- les erreurs Git détectables localement.
+
+### 6. Pousser la branche
+
+```bash
+./scripts/dev/push_branch.sh
+```
+
+Puis ouvrir une **Pull Request vers `main`**.
+
+### 7. Pendant la review
+
+Si `main` avance pendant que la PR est ouverte :
+
+```bash
+./scripts/dev/sync_main.sh
+./scripts/dev/check_before_pr.sh
+./scripts/dev/push_branch.sh
+```
+
+La CI GitHub repart automatiquement sur le nouvel état de la branche.
+
+### 8. Finir
+
+La PR n'est mergée que lorsque les checks requis sont verts et que les règles du ruleset sont satisfaites.
+
+Le merge se fait avec **Squash & Merge**.
+
+Après le merge, pour démarrer le travail suivant :
+
+```bash
+./scripts/dev/start_branch.sh feat prochaine-feature
+```
+
+Le script repartira du nouveau `main`.
+
+## Règles d'architecture à ne pas casser
+
+Les présentations Web et Mobile sont séparées :
+
+```text
+presentation/web/
+presentation/mobile/
+```
+
+Elles peuvent partager :
+
+```text
+data/
+domain/
+controllers/
+shared/
+```
+
+Un écran `web/` ne doit pas importer directement un écran `mobile/`, et inversement. La CI contrôle cette frontière.
+
+Les fichiers transverses suivants sont des zones de conflit fréquentes :
+
+```text
+lib/app/routing/app_router.dart
+lib/app/bootstrap.dart
+lib/app/app.dart
+pubspec.yaml
+lib/design_system/tokens/
+```
+
+Avant de les modifier, vérifier que personne d'autre ne travaille déjà dessus.
+
+Pour le détail, voir [Workflow & CI/CD](docs/workflow.md).
