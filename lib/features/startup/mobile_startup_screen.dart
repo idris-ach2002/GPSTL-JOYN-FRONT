@@ -1,17 +1,20 @@
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../app/routing/app_routes.dart';
-import '../../design_system/tokens/app_colors.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/widgets/joyn_logo.dart';
 import '../auth/presentation/auth_controller.dart';
-import '../landing/presentation/widgets/joyn_mark.dart';
 
-/// Intro native JOYN : une courte animation de marque précède l'accès au
-/// compte. La landing marketing reste réservée au web.
+/// Intro native JOYN.
+///
+/// Cette scène est volontairement différente de la landing web : deux cartes
+/// de profil se rapprochent, le match est confirmé, puis la marque prend le
+/// relais avant l'ouverture de l'authentification.
 class MobileStartupScreen extends StatefulWidget {
   const MobileStartupScreen({super.key});
 
@@ -30,7 +33,7 @@ class _MobileStartupScreenState extends State<MobileStartupScreen>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2100),
+      duration: const Duration(milliseconds: 2250),
     );
   }
 
@@ -40,14 +43,13 @@ class _MobileStartupScreenState extends State<MobileStartupScreen>
     if (_started) return;
     _started = true;
 
-    final reduceMotion = MediaQuery.disableAnimationsOf(context);
-    if (reduceMotion) {
+    if (MediaQuery.disableAnimationsOf(context)) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _openNext());
       return;
     }
 
     _controller.forward();
-    _navigationTimer = Timer(const Duration(milliseconds: 2450), _openNext);
+    _navigationTimer = Timer(const Duration(milliseconds: 2550), _openNext);
   }
 
   void _openNext() {
@@ -65,99 +67,149 @@ class _MobileStartupScreenState extends State<MobileStartupScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Center(
-          child: AnimatedBuilder(
-            animation: _controller,
-            builder: (context, _) {
-              final value = _controller.value;
-              final meet = Curves.easeInOutCubic.transform(
-                (value / .48).clamp(0.0, 1.0).toDouble(),
-              );
-              final reveal = Curves.easeOutCubic.transform(
-                ((value - .34) / .28).clamp(0.0, 1.0).toDouble(),
-              );
-              final copy = Curves.easeOutCubic.transform(
-                ((value - .58) / .28).clamp(0.0, 1.0).toDouble(),
-              );
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        backgroundColor: AppColors.navy,
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final compact =
+                  constraints.maxHeight < 650 || constraints.maxWidth < 360;
+              final tiny = constraints.maxWidth < 330;
+              return AnimatedBuilder(
+                animation: _controller,
+                builder: (context, _) {
+                  final t = _controller.value;
+                  final entrance = Curves.easeOutBack.transform(
+                    (t / .34).clamp(0.0, 1.0).toDouble(),
+                  );
+                  final meet = Curves.easeInOutCubic.transform(
+                    ((t - .16) / .34).clamp(0.0, 1.0).toDouble(),
+                  );
+                  final pulse = Curves.easeOutBack.transform(
+                    ((t - .43) / .22).clamp(0.0, 1.0).toDouble(),
+                  );
+                  final brand = Curves.easeOutCubic.transform(
+                    ((t - .58) / .24).clamp(0.0, 1.0).toDouble(),
+                  );
+                  final curtain = Curves.easeInCubic.transform(
+                    ((t - .88) / .12).clamp(0.0, 1.0).toDouble(),
+                  );
 
-              return Semantics(
-                label: 'JOYN, ouverture de la connexion',
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  return Stack(
+                    fit: StackFit.expand,
                     children: [
-                      SizedBox(
-                        width: 220,
-                        height: 210,
-                        child: Stack(
-                          alignment: Alignment.center,
+                      const _StartupBackground(),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          tiny ? 16 : 24,
+                          compact ? 22 : 40,
+                          tiny ? 16 : 24,
+                          compact ? 20 : 34,
+                        ),
+                        child: Column(
                           children: [
-                            _OrbitNode(
-                              progress: meet,
-                              from: const Offset(-76, 18),
-                              angle: -math.pi / 10,
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Opacity(
+                                opacity: entrance.clamp(0.0, 1.0).toDouble(),
+                                child: const Hero(
+                                  tag: 'joyn-mobile-brand',
+                                  child: Material(
+                                    color: Colors.transparent,
+                                    child: JoynLogo(
+                                      size: 34,
+                                      showWordmark: true,
+                                      wordmarkColor: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
-                            _OrbitNode(
-                              progress: meet,
-                              from: const Offset(76, -18),
-                              angle: math.pi / 10,
-                              secondary: true,
+                            const Spacer(),
+                            Semantics(
+                              label: 'Animation de matching JOYN',
+                              child: _MatchScene(
+                                entrance: entrance,
+                                meet: meet,
+                                pulse: pulse,
+                                compact: compact,
+                              ),
                             ),
+                            SizedBox(height: compact ? 20 : 34),
+                            Transform.translate(
+                              offset: Offset(0, 14 * (1 - brand)),
+                              child: Opacity(
+                                opacity: brand,
+                                child: Column(
+                                  children: [
+                                    const FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text.rich(
+                                        TextSpan(
+                                          text: 'joyn',
+                                          children: [
+                                            TextSpan(
+                                              text: '.',
+                                              style: TextStyle(
+                                                color: AppColors.coral,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 46,
+                                          height: .95,
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: -2.1,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      'Le match avant la candidature.',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: const Color(0xFFD7E6F1),
+                                        fontSize: compact ? 13 : 15,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const Spacer(),
                             Opacity(
-                              opacity: reveal,
-                              child: Transform.scale(
-                                scale: .78 + (.22 * reveal),
-                                child: const JoynMark(size: 104),
+                              opacity: brand,
+                              child: const Text(
+                                'Trouve. Matche. Échange.',
+                                style: TextStyle(
+                                  color: Color(0xFFAFC5D7),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: .7,
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 22),
-                      Transform.translate(
-                        offset: Offset(0, 14 * (1 - copy)),
-                        child: Opacity(
-                          opacity: copy,
-                          child: const Column(
-                            children: [
-                              Text.rich(
-                                TextSpan(
-                                  text: 'joyn',
-                                  children: [
-                                    TextSpan(
-                                      text: '.',
-                                      style: TextStyle(color: AppColors.orange),
-                                    ),
-                                  ],
-                                ),
-                                style: TextStyle(
-                                  color: AppColors.navy,
-                                  fontSize: 46,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: -1.8,
-                                ),
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                'Le match avant la candidature.',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: AppColors.blueGreyDark,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
+                      if (curtain > 0)
+                        IgnorePointer(
+                          child: Opacity(
+                            opacity: curtain,
+                            child: const ColoredBox(
+                              color: AppColors.background,
+                            ),
                           ),
                         ),
-                      ),
                     ],
-                  ),
-                ),
+                  );
+                },
               );
             },
           ),
@@ -167,52 +219,284 @@ class _MobileStartupScreenState extends State<MobileStartupScreen>
   }
 }
 
-class _OrbitNode extends StatelessWidget {
-  const _OrbitNode({
-    required this.progress,
-    required this.from,
-    required this.angle,
-    this.secondary = false,
-  });
-
-  final double progress;
-  final Offset from;
-  final double angle;
-  final bool secondary;
+class _StartupBackground extends StatelessWidget {
+  const _StartupBackground();
 
   @override
   Widget build(BuildContext context) {
-    final offset = Offset.lerp(from, Offset.zero, progress)!;
-    final opacity = (1 - ((progress - .72) / .28).clamp(0.0, 1.0).toDouble())
-        .clamp(0.0, 1.0)
-        .toDouble();
-
-    return Transform.translate(
-      offset: offset,
-      child: Transform.rotate(
-        angle: angle * (1 - progress),
-        child: Opacity(
-          opacity: opacity,
-          child: Container(
-            width: 74,
-            height: 74,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: secondary ? AppColors.blueGrey10 : AppColors.grey08,
-              border: Border.all(
-                color: secondary ? AppColors.blue : AppColors.orange,
-                width: 2,
-              ),
-            ),
-            child: Icon(
-              secondary
-                  ? Icons.apartment_rounded
-                  : Icons.person_outline_rounded,
-              color: secondary ? AppColors.blue : AppColors.orange,
-              size: 30,
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        const DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF001A34), AppColors.navy, Color(0xFF052B52)],
             ),
           ),
         ),
+        Positioned(
+          top: -100,
+          right: -80,
+          child: Container(
+            width: 260,
+            height: 260,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.sky.withValues(alpha: .10),
+            ),
+          ),
+        ),
+        Positioned(
+          left: -100,
+          bottom: 40,
+          child: Container(
+            width: 250,
+            height: 250,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.coral.withValues(alpha: .10),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MatchScene extends StatelessWidget {
+  const _MatchScene({
+    required this.entrance,
+    required this.meet,
+    required this.pulse,
+    required this.compact,
+  });
+
+  final double entrance;
+  final double meet;
+  final double pulse;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final width = compact ? 272.0 : 320.0;
+    final height = compact ? 196.0 : 245.0;
+    final cardWidth = compact ? 152.0 : 188.0;
+    final cardHeight = compact ? 108.0 : 128.0;
+    final x = compact ? 58.0 : 78.0;
+
+    final leftOffset = Offset.lerp(
+      Offset(-x, 18),
+      Offset(compact ? -20 : -26, 4),
+      meet,
+    )!;
+    final rightOffset = Offset.lerp(
+      Offset(x, -12),
+      Offset(compact ? 21 : 27, -6),
+      meet,
+    )!;
+
+    return SizedBox(
+      width: width,
+      height: height,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Transform.translate(
+            offset: leftOffset,
+            child: Transform.rotate(
+              angle: -.10 * (1 - meet),
+              child: Opacity(
+                opacity: entrance.clamp(0.0, 1.0).toDouble(),
+                child: _ProfileCard(
+                  width: cardWidth,
+                  height: cardHeight,
+                  accent: AppColors.sky,
+                  icon: Icons.person_outline_rounded,
+                  title: 'Alex Dupont',
+                  subtitle: 'Développeur Full-Stack',
+                  tag: 'Candidat',
+                ),
+              ),
+            ),
+          ),
+          Transform.translate(
+            offset: rightOffset,
+            child: Transform.rotate(
+              angle: .10 * (1 - meet),
+              child: Opacity(
+                opacity: entrance.clamp(0.0, 1.0).toDouble(),
+                child: _ProfileCard(
+                  width: cardWidth,
+                  height: cardHeight,
+                  accent: AppColors.coral,
+                  icon: Icons.apartment_rounded,
+                  title: 'Nébula Pay',
+                  subtitle: 'Alternance · Paris',
+                  tag: 'Entreprise',
+                ),
+              ),
+            ),
+          ),
+          if (pulse > 0)
+            Transform.scale(
+              scale: .76 + (.24 * pulse),
+              child: Opacity(
+                opacity: pulse.clamp(0.0, 1.0).toDouble(),
+                child: Container(
+                  width: compact ? 68 : 88,
+                  height: compact ? 68 : 88,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.coral,
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: .78),
+                      width: 5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.coral.withValues(alpha: .40),
+                        blurRadius: 34,
+                        spreadRadius: 6,
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.favorite_rounded,
+                    color: Colors.white,
+                    size: 34,
+                  ),
+                ),
+              ),
+            ),
+          Positioned(
+            top: 8,
+            right: 14,
+            child: Opacity(
+              opacity: pulse.clamp(0.0, 1.0).toDouble(),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: const Text(
+                  '92 % MATCH',
+                  style: TextStyle(
+                    color: AppColors.navy,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: .35,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProfileCard extends StatelessWidget {
+  const _ProfileCard({
+    required this.width,
+    required this.height,
+    required this.accent,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.tag,
+  });
+
+  final double width;
+  final double height;
+  final Color accent;
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final String tag;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: height,
+      padding: EdgeInsets.all(width < 170 ? 11 : 14),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: .96),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.white.withValues(alpha: .60)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: .16),
+            blurRadius: 28,
+            offset: const Offset(0, 14),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: width < 170 ? 30 : 34,
+                height: width < 170 ? 30 : 34,
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: .16),
+                  borderRadius: BorderRadius.circular(11),
+                ),
+                child: Icon(icon, color: accent, size: width < 170 ? 18 : 20),
+              ),
+              const Spacer(),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: width < 170 ? 6 : 8,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: .11),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  tag,
+                  style: TextStyle(
+                    color: accent,
+                    fontSize: width < 170 ? 8 : 9,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const Spacer(),
+          Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: AppColors.navy,
+              fontSize: width < 170 ? 13 : 15,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            subtitle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: AppColors.textMuted,
+              fontSize: width < 170 ? 10 : 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }
