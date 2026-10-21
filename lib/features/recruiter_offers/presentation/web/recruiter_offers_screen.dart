@@ -122,6 +122,9 @@ class WebRecruiterOffersScreen extends StatelessWidget {
                                   company: controller.companyFor(
                                     offer.companyId,
                                   ),
+                                  onTap: () => context.go(
+                                    AppRoutes.recruiterJobDetail(offer.id),
+                                  ),
                                   onEdit: () => context.go(
                                     AppRoutes.recruiterJobEdit(offer.id),
                                   ),
@@ -558,6 +561,7 @@ class _OfferRow extends StatefulWidget {
   const _OfferRow({
     required this.offer,
     required this.company,
+    required this.onTap,
     required this.onEdit,
     required this.onClose,
     required this.onDelete,
@@ -565,6 +569,7 @@ class _OfferRow extends StatefulWidget {
 
   final JobOffer offer;
   final RecruiterCompany? company;
+  final VoidCallback onTap;
   final VoidCallback onEdit;
   final VoidCallback onClose;
   final VoidCallback onDelete;
@@ -590,240 +595,288 @@ class _OfferRowState extends State<_OfferRow> {
           sizeRange: '',
           city: '',
         );
-    final accent = companyColor(company.id);
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 190),
-        curve: Curves.easeOutCubic,
-        transform: Matrix4.translationValues(0, _hovered ? -2.5 : 0, 0),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.white,
-              Color.alphaBlend(accent.withValues(alpha: .035), Colors.white),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: _hovered
-                ? const Color(0xFF98C8F2)
-                : const Color(0xFFE1E8EE),
-            width: _hovered ? 1.25 : 1,
-          ),
-          boxShadow: _hovered
-              ? [
-                  const BoxShadow(
-                    color: Color(0x1A0A3152),
-                    blurRadius: 26,
-                    offset: Offset(0, 12),
-                  ),
-                ]
-              : const [
-                  BoxShadow(
-                    color: Color(0x0D0A3152),
-                    blurRadius: 14,
-                    offset: Offset(0, 7),
-                  ),
-                ],
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Stack(
-          children: [
-            Positioned(
-              left: 0,
-              top: 18,
-              bottom: 18,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 190),
-                width: _hovered ? 4 : 3,
-                decoration: BoxDecoration(
-                  color: accent,
-                  borderRadius: BorderRadius.circular(99),
-                ),
-              ),
-            ),
-            Positioned(
-              right: -44,
-              top: -54,
-              child: IgnorePointer(
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 240),
-                  width: _hovered ? 175 : 150,
-                  height: _hovered ? 175 : 150,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        accent.withValues(alpha: _hovered ? .075 : .04),
-                        accent.withValues(alpha: 0),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 17, 16, 15),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: widget.onTap,
+        child: AnimatedScale(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOutCubic,
+          scale: _hovered ? 1.0025 : 1,
+          child: OfferGlassSurface(
+            hovered: _hovered,
+            waveWidth: 430,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(22, 16, 18, 15),
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  final compact = constraints.maxWidth < 860;
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CompanyAvatar(company: company, size: 48),
-                          const SizedBox(width: 13),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  offer.title,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    color: AppColors.navy,
-                                    fontFamily: AppFonts.display,
-                                    fontSize: 15.5,
-                                    height: 1.12,
-                                    fontWeight: FontWeight.w900,
-                                    letterSpacing: -.2,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '${company.name} · ${company.city.isEmpty ? offer.location : company.city}',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    color: AppColors.slate,
-                                    fontSize: 10.5,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          OfferStatusBadge(status: offer.status),
-                          const SizedBox(width: 8),
-                          OfferOptionsButton(
-                            status: offer.status,
-                            onEdit: widget.onEdit,
-                            onClose: offer.status == JobOfferStatus.closed
-                                ? null
-                                : widget.onClose,
-                            onDelete: widget.onDelete,
-                            compact: true,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 7,
-                        runSpacing: 7,
-                        children: [
-                          OfferMetaChip(
-                            label: offer.contractType.label,
-                            icon: Icons.work_outline_rounded,
-                          ),
-                          OfferMetaChip(
-                            label: offer.location,
-                            icon: Icons.location_on_outlined,
-                          ),
-                          OfferMetaChip(
-                            label: offer.remoteMode.label,
-                            icon: Icons.laptop_mac_rounded,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 11),
-                      Text(
-                        offer.description.replaceAll(RegExp(r'[*#>\[\]]'), ''),
-                        maxLines: compact ? 2 : 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: AppColors.slate,
-                          fontSize: 10.5,
-                          height: 1.42,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Container(height: 1, color: const Color(0xFFEAF0F4)),
-                      const SizedBox(height: 11),
-                      if (compact) ...[
-                        Wrap(
-                          spacing: 6,
-                          runSpacing: 6,
-                          children: _skillPills(offer),
-                        ),
-                        const SizedBox(height: 10),
-                        Wrap(
-                          spacing: 18,
-                          runSpacing: 7,
-                          children: _metrics(offer),
-                        ),
-                      ] else
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Wrap(
-                                spacing: 6,
-                                runSpacing: 6,
-                                children: _skillPills(offer),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            ..._metrics(offer).expand(
-                              (metric) => [metric, const SizedBox(width: 16)],
-                            ),
-                          ],
-                        ),
-                    ],
-                  );
+                  final compact = constraints.maxWidth < 850;
+                  if (compact) {
+                    return _buildCompact(context, offer, company);
+                  }
+                  return _buildWide(context, offer, company);
                 },
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  List<Widget> _skillPills(JobOffer offer) {
+  Widget _buildWide(
+    BuildContext context,
+    JobOffer offer,
+    RecruiterCompany company,
+  ) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 6,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  offer.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: AppColors.navy,
+                    fontFamily: AppFonts.display,
+                    fontSize: 16,
+                    height: 1.1,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -.22,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                _CompanyLine(company: company, location: offer.location),
+              ],
+            ),
+          ),
+          const SizedBox(width: 18),
+          OfferStatusBadge(status: offer.status),
+          const SizedBox(width: 8),
+          OfferOptionsButton(
+            status: offer.status,
+            onEdit: widget.onEdit,
+            onClose: offer.status == JobOfferStatus.closed
+                ? null
+                : widget.onClose,
+            onDelete: widget.onDelete,
+            compact: true,
+          ),
+        ],
+      ),
+      const SizedBox(height: 12),
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 6,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _plainDescription(offer.description),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: AppColors.slate,
+                    fontSize: 10.5,
+                    height: 1.38,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                InkWell(
+                  onTap: widget.onTap,
+                  child: const Text(
+                    'Lire la suite  →',
+                    style: TextStyle(
+                      color: Color(0xFF1475D1),
+                      fontSize: 10,
+                      height: 1,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 11),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: _skillTags(offer),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 22),
+          Container(width: 1, height: 78, color: const Color(0xFFDDE7EF)),
+          const SizedBox(width: 22),
+          Expanded(
+            flex: 5,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Wrap(
+                  spacing: 7,
+                  runSpacing: 7,
+                  children: [
+                    OfferMetaChip(
+                      label: offer.contractType.label,
+                      icon: Icons.work_outline_rounded,
+                    ),
+                    OfferMetaChip(
+                      label: offer.location,
+                      icon: Icons.location_on_outlined,
+                    ),
+                    OfferMetaChip(
+                      label: offer.remoteMode.label,
+                      icon: Icons.laptop_mac_rounded,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 15),
+                Wrap(
+                  spacing: 20,
+                  runSpacing: 8,
+                  children: _metrics(offer),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ],
+  );
+
+  Widget _buildCompact(
+    BuildContext context,
+    JobOffer offer,
+    RecruiterCompany company,
+  ) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  offer.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: AppColors.navy,
+                    fontFamily: AppFonts.display,
+                    fontSize: 15,
+                    height: 1.12,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                _CompanyLine(company: company, location: offer.location),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          OfferStatusBadge(status: offer.status),
+          const SizedBox(width: 7),
+          OfferOptionsButton(
+            status: offer.status,
+            onEdit: widget.onEdit,
+            onClose: offer.status == JobOfferStatus.closed
+                ? null
+                : widget.onClose,
+            onDelete: widget.onDelete,
+            compact: true,
+          ),
+        ],
+      ),
+      const SizedBox(height: 11),
+      Text(
+        _plainDescription(offer.description),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(
+          color: AppColors.slate,
+          fontSize: 10.5,
+          height: 1.38,
+        ),
+      ),
+      const SizedBox(height: 5),
+      InkWell(
+        onTap: widget.onTap,
+        child: const Text(
+          'Lire la suite  →',
+          style: TextStyle(
+            color: Color(0xFF1475D1),
+            fontSize: 10,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ),
+      const SizedBox(height: 10),
+      Wrap(
+        spacing: 7,
+        runSpacing: 7,
+        children: [
+          OfferMetaChip(
+            label: offer.contractType.label,
+            icon: Icons.work_outline_rounded,
+          ),
+          OfferMetaChip(
+            label: offer.remoteMode.label,
+            icon: Icons.laptop_mac_rounded,
+          ),
+        ],
+      ),
+      const SizedBox(height: 11),
+      Row(
+        children: [
+          Expanded(
+            child: Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: _skillTags(offer),
+            ),
+          ),
+          const SizedBox(width: 12),
+          ..._metrics(offer).expand(
+            (metric) => [metric, const SizedBox(width: 12)],
+          ),
+        ],
+      ),
+    ],
+  );
+
+  String _plainDescription(String value) => value
+      .replaceAll(RegExp(r'[*#>\[\]`]'), '')
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .trim();
+
+  List<Widget> _skillTags(JobOffer offer) {
     final visible = offer.skills.take(5).toList();
     return [
-      for (final skill in visible)
-        JoynPill(
-          label: skill,
-          background: const Color(0xFFEAF4FC),
-          foreground: const Color(0xFF1976D2),
-          fontSize: 9,
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        ),
+      for (final skill in visible) OfferSkillTag(label: skill),
       if (offer.skills.length > visible.length)
-        JoynPill(
-          label: '+${offer.skills.length - visible.length}',
-          background: const Color(0xFFF0F3F6),
-          foreground: AppColors.slateDark,
-          fontSize: 9,
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        ),
+        OfferSkillTag(label: '+${offer.skills.length - visible.length}'),
     ];
   }
 
   List<Widget> _metrics(JobOffer offer) => [
     _OfferMetric(
       icon: Icons.group_outlined,
-      label: '${offer.candidateCount} candidat${offer.candidateCount > 1 ? 's' : ''}',
+      label:
+          '${offer.candidateCount} candidat${offer.candidateCount > 1 ? 's' : ''}',
     ),
     _OfferMetric(
       icon: Icons.calendar_today_outlined,
@@ -832,6 +885,49 @@ class _OfferRowState extends State<_OfferRow> {
           : 'Publiée le ${dateLabel(offer.publishedAt)}',
     ),
   ];
+}
+
+class _CompanyLine extends StatelessWidget {
+  const _CompanyLine({required this.company, required this.location});
+
+  final RecruiterCompany company;
+  final String location;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      CompanyMiniLogo(company: company, size: 21),
+      const SizedBox(width: 7),
+      Flexible(
+        child: Text(
+          company.name,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            color: AppColors.navy,
+            fontSize: 10.5,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ),
+      const SizedBox(width: 6),
+      const Text('·', style: TextStyle(color: AppColors.placeholder)),
+      const SizedBox(width: 6),
+      Flexible(
+        child: Text(
+          location,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            color: AppColors.slate,
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    ],
+  );
 }
 
 class _OfferMetric extends StatelessWidget {
@@ -965,92 +1061,122 @@ class _StatCard extends StatelessWidget {
   final Color tint;
 
   @override
-  Widget build(BuildContext context) => Container(
-    height: 96,
-    padding: const EdgeInsets.fromLTRB(14, 13, 12, 12),
-    decoration: BoxDecoration(
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [Colors.white, Color.alphaBlend(tint.withValues(alpha: .32), Colors.white)],
-      ),
-      borderRadius: BorderRadius.circular(17),
-      border: Border.all(color: const Color(0xFFE4EBF0)),
-      boxShadow: const [
-        BoxShadow(
-          color: Color(0x0D0A3152),
-          blurRadius: 16,
-          offset: Offset(0, 8),
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final compact = constraints.maxWidth < 235;
+      final showSparkline = constraints.maxWidth >= 220;
+
+      return Container(
+        constraints: const BoxConstraints(minHeight: 96),
+        padding: EdgeInsets.fromLTRB(
+          compact ? 12 : 14,
+          12,
+          compact ? 10 : 12,
+          12,
         ),
-      ],
-    ),
-    child: Row(
-      children: [
-        Container(
-          width: 46,
-          height: 46,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: tint,
-            borderRadius: BorderRadius.circular(15),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.white,
+              Color.alphaBlend(tint.withValues(alpha: .32), Colors.white),
+            ],
           ),
-          child: Icon(icon, color: iconColor, size: 21),
+          borderRadius: BorderRadius.circular(17),
+          border: Border.all(color: const Color(0xFFE4EBF0)),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x0D0A3152),
+              blurRadius: 16,
+              offset: Offset(0, 8),
+            ),
+          ],
         ),
-        const SizedBox(width: 11),
-        Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: const TextStyle(
-                  color: AppColors.navy,
-                  fontSize: 10.5,
-                  fontWeight: FontWeight.w800,
-                ),
+        child: Row(
+          children: [
+            Container(
+              width: compact ? 42 : 46,
+              height: compact ? 42 : 46,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: tint,
+                borderRadius: BorderRadius.circular(15),
               ),
-              const SizedBox(height: 2),
-              Text(
-                '$value',
-                style: const TextStyle(
-                  color: AppColors.navy,
-                  fontSize: 24,
-                  height: 1,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Row(
+              child: Icon(icon, color: iconColor, size: 21),
+            ),
+            SizedBox(width: compact ? 9 : 11),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    value == 0 ? Icons.remove_rounded : Icons.trending_up_rounded,
-                    size: 12,
-                    color: value == 0 ? AppColors.placeholder : AppColors.successDeep,
-                  ),
-                  const SizedBox(width: 3),
                   Text(
-                    value == 0 ? 'stable' : 'activité récente',
-                    style: TextStyle(
-                      color: value == 0 ? AppColors.placeholder : AppColors.successDeep,
-                      fontSize: 7.5,
-                      fontWeight: FontWeight.w700,
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: AppColors.navy,
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w800,
                     ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '$value',
+                    style: const TextStyle(
+                      color: AppColors.navy,
+                      fontSize: 24,
+                      height: 1,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(
+                        value == 0
+                            ? Icons.remove_rounded
+                            : Icons.trending_up_rounded,
+                        size: 12,
+                        color: value == 0
+                            ? AppColors.placeholder
+                            : AppColors.successDeep,
+                      ),
+                      const SizedBox(width: 3),
+                      Expanded(
+                        child: Text(
+                          value == 0 ? 'stable' : 'activité récente',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: value == 0
+                                ? AppColors.placeholder
+                                : AppColors.successDeep,
+                            fontSize: 7.5,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
+            ),
+            if (showSparkline) ...[
+              const SizedBox(width: 6),
+              SizedBox(
+                width: compact ? 42 : 54,
+                height: 34,
+                child: CustomPaint(
+                  painter: _SparklinePainter(color: iconColor, seed: value),
+                ),
+              ),
             ],
-          ),
+          ],
         ),
-        SizedBox(
-          width: 54,
-          height: 34,
-          child: CustomPaint(
-            painter: _SparklinePainter(color: iconColor, seed: value),
-          ),
-        ),
-      ],
-    ),
+      );
+    },
   );
 }
 
