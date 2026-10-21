@@ -649,7 +649,7 @@ class _OfferRow extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           SizedBox(
-            width: 138,
+            width: 190,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
@@ -685,8 +685,10 @@ class _OfferRow extends StatelessWidget {
                 ),
                 if (offer.status != JobOfferStatus.closed) ...[
                   const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                  Wrap(
+                    alignment: WrapAlignment.end,
+                    spacing: 6,
+                    runSpacing: 6,
                     children: [
                       OutlinedButton.icon(
                         onPressed: onEdit,
@@ -698,7 +700,6 @@ class _OfferRow extends StatelessWidget {
                         ),
                       ),
                       if (offer.status == JobOfferStatus.published) ...[
-                        const SizedBox(width: 5),
                         OutlinedButton(
                           onPressed: onClose,
                           style: OutlinedButton.styleFrom(
