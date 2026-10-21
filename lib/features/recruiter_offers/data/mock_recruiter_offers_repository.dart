@@ -166,7 +166,12 @@ class MockRecruiterOffersRepository implements RecruiterOffersRepository {
     ),
   ];
 
-  Future<void> _wait() => Future<void>.delayed(latency);
+  Future<void> _wait() async {
+    if (latency == Duration.zero) {
+      return;
+    }
+    await Future<void>.delayed(latency);
+  }
 
   @override
   Future<List<RecruiterCompany>> fetchCompanies() async {
