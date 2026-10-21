@@ -223,8 +223,8 @@ class _Hero extends StatelessWidget {
                       'Entreprise',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 8,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                   ),
@@ -264,7 +264,7 @@ class _Hero extends StatelessWidget {
           'Mes offres',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 29,
+            fontSize: 38,
             height: 1,
             fontWeight: FontWeight.w900,
             letterSpacing: -.8,
@@ -273,7 +273,7 @@ class _Hero extends StatelessWidget {
         const SizedBox(height: 6),
         const Text(
           'Gérez et suivez toutes vos offres d’emploi sur Joyn.',
-          style: TextStyle(color: Color(0xFFE4F3FB), fontSize: 12, height: 1.4),
+          style: TextStyle(color: Color(0xFFE4F3FB), fontSize: 15, height: 1.4),
         ),
         const SizedBox(height: 20),
         Row(
@@ -369,7 +369,7 @@ class _HeroStat extends StatelessWidget {
                       '$value',
                       style: const TextStyle(
                         color: AppColors.navy,
-                        fontSize: 20,
+                        fontSize: 26,
                         height: 1,
                         fontWeight: FontWeight.w900,
                       ),
@@ -381,19 +381,19 @@ class _HeroStat extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: AppColors.slate,
-                        fontSize: 8.5,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                   ],
                 ),
               ),
               Container(
-                width: 27,
-                height: 27,
+                width: 32,
+                height: 32,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(color: tone, shape: BoxShape.circle),
-                child: Icon(icon, size: 14, color: foreground),
+                child: Icon(icon, size: 17, color: foreground),
               ),
             ],
           ),
@@ -403,8 +403,8 @@ class _HeroStat extends StatelessWidget {
             child: OfferKpiMiniChart(
               color: foreground,
               style: _chartStyle,
-              width: 44,
-              height: 20,
+              width: 50,
+              height: 23,
             ),
           ),
         ],
@@ -418,7 +418,7 @@ class _CompanyFilters extends StatelessWidget {
   final OfferManagementController controller;
   @override
   Widget build(BuildContext context) => SizedBox(
-    height: 42,
+    height: 48,
     child: ListView.separated(
       scrollDirection: Axis.horizontal,
       itemCount: controller.companies.length + 1,
@@ -434,7 +434,7 @@ class _CompanyFilters extends StatelessWidget {
             backgroundColor: Colors.white,
             labelStyle: TextStyle(
               color: active ? Colors.white : AppColors.navy,
-              fontSize: 10,
+              fontSize: 12,
               fontWeight: FontWeight.w800,
             ),
             side: BorderSide.none,
@@ -451,7 +451,7 @@ class _CompanyFilters extends StatelessWidget {
           backgroundColor: Colors.white,
           labelStyle: const TextStyle(
             color: AppColors.navy,
-            fontSize: 10,
+            fontSize: 12,
             fontWeight: FontWeight.w800,
           ),
           side: BorderSide(
@@ -552,7 +552,7 @@ class _StatusFilter extends StatelessWidget {
       ),
       labelStyle: TextStyle(
         color: active ? const Color(0xFF1976D2) : AppColors.slate,
-        fontSize: 9,
+        fontSize: 11.5,
         fontWeight: FontWeight.w800,
       ),
     ),
@@ -594,10 +594,10 @@ class _MobileOfferCard extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        child: OfferGlassSurface(
-          waveWidth: 155,
+        child: OfferCardSurface(
+          accentWidth: 170,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
+            padding: const EdgeInsets.fromLTRB(16, 15, 14, 14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -612,7 +612,7 @@ class _MobileOfferCard extends StatelessWidget {
                             children: [
                               OfferStatusBadge(status: offer.status),
                               const SizedBox(width: 8),
-                              CompanyMiniLogo(company: c, size: 18),
+                              CompanyMiniLogo(company: c, size: 22),
                               const SizedBox(width: 5),
                               Flexible(
                                 child: Text(
@@ -621,7 +621,7 @@ class _MobileOfferCard extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
                                     color: AppColors.navy,
-                                    fontSize: 9.2,
+                                    fontSize: 12,
                                     fontWeight: FontWeight.w800,
                                   ),
                                 ),
@@ -639,7 +639,7 @@ class _MobileOfferCard extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
                                     color: AppColors.slate,
-                                    fontSize: 8.8,
+                                    fontSize: 11,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -653,8 +653,8 @@ class _MobileOfferCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               color: AppColors.navy,
-                              fontSize: 13.5,
-                              height: 1.15,
+                              fontSize: 18,
+                              height: 1.16,
                               fontWeight: FontWeight.w900,
                               letterSpacing: -.15,
                             ),
@@ -681,8 +681,8 @@ class _MobileOfferCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: AppColors.slate,
-                    fontSize: 9.7,
-                    height: 1.35,
+                    fontSize: 13.2,
+                    height: 1.42,
                   ),
                 ),
                 const SizedBox(height: 3),
@@ -694,7 +694,7 @@ class _MobileOfferCard extends StatelessWidget {
                       'Lire la suite  →',
                       style: TextStyle(
                         color: Color(0xFF1475D1),
-                        fontSize: 9.5,
+                        fontSize: 12.2,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -731,47 +731,57 @@ class _MobileOfferCard extends StatelessWidget {
                 const SizedBox(height: 9),
                 Container(height: 1, color: const Color(0xFFDDE7EF)),
                 const SizedBox(height: 8),
-                Row(
+                Wrap(
+                  spacing: 14,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    if (offer.candidateCount > 0) ...[
-                      OfferCandidateAvatars(
-                        count: offer.candidateCount,
-                        size: 23,
-                        maxVisible: 3,
-                      ),
-                      const SizedBox(width: 7),
-                    ],
-                    const Icon(
-                      Icons.group_outlined,
-                      size: 12,
-                      color: AppColors.slate,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${offer.candidateCount} candidat${offer.candidateCount > 1 ? 's' : ''}',
-                      style: const TextStyle(
-                        color: AppColors.slate,
-                        fontSize: 8.8,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const Spacer(),
-                    const Icon(
-                      Icons.calendar_today_outlined,
-                      size: 11,
-                      color: AppColors.slate,
-                    ),
-                    const SizedBox(width: 4),
-                    Flexible(
-                      child: Text(
-                        dateLabel(offer.publishedAt ?? offer.updatedAt),
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (offer.candidateCount > 0) ...[
+                          OfferCandidateAvatars(
+                            count: offer.candidateCount,
+                            size: 27,
+                            maxVisible: 3,
+                          ),
+                          const SizedBox(width: 7),
+                        ],
+                        const Icon(
+                          Icons.group_outlined,
+                          size: 15,
                           color: AppColors.slate,
-                          fontSize: 8.8,
-                          fontWeight: FontWeight.w700,
                         ),
-                      ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${offer.candidateCount} candidat${offer.candidateCount > 1 ? 's' : ''}',
+                          style: const TextStyle(
+                            color: AppColors.slate,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.calendar_today_outlined,
+                          size: 14,
+                          color: AppColors.slate,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          dateLabel(offer.publishedAt ?? offer.updatedAt),
+                          style: const TextStyle(
+                            color: AppColors.slate,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -845,7 +855,7 @@ class _ActionSheet extends StatelessWidget {
               textAlign: TextAlign.center,
               style: const TextStyle(
                 color: AppColors.navy,
-                fontSize: 22,
+                fontSize: 28,
                 fontWeight: FontWeight.w900,
               ),
             ),

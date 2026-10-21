@@ -49,12 +49,12 @@ class WebRecruiterOffersScreen extends StatelessWidget {
                 children: [
                   Center(
                     child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 1220),
+                      constraints: const BoxConstraints(maxWidth: 1320),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           const RecruiterOffersTopBar(),
-                          const SizedBox(height: 28),
+                          const SizedBox(height: 30),
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
@@ -67,7 +67,7 @@ class WebRecruiterOffersScreen extends StatelessWidget {
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontFamily: AppFonts.display,
-                                        fontSize: 34,
+                                        fontSize: 42,
                                         height: 1,
                                         fontWeight: FontWeight.w800,
                                         letterSpacing: -.8,
@@ -78,7 +78,7 @@ class WebRecruiterOffersScreen extends StatelessWidget {
                                       'Gérez, modifiez et suivez toutes vos offres.',
                                       style: TextStyle(
                                         color: Color(0xFFE4F3FB),
-                                        fontSize: 14,
+                                        fontSize: 16,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -331,7 +331,7 @@ class _CompanyFilterCard extends StatelessWidget {
           'Filtrer par entreprise',
           style: TextStyle(
             color: AppColors.navy,
-            fontSize: 12,
+            fontSize: 14,
             fontWeight: FontWeight.w900,
           ),
         ),
@@ -436,6 +436,11 @@ class _FiltersCard extends StatelessWidget {
             Expanded(
               child: TextField(
                 onChanged: controller.setQuery,
+                style: const TextStyle(
+                  color: AppColors.navy,
+                  fontSize: 14.5,
+                  fontWeight: FontWeight.w600,
+                ),
                 decoration: InputDecoration(
                   prefixIcon: const Icon(
                     Icons.search_rounded,
@@ -609,11 +614,11 @@ class _OfferRowState extends State<_OfferRow> {
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOutCubic,
           scale: _hovered ? 1.0025 : 1,
-          child: OfferGlassSurface(
+          child: OfferCardSurface(
             hovered: _hovered,
-            waveWidth: 430,
+            accentWidth: 400,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(22, 16, 18, 15),
+              padding: const EdgeInsets.fromLTRB(24, 20, 20, 19),
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final compact = constraints.maxWidth < 850;
@@ -663,8 +668,8 @@ class _OfferRowState extends State<_OfferRow> {
               style: const TextStyle(
                 color: AppColors.navy,
                 fontFamily: AppFonts.display,
-                fontSize: 16,
-                height: 1.1,
+                fontSize: 20,
+                height: 1.12,
                 fontWeight: FontWeight.w900,
                 letterSpacing: -.22,
               ),
@@ -676,8 +681,8 @@ class _OfferRowState extends State<_OfferRow> {
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 color: AppColors.slate,
-                fontSize: 10.5,
-                height: 1.38,
+                fontSize: 13,
+                height: 1.42,
               ),
             ),
             const SizedBox(height: 4),
@@ -687,7 +692,7 @@ class _OfferRowState extends State<_OfferRow> {
                 'Lire la suite  →',
                 style: TextStyle(
                   color: Color(0xFF1475D1),
-                  fontSize: 10,
+                  fontSize: 12.5,
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -753,7 +758,7 @@ class _OfferRowState extends State<_OfferRow> {
               const SizedBox(height: 10),
               OfferCandidateAvatars(
                 count: offer.candidateCount,
-                size: 27,
+                size: 31,
                 maxVisible: 4,
               ),
             ],
@@ -798,8 +803,8 @@ class _OfferRowState extends State<_OfferRow> {
                   style: const TextStyle(
                     color: AppColors.navy,
                     fontFamily: AppFonts.display,
-                    fontSize: 15,
-                    height: 1.12,
+                    fontSize: 18,
+                    height: 1.16,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -825,8 +830,8 @@ class _OfferRowState extends State<_OfferRow> {
         overflow: TextOverflow.ellipsis,
         style: const TextStyle(
           color: AppColors.slate,
-          fontSize: 10.5,
-          height: 1.38,
+          fontSize: 12.5,
+          height: 1.42,
         ),
       ),
       const SizedBox(height: 4),
@@ -836,7 +841,7 @@ class _OfferRowState extends State<_OfferRow> {
           'Lire la suite  →',
           style: TextStyle(
             color: Color(0xFF1475D1),
-            fontSize: 10,
+            fontSize: 12,
             fontWeight: FontWeight.w800,
           ),
         ),
@@ -875,7 +880,7 @@ class _OfferRowState extends State<_OfferRow> {
           if (offer.candidateCount > 0)
             OfferCandidateAvatars(
               count: offer.candidateCount,
-              size: 24,
+              size: 27,
               maxVisible: 3,
             ),
           ..._metrics(offer),
@@ -923,7 +928,7 @@ class _CompanyLine extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      CompanyMiniLogo(company: company, size: 21),
+      CompanyMiniLogo(company: company, size: 24),
       const SizedBox(width: 7),
       Flexible(
         child: Text(
@@ -932,7 +937,7 @@ class _CompanyLine extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
             color: AppColors.navy,
-            fontSize: 10.5,
+            fontSize: 12.5,
             fontWeight: FontWeight.w800,
           ),
         ),
@@ -947,7 +952,7 @@ class _CompanyLine extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
             color: AppColors.slate,
-            fontSize: 10,
+            fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -965,14 +970,14 @@ class _OfferMetric extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Icon(icon, size: 14, color: AppColors.slate),
+      Icon(icon, size: 16, color: AppColors.slate),
       const SizedBox(width: 5),
       Text(
         label,
         style: const TextStyle(
           color: AppColors.slate,
-          fontSize: 9.5,
-          fontWeight: FontWeight.w600,
+          fontSize: 11.5,
+          fontWeight: FontWeight.w700,
         ),
       ),
     ],
@@ -1020,8 +1025,8 @@ class _CompanyFilterTile extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        width: 164,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        width: 180,
+        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
@@ -1032,16 +1037,16 @@ class _CompanyFilterTile extends StatelessWidget {
         child: Row(
           children: [
             if (company != null)
-              CompanyAvatar(company: company!, size: 36)
+              CompanyAvatar(company: company!, size: 40)
             else
               Container(
-                width: 36,
-                height: 36,
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
                   color: const Color(0xFFEAF4FC),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, size: 18, color: const Color(0xFF1976D2)),
+                child: Icon(icon, size: 20, color: const Color(0xFF1976D2)),
               ),
             const SizedBox(width: 9),
             Expanded(
@@ -1054,13 +1059,13 @@ class _CompanyFilterTile extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       color: AppColors.navy,
-                      fontSize: 11,
+                      fontSize: 13,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
                   Text(
                     subtitle,
-                    style: const TextStyle(color: AppColors.slate, fontSize: 9),
+                    style: const TextStyle(color: AppColors.slate, fontSize: 11),
                   ),
                 ],
               ),
@@ -1106,7 +1111,7 @@ class _StatCard extends StatelessWidget {
       final showChart = constraints.maxWidth >= 205;
 
       return Container(
-        constraints: const BoxConstraints(minHeight: 96),
+        constraints: const BoxConstraints(minHeight: 112),
         padding: EdgeInsets.fromLTRB(
           compact ? 12 : 14,
           12,
@@ -1135,14 +1140,14 @@ class _StatCard extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: compact ? 42 : 46,
-              height: compact ? 42 : 46,
+              width: compact ? 46 : 52,
+              height: compact ? 46 : 52,
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: tint,
                 borderRadius: BorderRadius.circular(15),
               ),
-              child: Icon(icon, color: iconColor, size: 21),
+              child: Icon(icon, color: iconColor, size: 24),
             ),
             SizedBox(width: compact ? 9 : 11),
             Expanded(
@@ -1154,7 +1159,7 @@ class _StatCard extends StatelessWidget {
                     '$value',
                     style: const TextStyle(
                       color: AppColors.navy,
-                      fontSize: 24,
+                      fontSize: 30,
                       height: 1,
                       fontWeight: FontWeight.w900,
                     ),
@@ -1166,7 +1171,7 @@ class _StatCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       color: AppColors.navy,
-                      fontSize: 10.5,
+                      fontSize: 13,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -1179,7 +1184,7 @@ class _StatCard extends StatelessWidget {
                       color: label == 'Brouillons' || label == 'Total'
                           ? AppColors.placeholder
                           : AppColors.successDeep,
-                      fontSize: 7.5,
+                      fontSize: 10.5,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -1191,8 +1196,8 @@ class _StatCard extends StatelessWidget {
               OfferKpiMiniChart(
                 color: iconColor,
                 style: _chartStyle,
-                width: compact ? 48 : 66,
-                height: 38,
+                width: compact ? 52 : 76,
+                height: 42,
               ),
             ],
           ],
@@ -1227,8 +1232,8 @@ class _StatusChip extends StatelessWidget {
       children: [
         if (dot != null) ...[
           Container(
-            width: 6,
-            height: 6,
+            width: 7,
+            height: 7,
             decoration: BoxDecoration(color: dot, shape: BoxShape.circle),
           ),
           const SizedBox(width: 5),
@@ -1240,8 +1245,8 @@ class _StatusChip extends StatelessWidget {
     ),
     labelStyle: TextStyle(
       color: active ? const Color(0xFF1976D2) : AppColors.slateDark,
-      fontSize: 10,
-      fontWeight: FontWeight.w700,
+      fontSize: 12,
+      fontWeight: FontWeight.w800,
     ),
   );
 }
@@ -1270,6 +1275,11 @@ class _MiniSelect<T> extends StatelessWidget {
   Widget build(BuildContext context) => DropdownButtonFormField<T?>(
     initialValue: value,
     isExpanded: true,
+    style: const TextStyle(
+      color: AppColors.navy,
+      fontSize: 13,
+      fontWeight: FontWeight.w700,
+    ),
     items: [
       if (nullable) DropdownMenuItem<T?>(value: null, child: Text(allLabel)),
       ...values.map(
@@ -1279,7 +1289,12 @@ class _MiniSelect<T> extends StatelessWidget {
     onChanged: onChanged,
     decoration: InputDecoration(
       labelText: label,
-      prefixIcon: Icon(icon, size: 18),
+      labelStyle: const TextStyle(
+        color: AppColors.slate,
+        fontSize: 12,
+        fontWeight: FontWeight.w700,
+      ),
+      prefixIcon: Icon(icon, size: 20),
       isDense: true,
       filled: true,
       fillColor: Colors.white,
