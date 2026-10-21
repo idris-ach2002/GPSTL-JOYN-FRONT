@@ -222,11 +222,46 @@ class _MobileOfferEditorScreenState extends State<MobileOfferEditorScreen> {
     _title('Compétences & rémunération', 'Ajoutez les compétences clés et la fourchette de salaire.'),
     const Text('Compétences recherchées *', style: _labelStyle),
     const SizedBox(height: 8),
-    Row(children: [
-      Expanded(child: TextField(controller: _skill, onSubmitted: (_) => _addSkill(controller), decoration: InputDecoration(prefixIcon: const Icon(Icons.search_rounded), hintText: 'React, Java, Figma…', filled: true, fillColor: const Color(0xFFF4F6F3), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFFE4E8E3))))))),
-      const SizedBox(width: 8),
-      SizedBox(width: 54, height: 54, child: FilledButton(onPressed: () => _addSkill(controller), style: FilledButton.styleFrom(backgroundColor: const Color(0xFFEAF4FC), foregroundColor: const Color(0xFF1976D2), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))), child: const Icon(Icons.add_rounded))),
-    ]),
+    Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: _skill,
+            onSubmitted: (_) => _addSkill(controller),
+            decoration: InputDecoration(
+              prefixIcon: const Icon(Icons.search_rounded),
+              hintText: 'React, Java, Figma…',
+              filled: true,
+              fillColor: const Color(0xFFF4F6F3),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(color: Color(0xFFE4E8E3)),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        SizedBox(
+          width: 54,
+          height: 54,
+          child: FilledButton(
+            onPressed: () => _addSkill(controller),
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFEAF4FC),
+              foregroundColor: const Color(0xFF1976D2),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+            child: const Icon(Icons.add_rounded),
+          ),
+        ),
+      ],
+    ),
     const SizedBox(height: 10),
     Wrap(spacing: 7, runSpacing: 7, children: controller.skills.map((skill) => InputChip(label: Text(skill), onDeleted: () => controller.removeSkill(skill), backgroundColor: const Color(0xFFEAF4FC), deleteIconColor: const Color(0xFF1976D2), labelStyle: const TextStyle(color: Color(0xFF1976D2), fontSize: 11, fontWeight: FontWeight.w700), side: BorderSide.none)).toList()),
     _error(controller.errors['skills']),

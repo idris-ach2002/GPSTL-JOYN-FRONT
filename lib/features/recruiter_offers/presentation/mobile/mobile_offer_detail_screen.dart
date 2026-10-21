@@ -72,13 +72,51 @@ class MobileOfferDetailScreen extends StatelessWidget {
         Container(
           padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
           decoration: const BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: Color(0xFFE9ECE8)))),
-          child: Row(children: [
-            Expanded(child: SizedBox(height: 52, child: OutlinedButton.icon(onPressed: () => context.go(AppRoutes.recruiterJobEdit(offer.id)), icon: const Icon(Icons.edit_outlined), label: const Text('Modifier'), style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFF1976D2), side: const BorderSide(color: Color(0xFFB8D7F3)), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)))))),
-            if (offer.status != JobOfferStatus.closed) ...[
-              const SizedBox(width: 9),
-              Expanded(child: SizedBox(height: 52, child: FilledButton.icon(onPressed: controller.isClosing ? null : () => _showCloseSheet(context, controller), icon: const Icon(Icons.pause_circle_outline_rounded), label: const Text('Clôturer'), style: FilledButton.styleFrom(backgroundColor: AppColors.orange, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))))),
+          child: Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 52,
+                  child: OutlinedButton.icon(
+                    onPressed: () => context.go(
+                      AppRoutes.recruiterJobEdit(offer.id),
+                    ),
+                    icon: const Icon(Icons.edit_outlined),
+                    label: const Text('Modifier'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF1976D2),
+                      side: const BorderSide(color: Color(0xFFB8D7F3)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              if (offer.status != JobOfferStatus.closed) ...[
+                const SizedBox(width: 9),
+                Expanded(
+                  child: SizedBox(
+                    height: 52,
+                    child: FilledButton.icon(
+                      onPressed: controller.isClosing
+                          ? null
+                          : () => _showCloseSheet(context, controller),
+                      icon: const Icon(Icons.pause_circle_outline_rounded),
+                      label: const Text('Clôturer'),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppColors.orange,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ],
-          ]),
+          ),
         ),
       ]),
     );
