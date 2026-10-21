@@ -86,7 +86,7 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
       GoRoute(
         path: AppRoutes.register,
         name: 'register',
-        builder: (context, state) => const RegisterChoiceScreen(),
+        builder: (context, state) => RegisterChoiceScreen(mobile: !web),
       ),
       GoRoute(
         path: AppRoutes.candidateRegister,

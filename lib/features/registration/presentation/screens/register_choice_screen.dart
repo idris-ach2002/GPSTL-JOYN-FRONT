@@ -11,13 +11,16 @@ import '../../../../design_system/components/joyn_pill.dart';
 import '../../../../design_system/tokens/app_colors.dart';
 import '../../../../design_system/tokens/app_fonts.dart';
 import '../../domain/account_type.dart';
+import '../mobile/mobile_register_choice_screen.dart';
 import '../widgets/choice_illustrations.dart';
 import '../widgets/register_choice_card.dart';
 import '../widgets/registration_backdrop.dart';
 
 /// Écran 02a — Inscription, étape 1 sur 2 : choix du type de compte.
 class RegisterChoiceScreen extends StatefulWidget {
-  const RegisterChoiceScreen({super.key});
+  const RegisterChoiceScreen({super.key, this.mobile = false});
+
+  final bool mobile;
 
   @override
   State<RegisterChoiceScreen> createState() => _RegisterChoiceScreenState();
@@ -37,6 +40,8 @@ class _RegisterChoiceScreenState extends State<RegisterChoiceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.mobile) return const MobileRegisterChoiceScreen();
+
     final width = MediaQuery.sizeOf(context).width;
     final compact = width < 640;
 
