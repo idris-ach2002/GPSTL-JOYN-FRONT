@@ -533,181 +533,212 @@ class _MobileOfferCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = company;
-    final accent = companyColor(c?.id ?? offer.companyId);
+    final c =
+        company ??
+        const RecruiterCompany(
+          id: 99,
+          name: 'Entreprise',
+          siret: '',
+          activity: '',
+          sector: '',
+          sizeRange: '',
+          city: '',
+        );
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(21),
-        child: Ink(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.white,
-                Color.alphaBlend(accent.withValues(alpha: .045), Colors.white),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(21),
-            border: Border.all(color: const Color(0xFFE4EBF0)),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x0D0A3152),
-                blurRadius: 16,
-                offset: Offset(0, 8),
-              ),
-            ],
-          ),
-          child: Stack(
-            children: [
-              Positioned(
-                left: 0,
-                top: 18,
-                bottom: 18,
-                child: Container(
-                  width: 3,
-                  decoration: BoxDecoration(
-                    color: accent,
-                    borderRadius: BorderRadius.circular(99),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 15, 13, 13),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: OfferGlassSurface(
+          waveWidth: 165,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 13, 13),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (c != null) CompanyAvatar(company: c, size: 43),
-                        if (c != null) const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            offer.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: AppColors.navy,
+                              fontSize: 13.5,
+                              height: 1.15,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: -.15,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
                             children: [
-                              Text(
-                                offer.title,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  color: AppColors.navy,
-                                  fontSize: 13.5,
-                                  height: 1.15,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: -.15,
+                              CompanyMiniLogo(company: c, size: 20),
+                              const SizedBox(width: 7),
+                              Flexible(
+                                child: Text(
+                                  c.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: AppColors.navy,
+                                    fontSize: 9.5,
+                                    fontWeight: FontWeight.w800,
+                                  ),
                                 ),
                               ),
-                              const SizedBox(height: 3),
-                              Text(
-                                '${c?.name ?? 'Entreprise'} · ${offer.location}',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  color: AppColors.slate,
-                                  fontSize: 9.5,
-                                  fontWeight: FontWeight.w700,
+                              const SizedBox(width: 5),
+                              const Text(
+                                '·',
+                                style: TextStyle(color: AppColors.placeholder),
+                              ),
+                              const SizedBox(width: 5),
+                              Flexible(
+                                child: Text(
+                                  offer.location,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: AppColors.slate,
+                                    fontSize: 9.2,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                        const SizedBox(width: 6),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            OfferStatusBadge(status: offer.status),
-                            const SizedBox(height: 6),
-                            OfferOptionsButton(
-                              status: offer.status,
-                              onEdit: onEdit,
-                              onClose: offer.status == JobOfferStatus.closed
-                                  ? null
-                                  : onClose,
-                              onDelete: onDelete,
-                              compact: true,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: [
-                        OfferMetaChip(
-                          label: offer.contractType.label,
-                          icon: Icons.work_outline_rounded,
-                        ),
-                        OfferMetaChip(
-                          label: offer.remoteMode.label,
-                          icon: Icons.laptop_mac_rounded,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 9),
-                    Text(
-                      offer.description.replaceAll(RegExp(r'[*#>\[\]]'), ''),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppColors.slate,
-                        fontSize: 9.5,
-                        height: 1.35,
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 11),
-                    Container(height: 1, color: const Color(0xFFEAF0F4)),
-                    const SizedBox(height: 10),
-                    Row(
+                    const SizedBox(width: 7),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        const Icon(
-                          Icons.group_outlined,
-                          size: 13,
-                          color: AppColors.slate,
-                        ),
-                        const SizedBox(width: 5),
-                        Text(
-                          '${offer.candidateCount} candidat${offer.candidateCount > 1 ? 's' : ''}',
-                          style: const TextStyle(
-                            color: AppColors.slate,
-                            fontSize: 9,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const Spacer(),
-                        const Icon(
-                          Icons.calendar_today_outlined,
-                          size: 12,
-                          color: AppColors.slate,
-                        ),
-                        const SizedBox(width: 5),
-                        Flexible(
-                          child: Text(
-                            dateLabel(offer.publishedAt ?? offer.updatedAt),
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: AppColors.slate,
-                              fontSize: 9,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
+                        OfferStatusBadge(status: offer.status),
+                        const SizedBox(height: 7),
+                        OfferOptionsButton(
+                          status: offer.status,
+                          onEdit: onEdit,
+                          onClose: offer.status == JobOfferStatus.closed
+                              ? null
+                              : onClose,
+                          onDelete: onDelete,
+                          compact: true,
                         ),
                       ],
                     ),
                   ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 10),
+                Text(
+                  _plainDescription(offer.description),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: AppColors.slate,
+                    fontSize: 9.7,
+                    height: 1.35,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: InkWell(
+                    onTap: onTap,
+                    child: const Text(
+                      'Lire la suite  →',
+                      style: TextStyle(
+                        color: Color(0xFF1475D1),
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 9),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    OfferMetaChip(
+                      label: offer.contractType.label,
+                      icon: Icons.work_outline_rounded,
+                    ),
+                    OfferMetaChip(
+                      label: offer.remoteMode.label,
+                      icon: Icons.laptop_mac_rounded,
+                    ),
+                  ],
+                ),
+                if (offer.skills.isNotEmpty) ...[
+                  const SizedBox(height: 9),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      for (final skill in offer.skills.take(3))
+                        OfferSkillTag(label: skill),
+                      if (offer.skills.length > 3)
+                        OfferSkillTag(label: '+${offer.skills.length - 3}'),
+                    ],
+                  ),
+                ],
+                const SizedBox(height: 10),
+                Container(height: 1, color: const Color(0xFFDDE7EF)),
+                const SizedBox(height: 9),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.group_outlined,
+                      size: 13,
+                      color: AppColors.slate,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      '${offer.candidateCount} candidat${offer.candidateCount > 1 ? 's' : ''}',
+                      style: const TextStyle(
+                        color: AppColors.slate,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const Spacer(),
+                    const Icon(
+                      Icons.calendar_today_outlined,
+                      size: 12,
+                      color: AppColors.slate,
+                    ),
+                    const SizedBox(width: 5),
+                    Flexible(
+                      child: Text(
+                        dateLabel(offer.publishedAt ?? offer.updatedAt),
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColors.slate,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+
+  String _plainDescription(String value) => value
+      .replaceAll(RegExp(r'[*#>\[\]`]'), '')
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .trim();
 }
 
 class _ActionSheet extends StatelessWidget {
