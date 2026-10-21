@@ -966,51 +966,141 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    height: 92,
-    padding: const EdgeInsets.all(14),
+    height: 96,
+    padding: const EdgeInsets.fromLTRB(14, 13, 12, 12),
     decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(15),
-      boxShadow: AppShadows.card,
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [Colors.white, Color.alphaBlend(tint.withValues(alpha: .32), Colors.white)],
+      ),
+      borderRadius: BorderRadius.circular(17),
+      border: Border.all(color: const Color(0xFFE4EBF0)),
+      boxShadow: const [
+        BoxShadow(
+          color: Color(0x0D0A3152),
+          blurRadius: 16,
+          offset: Offset(0, 8),
+        ),
+      ],
     ),
     child: Row(
       children: [
-        CircleAvatar(
-          radius: 24,
-          backgroundColor: tint,
+        Container(
+          width: 46,
+          height: 46,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: tint,
+            borderRadius: BorderRadius.circular(15),
+          ),
           child: Icon(icon, color: iconColor, size: 21),
         ),
-        const SizedBox(width: 12),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: const TextStyle(
-                color: AppColors.navy,
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
+        const SizedBox(width: 11),
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  color: AppColors.navy,
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              '$value',
-              style: const TextStyle(
-                color: AppColors.navy,
-                fontSize: 24,
-                fontWeight: FontWeight.w900,
+              const SizedBox(height: 2),
+              Text(
+                '$value',
+                style: const TextStyle(
+                  color: AppColors.navy,
+                  fontSize: 24,
+                  height: 1,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
-            ),
-            const Text(
-              'vs. mois dernier',
-              style: TextStyle(color: AppColors.placeholder, fontSize: 8),
-            ),
-          ],
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Icon(
+                    value == 0 ? Icons.remove_rounded : Icons.trending_up_rounded,
+                    size: 12,
+                    color: value == 0 ? AppColors.placeholder : AppColors.successDeep,
+                  ),
+                  const SizedBox(width: 3),
+                  Text(
+                    value == 0 ? 'stable' : 'activité récente',
+                    style: TextStyle(
+                      color: value == 0 ? AppColors.placeholder : AppColors.successDeep,
+                      fontSize: 7.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          width: 54,
+          height: 34,
+          child: CustomPaint(
+            painter: _SparklinePainter(color: iconColor, seed: value),
+          ),
         ),
       ],
     ),
   );
+}
+
+class _SparklinePainter extends CustomPainter {
+  const _SparklinePainter({required this.color, required this.seed});
+  final Color color;
+  final int seed;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final baseline = size.height * .72;
+    final points = <Offset>[
+      Offset(0, baseline),
+      Offset(size.width * .18, size.height * (.64 - (seed % 2) * .05)),
+      Offset(size.width * .36, size.height * .7),
+      Offset(size.width * .55, size.height * (.48 + (seed % 3) * .035)),
+      Offset(size.width * .73, size.height * .55),
+      Offset(size.width, size.height * (.26 + (seed % 2) * .08)),
+    ];
+    final area = Path()..moveTo(points.first.dx, size.height);
+    final line = Path()..moveTo(points.first.dx, points.first.dy);
+    for (final point in points.skip(1)) {
+      line.lineTo(point.dx, point.dy);
+      area.lineTo(point.dx, point.dy);
+    }
+    area
+      ..lineTo(size.width, size.height)
+      ..close();
+    canvas.drawPath(
+      area,
+      Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [color.withValues(alpha: .16), color.withValues(alpha: 0)],
+        ).createShader(Offset.zero & size),
+    );
+    canvas.drawPath(
+      line,
+      Paint()
+        ..color = color.withValues(alpha: .55)
+        ..strokeWidth = 1.6
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _SparklinePainter oldDelegate) =>
+      oldDelegate.color != color || oldDelegate.seed != seed;
 }
 
 class _StatusChip extends StatelessWidget {

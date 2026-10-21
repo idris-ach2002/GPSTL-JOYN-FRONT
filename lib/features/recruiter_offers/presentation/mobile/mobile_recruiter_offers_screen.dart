@@ -301,36 +301,71 @@ class _HeroStat extends StatelessWidget {
   const _HeroStat({required this.value, required this.label});
   final int value;
   final String label;
+
   @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(13),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '$value',
-          style: const TextStyle(
-            color: AppColors.navy,
-            fontSize: 20,
-            fontWeight: FontWeight.w900,
-          ),
+  Widget build(BuildContext context) {
+    final (icon, tone, foreground) = switch (label) {
+      'Publiées' => (Icons.description_outlined, AppColors.successTint, AppColors.successDeep),
+      'Brouillons' => (Icons.schedule_rounded, AppColors.warningTint, AppColors.warningDeep),
+      _ => (Icons.inventory_2_outlined, const Color(0xFFEAF0F4), AppColors.slateDark),
+    };
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 10, 9, 10),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Colors.white, Color.alphaBlend(tone.withValues(alpha: .45), Colors.white)],
         ),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          style: const TextStyle(
-            color: AppColors.slate,
-            fontSize: 9,
-            fontWeight: FontWeight.w700,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.white.withValues(alpha: .7)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x12001E3B),
+            blurRadius: 14,
+            offset: Offset(0, 6),
           ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '$value',
+                  style: const TextStyle(
+                    color: AppColors.navy,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: AppColors.slate,
+                    fontSize: 8.5,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            width: 28,
+            height: 28,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(color: tone, shape: BoxShape.circle),
+            child: Icon(icon, size: 14, color: foreground),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _CompanyFilters extends StatelessWidget {
