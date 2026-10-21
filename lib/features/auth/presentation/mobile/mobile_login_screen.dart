@@ -500,19 +500,23 @@ class _LoginSheet extends StatelessWidget {
                             color: Colors.white,
                           ),
                         )
-                      : const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Se connecter',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w900,
+                      : const FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Se connecter',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w900,
+                                ),
                               ),
-                            ),
-                            SizedBox(width: 8),
-                            Icon(Icons.arrow_forward_rounded, size: 20),
-                          ],
+                              SizedBox(width: 8),
+                              Icon(Icons.arrow_forward_rounded, size: 20),
+                            ],
+                          ),
                         ),
                 ),
               ),
