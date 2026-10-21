@@ -196,9 +196,17 @@ class _RememberMeCheckbox extends StatelessWidget {
           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           visualDensity: VisualDensity.compact,
         ),
-        GestureDetector(
-          onTap: () => onChanged(!value),
-          child: const Text('Se souvenir de moi', style: AppTextStyles.muted),
+        const SizedBox(width: 4),
+        Expanded(
+          child: GestureDetector(
+            onTap: () => onChanged(!value),
+            child: const Text(
+              'Se souvenir de moi',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.muted,
+            ),
+          ),
         ),
       ],
     );

@@ -52,7 +52,12 @@ class OnboardingOptions {
   /// Nombre maximum de domaines sélectionnables.
   static const maxDomains = 5;
 
-  static const remoteModes = ['Sur site', 'Hybride', 'Full remote', 'Indifférent'];
+  static const remoteModes = [
+    'Sur site',
+    'Hybride',
+    'Full remote',
+    'Indifférent',
+  ];
 
   static const companySizes = [
     'Startup',

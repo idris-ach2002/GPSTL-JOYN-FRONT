@@ -27,10 +27,7 @@ import 'app_routes.dart';
 ///   connexion ou l'espace connecté selon la session restaurée.
 /// - Les écrans d'authentification, d'inscription et d'onboarding partagent le
 ///   même graphe de navigation et le même [AuthController].
-GoRouter createAppRouter(
-  AuthController auth, {
-  bool? webOverride,
-}) {
+GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
   final web = webOverride ?? kIsWeb;
 
   return GoRouter(
@@ -40,7 +37,8 @@ GoRouter createAppRouter(
       final location = state.matchedLocation;
       final isInformationPage = informationPages.containsKey(location);
       final isRegistration = AppRoutes.registrationRoutes.contains(location);
-      final isPublic = location == AppRoutes.landing ||
+      final isPublic =
+          location == AppRoutes.landing ||
           AppRoutes.authEntryRoutes.contains(location) ||
           location == AppRoutes.forgotPassword ||
           isRegistration ||
@@ -53,7 +51,8 @@ GoRouter createAppRouter(
       // Une connexion réussie doit quitter l'écran de connexion. On ne force
       // pas la sortie des écrans d'inscription afin de laisser leur transition
       // vers l'onboarding se terminer proprement.
-      if (auth.isAuthenticated && AppRoutes.authEntryRoutes.contains(location)) {
+      if (auth.isAuthenticated &&
+          AppRoutes.authEntryRoutes.contains(location)) {
         return AppRoutes.dashboard;
       }
 
@@ -63,9 +62,8 @@ GoRouter createAppRouter(
       GoRoute(
         path: AppRoutes.landing,
         name: 'landing',
-        builder: (context, state) => web
-            ? const LandingScreen()
-            : const MobileStartupScreen(),
+        builder: (context, state) =>
+            web ? const LandingScreen() : const MobileStartupScreen(),
       ),
       GoRoute(
         path: AppRoutes.connexion,
@@ -121,9 +119,8 @@ GoRouter createAppRouter(
         path: AppRoutes.dashboard,
         name: 'dashboard',
         builder: (context, state) => ChangeNotifierProvider(
-          create: (context) => DashboardController(
-            context.read<DashboardRepository>(),
-          )..load(),
+          create: (context) =>
+              DashboardController(context.read<DashboardRepository>())..load(),
           child: const DashboardPage(),
         ),
       ),

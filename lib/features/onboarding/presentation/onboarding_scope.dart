@@ -22,7 +22,8 @@ class OnboardingScope extends StatefulWidget {
 
   /// Contrôleur de l'import du CV.
   static CvImportController cvImportOf(BuildContext context) {
-    final scope = context.dependOnInheritedWidgetOfExactType<_CvImportInherited>();
+    final scope = context
+        .dependOnInheritedWidgetOfExactType<_CvImportInherited>();
     assert(scope != null, 'Aucun OnboardingScope au-dessus de ce widget.');
     return scope!.notifier!;
   }

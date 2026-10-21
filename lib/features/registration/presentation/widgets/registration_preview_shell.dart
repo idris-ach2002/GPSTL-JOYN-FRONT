@@ -45,7 +45,9 @@ class RegistrationPreviewShell extends StatelessWidget {
               height: 720,
               child: IgnorePointer(
                 child: DecoratedBox(
-                  decoration: BoxDecoration(gradient: AppGradients.heroBlueGlow),
+                  decoration: BoxDecoration(
+                    gradient: AppGradients.heroBlueGlow,
+                  ),
                 ),
               ),
             ),
@@ -83,7 +85,10 @@ class RegistrationPreviewShell extends StatelessWidget {
                 // texte replié sur plus de lignes déborde).
                 final contentWidth = math.max(
                   0.0,
-                  math.min(_maxContentWidth, constraints.maxWidth - padding * 2),
+                  math.min(
+                    _maxContentWidth,
+                    constraints.maxWidth - padding * 2,
+                  ),
                 );
                 return SingleChildScrollView(
                   padding: const EdgeInsets.all(padding),
@@ -368,7 +373,12 @@ class PreviewStep {
 
 /// Une personne ou une entreprise dans le pied de panneau.
 class PreviewBadge {
-  const PreviewBadge(this.initials, this.name, this.background, this.foreground);
+  const PreviewBadge(
+    this.initials,
+    this.name,
+    this.background,
+    this.foreground,
+  );
 
   final String initials;
   final String name;

@@ -39,8 +39,7 @@ class MockCvRepository implements CvRepository {
         title: 'Stage développeuse web · 3 mois',
         company: '[Entreprise]',
         period: 'Été 2026',
-        summary:
-            "Refonte d'un back-office en React, API REST Node.js, tests unitaires.",
+        summary: "Refonte d'un back-office en React, API REST Node.js, tests unitaires.",
       ),
     ],
     skills: [

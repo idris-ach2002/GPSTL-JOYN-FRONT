@@ -43,8 +43,7 @@ class SkillsStep extends StatelessWidget {
       children: [
         const StepHeading(
           title: 'Technologies & compétences',
-          subtitle:
-              'Indique ton niveau : il pèse directement dans ton score de compatibilité.',
+          subtitle: 'Indique ton niveau : il pèse directement dans ton score de compatibilité.',
         ),
         const SizedBox(height: 24),
         JoynTextField(
@@ -71,7 +70,11 @@ class SkillsStep extends StatelessWidget {
             ),
             child: const Text(
               'Aucune technologie pour l’instant. Ajoute-les une par une, ou importe ton CV pour les détecter.',
-              style: TextStyle(fontSize: 14, height: 1.5, color: AppColors.slate),
+              style: TextStyle(
+                fontSize: 14,
+                height: 1.5,
+                color: AppColors.slate,
+              ),
             ),
           )
         else
@@ -177,7 +180,12 @@ class _SkillRow extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(children: [Expanded(child: title), remove]),
+              Row(
+                children: [
+                  Expanded(child: title),
+                  remove,
+                ],
+              ),
               levels,
             ],
           );

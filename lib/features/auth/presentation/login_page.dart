@@ -66,7 +66,13 @@ class _FormSection extends StatelessWidget {
             children: [
               const JoynLogo(),
               const Spacer(),
-              if (!compact) const _SignUpLink(),
+              if (!compact)
+                const Flexible(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: _SignUpLink(),
+                  ),
+                ),
             ],
           ),
         ),

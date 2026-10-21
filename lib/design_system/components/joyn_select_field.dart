@@ -79,10 +79,7 @@ class JoynSelectField<T> extends StatelessWidget {
                     ),
                   ),
                 ),
-                const Icon(
-                  Icons.expand_more_rounded,
-                  color: AppColors.slate,
-                ),
+                const Icon(Icons.expand_more_rounded, color: AppColors.slate),
               ],
             ),
           ),

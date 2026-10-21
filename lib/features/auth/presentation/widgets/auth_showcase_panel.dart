@@ -157,15 +157,16 @@ class _MatchIllustration extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.lg),
-        Row(
-          mainAxisSize: MainAxisSize.min,
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 12,
+          runSpacing: 8,
           children: [
             const _Pill(
               label: '92 % compatible',
               background: AppColors.coral,
               foreground: Colors.white,
             ),
-            const SizedBox(width: 12),
             _Pill(
               label: '✦  C’est un match, des deux côtés',
               background: Colors.white.withValues(alpha: 0.08),

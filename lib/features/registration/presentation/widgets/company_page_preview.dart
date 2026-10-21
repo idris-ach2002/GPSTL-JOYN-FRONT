@@ -30,8 +30,7 @@ class CompanyPagePreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return RegistrationPreviewShell(
       title: 'Votre page entreprise',
-      subtitle:
-          'Ce que les candidats découvriront, mis à jour pendant que vous remplissez le formulaire.',
+      subtitle: 'Ce que les candidats découvriront, mis à jour pendant que vous remplissez le formulaire.',
       card: PreviewCard(
         children: [
           Row(
@@ -191,13 +190,27 @@ class CompanyPagePreview extends StatelessWidget {
         title: 'Ils cherchent leur alternance sur Joyn',
         roundAvatars: true,
         badges: [
-          PreviewBadge('YK', 'Yasmine K.', AppColors.cyanBlue, AppColors.textPrimary),
-          PreviewBadge('HL', 'Hugo L.', AppColors.orangeLight, AppColors.textPrimary),
-          PreviewBadge('NB', 'Nora B.', AppColors.skyMist, AppColors.textPrimary),
+          PreviewBadge(
+            'YK',
+            'Yasmine K.',
+            AppColors.cyanBlue,
+            AppColors.textPrimary,
+          ),
+          PreviewBadge(
+            'HL',
+            'Hugo L.',
+            AppColors.orangeLight,
+            AppColors.textPrimary,
+          ),
+          PreviewBadge(
+            'NB',
+            'Nora B.',
+            AppColors.skyMist,
+            AppColors.textPrimary,
+          ),
         ],
         icon: Icons.verified_user_outlined,
-        note:
-            'Chaque entreprise est vérifiée par notre équipe avant la publication de sa première offre.',
+        note: 'Chaque entreprise est vérifiée par notre équipe avant la publication de sa première offre.',
       ),
     );
   }

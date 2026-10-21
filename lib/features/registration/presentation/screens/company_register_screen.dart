@@ -99,8 +99,7 @@ class _CompanyRegisterScreenState extends State<CompanyRegisterScreen> {
                     foreground: AppColors.orangeDeep,
                   ),
                   title: 'Créez votre espace entreprise.',
-                  subtitle:
-                      "Votre numéro SIRET suffit pour retrouver l'entreprise. Vous décrirez vos besoins juste après.",
+                  subtitle: "Votre numéro SIRET suffit pour retrouver l'entreprise. Vous décrirez vos besoins juste après.",
                 ),
                 const SizedBox(height: 22),
                 _CompanySection(
@@ -144,8 +143,7 @@ class _CompanyRegisterScreenState extends State<CompanyRegisterScreen> {
                         ),
                       ),
                       TextSpan(
-                        text:
-                            ", et j'atteste agir pour le compte de cette entreprise.",
+                        text: ", et j'atteste agir pour le compte de cette entreprise.",
                       ),
                     ],
                   ),

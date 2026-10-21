@@ -35,6 +35,36 @@ class AppGradients {
     colors: [AppColors.orange, AppColors.orangeLight],
   );
 
+  /// Fond du haut des écrans d'inscription : bleu nuit qui s'éclaircit
+  /// jusqu'au fond de page, pour poser les cartes de choix sur du clair.
+  static const LinearGradient registrationBackdrop = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      AppColors.navy,
+      AppColors.navyLight,
+      Color(0xFF123A70),
+      Color(0xFF6F9FDA),
+      Color(0xFFD3E2F1),
+      AppColors.background,
+    ],
+    stops: [0.0, 0.3, 0.52, 0.72, 0.88, 1.0],
+  );
+
+  /// Fond de l'illustration de la carte « Étudiant·e ».
+  static const LinearGradient studentCard = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFFEAF5FB), Color(0xFFD9EDF8)],
+  );
+
+  /// Fond de l'illustration de la carte « Entreprise ».
+  static const LinearGradient companyCard = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFFFFF4EE), Color(0xFFFFE4D8)],
+  );
+
   /// Surface translucide pour les futures cartes "glass".
   static const LinearGradient glass = LinearGradient(
     begin: Alignment.topLeft,

@@ -252,20 +252,23 @@ void main() {
     expect(find.byType(MobileStartupScreen), findsNothing);
   });
 
+  testWidgets(
+    'Depuis la connexion mobile, créer un compte ouvre le choix de profil',
+    (tester) async {
+      await tester.pumpWidget(const JoynApp(webOverride: false));
+      await tester.pump(const Duration(milliseconds: 2500));
+      await finishTransition(tester);
+      expect(find.byType(LoginPage), findsOneWidget);
 
-  testWidgets('Depuis la connexion mobile, créer un compte ouvre le choix de profil', (
-    tester,
-  ) async {
-    await tester.pumpWidget(const JoynApp(webOverride: false));
-    await tester.pump(const Duration(milliseconds: 2500));
-    await finishTransition(tester);
-    expect(find.byType(LoginPage), findsOneWidget);
+      final createAccount = find.text('Créer un compte').first;
+      await tester.ensureVisible(createAccount);
+      await tester.pumpAndSettle();
+      await tester.tap(createAccount);
+      await finishTransition(tester);
 
-    await tester.tap(find.text('Créer un compte'));
-    await finishTransition(tester);
-
-    expect(find.byType(RegisterChoiceScreen), findsOneWidget);
-  });
+      expect(find.byType(RegisterChoiceScreen), findsOneWidget);
+    },
+  );
 
   testWidgets('Démonter l’introduction annule sa navigation différée', (
     tester,

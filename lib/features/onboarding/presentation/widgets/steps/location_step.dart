@@ -77,7 +77,8 @@ class LocationStep extends StatelessWidget {
               min: OnboardingOptions.minCommute.toDouble(),
               max: OnboardingOptions.maxCommute.toDouble(),
               divisions:
-                  (OnboardingOptions.maxCommute - OnboardingOptions.minCommute) ~/
+                  (OnboardingOptions.maxCommute -
+                      OnboardingOptions.minCommute) ~/
                   5,
               semanticFormatterCallback: (value) =>
                   '${value.round()} minutes de trajet maximum',

@@ -48,5 +48,6 @@ class PasswordStrength {
   /// Minimum exigé pour créer le compte : 8 caractères, 1 majuscule, 1 chiffre.
   final bool meetsRequirements;
 
-  String get label => const ['', 'Trop faible', 'Moyen', 'Bon', 'Excellent'][score];
+  String get label =>
+      const ['', 'Trop faible', 'Moyen', 'Bon', 'Excellent'][score];
 }

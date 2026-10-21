@@ -28,21 +28,24 @@ void main() {
       expect(form.showErrorSummary, isFalse);
     });
 
-    test('une tentative sur un formulaire vide affiche les 5 erreurs', () async {
-      final form = _controller();
-      final created = await form.submit();
+    test(
+      'une tentative sur un formulaire vide affiche les 5 erreurs',
+      () async {
+        final form = _controller();
+        final created = await form.submit();
 
-      expect(created, isFalse);
-      expect(form.showErrorSummary, isTrue);
-      expect(
-        form.errorSummary,
-        'Il reste 5 points à corriger avant de créer ton compte.',
-      );
-      expect(
-        form.visibleErrorFor(StudentRegisterField.firstName),
-        'Indique ton prénom.',
-      );
-    });
+        expect(created, isFalse);
+        expect(form.showErrorSummary, isTrue);
+        expect(
+          form.errorSummary,
+          'Il reste 5 points à corriger avant de créer ton compte.',
+        );
+        expect(
+          form.visibleErrorFor(StudentRegisterField.firstName),
+          'Indique ton prénom.',
+        );
+      },
+    );
 
     test('un formulaire complet crée le compte', () async {
       final form = _controller();

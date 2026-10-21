@@ -80,9 +80,7 @@ class PasswordStrengthMeter extends StatelessWidget {
         Wrap(
           spacing: 6,
           runSpacing: 6,
-          children: [
-            for (final rule in strength.rules) _RuleChip(rule: rule),
-          ],
+          children: [for (final rule in strength.rules) _RuleChip(rule: rule)],
         ),
       ],
     );

@@ -82,7 +82,11 @@ class _StepTile extends StatelessWidget {
           color: AppColors.successDeep,
           shape: BoxShape.circle,
         ),
-        child: const Icon(Icons.check_rounded, size: 16, color: AppColors.white),
+        child: const Icon(
+          Icons.check_rounded,
+          size: 16,
+          color: AppColors.white,
+        ),
       );
     } else {
       marker = Container(
@@ -184,7 +188,9 @@ class CvShortcutCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            prefilled ? 'Profil pré-rempli avec ton CV' : 'Plus rapide avec ton CV',
+            prefilled
+                ? 'Profil pré-rempli avec ton CV'
+                : 'Plus rapide avec ton CV',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,

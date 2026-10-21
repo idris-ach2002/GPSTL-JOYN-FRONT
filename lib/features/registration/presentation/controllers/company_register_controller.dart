@@ -270,8 +270,12 @@ class CompanyRegisterController extends ChangeNotifier {
   }
 
   String? _siretError() {
-    if (companyFound) return null;
-    if (!Siret.hasValidLength(_siret)) return 'Un numéro SIRET compte 14 chiffres.';
+    if (companyFound) {
+      return null;
+    }
+    if (!Siret.hasValidLength(_siret)) {
+      return 'Un numéro SIRET compte 14 chiffres.';
+    }
     if (_lookupStatus == SiretLookupStatus.notFound) {
       return 'Aucune entreprise ne correspond à ce SIRET. Vérifiez le numéro.';
     }
@@ -280,10 +284,15 @@ class CompanyRegisterController extends ChangeNotifier {
 
   String? _phoneError() {
     final digits = _phone.replaceAll(RegExp(r'\D'), '');
-    if (digits.isEmpty) return null;
-    final valid = (digits.length == 10 && digits.startsWith('0')) ||
+    if (digits.isEmpty) {
+      return null;
+    }
+    final valid =
+        (digits.length == 10 && digits.startsWith('0')) ||
         (digits.length == 11 && digits.startsWith('33'));
-    return valid ? null : 'Saisissez un numéro à 10 chiffres, par exemple 06 12 34 56 78.';
+    return valid
+        ? null
+        : 'Saisissez un numéro à 10 chiffres, par exemple 06 12 34 56 78.';
   }
 
   CompanyAccountDraft _toDraft() {

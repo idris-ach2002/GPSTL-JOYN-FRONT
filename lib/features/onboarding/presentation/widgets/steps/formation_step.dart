@@ -27,8 +27,7 @@ class FormationStep extends StatelessWidget {
       children: [
         const StepHeading(
           title: 'Ta formation',
-          subtitle:
-              "C'est la base de ton matching : on ne te montre que des offres ouvertes à ton diplôme.",
+          subtitle: "C'est la base de ton matching : on ne te montre que des offres ouvertes à ton diplôme.",
         ),
         const SizedBox(height: 24),
         FieldGroup(

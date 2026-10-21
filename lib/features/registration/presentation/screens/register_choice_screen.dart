@@ -109,7 +109,8 @@ class _Header extends StatelessWidget {
           label: "Joyn, retour à l'accueil",
           excludeSemantics: true,
           child: InkWell(
-            onTap: () => context.go(kIsWeb ? AppRoutes.landing : AppRoutes.login),
+            onTap: () =>
+                context.go(kIsWeb ? AppRoutes.landing : AppRoutes.login),
             borderRadius: BorderRadius.circular(12),
             child: const Padding(
               padding: EdgeInsets.all(4),
@@ -222,8 +223,7 @@ class _ChoiceCards extends StatelessWidget {
       tint: AppColors.skyTint,
       tintForeground: AppColors.navy,
       title: 'Je cherche une alternance',
-      description:
-          'Swipe des offres compatibles avec ta formation, ton rythme et tes technos.',
+      description: 'Swipe des offres compatibles avec ta formation, ton rythme et tes technos.',
       benefits: const [
         'Gratuit, pour toujours',
         'Profil prêt en 2 minutes grâce à ton CV',
@@ -241,8 +241,7 @@ class _ChoiceCards extends StatelessWidget {
       tint: AppColors.orangeTint,
       tintForeground: AppColors.orangeDeep,
       title: 'Je recrute des alternant·e·s',
-      description:
-          'Recevez des profils compatibles avec votre poste, votre rythme et votre localisation.',
+      description: 'Recevez des profils compatibles avec votre poste, votre rythme et votre localisation.',
       benefits: const [
         'Paiement à l’annonce, sans abonnement',
         'Entreprise vérifiée grâce au SIRET',

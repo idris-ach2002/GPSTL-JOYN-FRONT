@@ -56,11 +56,31 @@ class _JoynTextFieldState extends State<JoynTextField> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
-          children: [
-            Expanded(child: Text(widget.label, style: AppTextStyles.label)),
-            if (widget.trailingLabel != null) widget.trailingLabel!,
-          ],
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final trailing = widget.trailingLabel;
+            if (trailing == null) {
+              return Text(widget.label, style: AppTextStyles.label);
+            }
+
+            if (constraints.maxWidth < 300) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(widget.label, style: AppTextStyles.label),
+                  Align(alignment: Alignment.centerRight, child: trailing),
+                ],
+              );
+            }
+
+            return Row(
+              children: [
+                Expanded(child: Text(widget.label, style: AppTextStyles.label)),
+                Flexible(child: trailing),
+              ],
+            );
+          },
         ),
         const SizedBox(height: AppSpacing.sm),
         Semantics(

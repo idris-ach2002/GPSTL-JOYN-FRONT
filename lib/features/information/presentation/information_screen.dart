@@ -121,8 +121,7 @@ class InformationScreen extends StatelessWidget {
                     ),
                   if (page.actionRoute != null)
                     FilledButton.icon(
-                      onPressed: () =>
-                          context.push(page.actionRoute!),
+                      onPressed: () => context.push(page.actionRoute!),
                       icon: const Icon(Icons.arrow_forward),
                       label: Text(page.actionLabel!),
                     ),

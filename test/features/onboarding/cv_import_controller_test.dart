@@ -9,18 +9,21 @@ void main() {
       repository: MockCvRepository(stepDelay: Duration.zero),
     );
 
-    test('l’analyse passe de idle à done avec une progression complète', () async {
-      final cv = controller();
-      expect(cv.status, CvImportStatus.idle);
+    test(
+      'l’analyse passe de idle à done avec une progression complète',
+      () async {
+        final cv = controller();
+        expect(cv.status, CvImportStatus.idle);
 
-      await cv.pickAndAnalyze();
+        await cv.pickAndAnalyze();
 
-      expect(cv.status, CvImportStatus.done);
-      expect(cv.progress, 1);
-      expect(cv.hasResult, isTrue);
-      expect(cv.analysisCount, 1);
-      expect(cv.extraction!.skills, contains('React'));
-    });
+        expect(cv.status, CvImportStatus.done);
+        expect(cv.progress, 1);
+        expect(cv.hasResult, isTrue);
+        expect(cv.analysisCount, 1);
+        expect(cv.extraction!.skills, contains('React'));
+      },
+    );
 
     test('les compétences extraites sont modifiables', () async {
       final cv = controller();

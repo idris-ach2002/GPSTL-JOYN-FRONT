@@ -147,7 +147,9 @@ class JoynTextField extends StatelessWidget {
                   : Icon(prefixIcon, size: 20, color: AppColors.slate),
               suffixIcon: suffix,
               border: border(AppColors.line),
-              enabledBorder: border(hasError ? AppColors.error : AppColors.line),
+              enabledBorder: border(
+                hasError ? AppColors.error : AppColors.line,
+              ),
               focusedBorder: border(
                 hasError ? AppColors.error : AppColors.navy,
                 2,

@@ -23,8 +23,7 @@ class ProfileLivePreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return RegistrationPreviewShell(
       title: 'Ton profil prend forme',
-      subtitle:
-          'Ce que les entreprises verront de toi, mis à jour pendant que tu remplis le formulaire.',
+      subtitle: 'Ce que les entreprises verront de toi, mis à jour pendant que tu remplis le formulaire.',
       card: PreviewCard(
         floating: const PreviewFloatingChip(
           leading: JoynScoreRing(score: 92),
@@ -142,13 +141,27 @@ class ProfileLivePreview extends StatelessWidget {
       footer: const PreviewFooter(
         title: 'Elles recrutent en alternance sur Joyn',
         badges: [
-          PreviewBadge('N', 'Nébula Pay', AppColors.textPrimary, AppColors.white),
-          PreviewBadge('L', 'Lumen Santé', AppColors.cyanBlue, AppColors.textPrimary),
-          PreviewBadge('K', 'Kôr Mobility', AppColors.navyLight, AppColors.white),
+          PreviewBadge(
+            'N',
+            'Nébula Pay',
+            AppColors.textPrimary,
+            AppColors.white,
+          ),
+          PreviewBadge(
+            'L',
+            'Lumen Santé',
+            AppColors.cyanBlue,
+            AppColors.textPrimary,
+          ),
+          PreviewBadge(
+            'K',
+            'Kôr Mobility',
+            AppColors.navyLight,
+            AppColors.white,
+          ),
         ],
         icon: Icons.lock_outline_rounded,
-        note:
-            "Ton CV n'est envoyé qu'aux entreprises auxquelles tu dis « Intéressé ».",
+        note: "Ton CV n'est envoyé qu'aux entreprises auxquelles tu dis « Intéressé ».",
       ),
     );
   }

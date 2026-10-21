@@ -28,10 +28,7 @@ abstract final class AppRoutes {
 
   static const String messages = '/messages';
 
-  static const Set<String> authEntryRoutes = {
-    login,
-    connexion,
-  };
+  static const Set<String> authEntryRoutes = {login, connexion};
 
   static const Set<String> registrationRoutes = {
     register,

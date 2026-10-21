@@ -197,11 +197,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         degreeTitle: _degreeTitle,
         school: _school,
       ),
-      2 => LocationStep(
-        form: form,
-        city: _city,
-        availableFrom: _availableFrom,
-      ),
+      2 => LocationStep(form: form, city: _city, availableFrom: _availableFrom),
       3 => DomainsStep(form: form),
       4 => SkillsStep(form: form, newSkill: _newSkill),
       _ => PreferencesStep(form: form, salary: _salary),
@@ -214,7 +210,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: AppColors.lineSoft),
         boxShadow: const [
-          BoxShadow(color: Color(0x080E1F2A), blurRadius: 8, offset: Offset(0, 2)),
+          BoxShadow(
+            color: Color(0x080E1F2A),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
         ],
       ),
       child: Column(

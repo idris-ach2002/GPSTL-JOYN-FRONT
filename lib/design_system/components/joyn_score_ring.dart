@@ -55,7 +55,13 @@ class _RingPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth;
 
-    canvas.drawArc(rect, 0, math.pi * 2, false, paint..color = AppColors.skyMist);
+    canvas.drawArc(
+      rect,
+      0,
+      math.pi * 2,
+      false,
+      paint..color = AppColors.skyMist,
+    );
     canvas.drawArc(
       rect,
       -math.pi / 2,

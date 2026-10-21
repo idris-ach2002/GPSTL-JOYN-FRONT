@@ -22,8 +22,7 @@ class DomainsStep extends StatelessWidget {
       children: [
         const StepHeading(
           title: "Quels métiers t'intéressent ?",
-          subtitle:
-              "Choisis jusqu'à 5 domaines. Tu pourras les modifier à tout moment.",
+          subtitle: "Choisis jusqu'à 5 domaines. Tu pourras les modifier à tout moment.",
         ),
         const SizedBox(height: 24),
         Wrap(

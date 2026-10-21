@@ -219,7 +219,11 @@ class _SelectionDot extends StatelessWidget {
       child: AnimatedOpacity(
         duration: AppDurations.fast,
         opacity: selected ? 1 : 0,
-        child: const Icon(Icons.check_rounded, size: 16, color: AppColors.white),
+        child: const Icon(
+          Icons.check_rounded,
+          size: 16,
+          color: AppColors.white,
+        ),
       ),
     );
   }

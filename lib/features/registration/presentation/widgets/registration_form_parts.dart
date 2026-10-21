@@ -32,12 +32,10 @@ class RegistrationFormHeader extends StatelessWidget {
           label: "Joyn, retour à l'accueil",
           excludeSemantics: true,
           child: InkWell(
-            onTap: () => context.go(kIsWeb ? AppRoutes.landing : AppRoutes.login),
+            onTap: () =>
+                context.go(kIsWeb ? AppRoutes.landing : AppRoutes.login),
             borderRadius: BorderRadius.circular(12),
-            child: const Padding(
-              padding: EdgeInsets.all(4),
-              child: JoynLogo(),
-            ),
+            child: const Padding(padding: EdgeInsets.all(4), child: JoynLogo()),
           ),
         ),
         Row(

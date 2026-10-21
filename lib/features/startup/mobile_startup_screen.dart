@@ -47,18 +47,13 @@ class _MobileStartupScreenState extends State<MobileStartupScreen>
     }
 
     _controller.forward();
-    _navigationTimer = Timer(
-      const Duration(milliseconds: 2450),
-      _openNext,
-    );
+    _navigationTimer = Timer(const Duration(milliseconds: 2450), _openNext);
   }
 
   void _openNext() {
     if (!mounted) return;
     final auth = context.read<AuthController>();
-    context.go(
-      auth.isAuthenticated ? AppRoutes.dashboard : AppRoutes.login,
-    );
+    context.go(auth.isAuthenticated ? AppRoutes.dashboard : AppRoutes.login);
   }
 
   @override
@@ -135,9 +130,7 @@ class _MobileStartupScreenState extends State<MobileStartupScreen>
                                   children: [
                                     TextSpan(
                                       text: '.',
-                                      style: TextStyle(
-                                        color: AppColors.orange,
-                                      ),
+                                      style: TextStyle(color: AppColors.orange),
                                     ),
                                   ],
                                 ),
@@ -190,8 +183,7 @@ class _OrbitNode extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final offset = Offset.lerp(from, Offset.zero, progress)!;
-    final opacity = (1 -
-            ((progress - .72) / .28).clamp(0.0, 1.0).toDouble())
+    final opacity = (1 - ((progress - .72) / .28).clamp(0.0, 1.0).toDouble())
         .clamp(0.0, 1.0)
         .toDouble();
 

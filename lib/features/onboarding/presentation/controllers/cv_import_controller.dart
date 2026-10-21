@@ -82,7 +82,8 @@ class CvImportController extends ChangeNotifier {
     }
   }
 
-  void updateFullName(String value) => _edit((cv) => cv.copyWith(fullName: value));
+  void updateFullName(String value) =>
+      _edit((cv) => cv.copyWith(fullName: value));
   void updateEmail(String value) => _edit((cv) => cv.copyWith(email: value));
   void updateCity(String value) => _edit((cv) => cv.copyWith(city: value));
 

@@ -37,7 +37,11 @@ class OnboardingController extends ChangeNotifier {
 
   // Étape 4 — Compétences
   final Map<String, SkillLevel> _skills = {};
-  final List<String> _softSkills = ['Travail en équipe', 'Autonomie', 'Curiosité'];
+  final List<String> _softSkills = [
+    'Travail en équipe',
+    'Autonomie',
+    'Curiosité',
+  ];
 
   // Étape 5 — Préférences
   String? _remoteMode;
@@ -77,7 +81,8 @@ class OnboardingController extends ChangeNotifier {
   bool get prefilledFromCv => _prefilledFromCv;
   bool get isSaving => _isSaving;
 
-  bool get domainLimitReached => _domains.length >= OnboardingOptions.maxDomains;
+  bool get domainLimitReached =>
+      _domains.length >= OnboardingOptions.maxDomains;
 
   bool isDomainSelected(String domain) => _domains.contains(domain);
   bool isCompanySizeSelected(String size) => _companySizes.contains(size);
@@ -181,7 +186,9 @@ class OnboardingController extends ChangeNotifier {
   }
 
   StudentProfileDraft toDraft() {
-    final salary = int.tryParse(_desiredSalary.replaceAll(RegExp(r'[^0-9]'), ''));
+    final salary = int.tryParse(
+      _desiredSalary.replaceAll(RegExp(r'[^0-9]'), ''),
+    );
     return StudentProfileDraft(
       searchKind: _searchKind,
       degreeTitle: _degreeTitle.trim(),

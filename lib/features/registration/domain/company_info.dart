@@ -36,5 +36,6 @@ class CompanyInfo {
   /// Tranche d'effectif proposée par défaut.
   final String? sizeRange;
 
-  String get initial => displayName.isEmpty ? '?' : displayName[0].toUpperCase();
+  String get initial =>
+      displayName.isEmpty ? '?' : displayName[0].toUpperCase();
 }

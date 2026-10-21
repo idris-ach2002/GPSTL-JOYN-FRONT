@@ -56,7 +56,10 @@ class StudentChoiceIllustration extends StatelessWidget {
                   offset: const Offset(-18, 0),
                   child: Transform.rotate(
                     angle: 3 * math.pi / 180,
-                    child: const _MiniOfferCard(),
+                    child: const FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: _MiniOfferCard(),
+                    ),
                   ),
                 ),
                 Positioned(
@@ -170,7 +173,11 @@ class _MiniOfferCard extends StatelessWidget {
             children: [
               _Tag('React', AppColors.skyTint, AppColors.navy),
               _Tag('Node.js', AppColors.skyTint, AppColors.navy),
-              _Tag('3 sem / 1 sem', AppColors.successTint, AppColors.successDeep),
+              _Tag(
+                '3 sem / 1 sem',
+                AppColors.successTint,
+                AppColors.successDeep,
+              ),
             ],
           ),
         ],
@@ -366,7 +373,7 @@ class _NewProfilesBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: MainAxisSize.max,
         children: [
           Container(
             width: 8,
@@ -377,12 +384,16 @@ class _NewProfilesBadge extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          const Text(
-            '5 nouveaux profils compatibles',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: AppColors.orangeDeep,
+          const Flexible(
+            child: Text(
+              '5 nouveaux profils compatibles',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: AppColors.orangeDeep,
+              ),
             ),
           ),
         ],

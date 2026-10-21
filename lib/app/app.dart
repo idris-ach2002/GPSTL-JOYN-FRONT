@@ -56,7 +56,8 @@ class _JoynAppState extends State<JoynApp> {
       final authRepository = FakeAuthRepository(latency: Duration.zero);
       _authController = AuthController(authRepository);
       _ownsAuthController = true;
-      _registrationRepository = widget.registrationRepository ??
+      _registrationRepository =
+          widget.registrationRepository ??
           AuthRegistrationRepository(
             authRepository,
             companyLookupRepository: MockRegistrationRepository(
@@ -65,13 +66,11 @@ class _JoynAppState extends State<JoynApp> {
           );
     }
 
-    _dashboardRepository = widget.dashboardRepository ??
+    _dashboardRepository =
+        widget.dashboardRepository ??
         FakeDashboardRepository(latency: Duration.zero);
 
-    _router = createAppRouter(
-      _authController,
-      webOverride: widget.webOverride,
-    );
+    _router = createAppRouter(_authController, webOverride: widget.webOverride);
   }
 
   @override

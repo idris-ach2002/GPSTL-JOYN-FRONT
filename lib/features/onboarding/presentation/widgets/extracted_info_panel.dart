@@ -435,10 +435,7 @@ class _ExtractedItem extends StatelessWidget {
             ),
             child: Text(
               letter.toUpperCase(),
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: foreground,
-              ),
+              style: TextStyle(fontWeight: FontWeight.w700, color: foreground),
             ),
           ),
           const SizedBox(width: 14),
@@ -503,7 +500,11 @@ class _SampleNotice extends StatelessWidget {
       child: const Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline_rounded, size: 18, color: AppColors.warningDeep),
+          Icon(
+            Icons.info_outline_rounded,
+            size: 18,
+            color: AppColors.warningDeep,
+          ),
           SizedBox(width: 10),
           Expanded(
             child: Text(

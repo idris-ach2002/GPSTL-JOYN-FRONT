@@ -128,15 +128,12 @@ class _FormPanel extends StatelessWidget {
             foreground: AppColors.navy,
           ),
           title: 'Crée ton compte étudiant.',
-          subtitle:
-              'Moins de 2 minutes. Ton CV remplira le reste juste après.',
+          subtitle: 'Moins de 2 minutes. Ton CV remplira le reste juste après.',
         ),
         const SizedBox(height: 22),
         SocialAuthButtons(
-          onGoogle: () =>
-              showComingSoon(context, 'La connexion Google'),
-          onLinkedIn: () =>
-              showComingSoon(context, 'La connexion LinkedIn'),
+          onGoogle: () => showComingSoon(context, 'La connexion Google'),
+          onLinkedIn: () => showComingSoon(context, 'La connexion LinkedIn'),
         ),
         const SizedBox(height: 22),
         const _OrDivider(),
@@ -157,9 +154,7 @@ class _FormPanel extends StatelessWidget {
           keyboardType: TextInputType.emailAddress,
           textInputAction: TextInputAction.next,
           autofillHints: const [AutofillHints.email],
-          errorText: form.visibleErrorFor(
-            StudentRegisterField.email,
-          ),
+          errorText: form.visibleErrorFor(StudentRegisterField.email),
           helper: _emailHelper(),
         ),
         const SizedBox(height: 22),
@@ -172,9 +167,7 @@ class _FormPanel extends StatelessWidget {
           obscureText: !form.passwordVisible,
           textInputAction: TextInputAction.done,
           autofillHints: const [AutofillHints.newPassword],
-          errorText: form.visibleErrorFor(
-            StudentRegisterField.password,
-          ),
+          errorText: form.visibleErrorFor(StudentRegisterField.password),
           suffix: IconButton(
             tooltip: form.passwordVisible
                 ? 'Masquer le mot de passe'
@@ -188,18 +181,14 @@ class _FormPanel extends StatelessWidget {
               size: 20,
             ),
           ),
-          helper: PasswordStrengthMeter(
-            strength: form.passwordStrength,
-          ),
+          helper: PasswordStrengthMeter(strength: form.passwordStrength),
         ),
         const SizedBox(height: 22),
         ConsentCheckbox(
           key: const ValueKey('register-terms'),
           value: form.acceptedTerms,
           onChanged: form.setAcceptedTerms,
-          errorText: form.visibleErrorFor(
-            StudentRegisterField.terms,
-          ),
+          errorText: form.visibleErrorFor(StudentRegisterField.terms),
           // TODO: ouvrir les pages légales quand elles existeront.
           label: const TextSpan(
             text: "J'accepte les ",
@@ -228,8 +217,7 @@ class _FormPanel extends StatelessWidget {
           value: form.weeklyDigest,
           onChanged: form.setWeeklyDigest,
           label: const TextSpan(
-            text:
-                'Recevoir chaque semaine les nouvelles offres compatibles par e-mail.',
+            text: 'Recevoir chaque semaine les nouvelles offres compatibles par e-mail.',
           ),
         ),
         if (form.showErrorSummary || form.submitError != null) ...[
