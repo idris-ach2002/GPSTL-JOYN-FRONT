@@ -128,9 +128,10 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 220));
 
-    expect(find.text('Description complète'), findsOneWidget);
-    expect(find.text('Informations de l’offre'), findsOneWidget);
-    expect(find.text('Détails de l’alternance'), findsOneWidget);
+    expect(find.text('À propos de l’offre'), findsOneWidget);
+    expect(find.text('Informations'), findsOneWidget);
+    expect(find.text('Alternance'), findsOneWidget);
+    expect(find.textContaining('14 candidat'), findsWidgets);
     expect(find.text('Entreprise'), findsWidgets);
     expect(find.textContaining('Développeur·se Full-Stack'), findsOneWidget);
     expect(tester.takeException(), isNull);

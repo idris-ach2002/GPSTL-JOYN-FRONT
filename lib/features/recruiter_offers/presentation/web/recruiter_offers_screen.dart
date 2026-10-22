@@ -6,12 +6,12 @@ import '../../../../app/routing/app_routes.dart';
 import '../../../../design_system/components/joyn_button.dart';
 import '../../../../design_system/tokens/app_colors.dart';
 import '../../../../design_system/tokens/app_fonts.dart';
-import '../../../../design_system/tokens/app_gradients.dart';
 import '../../../../design_system/tokens/app_shadows.dart';
 import '../../domain/job_offer.dart';
 import '../../domain/recruiter_company.dart';
 import '../controllers/offer_management_controller.dart';
 import '../shared/offer_ui.dart';
+import '../shared/recruiter_offer_header_art.dart';
 import 'recruiter_offers_top_bar.dart';
 
 class WebRecruiterOffersScreen extends StatelessWidget {
@@ -28,9 +28,28 @@ class WebRecruiterOffersScreen extends StatelessWidget {
           Positioned.fill(
             child: Column(
               children: [
-                Container(
-                  height: 280,
-                  decoration: const BoxDecoration(gradient: AppGradients.hero),
+                SizedBox(
+                  height: 286,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      const RecruiterOfferHeaderArt(),
+                      DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                            colors: [
+                              const Color(0xFF061F3A).withValues(alpha: .76),
+                              const Color(0xFF061F3A).withValues(alpha: .24),
+                              Colors.transparent,
+                            ],
+                            stops: const [0, .42, .72],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const Expanded(child: ColoredBox(color: AppColors.background)),
               ],
@@ -54,7 +73,7 @@ class WebRecruiterOffersScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           const RecruiterOffersTopBar(),
-                          const SizedBox(height: 30),
+                          const SizedBox(height: 28),
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
@@ -67,18 +86,19 @@ class WebRecruiterOffersScreen extends StatelessWidget {
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontFamily: AppFonts.display,
-                                        fontSize: 42,
+                                        fontSize: 44,
                                         height: 1,
-                                        fontWeight: FontWeight.w800,
-                                        letterSpacing: -.8,
+                                        fontWeight: FontWeight.w900,
+                                        letterSpacing: -.9,
                                       ),
                                     ),
-                                    SizedBox(height: 7),
+                                    SizedBox(height: 8),
                                     Text(
-                                      'Gérez, modifiez et suivez toutes vos offres.',
+                                      'Gérez, modifiez et suivez toutes vos offres d’emploi sur Joyn.',
                                       style: TextStyle(
-                                        color: Color(0xFFE4F3FB),
-                                        fontSize: 16,
+                                        color: Color(0xFFEAF2F8),
+                                        fontSize: 15.5,
+                                        height: 1.35,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -95,6 +115,8 @@ class WebRecruiterOffersScreen extends StatelessWidget {
                               ),
                             ],
                           ),
+                          const SizedBox(height: 19),
+                          _InlineHeroStats(controller: controller),
                           const SizedBox(height: 18),
                           if (controller.errorMessage != null) ...[
                             _ErrorMessage(message: controller.errorMessage!),
@@ -103,12 +125,25 @@ class WebRecruiterOffersScreen extends StatelessWidget {
                           if (controller.isLoading)
                             const _LoadingPanel()
                           else ...[
-                            _CompanyFilterCard(controller: controller),
-                            const SizedBox(height: 12),
-                            _StatsRow(controller: controller),
-                            const SizedBox(height: 12),
                             _FiltersCard(controller: controller),
+                            const SizedBox(height: 14),
+                            _StatusFiltersRow(controller: controller),
                             const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Text(
+                                  '${controller.visibleOffers.length} offre${controller.visibleOffers.length > 1 ? 's' : ''}',
+                                  style: const TextStyle(
+                                    color: AppColors.navy,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                                const Spacer(),
+                                _ViewToggle(),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
                             if (controller.visibleOffers.isEmpty)
                               _EmptyState(
                                 onCreate: () =>
@@ -423,6 +458,74 @@ class _StatsRow extends StatelessWidget {
   );
 }
 
+class _InlineHeroStats extends StatelessWidget {
+  const _InlineHeroStats({required this.controller});
+  final OfferManagementController controller;
+
+  @override
+  Widget build(BuildContext context) => Wrap(
+    spacing: 22,
+    runSpacing: 10,
+    crossAxisAlignment: WrapCrossAlignment.center,
+    children: [
+      _HeroStatItem(
+        icon: Icons.calendar_month_outlined,
+        label: '${controller.totalCount} offres',
+      ),
+      _HeroStatItem(
+        dot: AppColors.success,
+        label: '${controller.count(JobOfferStatus.published)} publiées',
+      ),
+      _HeroStatItem(
+        dot: AppColors.warning,
+        label: '${controller.count(JobOfferStatus.draft)} brouillon${controller.count(JobOfferStatus.draft) > 1 ? 's' : ''}',
+      ),
+      _HeroStatItem(
+        dot: const Color(0xFFBCD0E2),
+        label: '${controller.count(JobOfferStatus.closed)} clôturée${controller.count(JobOfferStatus.closed) > 1 ? 's' : ''}',
+      ),
+    ],
+  );
+}
+
+class _HeroStatItem extends StatelessWidget {
+  const _HeroStatItem({required this.label, this.icon, this.dot});
+  final String label;
+  final IconData? icon;
+  final Color? dot;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      if (icon != null)
+        Icon(icon, color: Colors.white.withValues(alpha: .94), size: 19)
+      else
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(color: dot, shape: BoxShape.circle),
+        ),
+      const SizedBox(width: 9),
+      Text(
+        label,
+        style: const TextStyle(
+          color: Color(0xFFF2F6F9),
+          fontSize: 13.5,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      const SizedBox(width: 2),
+      Container(
+        width: 1,
+        height: 20,
+        margin: const EdgeInsets.only(left: 17),
+        color: Colors.white.withValues(alpha: .16),
+      ),
+    ],
+  );
+}
+
 class _FiltersCard extends StatelessWidget {
   const _FiltersCard({required this.controller});
   final OfferManagementController controller;
@@ -431,81 +534,34 @@ class _FiltersCard extends StatelessWidget {
   Widget build(BuildContext context) => _Card(
     child: Column(
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                onChanged: controller.setQuery,
-                style: const TextStyle(
-                  color: AppColors.navy,
-                  fontSize: 14.5,
-                  fontWeight: FontWeight.w600,
-                ),
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(
-                    Icons.search_rounded,
-                    color: AppColors.slate,
-                  ),
-                  hintText: 'Rechercher une offre (poste, compétences, lieu…)',
-                  isDense: true,
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 13,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(13),
-                    borderSide: const BorderSide(color: AppColors.lineSoft),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(13),
-                    borderSide: const BorderSide(color: AppColors.lineSoft),
-                  ),
-                ),
-              ),
+        TextField(
+          onChanged: controller.setQuery,
+          style: const TextStyle(
+            color: AppColors.navy,
+            fontSize: 14.5,
+            fontWeight: FontWeight.w600,
+          ),
+          decoration: InputDecoration(
+            prefixIcon: const Icon(Icons.search_rounded, color: AppColors.slate),
+            suffixIcon: const Icon(Icons.tune_rounded, color: AppColors.navy),
+            hintText: 'Rechercher une offre (poste, compétences, lieu…)',
+            isDense: true,
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppColors.lineSoft),
             ),
-            const SizedBox(width: 12),
-            Flexible(
-              child: Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                alignment: WrapAlignment.end,
-                children: [
-                  _StatusChip(
-                    label: 'Toutes',
-                    count: controller.totalCount,
-                    active: controller.statusFilter == null,
-                    onTap: () => controller.setStatusFilter(null),
-                  ),
-                  _StatusChip(
-                    label: 'Publiées',
-                    count: controller.count(JobOfferStatus.published),
-                    active: controller.statusFilter == JobOfferStatus.published,
-                    dot: AppColors.success,
-                    onTap: () =>
-                        controller.setStatusFilter(JobOfferStatus.published),
-                  ),
-                  _StatusChip(
-                    label: 'Brouillons',
-                    count: controller.count(JobOfferStatus.draft),
-                    active: controller.statusFilter == JobOfferStatus.draft,
-                    dot: AppColors.warning,
-                    onTap: () =>
-                        controller.setStatusFilter(JobOfferStatus.draft),
-                  ),
-                  _StatusChip(
-                    label: 'Clôturées',
-                    count: controller.count(JobOfferStatus.closed),
-                    active: controller.statusFilter == JobOfferStatus.closed,
-                    dot: AppColors.slate,
-                    onTap: () =>
-                        controller.setStatusFilter(JobOfferStatus.closed),
-                  ),
-                ],
-              ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppColors.lineSoft),
             ),
-          ],
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFF7BB9F4), width: 1.2),
+            ),
+          ),
         ),
         const SizedBox(height: 10),
         Row(
@@ -545,6 +601,80 @@ class _FiltersCard extends StatelessWidget {
           ],
         ),
       ],
+    ),
+  );
+}
+
+class _StatusFiltersRow extends StatelessWidget {
+  const _StatusFiltersRow({required this.controller});
+  final OfferManagementController controller;
+
+  @override
+  Widget build(BuildContext context) => Wrap(
+    spacing: 8,
+    runSpacing: 8,
+    children: [
+      _StatusChip(
+        label: 'Toutes',
+        count: controller.totalCount,
+        active: controller.statusFilter == null,
+        onTap: () => controller.setStatusFilter(null),
+      ),
+      _StatusChip(
+        label: 'Publiées',
+        count: controller.count(JobOfferStatus.published),
+        active: controller.statusFilter == JobOfferStatus.published,
+        dot: AppColors.success,
+        onTap: () => controller.setStatusFilter(JobOfferStatus.published),
+      ),
+      _StatusChip(
+        label: 'Brouillons',
+        count: controller.count(JobOfferStatus.draft),
+        active: controller.statusFilter == JobOfferStatus.draft,
+        dot: AppColors.warning,
+        onTap: () => controller.setStatusFilter(JobOfferStatus.draft),
+      ),
+      _StatusChip(
+        label: 'Clôturées',
+        count: controller.count(JobOfferStatus.closed),
+        active: controller.statusFilter == JobOfferStatus.closed,
+        dot: AppColors.slate,
+        onTap: () => controller.setStatusFilter(JobOfferStatus.closed),
+      ),
+    ],
+  );
+}
+
+class _ViewToggle extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) => Container(
+    decoration: BoxDecoration(
+      color: const Color(0xFFF0F4F7),
+      borderRadius: BorderRadius.circular(10),
+    ),
+    padding: const EdgeInsets.all(3),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _viewIcon(Icons.grid_view_rounded, false),
+        _viewIcon(Icons.view_list_rounded, true),
+      ],
+    ),
+  );
+
+  Widget _viewIcon(IconData icon, bool selected) => Container(
+    width: 34,
+    height: 32,
+    alignment: Alignment.center,
+    decoration: BoxDecoration(
+      color: selected ? Colors.white : Colors.transparent,
+      borderRadius: BorderRadius.circular(8),
+      border: selected ? Border.all(color: const Color(0xFF1687F8)) : null,
+    ),
+    child: Icon(
+      icon,
+      size: 18,
+      color: selected ? const Color(0xFF1687F8) : AppColors.slate,
     ),
   );
 }

@@ -155,27 +155,11 @@ class _OfferMetaChipState extends State<OfferMetaChip> {
       curve: Curves.easeOutCubic,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withValues(alpha: .96),
-            const Color(0xFFEAF6FF).withValues(alpha: _hovered ? .96 : .82),
-          ],
-        ),
+        color: _hovered ? const Color(0xFFE4F2FC) : const Color(0xFFEDF6FC),
         borderRadius: BorderRadius.circular(999),
         border: Border.all(
-          color: _hovered ? const Color(0xFF8CC9FF) : const Color(0xFFCFE7FA),
-          width: _hovered ? 1.4 : 1,
+          color: _hovered ? const Color(0xFFB9DDFB) : const Color(0xFFD7E9F6),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF4CA8F8)
-                .withValues(alpha: _hovered ? .18 : .07),
-            blurRadius: _hovered ? 14 : 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -212,9 +196,8 @@ class OfferSkillTag extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
     decoration: BoxDecoration(
-      color: Colors.white.withValues(alpha: .88),
+      color: const Color(0xFFEDF5FB),
       borderRadius: BorderRadius.circular(8),
-      border: Border.all(color: const Color(0xFFD7E8F5)),
     ),
     child: Text(
       label,
@@ -248,11 +231,15 @@ class OfferCardSurface extends StatelessWidget {
     curve: Curves.easeOutCubic,
     decoration: BoxDecoration(
       color: Colors.white,
+      borderRadius: BorderRadius.circular(14),
+      border: Border.all(
+        color: hovered ? const Color(0xFFD5E4EF) : const Color(0xFFE6EDF2),
+      ),
       boxShadow: [
         BoxShadow(
-          color: Color(hovered ? 0x1A0A3152 : 0x100A3152),
-          blurRadius: hovered ? 26 : 18,
-          offset: Offset(0, hovered ? 9 : 6),
+          color: Color(hovered ? 0x160A3152 : 0x0C0A3152),
+          blurRadius: hovered ? 24 : 14,
+          offset: Offset(0, hovered ? 8 : 5),
         ),
       ],
     ),

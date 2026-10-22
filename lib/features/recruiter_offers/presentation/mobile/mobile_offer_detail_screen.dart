@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -8,6 +9,7 @@ import '../../../../design_system/tokens/app_colors.dart';
 import '../../domain/job_offer.dart';
 import '../../domain/recruiter_company.dart';
 import '../controllers/offer_detail_controller.dart';
+import '../shared/offer_candidates_panel.dart';
 import '../shared/offer_ui.dart';
 
 class MobileOfferDetailScreen extends StatelessWidget {
@@ -17,9 +19,7 @@ class MobileOfferDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = context.watch<OfferDetailController>();
     if (controller.isLoading) {
-      return const MobileAppSurface(
-        child: Center(child: CircularProgressIndicator()),
-      );
+      return const MobileAppSurface(child: Center(child: CircularProgressIndicator()));
     }
     final offer = controller.offer;
     final company = controller.company;
@@ -31,19 +31,12 @@ class MobileOfferDetailScreen extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
-                  Icons.error_outline_rounded,
-                  color: AppColors.error,
-                  size: 34,
-                ),
+                const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 34),
                 const SizedBox(height: 12),
                 Text(
                   controller.errorMessage ?? 'Offre introuvable.',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: AppColors.navy,
-                    fontWeight: FontWeight.w800,
-                  ),
+                  style: const TextStyle(color: AppColors.navy, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 14),
                 OutlinedButton(
@@ -58,239 +51,182 @@ class MobileOfferDetailScreen extends StatelessWidget {
     }
 
     return MobileAppSurface(
-      backgroundColor: const Color(0xFFF5F7F6),
+      systemUiOverlayStyle: SystemUiOverlayStyle.light,
+      backgroundColor: AppColors.background,
       child: Column(
         children: [
+          const _MobileTopBar(),
           Expanded(
             child: ListView(
               padding: EdgeInsets.zero,
               children: [
-                _Header(offer: offer, company: company),
-                Transform.translate(
-                  offset: const Offset(0, -22),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _Section(
-                          title: 'Description',
+                _Breadcrumb(offer: offer),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  child: _SummaryCard(
+                    offer: offer,
+                    company: company,
+                    onCandidates: offer.candidateCount <= 0
+                        ? null
+                        : () => showOfferCandidatesPanel(context, offer: offer),
+                    onEdit: () => context.go(AppRoutes.recruiterJobEdit(offer.id)),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  child: _MobileTabs(
+                    candidateCount: offer.candidateCount,
+                    onCandidates: offer.candidateCount <= 0
+                        ? null
+                        : () => showOfferCandidatesPanel(context, offer: offer),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  child: Column(
+                    children: [
+                      _SectionCard(
+                        title: 'À propos de l’offre',
+                        icon: Icons.description_outlined,
+                        child: OfferRichText(
+                          value: offer.description,
+                          baseStyle: const TextStyle(color: AppColors.slateDark, fontSize: 13.5, height: 1.6),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      _SectionCard(
+                        title: 'Compétences recherchées',
+                        icon: Icons.auto_awesome_outlined,
+                        child: Wrap(
+                          spacing: 7,
+                          runSpacing: 7,
+                          children: [for (final skill in offer.skills) OfferSkillTag(label: skill)],
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      _SectionCard(
+                        title: 'Informations',
+                        icon: Icons.info_outline_rounded,
+                        child: Column(
+                          children: [
+                            _Info(icon: Icons.work_outline_rounded, label: 'Contrat', value: offer.contractType.label),
+                            _Info(icon: Icons.location_on_outlined, label: 'Localisation', value: offer.location),
+                            _Info(icon: Icons.laptop_mac_rounded, label: 'Mode de travail', value: offer.remoteMode.label),
+                            _Info(icon: Icons.trending_up_rounded, label: 'Expérience', value: offer.experienceLevel.label),
+                            _Info(icon: Icons.payments_outlined, label: 'Rémunération', value: salaryLabel(offer)),
+                          ],
+                        ),
+                      ),
+                      if (offer.contractType.isWorkStudy) ...[
+                        const SizedBox(height: 10),
+                        _SectionCard(
+                          title: 'Alternance',
+                          icon: Icons.school_outlined,
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              OfferRichText(
-                                value: offer.description,
-                                baseStyle: const TextStyle(
-                                  color: AppColors.slateDark,
-                                  fontSize: 12,
-                                  height: 1.5,
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Wrap(
-                                spacing: 6,
-                                runSpacing: 6,
-                                children: [
-                                  for (final skill in offer.skills)
-                                    OfferSkillTag(label: skill),
+                              _Info(icon: Icons.repeat_rounded, label: 'Rythme', value: offer.rhythmType ?? '—'),
+                              _Info(icon: Icons.event_outlined, label: 'Début', value: monthYearLabel(offer.startDate)),
+                              _Info(icon: Icons.timelapse_rounded, label: 'Durée', value: offer.durationMonths == null ? '—' : '${offer.durationMonths} mois'),
+                              _Info(icon: Icons.school_outlined, label: 'Niveau', value: offer.degreeLevelRequired?.replaceAll('BAC_', 'Bac+') ?? '—'),
+                            ],
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 10),
+                      _SectionCard(
+                        title: 'Candidatures',
+                        icon: Icons.groups_2_outlined,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Row(
+                              children: [
+                                if (offer.candidateCount > 0) ...[
+                                  OfferCandidateAvatars(count: offer.candidateCount, size: 30, maxVisible: 4),
+                                  const SizedBox(width: 9),
                                 ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        _Section(
-                          title: 'Informations clés',
-                          child: Column(
-                            children: [
-                              _Info(
-                                icon: Icons.work_outline_rounded,
-                                label: 'Type de contrat',
-                                value: offer.contractType.label,
-                              ),
-                              _Info(
-                                icon: Icons.location_on_outlined,
-                                label: 'Localisation',
-                                value: offer.location,
-                              ),
-                              _Info(
-                                icon: Icons.laptop_mac_rounded,
-                                label: 'Mode de travail',
-                                value: offer.remoteMode.label,
-                              ),
-                              _Info(
-                                icon: Icons.trending_up_rounded,
-                                label: 'Niveau d’expérience',
-                                value: offer.experienceLevel.label,
-                              ),
-                              _Info(
-                                icon: Icons.euro_rounded,
-                                label: 'Rémunération',
-                                value: salaryLabel(offer),
-                              ),
-                              _Info(
-                                icon: Icons.flag_outlined,
-                                label: 'Statut',
-                                value: offer.status.label,
-                              ),
-                              _Info(
-                                icon: Icons.publish_outlined,
-                                label: 'Publication',
-                                value: dateLabel(offer.publishedAt),
-                              ),
-                              _Info(
-                                icon: Icons.update_rounded,
-                                label: 'Dernière modification',
-                                value: dateLabel(offer.updatedAt),
-                              ),
-                              if (offer.contractType.isWorkStudy) ...[
-                                _Info(
-                                  icon: Icons.school_outlined,
-                                  label: 'Niveau d’études',
-                                  value:
-                                      offer.degreeLevelRequired?.replaceAll(
-                                        'BAC_',
-                                        'Bac+',
-                                      ) ??
-                                      '—',
-                                ),
-                                _Info(
-                                  icon: Icons.sync_alt_rounded,
-                                  label: 'Rythme',
-                                  value: offer.rhythmType ?? '—',
-                                ),
-                                _Info(
-                                  icon: Icons.calendar_month_outlined,
-                                  label: 'Date de début',
-                                  value: monthYearLabel(offer.startDate),
-                                ),
-                                _Info(
-                                  icon: Icons.schedule_rounded,
-                                  label: 'Durée',
-                                  value: offer.durationMonths == null
-                                      ? '—'
-                                      : '${offer.durationMonths} mois',
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        _Section(
-                          title: 'Candidatures',
-                          child: Row(
-                            children: [
-                              if (offer.candidateCount > 0)
-                                OfferCandidateAvatars(
-                                  count: offer.candidateCount,
-                                  size: 32,
-                                  maxVisible: 4,
-                                ),
-                              if (offer.candidateCount > 0)
-                                const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  '${offer.candidateCount} candidat${offer.candidateCount > 1 ? 's' : ''}',
-                                  style: const TextStyle(
-                                    color: AppColors.navy,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w900,
+                                Expanded(
+                                  child: Text(
+                                    '${offer.candidateCount} candidat${offer.candidateCount > 1 ? 's' : ''} sur cette offre',
+                                    style: const TextStyle(color: AppColors.navy, fontSize: 12, fontWeight: FontWeight.w800),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        _Section(
-                          title: 'Entreprise',
-                          child: Column(
-                            children: [
-                              _Info(
-                                icon: Icons.apartment_outlined,
-                                label: 'Nom',
-                                value: company.name,
-                              ),
-                              _Info(
-                                icon: Icons.category_outlined,
-                                label: 'Activité',
-                                value: company.activity,
-                              ),
-                              _Info(
-                                icon: Icons.business_center_outlined,
-                                label: 'Secteur',
-                                value: company.sector,
-                              ),
-                              _Info(
-                                icon: Icons.groups_2_outlined,
-                                label: 'Taille',
-                                value: company.sizeRange,
-                              ),
-                              _Info(
-                                icon: Icons.location_city_outlined,
-                                label: 'Ville',
-                                value: company.city,
-                              ),
-                              if ((company.website ?? '').isNotEmpty)
-                                _Info(
-                                  icon: Icons.language_rounded,
-                                  label: 'Site',
-                                  value: company.website!,
+                              ],
+                            ),
+                            if (offer.candidateCount > 0) ...[
+                              const SizedBox(height: 12),
+                              OutlinedButton.icon(
+                                onPressed: () => showOfferCandidatesPanel(context, offer: offer),
+                                icon: const Icon(Icons.people_alt_outlined, size: 17),
+                                label: const Text('Voir les candidats'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: const Color(0xFF1475D1),
+                                  side: const BorderSide(color: Color(0xFFB9DDFB)),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
                                 ),
+                              ),
                             ],
-                          ),
+                          ],
                         ),
-                        const SizedBox(height: 22),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 10),
+                      _SectionCard(
+                        title: 'Entreprise',
+                        icon: Icons.apartment_outlined,
+                        child: Column(
+                          children: [
+                            _Info(icon: Icons.business_outlined, label: 'Nom', value: company.name),
+                            _Info(icon: Icons.category_outlined, label: 'Secteur', value: company.sector),
+                            _Info(icon: Icons.groups_outlined, label: 'Taille', value: company.sizeRange),
+                            _Info(icon: Icons.location_city_outlined, label: 'Ville', value: company.city),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 90),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
           Container(
-            padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
+            padding: const EdgeInsets.fromLTRB(14, 10, 14, 14),
             decoration: const BoxDecoration(
               color: Colors.white,
-              border: Border(top: BorderSide(color: Color(0xFFE9ECE8))),
+              border: Border(top: BorderSide(color: Color(0xFFE5ECF1))),
             ),
             child: Row(
               children: [
                 Expanded(
                   child: SizedBox(
-                    height: 52,
+                    height: 48,
                     child: OutlinedButton.icon(
-                      onPressed: () =>
-                          context.go(AppRoutes.recruiterJobEdit(offer.id)),
-                      icon: const Icon(Icons.edit_outlined),
+                      onPressed: () => context.go(AppRoutes.recruiterJobEdit(offer.id)),
+                      icon: const Icon(Icons.edit_outlined, size: 18),
                       label: const Text('Modifier'),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF1976D2),
-                        side: const BorderSide(color: Color(0xFFB8D7F3)),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
+                        foregroundColor: const Color(0xFF1475D1),
+                        side: const BorderSide(color: Color(0xFFB9DDFB)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
                       ),
                     ),
                   ),
                 ),
                 if (offer.status != JobOfferStatus.closed) ...[
-                  const SizedBox(width: 9),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: SizedBox(
-                      height: 52,
+                      height: 48,
                       child: FilledButton.icon(
-                        onPressed: controller.isClosing
-                            ? null
-                            : () => _showCloseSheet(context, controller),
-                        icon: const Icon(Icons.pause_circle_outline_rounded),
+                        onPressed: controller.isClosing ? null : () => _showCloseSheet(context, controller),
+                        icon: const Icon(Icons.pause_circle_outline_rounded, size: 18),
                         label: const Text('Clôturer'),
                         style: FilledButton.styleFrom(
                           backgroundColor: AppColors.orange,
                           foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
                         ),
                       ),
                     ),
@@ -304,330 +240,259 @@ class MobileOfferDetailScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _showCloseSheet(
-    BuildContext context,
-    OfferDetailController controller,
-  ) async {
-    final reason = TextEditingController();
+  Future<void> _showCloseSheet(BuildContext context, OfferDetailController controller) async {
     final shouldClose = await showModalBottomSheet<bool>(
       context: context,
-      isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.viewInsetsOf(context).bottom,
+      builder: (context) => Container(
+        padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
         ),
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(20, 10, 20, 18),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-          ),
-          child: SafeArea(
-            top: false,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 42,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: AppColors.line,
-                    borderRadius: BorderRadius.circular(99),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                const CircleAvatar(
-                  radius: 28,
-                  backgroundColor: AppColors.orangeTint,
-                  child: Icon(
-                    Icons.pause_circle_outline_rounded,
-                    color: AppColors.orange,
-                    size: 30,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                const Text(
-                  'Clôturer l’offre ?',
-                  style: TextStyle(
-                    color: AppColors.navy,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                const SizedBox(height: 7),
-                const Text(
-                  'Elle ne sera plus proposée aux candidats.',
-                  style: TextStyle(color: AppColors.slate, fontSize: 12),
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(13),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFEAF4FC),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: const Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(
-                        Icons.info_rounded,
-                        color: Color(0xFF1976D2),
-                        size: 18,
-                      ),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Les candidatures et conversations existantes seront conservées.',
-                          style: TextStyle(
-                            color: AppColors.slateDark,
-                            fontSize: 11,
-                            height: 1.4,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 14),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Motif (facultatif)',
-                    style: const TextStyle(
-                      color: AppColors.navy,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(width: 42, height: 4, decoration: BoxDecoration(color: AppColors.line, borderRadius: BorderRadius.circular(99))),
+              const SizedBox(height: 18),
+              const Text('Clôturer l’offre ?', style: TextStyle(color: AppColors.navy, fontSize: 22, fontWeight: FontWeight.w900)),
+              const SizedBox(height: 7),
+              const Text('Elle ne sera plus proposée aux candidats. Les candidatures existantes seront conservées.', textAlign: TextAlign.center, style: TextStyle(color: AppColors.slate, fontSize: 12, height: 1.45)),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(child: OutlinedButton(onPressed: () => Navigator.pop(context, false), child: const Text('Annuler'))),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      style: FilledButton.styleFrom(backgroundColor: AppColors.orange),
+                      child: const Text('Clôturer'),
                     ),
                   ),
-                ),
-                const SizedBox(height: 7),
-                TextField(
-                  controller: reason,
-                  maxLines: 4,
-                  maxLength: 2000,
-                  decoration: InputDecoration(
-                    hintText: 'Ex. : poste pourvu, changement de besoin…',
-                    filled: true,
-                    fillColor: const Color(0xFFF5F7F6),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: Color(0xFFE4E8E3)),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: SizedBox(
-                        height: 50,
-                        child: OutlinedButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.navy,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          child: const Text('Annuler'),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 9),
-                    Expanded(
-                      child: SizedBox(
-                        height: 50,
-                        child: FilledButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: AppColors.orange,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          child: const Text('Clôturer l’offre'),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
     );
-    if (shouldClose == true) {
-      final ok = await controller.close(
-        reason: reason.text.trim().isEmpty ? null : reason.text.trim(),
-      );
-      if (context.mounted && ok) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Offre clôturée.'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    }
-    reason.dispose();
+    if (shouldClose == true) await controller.close();
   }
 }
 
-class _Header extends StatelessWidget {
-  const _Header({required this.offer, required this.company});
-  final JobOffer offer;
-  final RecruiterCompany company;
+class _MobileTopBar extends StatelessWidget {
+  const _MobileTopBar();
+
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.fromLTRB(12, 10, 12, 46),
-    decoration: BoxDecoration(
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          AppColors.navy,
-          companyColor(company.id).withValues(alpha: .82),
-        ],
-      ),
-      borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
+    height: 70,
+    padding: const EdgeInsets.symmetric(horizontal: 14),
+    color: AppColors.navy,
+    child: Row(
+      children: [
+        const MobileBrandMark(onDark: true, compact: true),
+        const SizedBox(width: 7),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+          decoration: BoxDecoration(color: Colors.white.withValues(alpha: .14), borderRadius: BorderRadius.circular(5)),
+          child: const Text('Entreprise', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w800)),
+        ),
+        const Spacer(),
+        IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_none_rounded), color: Colors.white),
+        const CircleAvatar(radius: 18, backgroundColor: Colors.white, child: Text('E', style: TextStyle(color: AppColors.navy, fontWeight: FontWeight.w900))),
+      ],
     ),
+  );
+}
+
+class _Breadcrumb extends StatelessWidget {
+  const _Breadcrumb({required this.offer});
+  final JobOffer offer;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(8, 8, 14, 8),
+    child: Row(
+      children: [
+        TextButton.icon(
+          onPressed: () => context.go(AppRoutes.recruiterJobs),
+          icon: const Icon(Icons.chevron_left_rounded, size: 18),
+          label: const Text('Offres'),
+          style: TextButton.styleFrom(foregroundColor: AppColors.slateDark),
+        ),
+        const Icon(Icons.chevron_right_rounded, size: 15, color: AppColors.placeholder),
+        const SizedBox(width: 4),
+        const Text('Détail de l’offre', style: TextStyle(color: AppColors.slateDark, fontSize: 11, fontWeight: FontWeight.w700)),
+      ],
+    ),
+  );
+}
+
+class _SummaryCard extends StatelessWidget {
+  const _SummaryCard({
+    required this.offer,
+    required this.company,
+    required this.onCandidates,
+    required this.onEdit,
+  });
+  final JobOffer offer;
+  final RecruiterCompany company;
+  final VoidCallback? onCandidates;
+  final VoidCallback onEdit;
+
+  @override
+  Widget build(BuildContext context) => _SectionCard(
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
           children: [
-            IconButton(
-              onPressed: () => context.go(AppRoutes.recruiterJobs),
-              icon: const Icon(Icons.arrow_back_rounded),
-              color: Colors.white,
-            ),
+            OfferStatusBadge(status: offer.status),
+            const SizedBox(width: 8),
+            CompanyMiniLogo(company: company, size: 23),
+            const SizedBox(width: 6),
+            Text(company.name, style: const TextStyle(color: AppColors.navy, fontSize: 11, fontWeight: FontWeight.w900)),
             const Spacer(),
-            PopupMenuButton<String>(
-              icon: const Icon(Icons.more_horiz_rounded, color: Colors.white),
-              itemBuilder: (context) => const [
-                PopupMenuItem(value: 'share', child: Text('Partager')),
-              ],
-            ),
+            IconButton(onPressed: onEdit, icon: const Icon(Icons.edit_outlined, size: 19), color: AppColors.navy),
           ],
         ),
-        const SizedBox(height: 14),
-        Row(
-          children: [
-            CompanyAvatar(company: company, size: 52),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    company.name,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 17,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                  Text(
-                    company.activity,
-                    style: const TextStyle(
-                      color: Color(0xFFD4E7F3),
-                      fontSize: 10,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 15),
+        const SizedBox(height: 10),
         Text(
           offer.title,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 25,
-            height: 1.05,
-            fontWeight: FontWeight.w900,
-            letterSpacing: -.5,
-          ),
+          style: const TextStyle(color: AppColors.navy, fontSize: 24, height: 1.08, fontWeight: FontWeight.w900, letterSpacing: -.4),
         ),
-        const SizedBox(height: 9),
+        const SizedBox(height: 8),
+        Text(
+          offer.description.replaceAll(RegExp(r'\s+'), ' ').trim(),
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(color: AppColors.slate, fontSize: 13.3, height: 1.48),
+        ),
+        const SizedBox(height: 12),
         Wrap(
-          spacing: 7,
-          runSpacing: 7,
+          spacing: 6,
+          runSpacing: 6,
           children: [
-            _DarkChip(
-              label: offer.contractType.label,
-              icon: Icons.work_outline_rounded,
-            ),
-            _DarkChip(label: offer.location, icon: Icons.location_on_outlined),
-            _DarkChip(
-              label: offer.remoteMode.label,
-              icon: Icons.laptop_mac_rounded,
-            ),
-            OfferStatusBadge(status: offer.status),
+            for (final skill in offer.skills.take(3)) OfferSkillTag(label: skill),
+            if (offer.skills.length > 3) OfferSkillTag(label: '+${offer.skills.length - 3}'),
           ],
         ),
-      ],
-    ),
-  );
-}
-
-class _DarkChip extends StatelessWidget {
-  const _DarkChip({required this.label, required this.icon});
-  final String label;
-  final IconData icon;
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-    decoration: BoxDecoration(
-      color: Colors.white.withValues(alpha: .13),
-      borderRadius: BorderRadius.circular(999),
-    ),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 14, color: Colors.white),
-        const SizedBox(width: 6),
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-          ),
+        const SizedBox(height: 13),
+        Wrap(
+          spacing: 12,
+          runSpacing: 9,
+          children: [
+            _Meta(icon: Icons.work_outline_rounded, label: offer.contractType.label),
+            _Meta(icon: Icons.location_on_outlined, label: offer.location),
+            _Meta(icon: Icons.laptop_mac_rounded, label: offer.remoteMode.label),
+            _Meta(icon: Icons.calendar_today_outlined, label: dateLabel(offer.publishedAt ?? offer.updatedAt)),
+          ],
         ),
+        if (onCandidates != null) ...[
+          const SizedBox(height: 12),
+          Align(
+            alignment: Alignment.centerRight,
+            child: OutlinedButton.icon(
+              onPressed: onCandidates,
+              icon: const Icon(Icons.group_outlined, size: 17),
+              label: Text('${offer.candidateCount} candidats'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF1475D1),
+                side: const BorderSide(color: Color(0xFF88C3F9)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+          ),
+        ],
       ],
     ),
   );
 }
 
-class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.child});
-  final String title;
+class _MobileTabs extends StatelessWidget {
+  const _MobileTabs({required this.candidateCount, required this.onCandidates});
+  final int candidateCount;
+  final VoidCallback? onCandidates;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    height: 40,
+    child: ListView(
+      scrollDirection: Axis.horizontal,
+      children: [
+        _Tab(label: 'Description', active: true, onTap: () {}),
+        _Tab(label: 'Candidats ($candidateCount)', onTap: onCandidates),
+        _Tab(label: 'Statistiques', onTap: () {}),
+        _Tab(label: 'Paramètres', onTap: () {}),
+      ],
+    ),
+  );
+}
+
+class _Tab extends StatelessWidget {
+  const _Tab({required this.label, required this.onTap, this.active = false});
+  final String label;
+  final VoidCallback? onTap;
+  final bool active;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(right: 7),
+    child: InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+        decoration: BoxDecoration(
+          color: active ? const Color(0xFFF0F7FF) : Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: active ? const Color(0xFF1687F8) : AppColors.lineSoft),
+        ),
+        child: Text(label, style: TextStyle(color: active ? const Color(0xFF1475D1) : AppColors.slate, fontSize: 11, fontWeight: FontWeight.w800)),
+      ),
+    ),
+  );
+}
+
+class _SectionCard extends StatelessWidget {
+  const _SectionCard({required this.child, this.title, this.icon});
   final Widget child;
+  final String? title;
+  final IconData? icon;
+
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: const Color(0xFFE5ECF1)),
+      boxShadow: const [BoxShadow(color: Color(0x0B153B5B), blurRadius: 16, offset: Offset(0, 6))],
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          title,
-          style: const TextStyle(
-            color: AppColors.navy,
-            fontSize: 17,
-            fontWeight: FontWeight.w900,
+        if (title != null) ...[
+          Row(
+            children: [
+              if (icon != null) ...[
+                Container(
+                  width: 34,
+                  height: 34,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(color: const Color(0xFFF0F7FF), borderRadius: BorderRadius.circular(9)),
+                  child: Icon(icon, size: 18, color: const Color(0xFF1475D1)),
+                ),
+                const SizedBox(width: 9),
+              ],
+              Expanded(child: Text(title!, style: const TextStyle(color: AppColors.navy, fontSize: 16, fontWeight: FontWeight.w900))),
+            ],
           ),
-        ),
-        const SizedBox(height: 12),
+          const SizedBox(height: 13),
+        ],
         child,
       ],
     ),
@@ -639,36 +504,33 @@ class _Info extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
+
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(bottom: 11),
     child: Row(
       children: [
-        Icon(icon, size: 18, color: AppColors.slate),
-        const SizedBox(width: 9),
-        SizedBox(
-          width: 108,
-          child: Text(
-            label,
-            style: const TextStyle(
-              color: AppColors.slate,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            textAlign: TextAlign.right,
-            style: const TextStyle(
-              color: AppColors.navy,
-              fontSize: 11,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ),
+        Icon(icon, size: 17, color: AppColors.slate),
+        const SizedBox(width: 8),
+        SizedBox(width: 95, child: Text(label, style: const TextStyle(color: AppColors.slate, fontSize: 10.5, fontWeight: FontWeight.w600))),
+        Expanded(child: Text(value, textAlign: TextAlign.right, style: const TextStyle(color: AppColors.navy, fontSize: 10.8, fontWeight: FontWeight.w800))),
       ],
     ),
+  );
+}
+
+class _Meta extends StatelessWidget {
+  const _Meta({required this.icon, required this.label});
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Icon(icon, size: 15, color: const Color(0xFF1475D1)),
+      const SizedBox(width: 5),
+      Text(label, style: const TextStyle(color: AppColors.slateDark, fontSize: 10.5, fontWeight: FontWeight.w700)),
+    ],
   );
 }
