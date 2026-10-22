@@ -14,8 +14,18 @@ import '../shared/offer_ui.dart';
 import '../shared/recruiter_offer_header_art.dart';
 import 'recruiter_offers_top_bar.dart';
 
-class WebRecruiterOffersScreen extends StatelessWidget {
+enum _OffersLayout { grid, list }
+
+class WebRecruiterOffersScreen extends StatefulWidget {
   const WebRecruiterOffersScreen({super.key});
+
+  @override
+  State<WebRecruiterOffersScreen> createState() =>
+      _WebRecruiterOffersScreenState();
+}
+
+class _WebRecruiterOffersScreenState extends State<WebRecruiterOffersScreen> {
+  _OffersLayout _layout = _OffersLayout.list;
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +150,11 @@ class WebRecruiterOffersScreen extends StatelessWidget {
                                   ),
                                 ),
                                 const Spacer(),
-                                _ViewToggle(),
+                                _ViewToggle(
+                                  layout: _layout,
+                                  onChanged: (layout) =>
+                                      setState(() => _layout = layout),
+                                ),
                               ],
                             ),
                             const SizedBox(height: 10),
@@ -150,28 +164,7 @@ class WebRecruiterOffersScreen extends StatelessWidget {
                                     context.go(AppRoutes.recruiterJobCreate),
                               )
                             else
-                              for (final offer in controller.visibleOffers) ...[
-                                _OfferRow(
-                                  offer: offer,
-                                  company: controller.companyFor(
-                                    offer.companyId,
-                                  ),
-                                  onTap: () => context.go(
-                                    AppRoutes.recruiterJobDetail(offer.id),
-                                  ),
-                                  onEdit: () => context.go(
-                                    AppRoutes.recruiterJobEdit(offer.id),
-                                  ),
-                                  onClose: () =>
-                                      _confirmClose(context, controller, offer),
-                                  onDelete: () => _confirmDelete(
-                                    context,
-                                    controller,
-                                    offer,
-                                  ),
-                                ),
-                                const SizedBox(height: 9),
-                              ],
+                              _buildOffersCollection(context, controller),
                           ],
                         ],
                       ),
@@ -183,6 +176,91 @@ class WebRecruiterOffersScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildOffersCollection(
+    BuildContext context,
+    OfferManagementController controller,
+  ) {
+    final offers = controller.visibleOffers;
+
+    Widget buildCard(JobOffer offer, {required bool grid}) {
+      final company = controller.companyFor(offer.companyId);
+      void onTap() => context.go(AppRoutes.recruiterJobDetail(offer.id));
+      void onEdit() => context.go(AppRoutes.recruiterJobEdit(offer.id));
+      Future<void> onClose() => _confirmClose(context, controller, offer);
+      Future<void> onDelete() => _confirmDelete(context, controller, offer);
+
+      return grid
+          ? _OfferGridCard(
+              key: ValueKey('offer-grid-card-${offer.id}'),
+              offer: offer,
+              company: company,
+              onTap: onTap,
+              onEdit: onEdit,
+              onClose: onClose,
+              onDelete: onDelete,
+            )
+          : _OfferRow(
+              key: ValueKey('offer-list-card-${offer.id}'),
+              offer: offer,
+              company: company,
+              onTap: onTap,
+              onEdit: onEdit,
+              onClose: onClose,
+              onDelete: onDelete,
+            );
+    }
+
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 240),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      layoutBuilder: (currentChild, previousChildren) => Stack(
+        alignment: Alignment.topCenter,
+        children: [...previousChildren, ?currentChild],
+      ),
+      transitionBuilder: (child, animation) => FadeTransition(
+        opacity: animation,
+        child: ScaleTransition(
+          scale: Tween<double>(begin: .985, end: 1).animate(animation),
+          child: child,
+        ),
+      ),
+      child: _layout == _OffersLayout.list
+          ? Column(
+              key: const ValueKey('offers-list-layout'),
+              children: [
+                for (var i = 0; i < offers.length; i++) ...[
+                  buildCard(offers[i], grid: false),
+                  if (i != offers.length - 1) const SizedBox(height: 9),
+                ],
+              ],
+            )
+          : LayoutBuilder(
+              key: const ValueKey('offers-grid-layout'),
+              builder: (context, constraints) {
+                final columns = constraints.maxWidth >= 1120
+                    ? 3
+                    : constraints.maxWidth >= 720
+                    ? 2
+                    : 1;
+                return GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: offers.length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: columns,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    mainAxisExtent: 386,
+                  ),
+                  itemBuilder: (context, index) =>
+                      buildCard(offers[index], grid: true),
+                );
+              },
+            ),
     );
   }
 
@@ -659,6 +737,11 @@ class _StatusFiltersRow extends StatelessWidget {
 }
 
 class _ViewToggle extends StatelessWidget {
+  const _ViewToggle({required this.layout, required this.onChanged});
+
+  final _OffersLayout layout;
+  final ValueChanged<_OffersLayout> onChanged;
+
   @override
   Widget build(BuildContext context) => Container(
     decoration: BoxDecoration(
@@ -669,25 +752,67 @@ class _ViewToggle extends StatelessWidget {
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _viewIcon(Icons.grid_view_rounded, false),
-        _viewIcon(Icons.view_list_rounded, true),
+        _viewIcon(
+          key: const ValueKey('offers-view-grid'),
+          tooltip: 'Vue grille',
+          icon: Icons.grid_view_rounded,
+          selected: layout == _OffersLayout.grid,
+          onTap: () => onChanged(_OffersLayout.grid),
+        ),
+        _viewIcon(
+          key: const ValueKey('offers-view-list'),
+          tooltip: 'Vue liste',
+          icon: Icons.view_list_rounded,
+          selected: layout == _OffersLayout.list,
+          onTap: () => onChanged(_OffersLayout.list),
+        ),
       ],
     ),
   );
 
-  Widget _viewIcon(IconData icon, bool selected) => Container(
-    width: 34,
-    height: 32,
-    alignment: Alignment.center,
-    decoration: BoxDecoration(
-      color: selected ? Colors.white : Colors.transparent,
-      borderRadius: BorderRadius.circular(8),
-      border: selected ? Border.all(color: const Color(0xFF1687F8)) : null,
-    ),
-    child: Icon(
-      icon,
-      size: 18,
-      color: selected ? const Color(0xFF1687F8) : AppColors.slate,
+  Widget _viewIcon({
+    required Key key,
+    required String tooltip,
+    required IconData icon,
+    required bool selected,
+    required VoidCallback onTap,
+  }) => Tooltip(
+    message: tooltip,
+    child: Material(
+      key: key,
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOutCubic,
+          width: 38,
+          height: 34,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: selected ? Colors.white : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+            border: selected
+                ? Border.all(color: const Color(0xFF1687F8), width: 1.2)
+                : null,
+            boxShadow: selected
+                ? const [
+                    BoxShadow(
+                      color: Color(0x121687F8),
+                      blurRadius: 10,
+                      offset: Offset(0, 3),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Icon(
+            icon,
+            size: 18,
+            color: selected ? const Color(0xFF1687F8) : AppColors.slate,
+          ),
+        ),
+      ),
     ),
   );
 }
@@ -707,8 +832,219 @@ class _CompanySelect extends StatelessWidget {
   );
 }
 
+class _OfferGridCard extends StatefulWidget {
+  const _OfferGridCard({
+    super.key,
+    required this.offer,
+    required this.company,
+    required this.onTap,
+    required this.onEdit,
+    required this.onClose,
+    required this.onDelete,
+  });
+
+  final JobOffer offer;
+  final RecruiterCompany? company;
+  final VoidCallback onTap;
+  final VoidCallback onEdit;
+  final VoidCallback onClose;
+  final VoidCallback onDelete;
+
+  @override
+  State<_OfferGridCard> createState() => _OfferGridCardState();
+}
+
+class _OfferGridCardState extends State<_OfferGridCard> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final offer = widget.offer;
+    final company =
+        widget.company ??
+        const RecruiterCompany(
+          id: 99,
+          name: 'Entreprise',
+          siret: '',
+          activity: '',
+          sector: '',
+          sizeRange: '',
+          city: '',
+        );
+    final visibleSkills = offer.skills.take(3).toList();
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: widget.onTap,
+        child: AnimatedScale(
+          duration: const Duration(milliseconds: 190),
+          curve: Curves.easeOutCubic,
+          scale: _hovered ? 1.008 : 1,
+          child: OfferCardSurface(
+            hovered: _hovered,
+            accentWidth: 260,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(19, 18, 17, 17),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      OfferStatusBadge(status: offer.status),
+                      const Spacer(),
+                      OfferOptionsButton(
+                        status: offer.status,
+                        onEdit: widget.onEdit,
+                        onClose: offer.status == JobOfferStatus.closed
+                            ? null
+                            : widget.onClose,
+                        onDelete: widget.onDelete,
+                        compact: true,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  _CompanyLine(company: company, location: offer.location),
+                  const SizedBox(height: 9),
+                  Text(
+                    offer.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: AppColors.navy,
+                      fontFamily: AppFonts.display,
+                      fontSize: 19,
+                      height: 1.12,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -.2,
+                    ),
+                  ),
+                  const SizedBox(height: 7),
+                  Text(
+                    _plainOfferDescription(offer.description),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: AppColors.slate,
+                      fontSize: 12.5,
+                      height: 1.42,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 7,
+                    runSpacing: 7,
+                    children: [
+                      OfferMetaChip(
+                        label: offer.contractType.label,
+                        icon: Icons.work_outline_rounded,
+                      ),
+                      OfferMetaChip(
+                        label: offer.remoteMode.label,
+                        icon: Icons.laptop_mac_rounded,
+                      ),
+                    ],
+                  ),
+                  if (visibleSkills.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        for (final skill in visibleSkills)
+                          OfferSkillTag(label: skill),
+                        if (offer.skills.length > visibleSkills.length)
+                          OfferSkillTag(
+                            label:
+                                '+${offer.skills.length - visibleSkills.length}',
+                          ),
+                      ],
+                    ),
+                  ],
+                  const Spacer(),
+                  Container(height: 1, color: const Color(0xFFDDE7EF)),
+                  const SizedBox(height: 11),
+                  Row(
+                    children: [
+                      if (offer.candidateCount > 0) ...[
+                        OfferCandidateAvatars(
+                          count: offer.candidateCount,
+                          size: 27,
+                          maxVisible: 3,
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                      Expanded(
+                        child: _OfferMetric(
+                          icon: Icons.group_outlined,
+                          label:
+                              '${offer.candidateCount} candidat${offer.candidateCount > 1 ? 's' : ''}',
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.calendar_today_outlined,
+                        size: 15,
+                        color: AppColors.slate,
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          offer.publishedAt == null
+                              ? 'Modifiée le ${dateLabel(offer.updatedAt)}'
+                              : 'Publiée le ${dateLabel(offer.publishedAt)}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: AppColors.slate,
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      AnimatedSlide(
+                        duration: const Duration(milliseconds: 180),
+                        offset: _hovered ? Offset.zero : const Offset(-.08, 0),
+                        child: AnimatedOpacity(
+                          duration: const Duration(milliseconds: 180),
+                          opacity: _hovered ? 1 : .72,
+                          child: const Icon(
+                            Icons.arrow_forward_rounded,
+                            size: 18,
+                            color: Color(0xFF1687F8),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+String _plainOfferDescription(String value) => value
+    .replaceAll(RegExp(r'[*#>\[\]`]'), '')
+    .replaceAll(RegExp(r'\s+'), ' ')
+    .trim();
+
 class _OfferRow extends StatefulWidget {
   const _OfferRow({
+    super.key,
     required this.offer,
     required this.company,
     required this.onTap,

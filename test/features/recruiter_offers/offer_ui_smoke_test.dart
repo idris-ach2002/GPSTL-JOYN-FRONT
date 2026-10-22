@@ -62,11 +62,15 @@ void main() {
         child: const MaterialApp(home: WebOfferEditorScreen()),
       ),
     );
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.text('Créer une offre'), findsOneWidget);
     expect(find.text('Choisir une entreprise *'), findsOneWidget);
     expect(find.text('Aperçu de l’offre'), findsOneWidget);
+    expect(find.text('Guidé'), findsOneWidget);
+    expect(find.text('Texte avancé'), findsOneWidget);
+    expect(find.text('Contexte du poste'), findsOneWidget);
     expect(find.text('Publier l’offre'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
@@ -133,7 +137,7 @@ void main() {
     expect(find.text('Alternance'), findsWidgets);
     expect(find.textContaining('14 candidat'), findsWidgets);
     expect(find.text('Entreprise'), findsWidgets);
-    expect(find.textContaining('Développeur·se Full-Stack'), findsOneWidget);
+    expect(find.textContaining('Développeur·se Full-Stack'), findsWidgets);
     expect(tester.takeException(), isNull);
   });
 }

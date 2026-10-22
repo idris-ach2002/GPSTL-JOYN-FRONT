@@ -27,6 +27,7 @@ flutter:
   assets:
     - assets/figma_demo/
     - assets/images/
+    - assets/images/recruiter_offers/
   fonts:
     - family: GreatVibes
       fonts:

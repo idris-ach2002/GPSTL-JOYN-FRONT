@@ -9,6 +9,7 @@ import '../../domain/job_offer.dart';
 import '../../domain/offer_options.dart';
 import '../../domain/recruiter_company.dart';
 import '../controllers/offer_editor_controller.dart';
+import '../shared/offer_description_editor.dart';
 import '../shared/offer_ui.dart';
 import 'mobile_company_picker_sheet.dart';
 
@@ -404,135 +405,16 @@ class _MobileOfferEditorScreenState extends State<MobileOfferEditorScreen> {
     children: [
       _title(
         'Description du poste',
-        'Structurez le contenu comme il apparaîtra aux candidats.',
+        'Structurez votre offre sans vous soucier de la syntaxe : utilisez les sections rapides, la barre de mise en forme et l’aperçu.',
       ),
-      Row(
-        children: [
-          const Expanded(
-            child: Text(
-              'Description, missions et profil recherché *',
-              style: _labelStyle,
-            ),
-          ),
-          Text(
-            '${controller.description.length}/5000',
-            style: const TextStyle(
-              color: AppColors.slate,
-              fontSize: 9,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ],
-      ),
-      const SizedBox(height: 8),
-      Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFFFAFCFE),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: const Color(0xFFE0E8EE)),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x0A0A3152),
-              blurRadius: 16,
-              offset: Offset(0, 7),
-            ),
-          ],
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          children: [
-            SizedBox(
-              height: 44,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 6),
-                child: Row(
-                  children: [
-                    _MobileFormatButton(
-                      icon: Icons.format_bold_rounded,
-                      onTap: () => _wrapDescription(controller, '**', '**'),
-                    ),
-                    _MobileFormatButton(
-                      icon: Icons.format_italic_rounded,
-                      onTap: () => _wrapDescription(controller, '*', '*'),
-                    ),
-                    _MobileFormatButton(
-                      icon: Icons.format_list_bulleted_rounded,
-                      onTap: () => _prefixDescription(controller, '- '),
-                    ),
-                    _MobileFormatButton(
-                      icon: Icons.format_list_numbered_rounded,
-                      onTap: () => _numberDescription(controller),
-                    ),
-                    _MobileFormatButton(
-                      icon: Icons.title_rounded,
-                      onTap: () => _prefixDescription(controller, '## '),
-                    ),
-                    _MobileFormatButton(
-                      icon: Icons.link_rounded,
-                      onTap: () => _linkDescription(controller),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const Divider(height: 1, color: Color(0xFFE5EDF2)),
-            TextFormField(
-              controller: _description,
-              onChanged: controller.updateDescription,
-              minLines: 11,
-              maxLines: 18,
-              maxLength: 5000,
-              style: const TextStyle(
-                color: AppColors.navy,
-                fontSize: 12,
-                height: 1.5,
-              ),
-              decoration: const InputDecoration(
-                hintText:
-                    'Présentez le poste, les missions et le profil idéal…',
-                counterText: '',
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.all(14),
-              ),
-            ),
-          ],
-        ),
+      OfferDescriptionEditor(
+        controller: _description,
+        value: controller.description,
+        onChanged: controller.updateDescription,
+        errorText: controller.errors['description'],
+        compact: true,
       ),
       _error(controller.errors['description']),
-      const SizedBox(height: 16),
-      Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFFF1F7FF), Color(0xFFFFF5F1)],
-          ),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE3ECF3)),
-        ),
-        child: const Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(
-              Icons.auto_awesome_rounded,
-              color: Color(0xFF6956E8),
-              size: 19,
-            ),
-            SizedBox(width: 9),
-            Expanded(
-              child: Text(
-                'Gras, italique, titres, listes et liens sont maintenant reproduits dans l’aperçu final.',
-                style: TextStyle(
-                  color: AppColors.slateDark,
-                  fontSize: 10.5,
-                  height: 1.4,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     ],
   );
 
@@ -546,109 +428,6 @@ class _MobileOfferEditorScreenState extends State<MobileOfferEditorScreen> {
     );
     _descriptionBound = true;
     _boundDescriptionOfferId = controller.offerId;
-  }
-
-  TextSelection _descriptionSelection() {
-    final text = _description.text;
-    final selection = _description.selection;
-    if (!selection.isValid) return TextSelection.collapsed(offset: text.length);
-    return TextSelection(
-      baseOffset: selection.start.clamp(0, text.length).toInt(),
-      extentOffset: selection.end.clamp(0, text.length).toInt(),
-    );
-  }
-
-  void _commitMobileDescription(
-    OfferEditorController controller,
-    String text,
-    int cursor,
-  ) {
-    _description.value = TextEditingValue(
-      text: text,
-      selection: TextSelection.collapsed(
-        offset: cursor.clamp(0, text.length).toInt(),
-      ),
-    );
-    controller.updateDescription(text);
-  }
-
-  void _wrapDescription(
-    OfferEditorController controller,
-    String before,
-    String after,
-  ) {
-    final text = _description.text;
-    final selection = _descriptionSelection();
-    final selected = text.substring(selection.start, selection.end);
-    final replacement = '$before${selected.isEmpty ? 'texte' : selected}$after';
-    final updated = text.replaceRange(
-      selection.start,
-      selection.end,
-      replacement,
-    );
-    _commitMobileDescription(
-      controller,
-      updated,
-      selection.start + replacement.length,
-    );
-  }
-
-  void _prefixDescription(OfferEditorController controller, String prefix) {
-    final text = _description.text;
-    final selection = _descriptionSelection();
-    final lineStart = selection.start == 0
-        ? 0
-        : text.lastIndexOf('\n', selection.start - 1) + 1;
-    final nextBreak = text.indexOf('\n', selection.end);
-    final lineEnd = nextBreak == -1 ? text.length : nextBreak;
-    final block = text.substring(lineStart, lineEnd);
-    final replacement = block
-        .split('\n')
-        .map((line) => '$prefix$line')
-        .join('\n');
-    final updated = text.replaceRange(lineStart, lineEnd, replacement);
-    _commitMobileDescription(
-      controller,
-      updated,
-      lineStart + replacement.length,
-    );
-  }
-
-  void _numberDescription(OfferEditorController controller) {
-    final text = _description.text;
-    final selection = _descriptionSelection();
-    final lineStart = selection.start == 0
-        ? 0
-        : text.lastIndexOf('\n', selection.start - 1) + 1;
-    final nextBreak = text.indexOf('\n', selection.end);
-    final lineEnd = nextBreak == -1 ? text.length : nextBreak;
-    final lines = text.substring(lineStart, lineEnd).split('\n');
-    final replacement = [
-      for (var i = 0; i < lines.length; i++) '${i + 1}. ${lines[i]}',
-    ].join('\n');
-    final updated = text.replaceRange(lineStart, lineEnd, replacement);
-    _commitMobileDescription(
-      controller,
-      updated,
-      lineStart + replacement.length,
-    );
-  }
-
-  void _linkDescription(OfferEditorController controller) {
-    final text = _description.text;
-    final selection = _descriptionSelection();
-    final selected = text.substring(selection.start, selection.end);
-    final replacement = '[${selected.isEmpty ? 'lien' : selected}](https://)';
-    final updated = text.replaceRange(
-      selection.start,
-      selection.end,
-      replacement,
-    );
-    _commitMobileDescription(
-      controller,
-      updated,
-      selection.start + replacement.length,
-    );
   }
 
   Widget _skillsSalaryStep(OfferEditorController controller) => Column(
@@ -1137,30 +916,6 @@ class _Dropdown<T> extends StatelessWidget {
         ),
       ),
     ],
-  );
-}
-
-class _MobileFormatButton extends StatelessWidget {
-  const _MobileFormatButton({required this.icon, required this.onTap});
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(right: 4),
-    child: Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(9),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(9),
-        child: SizedBox(
-          width: 34,
-          height: 32,
-          child: Icon(icon, size: 17, color: AppColors.slateDark),
-        ),
-      ),
-    ),
   );
 }
 

@@ -7,13 +7,13 @@ import '../../../../design_system/components/joyn_button.dart';
 import '../../../../design_system/components/joyn_removable_chip.dart';
 import '../../../../design_system/tokens/app_colors.dart';
 import '../../../../design_system/tokens/app_fonts.dart';
-import '../../../../design_system/tokens/app_gradients.dart';
-import '../../../../design_system/tokens/app_shadows.dart';
 import '../../domain/job_offer.dart';
 import '../../domain/offer_options.dart';
 import '../../domain/recruiter_company.dart';
 import '../controllers/offer_editor_controller.dart';
+import '../shared/offer_description_editor.dart';
 import '../shared/offer_ui.dart';
+import '../shared/recruiter_offer_header_art.dart';
 import 'company_picker_drawer.dart';
 import 'recruiter_offers_top_bar.dart';
 
@@ -51,9 +51,26 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
           Positioned.fill(
             child: Column(
               children: [
-                Container(
+                SizedBox(
                   height: 300,
-                  decoration: const BoxDecoration(gradient: AppGradients.hero),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      const RecruiterOfferHeaderArt(),
+                      DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              const Color(0xFF031A31).withValues(alpha: .08),
+                              const Color(0xFF031A31).withValues(alpha: .30),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const Expanded(child: ColoredBox(color: AppColors.background)),
               ],
@@ -132,7 +149,9 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 18),
+                            const SizedBox(height: 16),
+                            _EditorJourney(controller: controller),
+                            const SizedBox(height: 16),
                             if (controller.submitError != null) ...[
                               _ErrorBanner(message: controller.submitError!),
                               const SizedBox(height: 14),
@@ -432,214 +451,16 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            const Expanded(
-              child: _SectionTitle(
-                title: 'Description, missions et profil recherché *',
-                subtitle: 'Structurez votre contenu : la mise en forme est reproduite dans l’aperçu candidat.',
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF4F8FB),
-                borderRadius: BorderRadius.circular(999),
-                border: Border.all(color: AppColors.lineSoft),
-              ),
-              child: Text(
-                '${controller.description.length}/5000',
-                style: const TextStyle(
-                  color: AppColors.slate,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-          ],
+        const _SectionTitle(
+          title: 'Description de l’offre *',
+          subtitle: 'Rédigez naturellement : les outils ci-dessous appliquent la mise en forme sans vous demander de connaître la syntaxe.',
         ),
         const SizedBox(height: 14),
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: controller.errors['description'] == null
-                  ? const Color(0xFFD8E4EC)
-                  : AppColors.error,
-            ),
-            color: Colors.white,
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x0A0A3152),
-                blurRadius: 18,
-                offset: Offset(0, 7),
-              ),
-            ],
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            children: [
-              Container(
-                constraints: const BoxConstraints(minHeight: 48),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFAFCFE),
-                  border: Border(bottom: BorderSide(color: AppColors.lineSoft)),
-                ),
-                child: Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: 4,
-                  runSpacing: 4,
-                  children: [
-                    PopupMenuButton<String>(
-                      tooltip: 'Style de paragraphe',
-                      onSelected: (value) {
-                        if (value == 'h1') _prefixLines(controller, '# ');
-                        if (value == 'h2') _prefixLines(controller, '## ');
-                        if (value == 'quote') _prefixLines(controller, '> ');
-                        if (value == 'paragraph') _clearBlockPrefix(controller);
-                      },
-                      itemBuilder: (context) => const [
-                        PopupMenuItem(
-                          value: 'paragraph',
-                          child: Text('Paragraphe'),
-                        ),
-                        PopupMenuItem(
-                          value: 'h1',
-                          child: Text('Titre principal'),
-                        ),
-                        PopupMenuItem(value: 'h2', child: Text('Sous-titre')),
-                        PopupMenuItem(
-                          value: 'quote',
-                          child: Text('Encadré / citation'),
-                        ),
-                      ],
-                      child: Container(
-                        height: 32,
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(9),
-                          border: Border.all(color: AppColors.lineSoft),
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Paragraphe',
-                              style: TextStyle(
-                                color: AppColors.navy,
-                                fontSize: 10,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                            SizedBox(width: 5),
-                            Icon(
-                              Icons.expand_more_rounded,
-                              size: 16,
-                              color: AppColors.slate,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 3),
-                    _ToolbarButton(
-                      icon: Icons.format_bold_rounded,
-                      tooltip: 'Gras',
-                      onTap: () => _wrapSelection(controller, '**', '**'),
-                    ),
-                    _ToolbarButton(
-                      icon: Icons.format_italic_rounded,
-                      tooltip: 'Italique',
-                      onTap: () => _wrapSelection(controller, '*', '*'),
-                    ),
-                    _ToolbarButton(
-                      icon: Icons.format_list_bulleted_rounded,
-                      tooltip: 'Liste à puces',
-                      onTap: () => _prefixLines(controller, '- '),
-                    ),
-                    _ToolbarButton(
-                      icon: Icons.format_list_numbered_rounded,
-                      tooltip: 'Liste numérotée',
-                      onTap: () => _numberLines(controller),
-                    ),
-                    _ToolbarButton(
-                      icon: Icons.link_rounded,
-                      tooltip: 'Lien',
-                      onTap: () => _insertLink(controller),
-                    ),
-                    Container(width: 1, height: 22, color: AppColors.lineSoft),
-                    _ToolbarButton(
-                      icon: Icons.format_align_left_rounded,
-                      tooltip: 'Aligner à gauche',
-                      onTap: () => _alignLines(controller, 'left'),
-                    ),
-                    _ToolbarButton(
-                      icon: Icons.format_align_center_rounded,
-                      tooltip: 'Centrer',
-                      onTap: () => _alignLines(controller, 'center'),
-                    ),
-                    _ToolbarButton(
-                      icon: Icons.format_align_right_rounded,
-                      tooltip: 'Aligner à droite',
-                      onTap: () => _alignLines(controller, 'right'),
-                    ),
-                  ],
-                ),
-              ),
-              TextFormField(
-                controller: _descriptionController,
-                minLines: 8,
-                maxLines: 15,
-                maxLength: 5000,
-                onChanged: controller.updateDescription,
-                style: const TextStyle(
-                  color: AppColors.navy,
-                  fontSize: 13,
-                  height: 1.55,
-                ),
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  counterText: '',
-                  contentPadding: EdgeInsets.fromLTRB(16, 16, 16, 18),
-                  hintText: 'Présentez le poste, vos missions, votre équipe et le profil recherché…',
-                ),
-              ),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.fromLTRB(14, 9, 14, 9),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFAFCFE),
-                  border: Border(top: BorderSide(color: AppColors.lineSoft)),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(
-                      Icons.auto_awesome_outlined,
-                      size: 15,
-                      color: Color(0xFF6956E8),
-                    ),
-                    SizedBox(width: 7),
-                    Expanded(
-                      child: Text(
-                        'Le texte formaté est conservé dans la description et rendu à l’identique dans l’aperçu.',
-                        style: TextStyle(
-                          color: AppColors.slate,
-                          fontSize: 9.5,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+        OfferDescriptionEditor(
+          controller: _descriptionController,
+          value: controller.description,
+          onChanged: controller.updateDescription,
+          errorText: controller.errors['description'],
         ),
         if (controller.errors['description'] != null) ...[
           const SizedBox(height: 7),
@@ -666,143 +487,6 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
     );
     _descriptionBound = true;
     _boundDescriptionOfferId = controller.offerId;
-  }
-
-  TextSelection _safeSelection() {
-    final text = _descriptionController.text;
-    final selection = _descriptionController.selection;
-    if (!selection.isValid) return TextSelection.collapsed(offset: text.length);
-    return TextSelection(
-      baseOffset: selection.start.clamp(0, text.length).toInt(),
-      extentOffset: selection.end.clamp(0, text.length).toInt(),
-    );
-  }
-
-  void _commitDescription(
-    OfferEditorController controller,
-    String text,
-    int cursor,
-  ) {
-    _descriptionController.value = TextEditingValue(
-      text: text,
-      selection: TextSelection.collapsed(
-        offset: cursor.clamp(0, text.length).toInt(),
-      ),
-    );
-    controller.updateDescription(text);
-  }
-
-  void _wrapSelection(
-    OfferEditorController controller,
-    String before,
-    String after,
-  ) {
-    final text = _descriptionController.text;
-    final selection = _safeSelection();
-    final selected = text.substring(selection.start, selection.end);
-    final content = selected.isEmpty ? 'texte' : selected;
-    final replacement = '$before$content$after';
-    final updated = text.replaceRange(
-      selection.start,
-      selection.end,
-      replacement,
-    );
-    _commitDescription(
-      controller,
-      updated,
-      selection.start + replacement.length,
-    );
-  }
-
-  void _prefixLines(OfferEditorController controller, String prefix) {
-    final text = _descriptionController.text;
-    final selection = _safeSelection();
-    final lineStart = selection.start == 0
-        ? 0
-        : text.lastIndexOf('\n', selection.start - 1) + 1;
-    final nextBreak = text.indexOf('\n', selection.end);
-    final lineEnd = nextBreak == -1 ? text.length : nextBreak;
-    final block = text.substring(lineStart, lineEnd);
-    final replacement = block
-        .split('\n')
-        .map((line) => '$prefix$line')
-        .join('\n');
-    final updated = text.replaceRange(lineStart, lineEnd, replacement);
-    _commitDescription(controller, updated, lineStart + replacement.length);
-  }
-
-  void _numberLines(OfferEditorController controller) {
-    final text = _descriptionController.text;
-    final selection = _safeSelection();
-    final lineStart = selection.start == 0
-        ? 0
-        : text.lastIndexOf('\n', selection.start - 1) + 1;
-    final nextBreak = text.indexOf('\n', selection.end);
-    final lineEnd = nextBreak == -1 ? text.length : nextBreak;
-    final block = text.substring(lineStart, lineEnd);
-    final lines = block.split('\n');
-    final replacement = [
-      for (var i = 0; i < lines.length; i++) '${i + 1}. ${lines[i]}',
-    ].join('\n');
-    final updated = text.replaceRange(lineStart, lineEnd, replacement);
-    _commitDescription(controller, updated, lineStart + replacement.length);
-  }
-
-  void _insertLink(OfferEditorController controller) {
-    final text = _descriptionController.text;
-    final selection = _safeSelection();
-    final selected = text.substring(selection.start, selection.end);
-    final replacement = '[${selected.isEmpty ? 'lien' : selected}](https://)';
-    final updated = text.replaceRange(
-      selection.start,
-      selection.end,
-      replacement,
-    );
-    _commitDescription(
-      controller,
-      updated,
-      selection.start + replacement.length,
-    );
-  }
-
-  void _alignLines(OfferEditorController controller, String alignment) {
-    final text = _descriptionController.text;
-    final selection = _safeSelection();
-    final lineStart = selection.start == 0
-        ? 0
-        : text.lastIndexOf('\n', selection.start - 1) + 1;
-    final nextBreak = text.indexOf('\n', selection.end);
-    final lineEnd = nextBreak == -1 ? text.length : nextBreak;
-    final block = text.substring(lineStart, lineEnd);
-    final replacement = block
-        .split('\n')
-        .map((line) {
-          final clean = line.replaceFirst(RegExp(r'^\[(center|right)\]'), '');
-          if (alignment == 'left') return clean;
-          return '[$alignment]$clean';
-        })
-        .join('\n');
-    final updated = text.replaceRange(lineStart, lineEnd, replacement);
-    _commitDescription(controller, updated, lineStart + replacement.length);
-  }
-
-  void _clearBlockPrefix(OfferEditorController controller) {
-    final text = _descriptionController.text;
-    final selection = _safeSelection();
-    final lineStart = selection.start == 0
-        ? 0
-        : text.lastIndexOf('\n', selection.start - 1) + 1;
-    final nextBreak = text.indexOf('\n', selection.end);
-    final lineEnd = nextBreak == -1 ? text.length : nextBreak;
-    final block = text.substring(lineStart, lineEnd);
-    final replacement = block
-        .split('\n')
-        .map((line) {
-          return line.replaceFirst(RegExp(r'^(#{1,2} |> )'), '');
-        })
-        .join('\n');
-    final updated = text.replaceRange(lineStart, lineEnd, replacement);
-    _commitDescription(controller, updated, lineStart + replacement.length);
   }
 
   Widget _skillsSection(OfferEditorController controller) => _WebCard(
@@ -1070,22 +754,29 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(4, 2, 4, 12),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(4, 2, 4, 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Aperçu de l’offre',
-                  style: TextStyle(
-                    color: AppColors.navy,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                  ),
+                Row(
+                  children: [
+                    const Expanded(
+                      child: Text(
+                        'Aperçu de l’offre',
+                        style: TextStyle(
+                          color: AppColors.navy,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                    _CompletionBadge(controller: controller),
+                  ],
                 ),
-                SizedBox(height: 3),
-                Text(
-                  'Voici un aperçu de la façon dont votre offre sera affichée aux candidats.',
+                const SizedBox(height: 4),
+                const Text(
+                  'L’aperçu se met à jour automatiquement pendant la saisie.',
                   style: TextStyle(
                     color: AppColors.slate,
                     fontSize: 10,
@@ -1136,24 +827,215 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
   }
 }
 
-class _WebCard extends StatelessWidget {
+class _EditorJourney extends StatelessWidget {
+  const _EditorJourney({required this.controller});
+
+  final OfferEditorController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final steps = <(String, IconData, bool)>[
+      (
+        'Entreprise',
+        Icons.apartment_rounded,
+        controller.selectedCompany != null,
+      ),
+      (
+        'Poste',
+        Icons.work_outline_rounded,
+        controller.title.trim().isNotEmpty &&
+            controller.location.trim().isNotEmpty,
+      ),
+      (
+        'Contenu',
+        Icons.subject_rounded,
+        controller.description.trim().length >= 80,
+      ),
+      (
+        'Compétences',
+        Icons.auto_awesome_motion_rounded,
+        controller.skills.isNotEmpty,
+      ),
+      (
+        'Rémunération',
+        Icons.payments_outlined,
+        controller.salaryMin != null || controller.salaryMax != null,
+      ),
+    ];
+
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: .10),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white.withValues(alpha: .18)),
+      ),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          for (var i = 0; i < steps.length; i++)
+            _JourneyStep(
+              index: i + 1,
+              label: steps[i].$1,
+              icon: steps[i].$2,
+              complete: steps[i].$3,
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _JourneyStep extends StatelessWidget {
+  const _JourneyStep({
+    required this.index,
+    required this.label,
+    required this.icon,
+    required this.complete,
+  });
+
+  final int index;
+  final String label;
+  final IconData icon;
+  final bool complete;
+
+  @override
+  Widget build(BuildContext context) => AnimatedContainer(
+    duration: const Duration(milliseconds: 180),
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+    decoration: BoxDecoration(
+      color: complete
+          ? Colors.white.withValues(alpha: .18)
+          : Colors.white.withValues(alpha: .09),
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(
+        color: Colors.white.withValues(alpha: complete ? .26 : .12),
+      ),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 21,
+          height: 21,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: complete
+                ? const Color(0xFFDAF5EA)
+                : Colors.white.withValues(alpha: .12),
+            shape: BoxShape.circle,
+          ),
+          child: complete
+              ? const Icon(
+                  Icons.check_rounded,
+                  size: 14,
+                  color: Color(0xFF13845A),
+                )
+              : Text(
+                  '$index',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+        ),
+        const SizedBox(width: 7),
+        Icon(icon, size: 15, color: Colors.white.withValues(alpha: .88)),
+        const SizedBox(width: 5),
+        Text(
+          label,
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: complete ? 1 : .82),
+            fontSize: 10,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+class _CompletionBadge extends StatelessWidget {
+  const _CompletionBadge({required this.controller});
+
+  final OfferEditorController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final values = [
+      controller.selectedCompany != null,
+      controller.title.trim().isNotEmpty &&
+          controller.location.trim().isNotEmpty,
+      controller.description.trim().length >= 80,
+      controller.skills.isNotEmpty,
+      controller.salaryMin != null || controller.salaryMax != null,
+    ];
+    final done = values.where((value) => value).length;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+      decoration: BoxDecoration(
+        color: done == values.length
+            ? const Color(0xFFE8F7F1)
+            : const Color(0xFFF1F6FA),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: AppColors.lineSoft),
+      ),
+      child: Text(
+        '$done/${values.length} complété',
+        style: TextStyle(
+          color: done == values.length
+              ? const Color(0xFF13845A)
+              : AppColors.slateDark,
+          fontSize: 9.5,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+    );
+  }
+}
+
+class _WebCard extends StatefulWidget {
   const _WebCard({
     required this.child,
     this.padding = const EdgeInsets.all(16),
   });
+
   final Widget child;
   final EdgeInsets padding;
 
   @override
-  Widget build(BuildContext context) => Container(
-    padding: padding,
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(17),
-      border: Border.all(color: AppColors.lineSoft),
-      boxShadow: AppShadows.card,
+  State<_WebCard> createState() => _WebCardState();
+}
+
+class _WebCardState extends State<_WebCard> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) => MouseRegion(
+    onEnter: (_) => setState(() => _hovered = true),
+    onExit: (_) => setState(() => _hovered = false),
+    child: AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOutCubic,
+      padding: widget.padding,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: _hovered ? const Color(0xFFD5E4EF) : AppColors.lineSoft,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Color(_hovered ? 0x170A3152 : 0x0D0A3152),
+            blurRadius: _hovered ? 24 : 16,
+            offset: Offset(0, _hovered ? 8 : 5),
+          ),
+        ],
+      ),
+      child: widget.child,
     ),
-    child: child,
   );
 }
 
@@ -1480,53 +1362,6 @@ class _DateField extends StatelessWidget {
           color: AppColors.navy,
           fontSize: 12,
           fontWeight: FontWeight.w600,
-        ),
-      ),
-    ),
-  );
-}
-
-class _ToolbarButton extends StatefulWidget {
-  const _ToolbarButton({
-    required this.icon,
-    required this.tooltip,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String tooltip;
-  final VoidCallback onTap;
-
-  @override
-  State<_ToolbarButton> createState() => _ToolbarButtonState();
-}
-
-class _ToolbarButtonState extends State<_ToolbarButton> {
-  bool hovered = false;
-
-  @override
-  Widget build(BuildContext context) => Tooltip(
-    message: widget.tooltip,
-    child: MouseRegion(
-      onEnter: (_) => setState(() => hovered = true),
-      onExit: (_) => setState(() => hovered = false),
-      child: InkWell(
-        onTap: widget.onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 130),
-          width: 32,
-          height: 32,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: hovered ? const Color(0xFFEAF4FC) : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(
-            widget.icon,
-            color: hovered ? const Color(0xFF1976D2) : AppColors.slateDark,
-            size: 17,
-          ),
         ),
       ),
     ),
