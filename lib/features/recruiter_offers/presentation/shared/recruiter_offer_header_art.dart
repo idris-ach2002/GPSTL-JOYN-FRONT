@@ -2,7 +2,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-
 /// Fond procédural du header "Mes offres".
 ///
 /// Le motif n'utilise aucun asset bitmap : les plans 3D, grilles, points et
@@ -71,11 +70,7 @@ class _RecruiterOfferHeaderPainter extends CustomPainter {
       ..shader = const LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [
-          Color(0xFF061F3A),
-          Color(0xFF0C3155),
-          Color(0xFF234B70),
-        ],
+        colors: [Color(0xFF061F3A), Color(0xFF0C3155), Color(0xFF234B70)],
         stops: [0, .56, 1],
       ).createShader(rect);
     canvas.drawRect(rect, background);
@@ -128,28 +123,6 @@ class _RecruiterOfferHeaderPainter extends CustomPainter {
         line,
       );
     }
-
-    // Ligne orange : une seule couleur chaude, utilisée comme accent JOYN.
-    final orangePath = Path()
-      ..moveTo(size.width * .35, size.height * .68)
-      ..lineTo(size.width * .56, size.height * .42)
-      ..lineTo(size.width * .75, size.height * .63)
-      ..lineTo(size.width * .92, size.height * .27);
-    final orangeGlow = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 9
-      ..strokeCap = StrokeCap.round
-      ..color = const Color(0x20FF7A4B)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10);
-    canvas.drawPath(orangePath, orangeGlow);
-    canvas.drawPath(
-      orangePath,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.15
-        ..strokeCap = StrokeCap.round
-        ..color = const Color(0xB7FF8C66),
-    );
 
     // Micro-cubes flottants pour renforcer la profondeur sans surcharger.
     _smallCube(canvas, size, const Offset(.48, .27), 13);
@@ -238,9 +211,8 @@ class _RecruiterOfferHeaderPainter extends CustomPainter {
     required List<Color> colors,
   }) {
     final paint = Paint()
-      ..shader = RadialGradient(colors: colors).createShader(
-        Rect.fromCircle(center: center, radius: radius),
-      );
+      ..shader = RadialGradient(colors: colors)
+          .createShader(Rect.fromCircle(center: center, radius: radius));
     canvas.drawCircle(center, radius, paint);
   }
 

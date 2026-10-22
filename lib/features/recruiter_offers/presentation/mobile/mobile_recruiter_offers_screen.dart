@@ -182,7 +182,11 @@ class _Hero extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
-              colors: [Color(0xC7061F3A), Color(0x42061F3A), Colors.transparent],
+              colors: [
+                Color(0xC7061F3A),
+                Color(0x42061F3A),
+                Colors.transparent,
+              ],
               stops: [0, .62, 1],
             ),
           ),
@@ -201,7 +205,10 @@ class _Hero extends StatelessWidget {
                       if (showEntrepriseBadge) ...[
                         const SizedBox(width: 7),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 7,
+                            vertical: 3,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: .15),
                             borderRadius: BorderRadius.circular(5),
@@ -219,12 +226,17 @@ class _Hero extends StatelessWidget {
                       const Spacer(),
                       IconButton(
                         onPressed: () {},
-                        icon: const Icon(Icons.notifications_none_rounded, size: 19),
+                        icon: const Icon(
+                          Icons.notifications_none_rounded,
+                          size: 19,
+                        ),
                         color: Colors.white,
                         visualDensity: VisualDensity.compact,
                         style: IconButton.styleFrom(
                           backgroundColor: Colors.white.withValues(alpha: .08),
-                          side: BorderSide(color: Colors.white.withValues(alpha: .18)),
+                          side: BorderSide(
+                            color: Colors.white.withValues(alpha: .18),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 5),
@@ -299,15 +311,18 @@ class _Hero extends StatelessWidget {
                   ),
                   _MobileHeroMetric(
                     dot: AppColors.success,
-                    label: '${controller.count(JobOfferStatus.published)} publiées',
+                    label:
+                        '${controller.count(JobOfferStatus.published)} publiées',
                   ),
                   _MobileHeroMetric(
                     dot: AppColors.warning,
-                    label: '${controller.count(JobOfferStatus.draft)} brouillon',
+                    label:
+                        '${controller.count(JobOfferStatus.draft)} brouillon',
                   ),
                   _MobileHeroMetric(
                     dot: const Color(0xFFBCD0E2),
-                    label: '${controller.count(JobOfferStatus.closed)} clôturée',
+                    label:
+                        '${controller.count(JobOfferStatus.closed)} clôturée',
                   ),
                 ],
               ),
@@ -350,6 +365,7 @@ class _MobileHeroMetric extends StatelessWidget {
   );
 }
 
+// ignore: unused_element
 class _CompanyFilters extends StatelessWidget {
   const _CompanyFilters({required this.controller});
   final OfferManagementController controller;
@@ -412,7 +428,11 @@ class _SearchAndStatus extends StatelessWidget {
         onChanged: controller.setQuery,
         decoration: InputDecoration(
           prefixIcon: const Icon(Icons.search_rounded, color: AppColors.slate),
-          suffixIcon: const Icon(Icons.tune_rounded, size: 19, color: AppColors.navy),
+          suffixIcon: const Icon(
+            Icons.tune_rounded,
+            size: 19,
+            color: AppColors.navy,
+          ),
           hintText: 'Rechercher une offre…',
           filled: true,
           fillColor: Colors.white,
@@ -515,7 +535,7 @@ class _MobileDropdown<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => DropdownButtonFormField<T?>(
-    value: value,
+    initialValue: value,
     isExpanded: true,
     icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 18),
     decoration: InputDecoration(

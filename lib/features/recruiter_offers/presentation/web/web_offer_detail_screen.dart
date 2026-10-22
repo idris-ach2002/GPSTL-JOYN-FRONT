@@ -36,11 +36,18 @@ class WebOfferDetailScreen extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.error_outline_rounded, size: 38, color: AppColors.error),
+              const Icon(
+                Icons.error_outline_rounded,
+                size: 38,
+                color: AppColors.error,
+              ),
               const SizedBox(height: 12),
               Text(
                 controller.errorMessage ?? 'Offre introuvable.',
-                style: const TextStyle(color: AppColors.navy, fontWeight: FontWeight.w800),
+                style: const TextStyle(
+                  color: AppColors.navy,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
               const SizedBox(height: 14),
               OutlinedButton(
@@ -66,7 +73,12 @@ class WebOfferDetailScreen extends StatelessWidget {
           ),
           SafeArea(
             child: ListView(
-              padding: EdgeInsets.fromLTRB(width < 900 ? 18 : 28, 14, width < 900 ? 18 : 28, 46),
+              padding: EdgeInsets.fromLTRB(
+                width < 900 ? 18 : 28,
+                14,
+                width < 900 ? 18 : 28,
+                46,
+              ),
               children: [
                 Center(
                   child: ConstrainedBox(
@@ -83,8 +95,12 @@ class WebOfferDetailScreen extends StatelessWidget {
                           company: company,
                           onCandidates: offer.candidateCount <= 0
                               ? null
-                              : () => showOfferCandidatesPanel(context, offer: offer),
-                          onEdit: () => context.go(AppRoutes.recruiterJobEdit(offer.id)),
+                              : () => showOfferCandidatesPanel(
+                                  context,
+                                  offer: offer,
+                                ),
+                          onEdit: () =>
+                              context.go(AppRoutes.recruiterJobEdit(offer.id)),
                           onClose: offer.status == JobOfferStatus.closed
                               ? null
                               : () => _confirmClose(context, controller),
@@ -94,7 +110,10 @@ class WebOfferDetailScreen extends StatelessWidget {
                           candidateCount: offer.candidateCount,
                           onCandidates: offer.candidateCount <= 0
                               ? null
-                              : () => showOfferCandidatesPanel(context, offer: offer),
+                              : () => showOfferCandidatesPanel(
+                                  context,
+                                  offer: offer,
+                                ),
                         ),
                         const SizedBox(height: 14),
                         LayoutBuilder(
@@ -110,7 +129,10 @@ class WebOfferDetailScreen extends StatelessWidget {
                                     company: company,
                                     onCandidates: offer.candidateCount <= 0
                                         ? null
-                                        : () => showOfferCandidatesPanel(context, offer: offer),
+                                        : () => showOfferCandidatesPanel(
+                                            context,
+                                            offer: offer,
+                                          ),
                                   ),
                                 ],
                               );
@@ -118,7 +140,10 @@ class WebOfferDetailScreen extends StatelessWidget {
                             return Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Expanded(flex: 7, child: _OfferContentCards(offer: offer)),
+                                Expanded(
+                                  flex: 7,
+                                  child: _OfferContentCards(offer: offer),
+                                ),
                                 const SizedBox(width: 14),
                                 Expanded(
                                   flex: 4,
@@ -127,7 +152,10 @@ class WebOfferDetailScreen extends StatelessWidget {
                                     company: company,
                                     onCandidates: offer.candidateCount <= 0
                                         ? null
-                                        : () => showOfferCandidatesPanel(context, offer: offer),
+                                        : () => showOfferCandidatesPanel(
+                                            context,
+                                            offer: offer,
+                                          ),
                                   ),
                                 ),
                               ],
@@ -155,9 +183,14 @@ class WebOfferDetailScreen extends StatelessWidget {
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Clôturer l’offre ?'),
-        content: const Text('Elle ne sera plus proposée aux candidats. Les candidatures existantes seront conservées.'),
+        content: const Text(
+          'Elle ne sera plus proposée aux candidats. Les candidatures existantes seront conservées.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Annuler')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Annuler'),
+          ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
             style: FilledButton.styleFrom(backgroundColor: AppColors.orange),
@@ -183,14 +216,22 @@ class _Breadcrumb extends StatelessWidget {
         label: const Text('Offres'),
         style: TextButton.styleFrom(foregroundColor: AppColors.slateDark),
       ),
-      const Icon(Icons.chevron_right_rounded, size: 16, color: AppColors.placeholder),
+      const Icon(
+        Icons.chevron_right_rounded,
+        size: 16,
+        color: AppColors.placeholder,
+      ),
       const SizedBox(width: 6),
       Expanded(
         child: Text(
           offer.title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(color: AppColors.navy, fontSize: 12, fontWeight: FontWeight.w800),
+          style: const TextStyle(
+            color: AppColors.navy,
+            fontSize: 12,
+            fontWeight: FontWeight.w800,
+          ),
         ),
       ),
     ],
@@ -233,12 +274,36 @@ class _OfferSummaryCard extends StatelessWidget {
                       CompanyMiniLogo(company: company, size: 24),
                       Text(
                         company.name,
-                        style: const TextStyle(color: AppColors.navy, fontSize: 12, fontWeight: FontWeight.w900),
+                        style: const TextStyle(
+                          color: AppColors.navy,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                        ),
                       ),
-                      const Text('·', style: TextStyle(color: AppColors.placeholder)),
-                      Text(offer.location, style: const TextStyle(color: AppColors.slate, fontSize: 12, fontWeight: FontWeight.w600)),
-                      const Text('·', style: TextStyle(color: AppColors.placeholder)),
-                      Text(offer.remoteMode.label, style: const TextStyle(color: AppColors.slate, fontSize: 12, fontWeight: FontWeight.w600)),
+                      const Text(
+                        '·',
+                        style: TextStyle(color: AppColors.placeholder),
+                      ),
+                      Text(
+                        offer.location,
+                        style: const TextStyle(
+                          color: AppColors.slate,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const Text(
+                        '·',
+                        style: TextStyle(color: AppColors.placeholder),
+                      ),
+                      Text(
+                        offer.remoteMode.label,
+                        style: const TextStyle(
+                          color: AppColors.slate,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 10),
@@ -258,7 +323,11 @@ class _OfferSummaryCard extends StatelessWidget {
                     offer.description.replaceAll(RegExp(r'\s+'), ' ').trim(),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: AppColors.slate, fontSize: 14, height: 1.45),
+                    style: const TextStyle(
+                      color: AppColors.slate,
+                      fontSize: 14,
+                      height: 1.45,
+                    ),
                   ),
                 ],
               ),
@@ -280,7 +349,10 @@ class _OfferSummaryCard extends StatelessWidget {
                   },
                   itemBuilder: (context) => [
                     if (onClose != null)
-                      const PopupMenuItem(value: 'close', child: Text('Clôturer l’offre')),
+                      const PopupMenuItem(
+                        value: 'close',
+                        child: Text('Clôturer l’offre'),
+                      ),
                   ],
                   child: Container(
                     width: 42,
@@ -291,7 +363,10 @@ class _OfferSummaryCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: AppColors.lineSoft),
                     ),
-                    child: const Icon(Icons.more_horiz_rounded, color: AppColors.navy),
+                    child: const Icon(
+                      Icons.more_horiz_rounded,
+                      color: AppColors.navy,
+                    ),
                   ),
                 ),
               ],
@@ -304,9 +379,15 @@ class _OfferSummaryCard extends StatelessWidget {
           runSpacing: 10,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            _Meta(icon: Icons.work_outline_rounded, label: offer.contractType.label),
+            _Meta(
+              icon: Icons.work_outline_rounded,
+              label: offer.contractType.label,
+            ),
             _Meta(icon: Icons.location_on_outlined, label: offer.location),
-            _Meta(icon: Icons.laptop_mac_rounded, label: offer.remoteMode.label),
+            _Meta(
+              icon: Icons.laptop_mac_rounded,
+              label: offer.remoteMode.label,
+            ),
             _Meta(
               icon: Icons.calendar_today_outlined,
               label: offer.publishedAt == null
@@ -321,7 +402,9 @@ class _OfferSummaryCard extends StatelessWidget {
           Wrap(
             spacing: 7,
             runSpacing: 7,
-            children: [for (final skill in offer.skills) OfferSkillTag(label: skill)],
+            children: [
+              for (final skill in offer.skills) OfferSkillTag(label: skill),
+            ],
           ),
         ],
       ],
@@ -349,9 +432,15 @@ class _CandidatesButton extends StatelessWidget {
       duration: const Duration(milliseconds: 170),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
       decoration: BoxDecoration(
-        color: onPressed == null ? const Color(0xFFF5F7F9) : const Color(0xFFF0F7FF),
+        color: onPressed == null
+            ? const Color(0xFFF5F7F9)
+            : const Color(0xFFF0F7FF),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: onPressed == null ? AppColors.lineSoft : const Color(0xFF88C3F9)),
+        border: Border.all(
+          color: onPressed == null
+              ? AppColors.lineSoft
+              : const Color(0xFF88C3F9),
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -360,7 +449,11 @@ class _CandidatesButton extends StatelessWidget {
           const SizedBox(width: 7),
           Text(
             '${offer.candidateCount} candidat${offer.candidateCount > 1 ? 's' : ''}',
-            style: const TextStyle(color: Color(0xFF1475D1), fontSize: 12, fontWeight: FontWeight.w900),
+            style: const TextStyle(
+              color: Color(0xFF1475D1),
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+            ),
           ),
         ],
       ),
@@ -375,7 +468,9 @@ class _DetailTabs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.lineSoft))),
+    decoration: const BoxDecoration(
+      border: Border(bottom: BorderSide(color: AppColors.lineSoft)),
+    ),
     child: Row(
       children: [
         _Tab(label: 'Description', active: true, onTap: () {}),
@@ -399,7 +494,12 @@ class _Tab extends StatelessWidget {
     child: Container(
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 11),
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: active ? const Color(0xFF1687F8) : Colors.transparent, width: 2)),
+        border: Border(
+          bottom: BorderSide(
+            color: active ? const Color(0xFF1687F8) : Colors.transparent,
+            width: 2,
+          ),
+        ),
       ),
       child: Text(
         label,
@@ -425,7 +525,11 @@ class _OfferContentCards extends StatelessWidget {
         icon: Icons.description_outlined,
         child: OfferRichText(
           value: offer.description,
-          baseStyle: const TextStyle(color: AppColors.slateDark, fontSize: 14, height: 1.65),
+          baseStyle: const TextStyle(
+            color: AppColors.slateDark,
+            fontSize: 14,
+            height: 1.65,
+          ),
         ),
       ),
       const SizedBox(height: 14),
@@ -435,7 +539,9 @@ class _OfferContentCards extends StatelessWidget {
         child: Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: [for (final skill in offer.skills) OfferSkillTag(label: skill)],
+          children: [
+            for (final skill in offer.skills) OfferSkillTag(label: skill),
+          ],
         ),
       ),
       const SizedBox(height: 14),
@@ -447,11 +553,31 @@ class _OfferContentCards extends StatelessWidget {
             spacing: 10,
             runSpacing: 10,
             children: [
-              _FactCard(label: 'Contrat', value: offer.contractType.label, icon: Icons.badge_outlined),
-              _FactCard(label: 'Localisation', value: offer.location, icon: Icons.location_on_outlined),
-              _FactCard(label: 'Mode de travail', value: offer.remoteMode.label, icon: Icons.laptop_mac_rounded),
-              _FactCard(label: 'Expérience', value: offer.experienceLevel.label, icon: Icons.trending_up_rounded),
-              _FactCard(label: 'Rémunération', value: salaryLabel(offer), icon: Icons.payments_outlined),
+              _FactCard(
+                label: 'Contrat',
+                value: offer.contractType.label,
+                icon: Icons.badge_outlined,
+              ),
+              _FactCard(
+                label: 'Localisation',
+                value: offer.location,
+                icon: Icons.location_on_outlined,
+              ),
+              _FactCard(
+                label: 'Mode de travail',
+                value: offer.remoteMode.label,
+                icon: Icons.laptop_mac_rounded,
+              ),
+              _FactCard(
+                label: 'Expérience',
+                value: offer.experienceLevel.label,
+                icon: Icons.trending_up_rounded,
+              ),
+              _FactCard(
+                label: 'Rémunération',
+                value: salaryLabel(offer),
+                icon: Icons.payments_outlined,
+              ),
             ],
           ),
         ),
@@ -494,8 +620,16 @@ class _OfferSideCards extends StatelessWidget {
             children: [
               _DetailLine('Rythme', offer.rhythmType ?? '—'),
               _DetailLine('Date de début', monthYearLabel(offer.startDate)),
-              _DetailLine('Durée', offer.durationMonths == null ? '—' : '${offer.durationMonths} mois'),
-              _DetailLine('Niveau d’études', offer.degreeLevelRequired?.replaceAll('BAC_', 'Bac+') ?? '—'),
+              _DetailLine(
+                'Durée',
+                offer.durationMonths == null
+                    ? '—'
+                    : '${offer.durationMonths} mois',
+              ),
+              _DetailLine(
+                'Niveau d’études',
+                offer.degreeLevelRequired?.replaceAll('BAC_', 'Bac+') ?? '—',
+              ),
             ],
           ),
         ),
@@ -510,13 +644,21 @@ class _OfferSideCards extends StatelessWidget {
             Row(
               children: [
                 if (offer.candidateCount > 0) ...[
-                  OfferCandidateAvatars(count: offer.candidateCount, size: 34, maxVisible: 5),
+                  OfferCandidateAvatars(
+                    count: offer.candidateCount,
+                    size: 34,
+                    maxVisible: 5,
+                  ),
                   const SizedBox(width: 12),
                 ],
                 Expanded(
                   child: Text(
                     '${offer.candidateCount} candidat${offer.candidateCount > 1 ? 's' : ''} sur cette offre',
-                    style: const TextStyle(color: AppColors.navy, fontSize: 13, fontWeight: FontWeight.w800),
+                    style: const TextStyle(
+                      color: AppColors.navy,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
               ],
@@ -530,7 +672,9 @@ class _OfferSideCards extends StatelessWidget {
                 style: OutlinedButton.styleFrom(
                   foregroundColor: const Color(0xFF1475D1),
                   side: const BorderSide(color: Color(0xFFB9DDFB)),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
               ),
             ],
@@ -548,7 +692,8 @@ class _OfferSideCards extends StatelessWidget {
             _DetailLine('Secteur', company.sector),
             _DetailLine('Taille', company.sizeRange),
             _DetailLine('Ville', company.city),
-            if ((company.website ?? '').isNotEmpty) _DetailLine('Site', company.website!),
+            if ((company.website ?? '').isNotEmpty)
+              _DetailLine('Site', company.website!),
           ],
         ),
       ),
@@ -590,10 +735,13 @@ class _InteractiveCardState extends State<_InteractiveCard> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: hovered ? const Color(0xFFD7E8F6) : const Color(0xFFE5ECF1)),
+          border: Border.all(
+            color: hovered ? const Color(0xFFD7E8F6) : const Color(0xFFE5ECF1),
+          ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF153B5B).withValues(alpha: hovered ? .085 : .04),
+              color: const Color(0xFF153B5B)
+                  .withValues(alpha: hovered ? .085 : .04),
               blurRadius: hovered ? 26 : 16,
               offset: Offset(0, hovered ? 10 : 6),
             ),
@@ -614,14 +762,22 @@ class _InteractiveCardState extends State<_InteractiveCard> {
                         color: const Color(0xFFF0F7FF),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Icon(widget.icon, color: const Color(0xFF1475D1), size: 19),
+                      child: Icon(
+                        widget.icon,
+                        color: const Color(0xFF1475D1),
+                        size: 19,
+                      ),
                     ),
                     const SizedBox(width: 10),
                   ],
                   Expanded(
                     child: Text(
                       widget.title!,
-                      style: const TextStyle(color: AppColors.navy, fontSize: 17, fontWeight: FontWeight.w900),
+                      style: const TextStyle(
+                        color: AppColors.navy,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
                   ),
                 ],
@@ -637,7 +793,11 @@ class _InteractiveCardState extends State<_InteractiveCard> {
 }
 
 class _FactCard extends StatelessWidget {
-  const _FactCard({required this.label, required this.value, required this.icon});
+  const _FactCard({
+    required this.label,
+    required this.value,
+    required this.icon,
+  });
   final String label;
   final String value;
   final IconData icon;
@@ -659,9 +819,25 @@ class _FactCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: const TextStyle(color: AppColors.placeholder, fontSize: 10, fontWeight: FontWeight.w700)),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: AppColors.placeholder,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
               const SizedBox(height: 3),
-              Text(value, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: AppColors.navy, fontSize: 11.5, fontWeight: FontWeight.w800)),
+              Text(
+                value,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: AppColors.navy,
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
             ],
           ),
         ),
@@ -682,11 +858,26 @@ class _DetailLine extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: Text(label, style: const TextStyle(color: AppColors.slate, fontSize: 11, fontWeight: FontWeight.w700)),
+          child: Text(
+            label,
+            style: const TextStyle(
+              color: AppColors.slate,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: Text(value, textAlign: TextAlign.right, style: const TextStyle(color: AppColors.navy, fontSize: 11, fontWeight: FontWeight.w800)),
+          child: Text(
+            value,
+            textAlign: TextAlign.right,
+            style: const TextStyle(
+              color: AppColors.navy,
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
         ),
       ],
     ),
@@ -704,7 +895,14 @@ class _Meta extends StatelessWidget {
     children: [
       Icon(icon, size: 17, color: AppColors.slate),
       const SizedBox(width: 6),
-      Text(label, style: const TextStyle(color: AppColors.slate, fontSize: 11.5, fontWeight: FontWeight.w700)),
+      Text(
+        label,
+        style: const TextStyle(
+          color: AppColors.slate,
+          fontSize: 11.5,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
     ],
   );
 }

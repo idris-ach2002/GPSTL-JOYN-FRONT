@@ -353,6 +353,7 @@ class WebRecruiterOffersScreen extends StatelessWidget {
   }
 }
 
+// ignore: unused_element
 class _CompanyFilterCard extends StatelessWidget {
   const _CompanyFilterCard({required this.controller});
   final OfferManagementController controller;
@@ -398,6 +399,7 @@ class _CompanyFilterCard extends StatelessWidget {
   );
 }
 
+// ignore: unused_element
 class _StatsRow extends StatelessWidget {
   const _StatsRow({required this.controller});
   final OfferManagementController controller;
@@ -478,11 +480,13 @@ class _InlineHeroStats extends StatelessWidget {
       ),
       _HeroStatItem(
         dot: AppColors.warning,
-        label: '${controller.count(JobOfferStatus.draft)} brouillon${controller.count(JobOfferStatus.draft) > 1 ? 's' : ''}',
+        label:
+            '${controller.count(JobOfferStatus.draft)} brouillon${controller.count(JobOfferStatus.draft) > 1 ? 's' : ''}',
       ),
       _HeroStatItem(
         dot: const Color(0xFFBCD0E2),
-        label: '${controller.count(JobOfferStatus.closed)} clôturée${controller.count(JobOfferStatus.closed) > 1 ? 's' : ''}',
+        label:
+            '${controller.count(JobOfferStatus.closed)} clôturée${controller.count(JobOfferStatus.closed) > 1 ? 's' : ''}',
       ),
     ],
   );
@@ -542,13 +546,19 @@ class _FiltersCard extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
           decoration: InputDecoration(
-            prefixIcon: const Icon(Icons.search_rounded, color: AppColors.slate),
+            prefixIcon: const Icon(
+              Icons.search_rounded,
+              color: AppColors.slate,
+            ),
             suffixIcon: const Icon(Icons.tune_rounded, color: AppColors.navy),
             hintText: 'Rechercher une offre (poste, compétences, lieu…)',
             isDense: true,
             filled: true,
             fillColor: Colors.white,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 14,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(color: AppColors.lineSoft),
@@ -559,7 +569,10 @@ class _FiltersCard extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF7BB9F4), width: 1.2),
+              borderSide: const BorderSide(
+                color: Color(0xFF7BB9F4),
+                width: 1.2,
+              ),
             ),
           ),
         ),

@@ -172,10 +172,15 @@ Future<void> showOfferCandidatesPanel(
       ),
     ),
     transitionBuilder: (context, animation, secondaryAnimation, child) {
-      final curved = CurvedAnimation(parent: animation, curve: Curves.easeOutCubic);
+      final curved = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+      );
       return SlideTransition(
-        position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero)
-            .animate(curved),
+        position: Tween<Offset>(
+          begin: const Offset(1, 0),
+          end: Offset.zero,
+        ).animate(curved),
         child: FadeTransition(opacity: curved, child: child),
       );
     },
@@ -317,7 +322,9 @@ class _CandidatePanelState extends State<_CandidatePanel> {
             height: 38,
             child: ListView(
               scrollDirection: Axis.horizontal,
-              padding: EdgeInsets.symmetric(horizontal: widget.mobile ? 18 : 22),
+              padding: EdgeInsets.symmetric(
+                horizontal: widget.mobile ? 18 : 22,
+              ),
               children: [
                 _StageChip(
                   label: 'Tous',
@@ -370,10 +377,8 @@ class _CandidatePanelState extends State<_CandidatePanel> {
                       8,
                     ),
                     itemCount: _visible.length,
-                    separatorBuilder: (_, __) => const Divider(
-                      height: 1,
-                      color: Color(0xFFEDF1F4),
-                    ),
+                    separatorBuilder: (_, _) =>
+                        const Divider(height: 1, color: Color(0xFFEDF1F4)),
                     itemBuilder: (context, index) => _CandidateRow(
                       candidate: _visible[index],
                       dense: widget.mobile,
@@ -527,7 +532,10 @@ class _CandidateRowState extends State<_CandidateRow> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 5,
+                  ),
                   decoration: BoxDecoration(
                     color: candidate.stage.background,
                     borderRadius: BorderRadius.circular(7),
@@ -565,7 +573,11 @@ class _CandidateRowState extends State<_CandidateRow> {
                   ),
                 ),
                 const SizedBox(height: 3),
-                const Icon(Icons.more_horiz_rounded, color: AppColors.slate, size: 18),
+                const Icon(
+                  Icons.more_horiz_rounded,
+                  color: AppColors.slate,
+                  size: 18,
+                ),
               ],
             ),
           ],

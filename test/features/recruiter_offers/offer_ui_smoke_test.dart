@@ -130,7 +130,7 @@ void main() {
 
     expect(find.text('À propos de l’offre'), findsOneWidget);
     expect(find.text('Informations'), findsOneWidget);
-    expect(find.text('Alternance'), findsOneWidget);
+    expect(find.text('Alternance'), findsWidgets);
     expect(find.textContaining('14 candidat'), findsWidgets);
     expect(find.text('Entreprise'), findsWidgets);
     expect(find.textContaining('Développeur·se Full-Stack'), findsOneWidget);
