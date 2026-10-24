@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'package:joyn_front/design_system/components/joyn_pill.dart';
+import 'package:joyn_front/design_system/material/joyn_chip_group.dart';
 import 'package:joyn_front/design_system/tokens/app_colors.dart';
 import 'package:joyn_front/design_system/tokens/app_durations.dart';
-import 'package:joyn_front/design_system/tokens/app_fonts.dart';
 
-/// Carte sélectionnable de l'étape 1 : « Étudiant·e » ou « Entreprise ».
+/// Carte sélectionnable ([Card]) de l'étape 1 : « Étudiant·e » ou
+/// « Entreprise ».
 ///
 /// Les deux cartes forment un groupe à choix unique (sémantique de bouton
 /// radio pour les lecteurs d'écran).
@@ -21,6 +21,8 @@ class RegisterChoiceCard extends StatefulWidget {
     required this.title,
     required this.description,
     required this.benefits,
+    this.illustrationHeight = 214,
+    this.showBenefits = true,
     super.key,
   });
 
@@ -30,13 +32,19 @@ class RegisterChoiceCard extends StatefulWidget {
   final String tagLabel;
   final IconData tagIcon;
 
-  /// Couleur douce de la pastille et des coches (bleu ou orange).
+  /// Couleur douce de la puce et des coches (bleu ou orange).
   final Color tint;
   final Color tintForeground;
 
   final String title;
   final String description;
   final List<String> benefits;
+
+  /// Hauteur de l'illustration du haut (réduite sur les fenêtres basses).
+  final double illustrationHeight;
+
+  /// `false` pour masquer la liste des avantages (fenêtres basses).
+  final bool showBenefits;
 
   @override
   State<RegisterChoiceCard> createState() => _RegisterChoiceCardState();
@@ -45,54 +53,29 @@ class RegisterChoiceCard extends StatefulWidget {
 class _RegisterChoiceCardState extends State<RegisterChoiceCard> {
   bool _hovered = false;
 
-  static const _radius = 30.0;
-
   @override
   Widget build(BuildContext context) {
     final selected = widget.selected;
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    final textTheme = Theme.of(context).textTheme;
 
     return Semantics(
       inMutuallyExclusiveGroup: true,
       checked: selected,
       label: widget.title,
-      child: AnimatedContainer(
+      child: AnimatedSlide(
         duration: reduceMotion ? Duration.zero : AppDurations.normal,
-        curve: Curves.easeOut,
-        transform: Matrix4.translationValues(
-          0,
-          _hovered && !reduceMotion ? -4 : 0,
-          0,
-        ),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(_radius),
-          boxShadow: selected
-              ? const [
-                  BoxShadow(color: Color(0x4D489EC9), spreadRadius: 6),
-                  BoxShadow(
-                    color: Color(0x290E1F2A),
-                    blurRadius: 54,
-                    offset: Offset(0, 26),
-                  ),
-                ]
-              : const [
-                  BoxShadow(
-                    color: Color(0x140E1F2A),
-                    blurRadius: 34,
-                    offset: Offset(0, 14),
-                  ),
-                ],
-        ),
-        child: Material(
-          color: AppColors.surface,
+        offset: Offset(0, _hovered && !reduceMotion ? -0.01 : 0),
+        child: Card(
+          elevation: selected ? 10 : 2,
+          shadowColor: const Color(0x400E1F2A),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(_radius),
+            borderRadius: BorderRadius.circular(30),
             side: BorderSide(
               color: selected ? AppColors.navy : AppColors.surface,
               width: 2,
             ),
           ),
-          clipBehavior: Clip.antiAlias,
           child: InkWell(
             onTap: widget.onSelected,
             onHover: (value) => setState(() => _hovered = value),
@@ -102,129 +85,113 @@ class _RegisterChoiceCardState extends State<RegisterChoiceCard> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    SizedBox(height: 214, child: widget.illustration),
+                    SizedBox(
+                      height: widget.illustrationHeight,
+                      child: _ScaledIllustration(child: widget.illustration),
+                    ),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(30, 26, 30, 30),
-                      child: _CardBody(card: widget),
+                      padding: EdgeInsets.fromLTRB(
+                        28,
+                        widget.showBenefits ? 22 : 18,
+                        28,
+                        widget.showBenefits ? 18 : 20,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          JoynInfoChip(
+                            label: widget.tagLabel,
+                            icon: widget.tagIcon,
+                            background: widget.tint,
+                            foreground: widget.tintForeground,
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            widget.title,
+                            style: textTheme.headlineSmall?.copyWith(
+                              fontSize: 26,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            widget.description,
+                            style: textTheme.bodyLarge?.copyWith(
+                              color: AppColors.slateDark,
+                            ),
+                          ),
+                          if (widget.showBenefits) const SizedBox(height: 6),
+                          if (widget.showBenefits)
+                            for (final benefit in widget.benefits)
+                              ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                dense: true,
+                                minLeadingWidth: 22,
+                                visualDensity: VisualDensity.compact,
+                                leading: CircleAvatar(
+                                  radius: 11,
+                                  backgroundColor: widget.tint,
+                                  child: Icon(
+                                    Icons.check_rounded,
+                                    size: 13,
+                                    color: widget.tintForeground,
+                                  ),
+                                ),
+                                title: Text(
+                                  benefit,
+                                  style: textTheme.bodyMedium?.copyWith(
+                                    color: AppColors.slateDark,
+                                  ),
+                                ),
+                              ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
                 Positioned(
-                  top: 18,
-                  right: 18,
-                  child: _SelectionDot(selected: selected),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _CardBody extends StatelessWidget {
-  const _CardBody({required this.card});
-
-  final RegisterChoiceCard card;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        JoynPill(
-          label: card.tagLabel,
-          icon: card.tagIcon,
-          background: card.tint,
-          foreground: card.tintForeground,
-        ),
-        const SizedBox(height: 12),
-        Text(
-          card.title,
-          style: const TextStyle(
-            fontFamily: AppFonts.display,
-            fontSize: 30,
-            height: 1.08,
-            letterSpacing: -0.9,
-            fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          card.description,
-          style: const TextStyle(
-            fontSize: 15,
-            height: 1.55,
-            color: AppColors.slateDark,
-          ),
-        ),
-        const SizedBox(height: 16),
-        for (final benefit in card.benefits)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: Row(
-              children: [
-                Container(
-                  width: 22,
-                  height: 22,
-                  decoration: BoxDecoration(
-                    color: card.tint,
-                    shape: BoxShape.circle,
-                  ),
+                  top: 14,
+                  right: 14,
                   child: Icon(
-                    Icons.check_rounded,
-                    size: 13,
-                    color: card.tintForeground,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    benefit,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: AppColors.slateDark,
-                    ),
+                    selected
+                        ? Icons.check_circle_rounded
+                        : Icons.radio_button_unchecked_rounded,
+                    size: 32,
+                    color: selected ? AppColors.navy : AppColors.lineDashed,
                   ),
                 ),
               ],
             ),
           ),
-      ],
+        ),
+      ),
     );
   }
 }
 
-class _SelectionDot extends StatelessWidget {
-  const _SelectionDot({required this.selected});
+/// Affiche l'illustration (dessinée pour 214 px de haut) à la hauteur
+/// disponible, en la réduisant proportionnellement au lieu de la couper.
+class _ScaledIllustration extends StatelessWidget {
+  const _ScaledIllustration({required this.child});
 
-  final bool selected;
+  final Widget child;
+
+  static const double _designHeight = 214;
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: AppDurations.normal,
-      width: 32,
-      height: 32,
-      decoration: BoxDecoration(
-        color: selected ? AppColors.navy : AppColors.surface,
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: selected ? AppColors.navy : AppColors.lineDashed,
-          width: 2,
-        ),
-      ),
-      child: AnimatedOpacity(
-        duration: AppDurations.fast,
-        opacity: selected ? 1 : 0,
-        child: const Icon(
-          Icons.check_rounded,
-          size: 16,
-          color: AppColors.white,
-        ),
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final scale = constraints.maxHeight / _designHeight;
+        if (scale <= 0 || !constraints.hasBoundedWidth) return child;
+        return FittedBox(
+          fit: BoxFit.fill,
+          child: SizedBox(
+            width: constraints.maxWidth / scale,
+            height: _designHeight,
+            child: child,
+          ),
+        );
+      },
     );
   }
 }

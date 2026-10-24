@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:joyn_front/design_system/tokens/app_colors.dart';
 import 'package:joyn_front/design_system/tokens/app_gradients.dart';
-import 'package:joyn_front/features/registration/presentation/widgets/dot_grid.dart';
+import 'package:joyn_front/features/registration/presentation/web/widgets/dot_grid.dart';
 
 /// Fond de l'écran de choix du profil : bleu nuit en haut, clair en bas,
 /// avec deux halos et une trame de points qui s'efface.

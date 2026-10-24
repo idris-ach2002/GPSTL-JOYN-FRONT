@@ -2,30 +2,27 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import 'package:joyn_front/design_system/components/joyn_pill.dart';
 import 'package:joyn_front/design_system/tokens/app_colors.dart';
 import 'package:joyn_front/design_system/tokens/app_fonts.dart';
 import 'package:joyn_front/design_system/tokens/app_gradients.dart';
-import 'package:joyn_front/features/registration/presentation/widgets/dot_grid.dart';
+import 'package:joyn_front/features/registration/presentation/web/widgets/dot_grid.dart';
 
 /// Panneau bleu nuit « Aperçu en direct » des écrans d'inscription.
 ///
-/// Fournit le fond (dégradé, halos, trame, anneaux), l'introduction et la
-/// mise en page verticale ; le contenu de la carte et du pied de panneau
-/// dépend du type de compte.
+/// Fournit le fond (dégradé, halos, trame, anneaux), le titre et la mise en
+/// page ; la carte d'aperçu dépend du type de compte. Le contenu est réduit
+/// si besoin pour toujours tenir dans la hauteur, sans défilement.
 class RegistrationPreviewShell extends StatelessWidget {
   const RegistrationPreviewShell({
     required this.title,
     required this.subtitle,
     required this.card,
-    required this.footer,
     super.key,
   });
 
   final String title;
   final String subtitle;
   final Widget card;
-  final Widget footer;
 
   /// Largeur maximale du texte et des cartes, comme sur la maquette.
   static const double _maxContentWidth = 470;
@@ -80,9 +77,6 @@ class RegistrationPreviewShell extends StatelessWidget {
             LayoutBuilder(
               builder: (context, constraints) {
                 const padding = 44.0;
-                // Largeur réelle du contenu, fixée AVANT IntrinsicHeight :
-                // la hauteur est ainsi mesurée à la bonne largeur (sinon le
-                // texte replié sur plus de lignes déborde).
                 final contentWidth = math.max(
                   0.0,
                   math.min(
@@ -90,31 +84,25 @@ class RegistrationPreviewShell extends StatelessWidget {
                     constraints.maxWidth - padding * 2,
                   ),
                 );
-                return SingleChildScrollView(
+                // Pas de défilement : si la fenêtre est trop basse, le
+                // contenu est réduit proportionnellement (scaleDown).
+                return Padding(
                   padding: const EdgeInsets.all(padding),
                   child: Align(
-                    alignment: Alignment.topLeft,
-                    child: SizedBox(
-                      width: contentWidth,
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minHeight: math.max(
-                            0.0,
-                            constraints.maxHeight - padding * 2,
-                          ),
-                        ),
-                        child: IntrinsicHeight(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              _Intro(title: title, subtitle: subtitle),
-                              const SizedBox(height: 30),
-                              card,
-                              const SizedBox(height: 30),
-                              footer,
-                            ],
-                          ),
+                    alignment: Alignment.centerLeft,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: SizedBox(
+                        width: contentWidth,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _Intro(title: title, subtitle: subtitle),
+                            const SizedBox(height: 32),
+                            card,
+                          ],
                         ),
                       ),
                     ),
@@ -140,15 +128,6 @@ class _Intro extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const JoynPill(
-          label: 'Aperçu en direct',
-          icon: Icons.auto_awesome_outlined,
-          background: Color(0x1FFFFFFF),
-          foreground: AppColors.white,
-          borderColor: Color(0x38FFFFFF),
-          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-        ),
-        const SizedBox(height: 14),
         Text.rich(
           TextSpan(
             text: title,
@@ -194,22 +173,16 @@ class PreviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final card = Container(
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(26),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x59030E16),
-            blurRadius: 60,
-            offset: Offset(0, 30),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: children,
+    final card = Card(
+      elevation: 18,
+      shadowColor: const Color(0x99030E16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+      child: Padding(
+        padding: const EdgeInsets.all(22),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: children,
+        ),
       ),
     );
 
@@ -241,43 +214,28 @@ class PreviewFloatingChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x4D030E16),
-            blurRadius: 36,
-            offset: Offset(0, 18),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          leading,
-          const SizedBox(width: 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              Text(
-                subtitle,
-                style: const TextStyle(fontSize: 12, color: AppColors.slate),
-              ),
-            ],
-          ),
-        ],
+    final textTheme = Theme.of(context).textTheme;
+    return Card(
+      elevation: 12,
+      shadowColor: const Color(0x80030E16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            leading,
+            const SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(title, style: textTheme.titleSmall),
+                Text(subtitle, style: textTheme.bodySmall),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -291,64 +249,33 @@ class PreviewNextSteps extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Divider(height: 1, thickness: 1, color: AppColors.lineSoft),
+        const Divider(),
         const SizedBox(height: 16),
-        const Text(
-          'JUSTE APRÈS',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.72,
-            color: AppColors.slate,
-          ),
-        ),
-        for (final step in steps) ...[
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: step.accent ? AppColors.orangeTint : AppColors.skyTint,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  step.icon,
-                  size: 18,
-                  color: step.accent ? AppColors.orangeDeep : AppColors.navy,
-                ),
+        Text('JUSTE APRÈS', style: textTheme.labelSmall),
+        const SizedBox(height: 4),
+        for (final step in steps)
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+            leading: CircleAvatar(
+              radius: 19,
+              backgroundColor: step.accent
+                  ? AppColors.orangeTint
+                  : AppColors.skyTint,
+              child: Icon(
+                step.icon,
+                size: 18,
+                color: step.accent ? AppColors.orangeDeep : AppColors.navy,
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      step.title,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 1),
-                    Text(
-                      step.subtitle,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppColors.slate,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            ),
+            title: Text(step.title),
+            subtitle: Text(step.subtitle),
           ),
-        ],
       ],
     );
   }
@@ -369,133 +296,6 @@ class PreviewStep {
 
   /// Affiche l'étape en orange (la plus engageante, en dernier).
   final bool accent;
-}
-
-/// Une personne ou une entreprise dans le pied de panneau.
-class PreviewBadge {
-  const PreviewBadge(
-    this.initials,
-    this.name,
-    this.background,
-    this.foreground,
-  );
-
-  final String initials;
-  final String name;
-  final Color background;
-  final Color foreground;
-}
-
-/// Pied de panneau : titre, pastilles et phrase de réassurance.
-class PreviewFooter extends StatelessWidget {
-  const PreviewFooter({
-    required this.title,
-    required this.badges,
-    required this.icon,
-    required this.note,
-    this.roundAvatars = false,
-    super.key,
-  });
-
-  final String title;
-  final List<PreviewBadge> badges;
-  final IconData icon;
-  final String note;
-
-  /// Avatars ronds (personnes) plutôt que carrés (entreprises).
-  final bool roundAvatars;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title.toUpperCase(),
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.72,
-            color: AppColors.skyMist,
-          ),
-        ),
-        const SizedBox(height: 10),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            for (final badge in badges)
-              Container(
-                padding: const EdgeInsets.fromLTRB(6, 6, 13, 6),
-                decoration: BoxDecoration(
-                  color: const Color(0x1AFFFFFF),
-                  borderRadius: BorderRadius.circular(999),
-                  border: Border.all(color: const Color(0x2EFFFFFF)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 26,
-                      height: 26,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: badge.background,
-                        shape: roundAvatars
-                            ? BoxShape.circle
-                            : BoxShape.rectangle,
-                        borderRadius: roundAvatars
-                            ? null
-                            : BorderRadius.circular(8),
-                        border: Border.all(color: const Color(0x40FFFFFF)),
-                      ),
-                      child: Text(
-                        badge.initials,
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: badge.foreground,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      badge.name,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-          ],
-        ),
-        const SizedBox(height: 20),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 2),
-              child: Icon(icon, size: 18, color: AppColors.skyMist),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                note,
-                style: const TextStyle(
-                  fontSize: 14,
-                  height: 1.5,
-                  color: AppColors.skyMist,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
 }
 
 class _RingsPainter extends CustomPainter {
