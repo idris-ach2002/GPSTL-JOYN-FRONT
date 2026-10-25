@@ -21,6 +21,10 @@ import '../../features/onboarding/presentation/mobile/mobile_onboarding_screen.d
 import '../../features/onboarding/presentation/onboarding_scope.dart';
 import '../../features/onboarding/presentation/web/cv_import_screen.dart';
 import '../../features/onboarding/presentation/web/onboarding_screen.dart';
+import '../../features/profile/presentation/mobile/mobile_profile_edit_screen.dart';
+import '../../features/profile/presentation/mobile/mobile_profile_screen.dart';
+import '../../features/profile/presentation/web/profile_edit_screen.dart';
+import '../../features/profile/presentation/web/profile_screen.dart';
 import '../../features/registration/presentation/mobile/mobile_company_register_screen.dart';
 import '../../features/registration/presentation/mobile/mobile_register_choice_screen.dart';
 import '../../features/registration/presentation/mobile/mobile_student_register_screen.dart';
@@ -163,6 +167,23 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
               ? const MobileDashboardScreen()
               : const DashboardPage(),
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.candidateProfile,
+        name: 'candidateProfile',
+        builder: (context, state) => useMobile(context)
+            ? const MobileProfileScreen()
+            : const ProfileScreen(),
+        routes: [
+          // Chemin relatif : /candidate/profile/edit (= candidateProfileEdit).
+          GoRoute(
+            path: 'edit',
+            name: 'candidateProfileEdit',
+            builder: (context, state) => useMobile(context)
+                ? const MobileProfileEditScreen()
+                : const ProfileEditScreen(),
+          ),
+        ],
       ),
       for (final entry in informationPages.entries)
         GoRoute(

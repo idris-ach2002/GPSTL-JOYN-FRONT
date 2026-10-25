@@ -15,6 +15,7 @@ abstract final class AppRoutes {
   static const String candidate = '/candidate';
   static const String candidateDiscover = '/candidate/discover';
   static const String candidateProfile = '/candidate/profile';
+  static const String candidateProfileEdit = '/candidate/profile/edit';
   static const String candidateApplications = '/candidate/applications';
   static const String candidateOnboarding = '/candidate/onboarding';
   static const String candidateCvImport = '/candidate/onboarding/cv';

@@ -7,6 +7,8 @@ import '../features/auth/data/fake_auth_repository.dart';
 import '../features/auth/presentation/auth_controller.dart';
 import '../features/dashboard/data/dashboard_repository.dart';
 import '../features/dashboard/data/fake_dashboard_repository.dart';
+import '../features/profile/data/fake_profile_repository.dart';
+import '../features/profile/data/profile_repository.dart';
 import '../features/registration/data/auth_registration_repository.dart';
 import '../features/registration/data/mock_registration_repository.dart';
 import '../features/registration/data/registration_repository.dart';
@@ -25,12 +27,14 @@ class JoynApp extends StatefulWidget {
     this.authController,
     this.dashboardRepository,
     this.registrationRepository,
+    this.profileRepository,
   });
 
   final bool? webOverride;
   final AuthController? authController;
   final DashboardRepository? dashboardRepository;
   final RegistrationRepository? registrationRepository;
+  final ProfileRepository? profileRepository;
 
   @override
   State<JoynApp> createState() => _JoynAppState();
@@ -40,6 +44,7 @@ class _JoynAppState extends State<JoynApp> {
   late final AuthController _authController;
   late final DashboardRepository _dashboardRepository;
   late final RegistrationRepository _registrationRepository;
+  late final ProfileRepository _profileRepository;
   late final GoRouter _router;
   late final bool _ownsAuthController;
 
@@ -70,6 +75,10 @@ class _JoynAppState extends State<JoynApp> {
         widget.dashboardRepository ??
         FakeDashboardRepository(latency: Duration.zero);
 
+    _profileRepository =
+        widget.profileRepository ??
+        FakeProfileRepository(latency: Duration.zero);
+
     _router = createAppRouter(_authController, webOverride: widget.webOverride);
   }
 
@@ -87,6 +96,7 @@ class _JoynAppState extends State<JoynApp> {
         ChangeNotifierProvider<AuthController>.value(value: _authController),
         Provider<DashboardRepository>.value(value: _dashboardRepository),
         Provider<RegistrationRepository>.value(value: _registrationRepository),
+        Provider<ProfileRepository>.value(value: _profileRepository),
       ],
       child: MaterialApp.router(
         title: 'JOYN — Le match avant la candidature',
