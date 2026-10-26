@@ -65,7 +65,7 @@ class RecruiterOffersTopBar extends StatelessWidget {
                 icon: Icons.badge_outlined,
                 active: active == RecruiterTopTab.candidates,
                 showLabel: showLabels,
-                onTap: () {},
+                onTap: () => context.go(AppRoutes.recruiterCandidates),
               ),
             ],
           ),

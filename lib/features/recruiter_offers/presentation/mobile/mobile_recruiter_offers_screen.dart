@@ -93,6 +93,7 @@ class MobileRecruiterOffersScreen extends StatelessWidget {
             selectedIndex: 2,
             onSelected: (index) {
               if (index == 0) context.go(AppRoutes.dashboard);
+              if (index == 1) context.go(AppRoutes.recruiterCandidates);
               if (index == 2) return;
             },
             items: const [
