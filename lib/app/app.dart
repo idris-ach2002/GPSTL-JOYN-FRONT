@@ -8,6 +8,8 @@ import '../features/auth/presentation/auth_controller.dart';
 import '../features/dashboard/data/dashboard_repository.dart';
 import '../features/dashboard/data/fake_dashboard_repository.dart';
 import '../features/registration/data/auth_registration_repository.dart';
+import '../features/recruiter_dashboard/data/mock_recruiter_dashboard_repository.dart';
+import '../features/recruiter_dashboard/data/recruiter_dashboard_repository.dart';
 import '../features/registration/data/mock_registration_repository.dart';
 import '../features/registration/data/registration_repository.dart';
 import '../features/recruiter_offers/data/mock_recruiter_offers_repository.dart';
@@ -27,6 +29,7 @@ class JoynApp extends StatefulWidget {
     this.authController,
     this.dashboardRepository,
     this.registrationRepository,
+    this.recruiterDashboardRepository,
     this.recruiterOffersRepository,
   });
 
@@ -34,6 +37,7 @@ class JoynApp extends StatefulWidget {
   final AuthController? authController;
   final DashboardRepository? dashboardRepository;
   final RegistrationRepository? registrationRepository;
+  final RecruiterDashboardRepository? recruiterDashboardRepository;
   final RecruiterOffersRepository? recruiterOffersRepository;
 
   @override
@@ -44,6 +48,7 @@ class _JoynAppState extends State<JoynApp> {
   late final AuthController _authController;
   late final DashboardRepository _dashboardRepository;
   late final RegistrationRepository _registrationRepository;
+  late final RecruiterDashboardRepository _recruiterDashboardRepository;
   late final RecruiterOffersRepository _recruiterOffersRepository;
   late final GoRouter _router;
   late final bool _ownsAuthController;
@@ -74,6 +79,9 @@ class _JoynAppState extends State<JoynApp> {
     _dashboardRepository =
         widget.dashboardRepository ??
         FakeDashboardRepository(latency: Duration.zero);
+    _recruiterDashboardRepository =
+        widget.recruiterDashboardRepository ??
+        MockRecruiterDashboardRepository(latency: Duration.zero);
     _recruiterOffersRepository =
         widget.recruiterOffersRepository ??
         MockRecruiterOffersRepository(latency: Duration.zero);
@@ -95,6 +103,9 @@ class _JoynAppState extends State<JoynApp> {
         ChangeNotifierProvider<AuthController>.value(value: _authController),
         Provider<DashboardRepository>.value(value: _dashboardRepository),
         Provider<RegistrationRepository>.value(value: _registrationRepository),
+        Provider<RecruiterDashboardRepository>.value(
+          value: _recruiterDashboardRepository,
+        ),
         Provider<RecruiterOffersRepository>.value(
           value: _recruiterOffersRepository,
         ),

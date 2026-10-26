@@ -1,93 +1,149 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
-/// Fond statique premium du header "Mes offres".
+/// Background premium partagé par les écrans recruteur.
 ///
-/// Le visuel est un asset illustré dédié, mais il est fusionné au composant
-/// avec plusieurs overlays Flutter pour conserver l'impression d'un vrai
-/// design natif plutôt que d'une image simplement posée en arrière-plan.
-class RecruiterOfferHeaderArt extends StatelessWidget {
-  const RecruiterOfferHeaderArt({super.key, this.animate = false});
+/// La rotation est basée sur une horloge globale. Dashboard, Offres et les
+/// écrans analytiques affichent donc la même image au même instant, même après
+/// navigation. Le visuel change toutes les 5 secondes avec un fondu lent.
+class RecruiterOfferHeaderArt extends StatefulWidget {
+  const RecruiterOfferHeaderArt({super.key, this.animate = true});
 
-  /// Conservé pour compatibilité avec les anciens appels.
   final bool animate;
 
-  static const _desktopAsset =
-      'assets/images/recruiter_offers/joyn_header_desktop.png';
-  static const _mobileAsset =
-      'assets/images/recruiter_offers/joyn_header_mobile.png';
-
   @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isMobile = constraints.maxWidth < 700;
+  State<RecruiterOfferHeaderArt> createState() =>
+      _RecruiterOfferHeaderArtState();
+}
 
-        return RepaintBoundary(
-          child: ClipRect(
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                const ColoredBox(color: Color(0xFF061F3A)),
-                Image.asset(
-                  isMobile ? _mobileAsset : _desktopAsset,
-                  fit: BoxFit.cover,
-                  alignment: isMobile ? Alignment.center : Alignment.center,
-                  filterQuality: FilterQuality.high,
-                  gaplessPlayback: true,
-                ),
+class _RecruiterOfferHeaderArtState extends State<RecruiterOfferHeaderArt> {
+  static const _rotation = Duration(seconds: 5);
+  static const _assets = [
+    'assets/images/recruiter_dashboard/headers/header_01.png',
+    'assets/images/recruiter_dashboard/headers/header_02.png',
+    'assets/images/recruiter_dashboard/headers/header_03.png',
+    'assets/images/recruiter_dashboard/headers/header_04.png',
+  ];
 
-                // Wash bleu uniforme : fond l'image dans la palette JOYN.
-                const DecoratedBox(
-                  decoration: BoxDecoration(color: Color(0x12082749)),
-                ),
+  Timer? _timer;
+  late int _index;
 
-                // Zone gauche protégée pour le titre, sans cacher les volumes.
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                      colors: isMobile
-                          ? const [
-                              Color(0xC9061F3A),
-                              Color(0x90061F3A),
-                              Color(0x28061F3A),
-                              Color(0x00061F3A),
-                            ]
-                          : const [
-                              Color(0xE0061F3A),
-                              Color(0xA8061F3A),
-                              Color(0x3D061F3A),
-                              Color(0x00061F3A),
-                            ],
-                      stops: isMobile
-                          ? const [0, .28, .64, 1]
-                          : const [0, .18, .43, .72],
-                    ),
-                  ),
-                ),
+  int _globalIndex() =>
+      (DateTime.now().millisecondsSinceEpoch ~/ _rotation.inMilliseconds) %
+      _assets.length;
 
-                // Fondu inférieur pour raccorder naturellement le header au bloc
-                // de recherche blanc qui vient juste en dessous.
-                const DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Color(0x00061F3A),
-                        Color(0x00061F3A),
-                        Color(0x1C061F3A),
-                      ],
-                      stops: [0, .72, 1],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+  void _syncIndex() {
+    if (!mounted) return;
+    final next = _globalIndex();
+    if (next != _index) setState(() => _index = next);
+  }
+
+  void _startTimer() {
+    _timer?.cancel();
+    _timer = Timer.periodic(
+      const Duration(milliseconds: 500),
+      (_) => _syncIndex(),
     );
   }
+
+  @override
+  void initState() {
+    super.initState();
+    _index = _globalIndex();
+    if (widget.animate) _startTimer();
+  }
+
+  @override
+  void didUpdateWidget(covariant RecruiterOfferHeaderArt oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.animate == widget.animate) return;
+    if (widget.animate) {
+      _startTimer();
+    } else {
+      _timer?.cancel();
+      _timer = null;
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => RepaintBoundary(
+    child: ClipRect(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          const ColoredBox(color: Color(0xFF061F3A)),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 1700),
+            switchInCurve: Curves.easeInOutCubic,
+            switchOutCurve: Curves.easeInOutCubic,
+            layoutBuilder: (currentChild, previousChildren) => Stack(
+              fit: StackFit.expand,
+              children: [...previousChildren, ?currentChild],
+            ),
+            transitionBuilder: (child, animation) => FadeTransition(
+              opacity: animation,
+              child: ScaleTransition(
+                scale: Tween<double>(begin: 1.025, end: 1).animate(
+                  CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOutCubic,
+                  ),
+                ),
+                child: child,
+              ),
+            ),
+            child: SizedBox.expand(
+              key: ValueKey(_assets[_index]),
+              child: Image.asset(
+                _assets[_index],
+                fit: BoxFit.cover,
+                alignment: Alignment.center,
+                filterQuality: FilterQuality.high,
+                gaplessPlayback: true,
+              ),
+            ),
+          ),
+          // Wash uniforme : une image claire ne donne plus l'impression
+          // que le header s'arrête avant le bord droit.
+          const ColoredBox(color: Color(0x26061F3A)),
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [
+                  Color(0xEE061F3A),
+                  Color(0xBE061F3A),
+                  Color(0x76061F3A),
+                  Color(0x52061F3A),
+                ],
+                stops: [0, .27, .66, 1],
+              ),
+            ),
+          ),
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0x08000000),
+                  Color(0x00061F3A),
+                  Color(0x34061F3A),
+                ],
+                stops: [0, .56, 1],
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }

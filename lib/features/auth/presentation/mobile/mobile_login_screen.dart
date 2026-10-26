@@ -366,6 +366,28 @@ class _LoginBody extends StatelessWidget {
                 loading: auth.isLoading,
                 onPressed: onSubmit,
               ),
+              if (auth.isLoading) ...[
+                const SizedBox(height: 10),
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 15,
+                      height: 15,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    SizedBox(width: 9),
+                    Text(
+                      'Authentification en cours…',
+                      style: TextStyle(
+                        color: AppColors.slate,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
               const SizedBox(height: 22),
               const _DividerLabel(),
               const SizedBox(height: 16),

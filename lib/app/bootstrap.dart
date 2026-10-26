@@ -1,5 +1,7 @@
 import 'package:flutter/widgets.dart';
 
+import '../core/config/app_environment.dart';
+import '../core/network/api_client.dart';
 import '../features/auth/data/auth_repository.dart';
 import '../features/auth/data/fake_auth_repository.dart';
 import '../features/auth/presentation/auth_controller.dart';
@@ -8,6 +10,10 @@ import '../features/dashboard/data/fake_dashboard_repository.dart';
 import '../features/registration/data/auth_registration_repository.dart';
 import '../features/registration/data/mock_registration_repository.dart';
 import '../features/registration/data/registration_repository.dart';
+import '../features/recruiter_dashboard/data/api_recruiter_dashboard_repository.dart';
+import '../features/recruiter_dashboard/data/cached_recruiter_dashboard_repository.dart';
+import '../features/recruiter_dashboard/data/mock_recruiter_dashboard_repository.dart';
+import '../features/recruiter_dashboard/data/recruiter_dashboard_repository.dart';
 import '../features/recruiter_offers/data/mock_recruiter_offers_repository.dart';
 import '../features/recruiter_offers/data/recruiter_offers_repository.dart';
 import 'app.dart';
@@ -16,8 +22,20 @@ import 'app.dart';
 Future<void> bootstrapJoyn({bool? webOverride}) async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  final environment = AppEnvironment.fromCompileTime()..validate();
   final AuthRepository authRepository = FakeAuthRepository();
   final DashboardRepository dashboardRepository = FakeDashboardRepository();
+  final RecruiterDashboardRepository recruiterDashboardRepository =
+      CachedRecruiterDashboardRepository(
+        environment.useApi
+            ? ApiRecruiterDashboardRepository(
+                ApiClient(
+                  baseUrl: environment.apiBaseUrl,
+                  timeout: environment.apiTimeout,
+                ),
+              )
+            : MockRecruiterDashboardRepository(),
+      );
   final RecruiterOffersRepository recruiterOffersRepository =
       MockRecruiterOffersRepository();
   final RegistrationRepository registrationRepository =
@@ -34,6 +52,7 @@ Future<void> bootstrapJoyn({bool? webOverride}) async {
       webOverride: webOverride,
       authController: authController,
       dashboardRepository: dashboardRepository,
+      recruiterDashboardRepository: recruiterDashboardRepository,
       registrationRepository: registrationRepository,
       recruiterOffersRepository: recruiterOffersRepository,
     ),

@@ -16,6 +16,8 @@ dependencies:
   go_router: ^18.0.2
   flutter_svg: ^2.3.0
   file_picker: ^13.0.0
+  http: ^1.6.0
+  fl_chart: ^1.3.0
 
 dev_dependencies:
   flutter_test:
@@ -28,6 +30,7 @@ flutter:
     - assets/figma_demo/
     - assets/images/
     - assets/images/recruiter_offers/
+    - assets/images/recruiter_dashboard/headers/
   fonts:
     - family: GreatVibes
       fonts:

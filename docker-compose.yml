@@ -1,0 +1,11 @@
+services:
+  front:
+    build:
+      context: .
+      args:
+        JOYN_DATA_MODE: ${JOYN_DATA_MODE:-mock}
+        JOYN_API_BASE_URL: ${JOYN_API_BASE_URL:-http://localhost:8080}
+        JOYN_API_TIMEOUT_MS: ${JOYN_API_TIMEOUT_MS:-12000}
+    ports:
+      - "8081:80"
+    restart: unless-stopped
