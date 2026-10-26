@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+
+import '../../../../app/routing/app_routes.dart';
 
 import '../../../../design_system/mobile/mobile_app_surface.dart';
 import '../../../../design_system/mobile/mobile_bottom_navigation.dart';
@@ -72,7 +75,13 @@ class _MobileDashboardScreenState extends State<MobileDashboardScreen> {
           ),
           MobileBottomNavigation(
             selectedIndex: _tab,
-            onSelected: (index) => setState(() => _tab = index),
+            onSelected: (index) {
+              if (index == 2) {
+                context.go(AppRoutes.recruiterJobs);
+                return;
+              }
+              setState(() => _tab = index);
+            },
             items: const [
               MobileNavItem(icon: Icons.home_rounded, label: 'Accueil'),
               MobileNavItem(icon: Icons.search_rounded, label: 'Talents'),

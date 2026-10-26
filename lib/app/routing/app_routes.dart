@@ -23,6 +23,9 @@ abstract final class AppRoutes {
   static const String dashboard = '/dashboard';
   static const String recruiter = '/recruiter';
   static const String recruiterJobs = '/recruiter/jobs';
+  static const String recruiterJobCreate = '/recruiter/jobs/new';
+  static String recruiterJobDetail(int id) => '/recruiter/jobs/$id';
+  static String recruiterJobEdit(int id) => '/recruiter/jobs/$id/edit';
   static const String recruiterCandidates = '/recruiter/candidates';
   static const String recruiterCompany = '/recruiter/company';
 

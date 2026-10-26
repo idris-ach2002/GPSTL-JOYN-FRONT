@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../design_system/mobile/mobile_entry_transition.dart';
+import '../../features/auth/domain/user_role.dart';
 import '../../features/auth/presentation/auth_controller.dart';
 import '../../features/auth/presentation/mobile/mobile_forgot_password_screen.dart';
 import '../../features/auth/presentation/mobile/mobile_login_screen.dart';
@@ -27,6 +28,16 @@ import '../../features/registration/presentation/mobile/mobile_student_register_
 import '../../features/registration/presentation/web/company_register_screen.dart';
 import '../../features/registration/presentation/web/register_choice_screen.dart';
 import '../../features/registration/presentation/web/student_register_screen.dart';
+import '../../features/recruiter_offers/data/recruiter_offers_repository.dart';
+import '../../features/recruiter_offers/presentation/controllers/offer_detail_controller.dart';
+import '../../features/recruiter_offers/presentation/controllers/offer_editor_controller.dart';
+import '../../features/recruiter_offers/presentation/controllers/offer_management_controller.dart';
+import '../../features/recruiter_offers/presentation/mobile/mobile_offer_detail_screen.dart';
+import '../../features/recruiter_offers/presentation/mobile/mobile_offer_editor_screen.dart';
+import '../../features/recruiter_offers/presentation/mobile/mobile_recruiter_offers_screen.dart';
+import '../../features/recruiter_offers/presentation/web/offer_editor_screen.dart';
+import '../../features/recruiter_offers/presentation/web/recruiter_offers_screen.dart';
+import '../../features/recruiter_offers/presentation/web/web_offer_detail_screen.dart';
 import '../../features/startup/presentation/mobile/mobile_startup_screen.dart';
 import '../experience/experience_target.dart';
 import 'app_routes.dart';
@@ -63,6 +74,15 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
           isInformationPage;
 
       if (!auth.isAuthenticated && !isPublic) return AppRoutes.login;
+
+      final isRecruiterArea =
+          location == AppRoutes.recruiter ||
+          location.startsWith('${AppRoutes.recruiter}/');
+      if (auth.isAuthenticated &&
+          isRecruiterArea &&
+          auth.user?.role != UserRole.company) {
+        return AppRoutes.dashboard;
+      }
 
       if (auth.isAuthenticated &&
           AppRoutes.authEntryRoutes.contains(location)) {
@@ -163,6 +183,72 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
               ? const MobileDashboardScreen()
               : const DashboardPage(),
         ),
+      ),
+
+      GoRoute(
+        path: AppRoutes.recruiterJobs,
+        name: 'recruiterJobs',
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) => OfferManagementController(
+            context.read<RecruiterOffersRepository>(),
+          )..load(),
+          child: useMobile(context)
+              ? const MobileRecruiterOffersScreen()
+              : const WebRecruiterOffersScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.recruiterJobCreate,
+        name: 'recruiterJobCreate',
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) =>
+              OfferEditorController(context.read<RecruiterOffersRepository>())
+                ..load(),
+          child: useMobile(context)
+              ? const MobileOfferEditorScreen()
+              : const WebOfferEditorScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/recruiter/jobs/:jobId/edit',
+        name: 'recruiterJobEdit',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['jobId'] ?? '');
+          if (id == null) return const SizedBox.shrink();
+          return ChangeNotifierProvider(
+            create: (context) => OfferEditorController(
+              context.read<RecruiterOffersRepository>(),
+              offerId: id,
+            )..load(),
+            child: useMobile(context)
+                ? const MobileOfferEditorScreen()
+                : const WebOfferEditorScreen(),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/recruiter/jobs/:jobId',
+        name: 'recruiterJobDetail',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['jobId'] ?? '');
+          if (id == null) return const SizedBox.shrink();
+          if (useMobile(context)) {
+            return ChangeNotifierProvider(
+              create: (context) => OfferDetailController(
+                context.read<RecruiterOffersRepository>(),
+                id,
+              )..load(),
+              child: const MobileOfferDetailScreen(),
+            );
+          }
+          return ChangeNotifierProvider(
+            create: (context) => OfferDetailController(
+              context.read<RecruiterOffersRepository>(),
+              id,
+            )..load(),
+            child: const WebOfferDetailScreen(),
+          );
+        },
       ),
       for (final entry in informationPages.entries)
         GoRoute(
