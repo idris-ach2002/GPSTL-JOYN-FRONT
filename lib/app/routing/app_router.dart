@@ -29,6 +29,10 @@ import '../../features/registration/presentation/web/company_register_screen.dar
 import '../../features/registration/presentation/web/register_choice_screen.dart';
 import '../../features/registration/presentation/web/student_register_screen.dart';
 import '../../features/recruiter_dashboard/data/recruiter_dashboard_repository.dart';
+import '../../features/recruiter_candidates/data/recruiter_candidate_repository.dart';
+import '../../features/recruiter_candidates/presentation/mobile/mobile_recruiter_candidates_screen.dart';
+import '../../features/recruiter_candidates/presentation/recruiter_candidate_controller.dart';
+import '../../features/recruiter_candidates/presentation/web/recruiter_candidates_screen.dart';
 import '../../features/recruiter_dashboard/presentation/mobile/mobile_recruiter_dashboard_screen.dart';
 import '../../features/recruiter_dashboard/presentation/mobile/mobile_recruiter_offer_analytics_screen.dart';
 import '../../features/recruiter_dashboard/presentation/recruiter_dashboard_controller.dart';
@@ -236,6 +240,19 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
                 : WebRecruiterOfferAnalyticsScreen(offerId: id),
           );
         },
+      ),
+
+      GoRoute(
+        path: AppRoutes.recruiterCandidates,
+        name: 'recruiterCandidates',
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) => RecruiterCandidateController(
+            context.read<RecruiterCandidateRepository>(),
+          )..load(),
+          child: useMobile(context)
+              ? const MobileRecruiterCandidatesScreen()
+              : const WebRecruiterCandidatesScreen(),
+        ),
       ),
 
       GoRoute(

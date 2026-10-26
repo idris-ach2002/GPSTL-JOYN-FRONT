@@ -14,6 +14,10 @@ import '../features/recruiter_dashboard/data/api_recruiter_dashboard_repository.
 import '../features/recruiter_dashboard/data/cached_recruiter_dashboard_repository.dart';
 import '../features/recruiter_dashboard/data/mock_recruiter_dashboard_repository.dart';
 import '../features/recruiter_dashboard/data/recruiter_dashboard_repository.dart';
+import '../features/recruiter_candidates/data/api_recruiter_candidate_repository.dart';
+import '../features/recruiter_candidates/data/cached_recruiter_candidate_repository.dart';
+import '../features/recruiter_candidates/data/mock_recruiter_candidate_repository.dart';
+import '../features/recruiter_candidates/data/recruiter_candidate_repository.dart';
 import '../features/recruiter_offers/data/mock_recruiter_offers_repository.dart';
 import '../features/recruiter_offers/data/recruiter_offers_repository.dart';
 import 'app.dart';
@@ -38,6 +42,17 @@ Future<void> bootstrapJoyn({bool? webOverride}) async {
       );
   final RecruiterOffersRepository recruiterOffersRepository =
       MockRecruiterOffersRepository();
+  final RecruiterCandidateRepository recruiterCandidateRepository =
+      CachedRecruiterCandidateRepository(
+        environment.useApi
+            ? ApiRecruiterCandidateRepository(
+                ApiClient(
+                  baseUrl: environment.apiBaseUrl,
+                  timeout: environment.apiTimeout,
+                ),
+              )
+            : MockRecruiterCandidateRepository(),
+      );
   final RegistrationRepository registrationRepository =
       AuthRegistrationRepository(
         authRepository,
@@ -55,6 +70,7 @@ Future<void> bootstrapJoyn({bool? webOverride}) async {
       recruiterDashboardRepository: recruiterDashboardRepository,
       registrationRepository: registrationRepository,
       recruiterOffersRepository: recruiterOffersRepository,
+      recruiterCandidateRepository: recruiterCandidateRepository,
     ),
   );
 }

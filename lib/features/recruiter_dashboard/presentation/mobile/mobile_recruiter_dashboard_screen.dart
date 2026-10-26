@@ -71,6 +71,7 @@ class _MobileRecruiterDashboardScreenState
             selectedIndex: 0,
             onSelected: (index) {
               if (index == 0) return;
+              if (index == 1) context.go(AppRoutes.recruiterCandidates);
               if (index == 2) context.go(AppRoutes.recruiterJobs);
             },
             items: const [

@@ -10,6 +10,8 @@ import '../features/dashboard/data/fake_dashboard_repository.dart';
 import '../features/registration/data/auth_registration_repository.dart';
 import '../features/recruiter_dashboard/data/mock_recruiter_dashboard_repository.dart';
 import '../features/recruiter_dashboard/data/recruiter_dashboard_repository.dart';
+import '../features/recruiter_candidates/data/mock_recruiter_candidate_repository.dart';
+import '../features/recruiter_candidates/data/recruiter_candidate_repository.dart';
 import '../features/registration/data/mock_registration_repository.dart';
 import '../features/registration/data/registration_repository.dart';
 import '../features/recruiter_offers/data/mock_recruiter_offers_repository.dart';
@@ -31,6 +33,7 @@ class JoynApp extends StatefulWidget {
     this.registrationRepository,
     this.recruiterDashboardRepository,
     this.recruiterOffersRepository,
+    this.recruiterCandidateRepository,
   });
 
   final bool? webOverride;
@@ -39,6 +42,7 @@ class JoynApp extends StatefulWidget {
   final RegistrationRepository? registrationRepository;
   final RecruiterDashboardRepository? recruiterDashboardRepository;
   final RecruiterOffersRepository? recruiterOffersRepository;
+  final RecruiterCandidateRepository? recruiterCandidateRepository;
 
   @override
   State<JoynApp> createState() => _JoynAppState();
@@ -50,6 +54,7 @@ class _JoynAppState extends State<JoynApp> {
   late final RegistrationRepository _registrationRepository;
   late final RecruiterDashboardRepository _recruiterDashboardRepository;
   late final RecruiterOffersRepository _recruiterOffersRepository;
+  late final RecruiterCandidateRepository _recruiterCandidateRepository;
   late final GoRouter _router;
   late final bool _ownsAuthController;
 
@@ -85,6 +90,9 @@ class _JoynAppState extends State<JoynApp> {
     _recruiterOffersRepository =
         widget.recruiterOffersRepository ??
         MockRecruiterOffersRepository(latency: Duration.zero);
+    _recruiterCandidateRepository =
+        widget.recruiterCandidateRepository ??
+        MockRecruiterCandidateRepository(latency: Duration.zero);
 
     _router = createAppRouter(_authController, webOverride: widget.webOverride);
   }
@@ -108,6 +116,9 @@ class _JoynAppState extends State<JoynApp> {
         ),
         Provider<RecruiterOffersRepository>.value(
           value: _recruiterOffersRepository,
+        ),
+        Provider<RecruiterCandidateRepository>.value(
+          value: _recruiterCandidateRepository,
         ),
       ],
       child: MaterialApp.router(
