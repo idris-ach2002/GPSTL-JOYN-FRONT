@@ -22,6 +22,12 @@ abstract final class AppRoutes {
   // Entreprise / espace connecté
   static const String dashboard = '/dashboard';
   static const String recruiter = '/recruiter';
+  static const String recruiterDashboard = '/recruiter/dashboard';
+  // Alias historique : le routeur redirige désormais vers le dashboard unifié.
+  static const String recruiterDashboardInsights =
+      '/recruiter/dashboard/insights';
+  static String recruiterDashboardOffer(int id) =>
+      '/recruiter/dashboard/offers/$id';
   static const String recruiterJobs = '/recruiter/jobs';
   static const String recruiterJobCreate = '/recruiter/jobs/new';
   static String recruiterJobDetail(int id) => '/recruiter/jobs/$id';

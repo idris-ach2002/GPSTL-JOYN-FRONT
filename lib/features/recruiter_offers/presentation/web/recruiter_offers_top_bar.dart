@@ -51,7 +51,7 @@ class RecruiterOffersTopBar extends StatelessWidget {
                 icon: Icons.grid_view_rounded,
                 active: active == RecruiterTopTab.dashboard,
                 showLabel: showLabels,
-                onTap: () => context.go(AppRoutes.dashboard),
+                onTap: () => context.go(AppRoutes.recruiterDashboard),
               ),
               _Tab(
                 label: 'Offres',

@@ -28,6 +28,12 @@ import '../../features/registration/presentation/mobile/mobile_student_register_
 import '../../features/registration/presentation/web/company_register_screen.dart';
 import '../../features/registration/presentation/web/register_choice_screen.dart';
 import '../../features/registration/presentation/web/student_register_screen.dart';
+import '../../features/recruiter_dashboard/data/recruiter_dashboard_repository.dart';
+import '../../features/recruiter_dashboard/presentation/mobile/mobile_recruiter_dashboard_screen.dart';
+import '../../features/recruiter_dashboard/presentation/mobile/mobile_recruiter_offer_analytics_screen.dart';
+import '../../features/recruiter_dashboard/presentation/recruiter_dashboard_controller.dart';
+import '../../features/recruiter_dashboard/presentation/web/recruiter_dashboard_screen.dart';
+import '../../features/recruiter_dashboard/presentation/web/recruiter_offer_analytics_screen.dart';
 import '../../features/recruiter_offers/data/recruiter_offers_repository.dart';
 import '../../features/recruiter_offers/presentation/controllers/offer_detail_controller.dart';
 import '../../features/recruiter_offers/presentation/controllers/offer_editor_controller.dart';
@@ -176,13 +182,60 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
       GoRoute(
         path: AppRoutes.dashboard,
         name: 'dashboard',
+        builder: (context, state) {
+          if (auth.user?.role == UserRole.company) {
+            return ChangeNotifierProvider(
+              create: (context) => RecruiterDashboardController(
+                context.read<RecruiterDashboardRepository>(),
+              )..loadOverview(),
+              child: useMobile(context)
+                  ? const MobileRecruiterDashboardScreen()
+                  : const WebRecruiterDashboardScreen(),
+            );
+          }
+          return ChangeNotifierProvider(
+            create: (context) =>
+                DashboardController(context.read<DashboardRepository>())
+                  ..load(),
+            child: useMobile(context)
+                ? const MobileDashboardScreen()
+                : const DashboardPage(),
+          );
+        },
+      ),
+
+      GoRoute(
+        path: AppRoutes.recruiterDashboard,
+        name: 'recruiterDashboard',
         builder: (context, state) => ChangeNotifierProvider(
-          create: (context) =>
-              DashboardController(context.read<DashboardRepository>())..load(),
+          create: (context) => RecruiterDashboardController(
+            context.read<RecruiterDashboardRepository>(),
+          )..loadDashboard(),
           child: useMobile(context)
-              ? const MobileDashboardScreen()
-              : const DashboardPage(),
+              ? const MobileRecruiterDashboardScreen()
+              : const WebRecruiterDashboardScreen(),
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.recruiterDashboardInsights,
+        name: 'recruiterDashboardInsights',
+        redirect: (context, state) => AppRoutes.recruiterDashboard,
+      ),
+      GoRoute(
+        path: '/recruiter/dashboard/offers/:jobId',
+        name: 'recruiterDashboardOffer',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['jobId'] ?? '');
+          if (id == null) return const SizedBox.shrink();
+          return ChangeNotifierProvider(
+            create: (context) => RecruiterDashboardController(
+              context.read<RecruiterDashboardRepository>(),
+            )..loadOffer(id),
+            child: useMobile(context)
+                ? MobileRecruiterOfferAnalyticsScreen(offerId: id)
+                : WebRecruiterOfferAnalyticsScreen(offerId: id),
+          );
+        },
       ),
 
       GoRoute(
