@@ -1,0 +1,30 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "gpstl-joyn-front",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-27",
+
+  "containers": [
+    {
+      "class_name": "JoynFrontend",
+      "image": "./Dockerfile",
+      "max_instances": 1
+    }
+  ],
+
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "JOYN_FRONTEND",
+        "class_name": "JoynFrontend"
+      }
+    ]
+  },
+
+  "exports": {
+    "JoynFrontend": {
+      "type": "durable-object",
+      "storage": "sqlite"
+    }
+  }
+}

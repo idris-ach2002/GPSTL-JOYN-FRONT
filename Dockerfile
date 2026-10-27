@@ -1,24 +1,50 @@
-ARG FLUTTER_IMAGE=ghcr.io/cirruslabs/flutter:stable
-FROM ${FLUTTER_IMAGE} AS build
+# syntax=docker/dockerfile:1
+
+FROM --platform=linux/amd64 debian:bookworm-slim AS build
+ARG FLUTTER_VERSION=3.47.8
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    CI=true \
+    FLUTTER_SUPPRESS_ANALYTICS=true \
+    PATH="/opt/flutter/bin:/opt/flutter/bin/cache/dart-sdk/bin:${PATH}"
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       ca-certificates \
+       curl \
+       git \
+       unzip \
+       xz-utils \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -fL \
+      "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz" \
+      -o /tmp/flutter.tar.xz \
+    && mkdir -p /opt \
+    && tar -xJf /tmp/flutter.tar.xz -C /opt \
+    && rm /tmp/flutter.tar.xz \
+    && git config --global --add safe.directory /opt/flutter \
+    && flutter --version \
+    && dart --version \
+    && flutter config --enable-web \
+    && flutter precache --web
 
 WORKDIR /app
+
+# Cache des dépendances Dart/Flutter.
 COPY pubspec.yaml pubspec.lock ./
 RUN flutter pub get
 
+# Sources de l'application.
 COPY . .
 
-ARG JOYN_DATA_MODE=auto
-ARG JOYN_API_BASE_URL=
-ARG JOYN_API_TIMEOUT_MS=12000
+# Production Flutter Web à la racine du domaine.
+RUN flutter build web --release --base-href /
 
-RUN flutter build web --release \
-    --dart-define=JOYN_DATA_MODE=${JOYN_DATA_MODE} \
-    --dart-define=JOYN_API_BASE_URL=${JOYN_API_BASE_URL} \
-    --dart-define=JOYN_API_TIMEOUT_MS=${JOYN_API_TIMEOUT_MS}
-
-FROM nginx:1.27-alpine
+FROM --platform=linux/amd64 nginx:1.27-alpine
 COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/build/web /usr/share/nginx/html
+
 EXPOSE 80
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD wget -qO- http://127.0.0.1/healthz || exit 1
+
+CMD ["nginx", "-g", "daemon off;"]

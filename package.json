@@ -1,0 +1,30 @@
+{
+  "name": "gpstl-joyn-front",
+  "version": "1.0.0",
+  "description": "**JOYN** est une application de mise en relation entre candidats et entreprises pour l'emploi, le stage et surtout l'alternance.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/idris-ach2002/GPSTL-JOYN-FRONT.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/idris-ach2002/GPSTL-JOYN-FRONT/issues"
+  },
+  "homepage": "https://github.com/idris-ach2002/GPSTL-JOYN-FRONT#readme",
+  "dependencies": {
+    "@cloudflare/containers": "^0.3.7"
+  },
+  "devDependencies": {
+    "wrangler": "^4.153.0"
+  }
+}
