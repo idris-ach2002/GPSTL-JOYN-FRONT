@@ -125,3 +125,4 @@ app.*.symbols
 .env
 # JS Files
 node_modules/
+.wrangler/
