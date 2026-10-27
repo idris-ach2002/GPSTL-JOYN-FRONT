@@ -9,3 +9,11 @@ coverage
 android/.gradle
 ios/Pods
 macos/Pods
+
+# Local/generated files excluded from Docker build context
+.gitignore
+node_modules
+npm-debug.log*
+.DS_Store
+.flutter-plugins
+.flutter-plugins-dependencies
