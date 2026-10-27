@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:joyn_front/core/widgets/brand_logo.dart';
 import 'package:joyn_front/design_system/tokens/app_colors.dart';
 
 /// Boutons « Google » et « LinkedIn ».
@@ -21,19 +22,7 @@ class SocialAuthButtons extends StatelessWidget {
           child: _SocialButton(
             label: 'Google',
             semanticsLabel: 'Continuer avec Google',
-            badge: Container(
-              width: 22,
-              height: 22,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.textPrimary, width: 2),
-              ),
-              child: const Text(
-                'G',
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
-              ),
-            ),
+            badge: const BrandLogo.google(),
             onTap: onGoogle,
           ),
         ),
@@ -42,23 +31,7 @@ class SocialAuthButtons extends StatelessWidget {
           child: _SocialButton(
             label: 'LinkedIn',
             semanticsLabel: 'Continuer avec LinkedIn',
-            badge: Container(
-              width: 22,
-              height: 22,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: AppColors.navy,
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: const Text(
-                'in',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.white,
-                ),
-              ),
-            ),
+            badge: const BrandLogo.linkedIn(),
             onTap: onLinkedIn,
           ),
         ),

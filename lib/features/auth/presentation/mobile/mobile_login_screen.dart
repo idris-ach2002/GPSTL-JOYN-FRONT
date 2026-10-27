@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/routing/app_routes.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/brand_logo.dart';
 import '../../../../design_system/mobile/mobile_app_surface.dart';
 import '../../../../design_system/tokens/app_colors.dart';
 import '../auth_controller.dart';
@@ -396,12 +397,12 @@ class _LoginBody extends StatelessWidget {
                   final buttons = [
                     _SocialButton(
                       label: 'Google',
-                      icon: 'G',
+                      logo: const BrandLogo.google(size: 18),
                       onPressed: onGoogle,
                     ),
                     _SocialButton(
                       label: 'LinkedIn',
-                      icon: 'in',
+                      logo: const BrandLogo.linkedIn(size: 18),
                       onPressed: onLinkedIn,
                     ),
                   ];
@@ -487,12 +488,12 @@ class _DividerLabel extends StatelessWidget {
 class _SocialButton extends StatelessWidget {
   const _SocialButton({
     required this.label,
-    required this.icon,
+    required this.logo,
     required this.onPressed,
   });
 
   final String label;
-  final String icon;
+  final Widget logo;
   final VoidCallback onPressed;
 
   @override
@@ -512,16 +513,7 @@ class _SocialButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              icon,
-              style: TextStyle(
-                color: icon == 'G'
-                    ? const Color(0xFF4285F4)
-                    : const Color(0xFF0A66C2),
-                fontSize: icon == 'G' ? 18 : 13,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
+            logo,
             const SizedBox(width: 8),
             Flexible(
               child: Text(

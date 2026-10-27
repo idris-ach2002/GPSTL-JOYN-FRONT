@@ -28,6 +28,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/figma_demo/
+    - assets/icons/
     - assets/images/
     - assets/images/recruiter_offers/
     - assets/images/recruiter_dashboard/headers/
