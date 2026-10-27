@@ -123,3 +123,5 @@ app.*.symbols
 
 # Local environment (never commit)
 .env
+# JS Files
+node_modules/
