@@ -63,16 +63,16 @@ class _FormSection extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.lg,
-            AppSpacing.lg,
+            AppSpacing.md,
             AppSpacing.lg,
             0,
           ),
           child: Row(
             children: [
               const JoynLogo(),
-              const Spacer(),
+              const SizedBox(width: AppSpacing.md),
               if (!compact)
-                const Flexible(
+                const Expanded(
                   child: Align(
                     alignment: Alignment.centerRight,
                     child: _SignUpLink(),
@@ -86,7 +86,7 @@ class _FormSection extends StatelessWidget {
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.lg,
-                vertical: AppSpacing.xl,
+                vertical: AppSpacing.sm,
               ),
               child: ConstrainedBox(
                 constraints: const BoxConstraints(
@@ -120,25 +120,33 @@ class _FormSection extends StatelessWidget {
   }
 }
 
-/// « Pas encore de compte ? Créer un compte ».
+/// « Pas encore de compte ? Créer un compte », toujours sur une seule ligne
+/// (le texte rétrécit légèrement si la place manque).
 class _SignUpLink extends StatelessWidget {
   const _SignUpLink();
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      alignment: WrapAlignment.center,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: [
-        Text(
-          'Pas encore de compte ?',
-          style: AppTextStyles.caption.copyWith(fontSize: 14),
-        ),
-        TextButton(
-          onPressed: () => context.go(AppRoutes.register),
-          child: const Text('Créer un compte'),
-        ),
-      ],
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Pas encore de compte ?',
+            style: AppTextStyles.caption.copyWith(fontSize: 14),
+          ),
+          TextButton(
+            onPressed: () => context.go(AppRoutes.register),
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+              minimumSize: const Size(0, 36),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: const Text('Créer un compte'),
+          ),
+        ],
+      ),
     );
   }
 }

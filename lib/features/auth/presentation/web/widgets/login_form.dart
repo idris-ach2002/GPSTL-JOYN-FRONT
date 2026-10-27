@@ -88,21 +88,21 @@ class _LoginFormState extends State<LoginForm> {
               'Content de te revoir.',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.sm),
             const Text(
               'Connecte-toi pour retrouver tes matchs, tes messages et '
               'tes entretiens.',
               style: AppTextStyles.muted,
             ),
-            const SizedBox(height: AppSpacing.xl),
+            const SizedBox(height: AppSpacing.lg),
 
             SocialAuthButtons(
               onGoogle: () => _showComingSoon('Google'),
               onLinkedIn: () => _showComingSoon('LinkedIn'),
             ),
-            const SizedBox(height: AppSpacing.lg),
+            const SizedBox(height: 12),
             const _OrDivider(),
-            const SizedBox(height: AppSpacing.lg),
+            const SizedBox(height: 12),
 
             JoynTextField(
               label: 'E-mail',
@@ -113,7 +113,7 @@ class _LoginFormState extends State<LoginForm> {
               autofillHints: const [AutofillHints.email],
               validator: Validators.email,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 12),
             JoynTextField(
               label: 'Mot de passe',
               controller: _passwordController,
@@ -147,7 +147,7 @@ class _LoginFormState extends State<LoginForm> {
               AuthErrorBanner(message: auth.errorMessage!),
             ],
 
-            const SizedBox(height: AppSpacing.lg),
+            const SizedBox(height: AppSpacing.md),
             JoynButton(
               label: 'Se connecter',
               icon: Icons.arrow_forward_rounded,
