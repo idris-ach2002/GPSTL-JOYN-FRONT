@@ -324,7 +324,7 @@ class _StudioPlannerState extends State<StudioPlanner> {
         ),
         const SizedBox(height: 14),
         SizedBox(
-          height: 86 + (MediaQuery.textScalerOf(context).scale(1) - 1) * 60,
+          height: 104 + (MediaQuery.textScalerOf(context).scale(1) - 1) * 60,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: 7,
@@ -347,7 +347,7 @@ class _StudioPlannerState extends State<StudioPlanner> {
                 borderRadius: BorderRadius.circular(16),
                 onTap: () => setState(() => _day = selected ? null : day),
                 child: Container(
-                  width: 76,
+                  width: 88,
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: selected
@@ -383,6 +383,8 @@ class _StudioPlannerState extends State<StudioPlanner> {
                       ),
                       Text(
                         '$count prévu(s)',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(fontSize: 9),
                       ),
                     ],
@@ -588,6 +590,7 @@ class _StudioPlannerState extends State<StudioPlanner> {
                   Text('${candidate['title'] ?? ''}'),
                   const SizedBox(height: 14),
                   DropdownButtonFormField<String>(
+                    isExpanded: true,
                     key: ValueKey('${candidate['id']}-${candidate['stage']}'),
                     initialValue: stages.containsKey('${candidate['stage']}')
                         ? '${candidate['stage']}'

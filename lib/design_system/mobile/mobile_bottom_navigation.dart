@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../tokens/app_colors.dart';
-
 class MobileNavItem {
   const MobileNavItem({required this.icon, required this.label});
 
@@ -24,9 +22,9 @@ class MobileBottomNavigation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFE9ECE8))),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        border: Border(top: BorderSide(color: Theme.of(context).dividerColor)),
       ),
       child: SafeArea(
         top: false,
@@ -63,7 +61,9 @@ class _NavButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? AppColors.navy : AppColors.grey;
+    final color = selected
+        ? Theme.of(context).colorScheme.primary
+        : Theme.of(context).colorScheme.onSurfaceVariant;
     return InkWell(
       onTap: onPressed,
       child: Column(
@@ -73,6 +73,8 @@ class _NavButton extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             item.label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: color,
               fontSize: 10,

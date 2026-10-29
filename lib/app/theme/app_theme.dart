@@ -105,7 +105,9 @@ abstract final class RecruiterTheme {
             onSurface: const Color(0xFFEBF2FC),
             onSurfaceVariant: const Color(0xFFB2C1D7),
             outline: contrast ? Colors.white70 : const Color(0xFF63758E),
-            outlineVariant: const Color(0xFF2B405B),
+            outlineVariant: contrast
+                ? const Color(0xFF8196B2)
+                : const Color(0xFF2B405B),
             surfaceContainerLow: const Color(0xFF101D2F),
             surfaceContainerHighest: const Color(0xFF213650),
             error: const Color(0xFFFF9D96),
@@ -113,7 +115,9 @@ abstract final class RecruiterTheme {
         : AppTheme.light.colorScheme.copyWith(
             primary: accent,
             onPrimary: Colors.white,
-            outlineVariant: const Color(0xFFDDE5EF),
+            outlineVariant: contrast
+                ? const Color(0xFF58718B)
+                : const Color(0xFFDDE5EF),
           );
     return AppTheme.light.copyWith(
       brightness: dark ? Brightness.dark : Brightness.light,

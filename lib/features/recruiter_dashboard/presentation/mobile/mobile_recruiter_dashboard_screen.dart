@@ -105,7 +105,10 @@ class _MobileHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-    height: 360 + (MediaQuery.textScalerOf(context).scale(1) - 1) * 180,
+    height:
+        360 +
+        (MediaQuery.textScalerOf(context).scale(1) - 1) * 420 +
+        (MediaQuery.sizeOf(context).width < 360 ? 40 : 0),
     child: Stack(
       fit: StackFit.expand,
       children: [

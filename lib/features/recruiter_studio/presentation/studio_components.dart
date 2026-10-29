@@ -117,11 +117,12 @@ class StudioEmpty extends StatelessWidget {
 }
 
 class StudioLoadNotice extends StatelessWidget {
-  const StudioLoadNotice({super.key});
+  const StudioLoadNotice({super.key, this.showSaving = true});
+  final bool showSaving;
   @override
   Widget build(BuildContext context) {
     final c = context.watch<StudioController>();
-    if (c.loading || c.saving) {
+    if (c.loading || (showSaving && c.saving)) {
       return const LinearProgressIndicator(minHeight: 2);
     }
     if (c.error == null) return const SizedBox.shrink();
@@ -171,10 +172,11 @@ String studioDate(Object? value) {
 /// Adaptation des surfaces historiques, sans filtre sur les images ni inversion des graphiques.
 abstract final class StudioColors {
   static Gradient? gradient(BuildContext context, Gradient? original) {
-    if (Theme.of(context).brightness != Brightness.dark || original == null)
+    if (Theme.of(context).brightness != Brightness.dark || original == null) {
       return original;
+    }
     final colors = original.colors.map((c) => background(context, c)).toList();
-    if (original is LinearGradient)
+    if (original is LinearGradient) {
       return LinearGradient(
         begin: original.begin,
         end: original.end,
@@ -183,7 +185,8 @@ abstract final class StudioColors {
         tileMode: original.tileMode,
         transform: original.transform,
       );
-    if (original is RadialGradient)
+    }
+    if (original is RadialGradient) {
       return RadialGradient(
         center: original.center,
         radius: original.radius,
@@ -194,6 +197,7 @@ abstract final class StudioColors {
         focalRadius: original.focalRadius,
         transform: original.transform,
       );
+    }
     return original;
   }
 

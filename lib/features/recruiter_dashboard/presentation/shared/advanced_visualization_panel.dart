@@ -144,6 +144,7 @@ class _AdvancedVisualizationPanelState
       _label('Type de schéma'),
       const SizedBox(height: 6),
       DropdownButtonFormField<AnalyticsVisualType>(
+        isExpanded: true,
         initialValue: settings.visualType,
         decoration: _inputDecoration(),
         items: const [
@@ -303,6 +304,7 @@ class _AdvancedVisualizationPanelState
       _label('Palette'),
       const SizedBox(height: 6),
       DropdownButtonFormField<VisualizationPalette>(
+        isExpanded: true,
         initialValue: settings.palette,
         decoration: _inputDecoration(),
         items: const [
@@ -334,6 +336,7 @@ class _AdvancedVisualizationPanelState
       _label('Police'),
       const SizedBox(height: 6),
       DropdownButtonFormField<VisualizationFont>(
+        isExpanded: true,
         initialValue: settings.font,
         decoration: _inputDecoration(),
         items: const [

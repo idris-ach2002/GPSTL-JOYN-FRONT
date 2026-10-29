@@ -54,11 +54,14 @@ class _StudioNotificationsState extends State<StudioNotifications> {
               ? !isArchived
               : _view == 'snoozed'
               ? !snoozed || isArchived
-              : isArchived || snoozed)
+              : isArchived || snoozed) {
             return false;
+          }
           if (_view == 'unread' && n['read'] == true) return false;
-          if (_view == 'pinned' && !studio.contains('pinnedNotifications', id))
+          if (_view == 'pinned' &&
+              !studio.contains('pinnedNotifications', id)) {
             return false;
+          }
           if (_kind != 'all' && n['kind'] != _kind) return false;
           return '${n['title']} ${n['body'] ?? ''}'.toLowerCase().contains(
             _search,
@@ -442,8 +445,9 @@ class _StudioNotificationsState extends State<StudioNotifications> {
                                 AppRoutes.recruiterJobs,
                                 AppRoutes.recruiterProfile,
                                 AppRoutes.recruiterDashboard,
-                              }.contains(target))
+                              }.contains(target)) {
                                 context.go(target);
+                              }
                             },
                       child: const Text('Consulter'),
                     ),
@@ -481,8 +485,9 @@ class _StudioNotificationsState extends State<StudioNotifications> {
                         'Cette notification sera retirée de votre compte.',
                         action: 'Supprimer',
                       ) &&
-                      context.mounted)
+                      context.mounted) {
                     await c.deleteNotification(id);
+                  }
               }
             },
             itemBuilder: (_) => [

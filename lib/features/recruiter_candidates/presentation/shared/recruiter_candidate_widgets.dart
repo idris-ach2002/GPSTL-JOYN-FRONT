@@ -1050,6 +1050,7 @@ Future<CandidateFilterValues?> showCandidateFiltersDialog(
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
+                  isExpanded: true,
                   initialValue: contract,
                   decoration: const InputDecoration(
                     labelText: 'Type de contrat',

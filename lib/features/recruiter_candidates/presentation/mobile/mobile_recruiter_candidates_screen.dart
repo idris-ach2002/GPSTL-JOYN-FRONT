@@ -242,12 +242,14 @@ class _HeroCountPill extends StatelessWidget {
           color: StudioColors.text(context, Colors.white),
         ),
         const SizedBox(width: 6),
-        Text(
-          '$totalProfiles profil${totalProfiles > 1 ? 's' : ''} compatible${totalProfiles > 1 ? 's' : ''}',
-          style: TextStyle(
-            color: StudioColors.text(context, Colors.white),
-            fontSize: 10.5,
-            fontWeight: FontWeight.w700,
+        Flexible(
+          child: Text(
+            '$totalProfiles profil${totalProfiles > 1 ? 's' : ''} compatible${totalProfiles > 1 ? 's' : ''}',
+            style: TextStyle(
+              color: StudioColors.text(context, Colors.white),
+              fontSize: 10.5,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       ],

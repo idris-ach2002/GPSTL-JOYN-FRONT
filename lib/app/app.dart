@@ -125,7 +125,12 @@ class _JoynAppState extends State<JoynApp> {
       store: widget.studioStore,
       repository: widget.studioRepository,
     )..restoreDevice();
-    _studio.bind(_authController.user?.id);
+
+    _studio.bind(
+      _authController.user?.role == UserRole.company
+          ? _authController.user?.id
+          : null,
+    );
 
     _workspaceController = WorkspaceController(
       widget.workspaceRepository ?? MockRecruiterWorkspaceRepository(),
@@ -168,7 +173,7 @@ class _JoynAppState extends State<JoynApp> {
     final id = _authController.user?.id;
     if (id != _lastUserId) {
       _lastUserId = id;
-      _studio.bind(id);
+      _studio.bind(_authController.user?.role == UserRole.company ? id : null);
       _workspaceController.reset();
       _primeWorkspace();
     }
@@ -224,6 +229,9 @@ class _JoynAppState extends State<JoynApp> {
             contrast: _studio.highContrast,
           ),
           themeMode: _studio.themeMode,
+          themeAnimationDuration: _studio.reducedMotion
+              ? Duration.zero
+              : kThemeAnimationDuration,
           builder: (context, child) {
             final media = MediaQuery.of(context);
             return MediaQuery(

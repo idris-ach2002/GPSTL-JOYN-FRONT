@@ -146,6 +146,7 @@ class _TaskDialogState extends State<_TaskDialog> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
+                isExpanded: true,
                 initialValue: _priority,
                 decoration: const InputDecoration(labelText: 'Priorité'),
                 items: const [
@@ -332,6 +333,7 @@ class _InterviewDialogState extends State<_InterviewDialog> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<int>(
+                isExpanded: true,
                 initialValue: [15, 30, 45, 60, 90].contains(_duration)
                     ? _duration
                     : 30,

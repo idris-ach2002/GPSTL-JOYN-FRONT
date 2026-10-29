@@ -197,7 +197,7 @@ class _Hero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-    height: 340,
+    height: 340 + (MediaQuery.textScalerOf(context).scale(1) - 1) * 600,
     child: Stack(
       fit: StackFit.expand,
       children: [
@@ -729,51 +729,34 @@ class _MobileOfferCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 6,
+                            crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
                               OfferStatusBadge(status: offer.status),
-                              const SizedBox(width: 8),
                               CompanyMiniLogo(company: c, size: 22),
-                              const SizedBox(width: 5),
-                              Flexible(
-                                child: Text(
-                                  c.name,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: StudioColors.text(
-                                      context,
-                                      AppColors.navy,
-                                    ),
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 5),
                               Text(
-                                '·',
+                                c.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
-                                  color: StudioColors.text(
-                                    context,
-                                    AppColors.placeholder,
-                                  ),
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w800,
                                 ),
                               ),
-                              const SizedBox(width: 5),
-                              Flexible(
-                                child: Text(
-                                  offer.location,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: StudioColors.text(
-                                      context,
-                                      AppColors.slate,
-                                    ),
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                              Text(
+                                offer.location,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                                  fontSize: 11,
                                 ),
                               ),
                             ],
@@ -875,8 +858,10 @@ class _MobileOfferCard extends StatelessWidget {
                   alignment: WrapAlignment.spaceBetween,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
+                    Wrap(
+                      spacing: 5,
+                      runSpacing: 5,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         if (offer.candidateCount > 0) ...[
                           OfferCandidateAvatars(
@@ -902,8 +887,10 @@ class _MobileOfferCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
+                    Wrap(
+                      spacing: 5,
+                      runSpacing: 5,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         Icon(
                           Icons.calendar_today_outlined,

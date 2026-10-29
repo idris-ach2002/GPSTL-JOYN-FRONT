@@ -74,11 +74,24 @@ class InteractiveMultiSeriesChart extends StatelessWidget {
     ];
     final maxY = _maxY(series);
 
+    final motion = MediaQuery.disableAnimationsOf(context)
+        ? Duration.zero
+        : const Duration(milliseconds: 180);
     final chart = switch (config.visualType) {
-      AnalyticsVisualType.bars => _buildBarChart(config, series, maxY),
-      AnalyticsVisualType.scatter => _buildScatterChart(config, series, maxY),
-      AnalyticsVisualType.lines => _buildLineChart(config, series, maxY),
-      AnalyticsVisualType.area => _buildLineChart(config, series, maxY),
+      AnalyticsVisualType.bars => _buildBarChart(config, series, maxY, motion),
+      AnalyticsVisualType.scatter => _buildScatterChart(
+        config,
+        series,
+        maxY,
+        motion,
+      ),
+      AnalyticsVisualType.lines => _buildLineChart(
+        config,
+        series,
+        maxY,
+        motion,
+      ),
+      AnalyticsVisualType.area => _buildLineChart(config, series, maxY, motion),
     };
 
     return SizedBox(height: height, child: chart);
@@ -98,6 +111,7 @@ class InteractiveMultiSeriesChart extends StatelessWidget {
     VisualizationSettings config,
     List<DashboardSeriesKind> series,
     double maxY,
+    Duration motion,
   ) {
     final isArea = config.visualType == AnalyticsVisualType.area;
     return LineChart(
@@ -225,7 +239,7 @@ class InteractiveMultiSeriesChart extends StatelessWidget {
             ),
         ],
       ),
-      duration: const Duration(milliseconds: 180),
+      duration: motion,
       curve: Curves.easeOutCubic,
     );
   }
@@ -234,6 +248,7 @@ class InteractiveMultiSeriesChart extends StatelessWidget {
     VisualizationSettings config,
     List<DashboardSeriesKind> series,
     double maxY,
+    Duration motion,
   ) {
     final barKinds = series.take(4).toList();
     final width = math.max(3.0, math.min(8.0, 22 / barKinds.length));
@@ -274,7 +289,7 @@ class InteractiveMultiSeriesChart extends StatelessWidget {
             ),
         ],
       ),
-      duration: const Duration(milliseconds: 180),
+      duration: motion,
       curve: Curves.easeOutCubic,
     );
   }
@@ -283,6 +298,7 @@ class InteractiveMultiSeriesChart extends StatelessWidget {
     VisualizationSettings config,
     List<DashboardSeriesKind> series,
     double maxY,
+    Duration motion,
   ) {
     final spots = <ScatterSpot>[];
     for (var seriesIndex = 0; seriesIndex < series.length; seriesIndex++) {
@@ -323,7 +339,7 @@ class InteractiveMultiSeriesChart extends StatelessWidget {
         borderData: FlBorderData(show: false),
         titlesData: _titles(config, maxY),
       ),
-      duration: const Duration(milliseconds: 180),
+      duration: motion,
       curve: Curves.easeOutCubic,
     );
   }

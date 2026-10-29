@@ -1,3 +1,5 @@
+import 'studio_form_dialog.dart';
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -755,6 +757,7 @@ class _StudioSettingsState extends State<StudioSettings> {
     Map<String, String> values,
     ValueChanged<String> changed,
   ) => DropdownButtonFormField<String>(
+    isExpanded: true,
     key: ValueKey('$label-$value'),
     initialValue: values.containsKey(value) ? value : values.keys.first,
     decoration: InputDecoration(labelText: label),
@@ -772,125 +775,62 @@ class _StudioSettingsState extends State<StudioSettings> {
     Future<bool> Function(String) save, {
     bool allowEmpty = false,
   }) async {
-    final text = TextEditingController(text: current);
-    final form = GlobalKey<FormState>();
-    final value = await showDialog<String>(
+    final value = await showDialog<Map<String, String>>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(title),
-        content: Form(
-          key: form,
-          child: TextFormField(
-            controller: text,
-            autofocus: true,
-            maxLines: 4,
-            maxLength: 1000,
-            validator: (v) => !allowEmpty && (v ?? '').trim().isEmpty
-                ? 'Saisissez une valeur'
-                : null,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annuler'),
-          ),
-          FilledButton(
-            onPressed: () {
-              if (form.currentState!.validate()) {
-                Navigator.pop(ctx, text.text.trim());
-              }
-            },
-            child: const Text('Enregistrer'),
+      builder: (_) => StudioFormDialog(
+        title: title,
+        fields: [
+          StudioFormField(
+            'value',
+            title,
+            lines: 4,
+            limit: 1000,
+            required: !allowEmpty,
           ),
         ],
+        initial: {'value': current},
       ),
     );
-    if (value != null) {
-      final ok = await save(value);
-      if (mounted) {
-        studioToast(
-          context,
-          ok
-              ? 'Modification enregistrée.'
-              : 'Enregistrement impossible. Réessayez.',
-        );
-      }
+    if (value == null) return;
+    final ok = await save(value['value']!);
+    if (mounted) {
+      studioToast(
+        context,
+        ok
+            ? 'Modification enregistrée.'
+            : 'Enregistrement impossible. Réessayez.',
+      );
     }
-    // Le contrôleur reste vivant jusqu’à la fin de l’animation du dialogue.
-    WidgetsBinding.instance.addPostFrameCallback((_) => text.dispose());
   }
 
   Future<void> _template(StudioController c) async {
-    final title = TextEditingController();
-    final text = TextEditingController();
-    final form = GlobalKey<FormState>();
-    final value = await showDialog<Map<String, dynamic>>(
+    final value = await showDialog<Map<String, String>>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Nouvelle réponse enregistrée'),
-        content: SizedBox(
-          width: 480,
-          child: Form(
-            key: form,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: title,
-                  decoration: const InputDecoration(labelText: 'Nom du modèle'),
-                  maxLength: 70,
-                  validator: (v) =>
-                      (v ?? '').trim().isEmpty ? 'Nom obligatoire' : null,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: text,
-                  maxLines: 5,
-                  maxLength: 3000,
-                  decoration: const InputDecoration(
-                    labelText: 'Message · utilisez {prenom} pour personnaliser',
-                  ),
-                  validator: (v) =>
-                      (v ?? '').trim().isEmpty ? 'Message obligatoire' : null,
-                ),
-              ],
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annuler'),
-          ),
-          FilledButton(
-            onPressed: () {
-              if (form.currentState!.validate()) {
-                Navigator.pop(ctx, {
-                  'id': StudioController.newId(),
-                  'title': title.text.trim(),
-                  'text': text.text.trim(),
-                });
-              }
-            },
-            child: const Text('Créer'),
+      builder: (_) => const StudioFormDialog(
+        title: 'Nouvelle réponse enregistrée',
+        action: 'Créer',
+        fields: [
+          StudioFormField('title', 'Nom du modèle', limit: 70),
+          StudioFormField(
+            'text',
+            'Message · utilisez {prenom} pour personnaliser',
+            lines: 5,
+            limit: 3000,
           ),
         ],
       ),
     );
-    if (value != null) {
-      final ok = await c.upsert('templates', value);
-      if (mounted) {
-        studioToast(
-          context,
-          ok ? 'Réponse enregistrée.' : 'Création impossible.',
-        );
-      }
-    }
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      title.dispose();
-      text.dispose();
+    if (value == null) return;
+    final ok = await c.upsert('templates', {
+      'id': StudioController.newId(),
+      ...value,
     });
+    if (mounted) {
+      studioToast(
+        context,
+        ok ? 'Réponse enregistrée.' : 'Création impossible.',
+      );
+    }
   }
 
   void _export(StudioController c) {
@@ -939,10 +879,18 @@ class _NotificationPreferences extends StatefulWidget {
 class _NotificationPreferencesState extends State<_NotificationPreferences> {
   Map<String, dynamic>? _draft;
   bool _dirty = false;
+  Map<String, dynamic>? _baseline;
   @override
   Widget build(BuildContext context) {
     final c = context.watch<WorkspaceController>();
-    _draft ??= {...?c.settings};
+    if (_draft == null) {
+      _dirty = c.notificationDirty;
+      _draft = c.notificationDraft ?? {...?c.settings};
+    }
+    if (!_dirty && !identical(_baseline, c.settings)) {
+      _baseline = c.settings;
+      _draft = {...?c.settings};
+    }
     final d = _draft!;
     return StudioCard(
       child: Column(
@@ -973,10 +921,13 @@ class _NotificationPreferencesState extends State<_NotificationPreferences> {
                   : (v) => setState(() {
                       d[e.key] = v;
                       _dirty = true;
+                      c.notificationDirty = true;
+                      c.notificationDraft = d;
                     }),
             ),
           const Divider(height: 28),
           DropdownButtonFormField<String>(
+            isExpanded: true,
             initialValue: '${d['digest'] ?? 'daily'}',
             decoration: const InputDecoration(labelText: 'Résumé par e-mail'),
             items: const [
@@ -987,6 +938,8 @@ class _NotificationPreferencesState extends State<_NotificationPreferences> {
             onChanged: (v) => setState(() {
               d['digest'] = v;
               _dirty = true;
+              c.notificationDirty = true;
+              c.notificationDraft = d;
             }),
           ),
           const SizedBox(height: 12),
@@ -1000,6 +953,8 @@ class _NotificationPreferencesState extends State<_NotificationPreferences> {
             onChanged: (v) => setState(() {
               d['quietHours'] = v;
               _dirty = true;
+              c.notificationDirty = true;
+              c.notificationDraft = d;
             }),
           ),
           if (d['quietHours'] == true)
@@ -1027,6 +982,8 @@ class _NotificationPreferencesState extends State<_NotificationPreferences> {
                           d[e.$1] =
                               '${value.hour.toString().padLeft(2, '0')}:${value.minute.toString().padLeft(2, '0')}';
                           _dirty = true;
+                          c.notificationDirty = true;
+                          c.notificationDraft = d;
                         });
                       }
                     },
@@ -1040,9 +997,25 @@ class _NotificationPreferencesState extends State<_NotificationPreferences> {
             onPressed: !_dirty || c.busy
                 ? null
                 : () async {
+                    if (d['quietHours'] == true &&
+                        '${d['quietStart'] ?? '20:00'}' ==
+                            '${d['quietEnd'] ?? '08:00'}') {
+                      studioToast(
+                        context,
+                        'Choisissez deux horaires différents.',
+                      );
+                      return;
+                    }
                     final ok = await c.saveSettings(d);
                     if (context.mounted) {
-                      if (ok) setState(() => _dirty = false);
+                      if (ok) {
+                        setState(() {
+                          _dirty = false;
+                          c.notificationDirty = false;
+                          c.notificationDraft = null;
+                          _draft = {...?c.settings};
+                        });
+                      }
                       studioToast(
                         context,
                         ok ? 'Préférences enregistrées.' : 'Impossible d’enregistrer. Votre saisie est conservée.',

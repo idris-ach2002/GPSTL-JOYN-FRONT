@@ -10,6 +10,11 @@ class RecruiterGreeting extends StatelessWidget {
   Widget build(BuildContext context) {
     final workspace = context.watch<WorkspaceController?>();
     final name = '${workspace?.profile?['firstName'] ?? ''}'.trim();
-    return Text(name.isEmpty ? 'Bonjour 👋' : 'Bonjour $name 👋', style: style);
+    return Text(
+      name.isEmpty ? 'Bonjour 👋' : 'Bonjour $name 👋',
+      style: style,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+    );
   }
 }

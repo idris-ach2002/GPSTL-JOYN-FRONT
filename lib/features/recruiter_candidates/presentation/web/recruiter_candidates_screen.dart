@@ -654,10 +654,11 @@ class _WebCandidateStageState extends State<_WebCandidateStage> {
                                       (_cardHeights[item.id] == null ||
                                           (_cardHeights[item.id]! - size.height)
                                                   .abs() >
-                                              .5))
+                                              .5)) {
                                     setState(
                                       () => _cardHeights[item.id] = size.height,
                                     );
+                                  }
                                 },
                                 child: _StageCandidateCard(
                                   candidate: item,
@@ -1015,12 +1016,16 @@ class _StageMeta extends StatelessWidget {
         color: StudioColors.text(context, const Color(0xFF6C8093)),
       ),
       const SizedBox(width: 4),
-      Text(
-        text,
-        style: TextStyle(
-          color: StudioColors.text(context, Color(0xFF6C8093)),
-          fontSize: 10.5,
-          fontWeight: FontWeight.w600,
+      Flexible(
+        child: Text(
+          text,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: StudioColors.text(context, Color(0xFF6C8093)),
+            fontSize: 10.5,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     ],

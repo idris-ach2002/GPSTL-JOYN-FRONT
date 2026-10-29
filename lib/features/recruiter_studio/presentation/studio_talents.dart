@@ -57,6 +57,7 @@ class CandidateStudioPanel extends StatelessWidget {
                   'Notes privées, prochaines étapes et comparaison structurée.',
             ),
             DropdownButtonFormField<String>(
+              isExpanded: true,
               key: ValueKey('${candidate.id}-${stage?['stage']}'),
               initialValue: '${stage?['stage'] ?? 'none'}',
               decoration: const InputDecoration(

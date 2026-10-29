@@ -1,3 +1,4 @@
+import '../../recruiter_studio/presentation/studio_components.dart';
 import '../../recruiter_studio/presentation/studio_controller.dart';
 import '../../recruiter_studio/presentation/studio_profile.dart';
 import '../../recruiter_studio/presentation/studio_settings.dart';
@@ -149,6 +150,7 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
                   ),
                 ),
               ),
+            const StudioLoadNotice(showSaving: false),
             if (controller.busy) const LinearProgressIndicator(minHeight: 2),
             if (controller.error != null)
               MaterialBanner(

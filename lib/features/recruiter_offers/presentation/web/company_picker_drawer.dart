@@ -509,6 +509,7 @@ class _CompanyPickerDrawerState extends State<_CompanyPickerDrawer> {
       ),
       const SizedBox(height: 7),
       DropdownButtonFormField<String>(
+        isExpanded: true,
         initialValue: value,
         items: values
             .map((item) => DropdownMenuItem(value: item, child: Text(item)))

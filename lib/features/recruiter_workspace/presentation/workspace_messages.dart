@@ -93,6 +93,7 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
     _request++;
     _timer?.cancel();
     _draftTimer?.cancel();
+    _persistDraft();
     WidgetsBinding.instance.removeObserver(this);
     _text.dispose();
     _scroll.dispose();
@@ -101,6 +102,8 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
 
   Future<void> _open(Map<String, dynamic> conversation) async {
     if (_sending) return;
+    _draftTimer?.cancel();
+    _persistDraft();
     if (_selected != null) _drafts['${_selected!['id']}'] = _text.text;
     setState(() {
       _selected = conversation;
@@ -452,6 +455,7 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
                                     id,
                                   );
                                 case 'archive':
+                                  _persistDraft();
                                   final ok = await studio.toggle(
                                     'archivedConversations',
                                     id,
