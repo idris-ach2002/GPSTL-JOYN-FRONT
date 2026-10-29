@@ -123,6 +123,7 @@ abstract final class RecruiterTheme {
           : const Color(0xFFF2F5F9),
       visualDensity: compact ? VisualDensity.compact : VisualDensity.standard,
       textTheme: AppTheme.light.textTheme.apply(
+        fontFamily: 'Roboto',
         bodyColor: scheme.onSurface,
         displayColor: scheme.onSurface,
       ),
@@ -158,6 +159,36 @@ abstract final class RecruiterTheme {
         ),
         labelStyle: TextStyle(color: scheme.onSurfaceVariant),
       ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          minimumSize: const Size(48, 48),
+          textStyle: const TextStyle(
+            fontFamily: 'InstrumentSans',
+            fontWeight: FontWeight.w700,
+          ),
+          foregroundColor: scheme.onPrimary,
+          backgroundColor: scheme.primary,
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size(48, 48),
+          textStyle: const TextStyle(
+            fontFamily: 'InstrumentSans',
+            fontWeight: FontWeight.w600,
+          ),
+          foregroundColor: scheme.onSurface,
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          textStyle: const TextStyle(
+            fontFamily: 'InstrumentSans',
+            fontWeight: FontWeight.w600,
+          ),
+          foregroundColor: scheme.primary,
+        ),
+      ),
       dividerColor: scheme.outlineVariant,
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: scheme.surface,
@@ -166,7 +197,18 @@ abstract final class RecruiterTheme {
       chipTheme: AppTheme.light.chipTheme.copyWith(
         backgroundColor: scheme.surface,
         selectedColor: accent.withValues(alpha: .18),
-        labelStyle: TextStyle(color: scheme.onSurface),
+        secondarySelectedColor: accent.withValues(alpha: .18),
+        secondaryLabelStyle: TextStyle(
+          fontFamily: 'Roboto',
+          fontSize: 12,
+          color: scheme.onSurface,
+        ),
+        checkmarkColor: scheme.onSurface,
+        labelStyle: TextStyle(
+          fontFamily: 'Roboto',
+          fontSize: 12,
+          color: scheme.onSurface,
+        ),
       ),
       segmentedButtonTheme: SegmentedButtonThemeData(
         style: ButtonStyle(

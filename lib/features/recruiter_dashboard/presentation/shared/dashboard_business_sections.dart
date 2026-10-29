@@ -1,3 +1,5 @@
+import '../../../recruiter_studio/presentation/studio_components.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../domain/recruiter_dashboard_models.dart';
@@ -97,10 +99,10 @@ class _OfferCard extends StatelessWidget {
     final performance = _performanceFor(offer, matchRate);
 
     return Material(
-      color: Colors.white,
+      color: StudioColors.background(context, Colors.white),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
-        side: const BorderSide(color: dashboardBorder),
+        side: BorderSide(color: StudioColors.border(context, dashboardBorder)),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -195,8 +197,8 @@ class _OfferWideLayout extends StatelessWidget {
               children: [
                 Text(
                   offer.title,
-                  style: const TextStyle(
-                    color: dashboardNavy,
+                  style: TextStyle(
+                    color: StudioColors.text(context, dashboardNavy),
                     fontSize: 12.5,
                     fontWeight: FontWeight.w900,
                     letterSpacing: -.15,
@@ -209,15 +211,18 @@ class _OfferWideLayout extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               '${offer.location} · ${offer.contract}',
-              style: const TextStyle(color: dashboardMuted, fontSize: 9.5),
+              style: TextStyle(
+                color: StudioColors.text(context, dashboardMuted),
+                fontSize: 9.5,
+              ),
             ),
             const SizedBox(height: 5),
             Text(
               '“${offer.tagline ?? 'Concentrez-vous sur les profils les plus pertinents.'}”',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: Color(0xFF486277),
+              style: TextStyle(
+                color: StudioColors.text(context, Color(0xFF486277)),
                 fontSize: 9.5,
                 height: 1.25,
                 fontStyle: FontStyle.italic,
@@ -273,7 +278,10 @@ class _OfferWideLayout extends StatelessWidget {
         children: [
           Text(
             offer.lastActivity ?? 'activité récente',
-            style: const TextStyle(color: dashboardMuted, fontSize: 8.5),
+            style: TextStyle(
+              color: StudioColors.text(context, dashboardMuted),
+              fontSize: 8.5,
+            ),
           ),
           const SizedBox(height: 7),
           OutlinedButton.icon(
@@ -317,8 +325,8 @@ class _OfferCompactLayout extends StatelessWidget {
               children: [
                 Text(
                   offer.title,
-                  style: const TextStyle(
-                    color: dashboardNavy,
+                  style: TextStyle(
+                    color: StudioColors.text(context, dashboardNavy),
                     fontSize: 12.5,
                     fontWeight: FontWeight.w900,
                   ),
@@ -326,7 +334,10 @@ class _OfferCompactLayout extends StatelessWidget {
                 const SizedBox(height: 3),
                 Text(
                   '${offer.location} · ${offer.contract}',
-                  style: const TextStyle(color: dashboardMuted, fontSize: 9.5),
+                  style: TextStyle(
+                    color: StudioColors.text(context, dashboardMuted),
+                    fontSize: 9.5,
+                  ),
                 ),
               ],
             ),
@@ -356,8 +367,8 @@ class _OfferCompactLayout extends StatelessWidget {
         '“${offer.tagline ?? 'Concentrez-vous sur les profils les plus pertinents.'}”',
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
-        style: const TextStyle(
-          color: Color(0xFF486277),
+        style: TextStyle(
+          color: StudioColors.text(context, Color(0xFF486277)),
           fontSize: 9.5,
           height: 1.3,
           fontStyle: FontStyle.italic,
@@ -407,17 +418,20 @@ class _OfferAvatar extends StatelessWidget {
       height: compact ? 38 : 42,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF0A4F9E), Color(0xFF2676E8)],
+        gradient: StudioColors.gradient(
+          context,
+          const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF0A4F9E), Color(0xFF2676E8)],
+          ),
         ),
         borderRadius: BorderRadius.circular(11),
       ),
       child: Text(
         initial.toUpperCase(),
         style: TextStyle(
-          color: Colors.white,
+          color: StudioColors.text(context, Colors.white),
           fontSize: compact ? 15 : 17,
           fontWeight: FontWeight.w900,
         ),
@@ -438,13 +452,19 @@ class _OfferMetric extends StatelessWidget {
     children: [
       Text(
         value,
-        style: const TextStyle(
-          color: dashboardNavy,
+        style: TextStyle(
+          color: StudioColors.text(context, dashboardNavy),
           fontSize: 12.5,
           fontWeight: FontWeight.w900,
         ),
       ),
-      Text(label, style: const TextStyle(color: dashboardMuted, fontSize: 8.5)),
+      Text(
+        label,
+        style: TextStyle(
+          color: StudioColors.text(context, dashboardMuted),
+          fontSize: 8.5,
+        ),
+      ),
     ],
   );
 }
@@ -467,13 +487,16 @@ class _RateBar extends StatelessWidget {
               child: Text(
                 label,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: dashboardMuted, fontSize: 8),
+                style: TextStyle(
+                  color: StudioColors.text(context, dashboardMuted),
+                  fontSize: 8,
+                ),
               ),
             ),
             Text(
               '${safe.round()}%',
-              style: const TextStyle(
-                color: dashboardNavy,
+              style: TextStyle(
+                color: StudioColors.text(context, dashboardNavy),
                 fontSize: 8,
                 fontWeight: FontWeight.w800,
               ),
@@ -486,7 +509,10 @@ class _RateBar extends StatelessWidget {
           child: LinearProgressIndicator(
             minHeight: 4,
             value: safe / 100,
-            backgroundColor: const Color(0xFFEAF0F5),
+            backgroundColor: StudioColors.background(
+              context,
+              const Color(0xFFEAF0F5),
+            ),
             valueColor: const AlwaysStoppedAnimation<Color>(dashboardBlue),
           ),
         ),
@@ -503,13 +529,13 @@ class _StatusChip extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     decoration: BoxDecoration(
-      color: const Color(0xFFEAF7EF),
+      color: StudioColors.background(context, const Color(0xFFEAF7EF)),
       borderRadius: BorderRadius.circular(999),
     ),
     child: Text(
       label,
-      style: const TextStyle(
-        color: Color(0xFF198754),
+      style: TextStyle(
+        color: StudioColors.text(context, Color(0xFF198754)),
         fontSize: 8,
         fontWeight: FontWeight.w800,
       ),
@@ -539,18 +565,22 @@ class _PerformanceChip extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
     decoration: BoxDecoration(
-      color: value.background,
+      color: StudioColors.background(context, value.background),
       borderRadius: BorderRadius.circular(999),
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(value.icon, size: 11, color: value.foreground),
+        Icon(
+          value.icon,
+          size: 11,
+          color: StudioColors.text(context, value.foreground),
+        ),
         const SizedBox(width: 4),
         Text(
           value.label,
           style: TextStyle(
-            color: value.foreground,
+            color: StudioColors.text(context, value.foreground),
             fontSize: 8,
             fontWeight: FontWeight.w800,
           ),
@@ -569,18 +599,18 @@ class _MiniInfoChip extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
     decoration: BoxDecoration(
-      color: const Color(0xFFF3F7FA),
+      color: StudioColors.background(context, const Color(0xFFF3F7FA)),
       borderRadius: BorderRadius.circular(999),
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 10, color: dashboardMuted),
+        Icon(icon, size: 10, color: StudioColors.text(context, dashboardMuted)),
         const SizedBox(width: 4),
         Text(
           label,
-          style: const TextStyle(
-            color: dashboardMuted,
+          style: TextStyle(
+            color: StudioColors.text(context, dashboardMuted),
             fontSize: 8,
             fontWeight: FontWeight.w700,
           ),
@@ -663,91 +693,91 @@ class _ActivityItem extends StatelessWidget {
   const _ActivityItem({required this.activity, this.onAction});
   final DashboardActivity activity;
   final VoidCallback? onAction;
-
   @override
   Widget build(BuildContext context) {
     final style = _activityStyle(activity.kind);
+    final colors = Theme.of(context).colorScheme;
     return Material(
-      color: style.background,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(13),
-        side: const BorderSide(color: dashboardBorder),
-      ),
+      color: StudioColors.background(context, style.background),
+      borderRadius: BorderRadius.circular(14),
       child: InkWell(
         onTap: onAction,
-        borderRadius: BorderRadius.circular(13),
+        borderRadius: BorderRadius.circular(14),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          padding: const EdgeInsets.all(14),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: style.iconBackground,
-                  borderRadius: BorderRadius.circular(10),
+                  color: StudioColors.background(context, style.iconBackground),
+                  borderRadius: BorderRadius.circular(11),
                 ),
-                child: Icon(style.icon, color: style.foreground, size: 17),
+                child: Icon(
+                  style.icon,
+                  color: StudioColors.text(context, style.foreground),
+                  size: 18,
+                ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            activity.title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: dashboardNavy,
-                              fontSize: 10.5,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        _ActivityBadge(style: style),
-                      ],
-                    ),
-                    const SizedBox(height: 3),
                     Text(
-                      activity.subtitle,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: dashboardMuted,
-                        fontSize: 9.2,
-                        height: 1.25,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    activity.whenLabel,
-                    style: const TextStyle(
-                      color: dashboardMuted,
-                      fontSize: 8.3,
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  if (onAction != null)
-                    Text(
-                      '${style.action} →',
-                      style: const TextStyle(
-                        color: dashboardBlue,
-                        fontSize: 8.7,
+                      activity.title,
+                      style: TextStyle(
+                        color: StudioColors.text(context, colors.onSurface),
+                        fontSize: 14,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                ],
+                    const SizedBox(height: 5),
+                    Text(
+                      activity.subtitle,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: StudioColors.text(
+                          context,
+                          colors.onSurfaceVariant,
+                        ),
+                        fontSize: 12,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 9),
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 6,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        _ActivityBadge(style: style),
+                        Text(
+                          activity.whenLabel,
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: StudioColors.text(
+                              context,
+                              colors.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                        if (onAction != null)
+                          Text(
+                            '${style.action} →',
+                            style: TextStyle(
+                              color: StudioColors.text(context, colors.primary),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -833,13 +863,13 @@ class _ActivityBadge extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
     decoration: BoxDecoration(
-      color: style.badgeBackground,
+      color: StudioColors.background(context, style.badgeBackground),
       borderRadius: BorderRadius.circular(999),
     ),
     child: Text(
       style.label,
       style: TextStyle(
-        color: style.foreground,
+        color: StudioColors.text(context, style.foreground),
         fontSize: 7.5,
         fontWeight: FontWeight.w800,
       ),
@@ -873,8 +903,8 @@ class _PaginationFooter extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Text(
           'Page ${page + 1} / $pageCount',
-          style: const TextStyle(
-            color: dashboardMuted,
+          style: TextStyle(
+            color: StudioColors.text(context, dashboardMuted),
             fontSize: 9.5,
             fontWeight: FontWeight.w700,
           ),
@@ -905,12 +935,12 @@ class _EmptyState extends StatelessWidget {
     padding: const EdgeInsets.symmetric(vertical: 24),
     child: Column(
       children: [
-        Icon(icon, size: 28, color: dashboardMuted),
+        Icon(icon, size: 28, color: StudioColors.text(context, dashboardMuted)),
         const SizedBox(height: 8),
         Text(
           title,
-          style: const TextStyle(
-            color: dashboardNavy,
+          style: TextStyle(
+            color: StudioColors.text(context, dashboardNavy),
             fontSize: 11,
             fontWeight: FontWeight.w800,
           ),
@@ -919,7 +949,10 @@ class _EmptyState extends StatelessWidget {
         Text(
           subtitle,
           textAlign: TextAlign.center,
-          style: const TextStyle(color: dashboardMuted, fontSize: 9.5),
+          style: TextStyle(
+            color: StudioColors.text(context, dashboardMuted),
+            fontSize: 9.5,
+          ),
         ),
       ],
     ),

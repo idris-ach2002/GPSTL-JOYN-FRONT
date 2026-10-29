@@ -1,3 +1,6 @@
+import '../../../recruiter_studio/presentation/studio_search.dart';
+import '../../../recruiter_studio/presentation/studio_components.dart';
+
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/routing/app_routes.dart';
@@ -73,7 +76,7 @@ class _DashboardPeriodPill extends StatelessWidget {
         : _border;
 
     return Material(
-      color: Colors.transparent,
+      color: StudioColors.background(context, Colors.transparent),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(999),
@@ -83,7 +86,7 @@ class _DashboardPeriodPill extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: background,
+            color: StudioColors.background(context, background),
             borderRadius: BorderRadius.circular(999),
             border: Border.all(color: border),
             boxShadow: selected && onDark
@@ -100,7 +103,7 @@ class _DashboardPeriodPill extends StatelessWidget {
             label,
             maxLines: 1,
             style: TextStyle(
-              color: foreground,
+              color: StudioColors.text(context, foreground),
               fontSize: 12,
               fontWeight: FontWeight.w800,
             ),
@@ -134,11 +137,11 @@ class DashboardCard extends StatelessWidget {
       ],
     ),
     child: Material(
-      color: _surface,
+      color: StudioColors.background(context, _surface),
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
-        side: const BorderSide(color: _border),
+        side: BorderSide(color: StudioColors.border(context, _border)),
       ),
       child: Padding(padding: padding, child: child),
     ),
@@ -167,8 +170,8 @@ class DashboardSectionTitle extends StatelessWidget {
           children: [
             Text(
               title,
-              style: const TextStyle(
-                color: _navy,
+              style: TextStyle(
+                color: StudioColors.text(context, _navy),
                 fontSize: 17,
                 fontWeight: FontWeight.w900,
                 letterSpacing: -.25,
@@ -178,8 +181,8 @@ class DashboardSectionTitle extends StatelessWidget {
               const SizedBox(height: 3),
               Text(
                 subtitle!,
-                style: const TextStyle(
-                  color: _muted,
+                style: TextStyle(
+                  color: StudioColors.text(context, _muted),
                   fontSize: 11.5,
                   height: 1.35,
                 ),
@@ -217,61 +220,86 @@ class DashboardKpiCard extends StatelessWidget {
 
     return DashboardCard(
       padding: const EdgeInsets.all(16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: .10),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: accent, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  kpi.label,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: _muted,
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w700,
-                  ),
+      child: LayoutBuilder(
+        builder: (context, box) {
+          final compact = box.maxWidth < 180;
+          final metric = Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                kpi.label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: StudioColors.text(context, _muted),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
                 ),
-                const SizedBox(height: 5),
-                Text(
+              ),
+              const SizedBox(height: 8),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
                   kpi.value,
-                  style: const TextStyle(
-                    color: _navy,
-                    fontSize: 25,
+                  style: TextStyle(
+                    color: StudioColors.text(context, _navy),
+                    fontSize: 29,
                     fontWeight: FontWeight.w900,
                     letterSpacing: -.7,
                   ),
                 ),
-                if (kpi.deltaPercent != null) ...[
-                  const SizedBox(height: 5),
-                  Text(
-                    '${positive ? '↑' : '↓'} ${kpi.deltaPercent!.abs().toStringAsFixed(kpi.deltaPercent!.abs() % 1 == 0 ? 0 : 1)}%${kpi.deltaLabel == null ? '' : '  ${kpi.deltaLabel}'}',
+              ),
+              if (kpi.deltaPercent != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    '${positive ? '↑' : '↓'} ${kpi.deltaPercent!.abs().toStringAsFixed(1)} %${kpi.deltaLabel == null ? '' : ' · ${kpi.deltaLabel}'}',
                     maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: positive
-                          ? const Color(0xFF198754)
-                          : const Color(0xFF1A7B67),
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w700,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? const Color(0xFF7FD2B7)
+                          : const Color(0xFF198754),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                ],
-              ],
+                ),
+            ],
+          );
+          final mark = Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: StudioColors.background(
+                context,
+                accent.withValues(alpha: .12),
+              ),
+              borderRadius: BorderRadius.circular(12),
             ),
-          ),
-        ],
+            child: Icon(
+              icon,
+              color: StudioColors.text(context, accent),
+              size: 20,
+            ),
+          );
+          return compact
+              ? Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [mark, const SizedBox(height: 12), metric],
+                )
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    mark,
+                    const SizedBox(width: 14),
+                    Expanded(child: metric),
+                  ],
+                );
+        },
       ),
     );
   }
@@ -461,12 +489,15 @@ class OfferPerformanceList extends StatelessWidget {
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: _blue.withValues(alpha: .08),
+                        color: StudioColors.background(
+                          context,
+                          _blue.withValues(alpha: .08),
+                        ),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.work_outline_rounded,
-                        color: _blue,
+                        color: StudioColors.text(context, _blue),
                         size: 18,
                       ),
                     ),
@@ -479,8 +510,8 @@ class OfferPerformanceList extends StatelessWidget {
                             offers[i].title,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: _navy,
+                            style: TextStyle(
+                              color: StudioColors.text(context, _navy),
                               fontSize: 11.5,
                               fontWeight: FontWeight.w800,
                             ),
@@ -490,8 +521,8 @@ class OfferPerformanceList extends StatelessWidget {
                             '${offers[i].location} · ${offers[i].contract}',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: _muted,
+                            style: TextStyle(
+                              color: StudioColors.text(context, _muted),
                               fontSize: 9.5,
                             ),
                           ),
@@ -519,10 +550,10 @@ class OfferPerformanceList extends StatelessWidget {
                         label: 'candid.',
                       ),
                     const SizedBox(width: 4),
-                    const Icon(
+                    Icon(
                       Icons.chevron_right_rounded,
                       size: 18,
-                      color: _muted,
+                      color: StudioColors.text(context, _muted),
                     ),
                   ],
                 ),
@@ -548,13 +579,19 @@ class _CompactOfferMetric extends StatelessWidget {
     children: [
       Text(
         value,
-        style: const TextStyle(
-          color: _navy,
+        style: TextStyle(
+          color: StudioColors.text(context, _navy),
           fontSize: 11,
           fontWeight: FontWeight.w900,
         ),
       ),
-      Text(label, style: const TextStyle(color: _muted, fontSize: 8)),
+      Text(
+        label,
+        style: TextStyle(
+          color: StudioColors.text(context, _muted),
+          fontSize: 8,
+        ),
+      ),
     ],
   );
 }
@@ -572,13 +609,19 @@ class _MiniMetric extends StatelessWidget {
       children: [
         Text(
           value,
-          style: const TextStyle(
-            color: _navy,
+          style: TextStyle(
+            color: StudioColors.text(context, _navy),
             fontSize: 11,
             fontWeight: FontWeight.w900,
           ),
         ),
-        Text(label, style: const TextStyle(color: _muted, fontSize: 8.5)),
+        Text(
+          label,
+          style: TextStyle(
+            color: StudioColors.text(context, _muted),
+            fontSize: 8.5,
+          ),
+        ),
       ],
     ),
   );
@@ -593,55 +636,46 @@ class RecruiterMobileHeaderBar extends StatelessWidget {
       Container(
         width: 34,
         height: 34,
-        decoration: const BoxDecoration(
-          color: Color(0xFFFF6538),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: StudioColors.background(context, Color(0xFFFF6538)),
           shape: BoxShape.circle,
         ),
-        alignment: Alignment.center,
-        child: const Text(
+        child: Text(
           'J',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
-        ),
-      ),
-      const SizedBox(width: 8),
-      const Text(
-        'joyn',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 22,
-          fontWeight: FontWeight.w900,
-          letterSpacing: -.8,
-        ),
-      ),
-      const SizedBox(width: 7),
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: .16),
-          borderRadius: BorderRadius.circular(5),
-        ),
-        child: const Text(
-          'Entreprise',
           style: TextStyle(
-            color: Colors.white,
-            fontSize: 8,
-            fontWeight: FontWeight.w700,
+            color: StudioColors.text(context, Colors.white),
+            fontWeight: FontWeight.w900,
           ),
         ),
       ),
-      const Spacer(),
-      _MobileHeaderIcon(icon: Icons.notifications_none_rounded),
+      const SizedBox(width: 8),
+      Expanded(
+        child: Text(
+          'joyn',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: StudioColors.text(context, Colors.white),
+            fontSize: 22,
+            fontWeight: FontWeight.w900,
+            letterSpacing: -.8,
+          ),
+        ),
+      ),
+      const _MobileHeaderIcon(icon: Icons.notifications_none_rounded),
       const SizedBox(width: 7),
-      _MobileHeaderIcon(icon: Icons.settings_outlined),
+      const _MobileHeaderIcon(icon: Icons.search_rounded),
       const SizedBox(width: 7),
       GestureDetector(
         onTap: () => context.go(AppRoutes.recruiterProfile),
-        child: const CircleAvatar(
+        child: CircleAvatar(
           radius: 17,
-          backgroundColor: Colors.white,
-          child: Text(
-            'E',
-            style: TextStyle(color: _navy, fontWeight: FontWeight.w900),
+          backgroundColor: StudioColors.background(context, Colors.white),
+          child: Icon(
+            Icons.person_outline,
+            color: StudioColors.text(context, Color(0xFF001E3B)),
+            size: 20,
           ),
         ),
       ),
@@ -662,13 +696,27 @@ class _MobileHeaderIcon extends StatelessWidget {
     ),
     child: IconButton(
       padding: EdgeInsets.zero,
-      tooltip: icon == Icons.settings_outlined ? 'Paramètres' : 'Notifications',
-      onPressed: () => context.go(
-        icon == Icons.settings_outlined
-            ? AppRoutes.recruiterSettings
-            : AppRoutes.recruiterNotifications,
+      tooltip: icon == Icons.search_rounded
+          ? 'Rechercher dans le studio'
+          : icon == Icons.settings_outlined
+          ? 'Paramètres'
+          : 'Notifications',
+      onPressed: () {
+        if (icon == Icons.search_rounded) {
+          studioOpenSearch(context);
+        } else {
+          context.go(
+            icon == Icons.settings_outlined
+                ? AppRoutes.recruiterSettings
+                : AppRoutes.recruiterNotifications,
+          );
+        }
+      },
+      icon: Icon(
+        icon,
+        color: StudioColors.text(context, Colors.white),
+        size: 18,
       ),
-      icon: Icon(icon, color: Colors.white, size: 18),
     ),
   );
 }

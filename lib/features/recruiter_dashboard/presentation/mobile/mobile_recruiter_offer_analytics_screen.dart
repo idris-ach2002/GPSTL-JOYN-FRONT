@@ -1,3 +1,5 @@
+import '../../../recruiter_studio/presentation/studio_components.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -20,7 +22,10 @@ class MobileRecruiterOfferAnalyticsScreen extends StatelessWidget {
     final data = controller.offerAnalytics;
     return MobileAppSurface(
       systemUiOverlayStyle: SystemUiOverlayStyle.light,
-      backgroundColor: const Color(0xFFF5F7F8),
+      backgroundColor: StudioColors.background(
+        context,
+        const Color(0xFFF5F7F8),
+      ),
       child: Column(
         children: [
           Expanded(
@@ -46,7 +51,10 @@ class MobileRecruiterOfferAnalyticsScreen extends StatelessWidget {
                                 onPressed: () =>
                                     context.go(AppRoutes.recruiterJobs),
                                 style: TextButton.styleFrom(
-                                  foregroundColor: Colors.white,
+                                  foregroundColor: StudioColors.text(
+                                    context,
+                                    Colors.white,
+                                  ),
                                   padding: EdgeInsets.zero,
                                 ),
                                 icon: const Icon(
@@ -55,10 +63,13 @@ class MobileRecruiterOfferAnalyticsScreen extends StatelessWidget {
                                 ),
                                 label: const Text('Retour aux offres'),
                               ),
-                              const Text(
+                              Text(
                                 'Performance de l’offre',
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: StudioColors.text(
+                                    context,
+                                    Colors.white,
+                                  ),
                                   fontSize: 26,
                                   fontWeight: FontWeight.w900,
                                   letterSpacing: -.6,
@@ -104,8 +115,11 @@ class MobileRecruiterOfferAnalyticsScreen extends StatelessWidget {
                                   children: [
                                     Text(
                                       data.offer.title,
-                                      style: const TextStyle(
-                                        color: dashboardNavy,
+                                      style: TextStyle(
+                                        color: StudioColors.text(
+                                          context,
+                                          dashboardNavy,
+                                        ),
                                         fontSize: 17,
                                         fontWeight: FontWeight.w900,
                                       ),
@@ -113,8 +127,11 @@ class MobileRecruiterOfferAnalyticsScreen extends StatelessWidget {
                                     const SizedBox(height: 4),
                                     Text(
                                       '${data.offer.location} · ${data.offer.contract} · ${data.offer.status}',
-                                      style: const TextStyle(
-                                        color: dashboardMuted,
+                                      style: TextStyle(
+                                        color: StudioColors.text(
+                                          context,
+                                          dashboardMuted,
+                                        ),
                                         fontSize: 10,
                                       ),
                                     ),

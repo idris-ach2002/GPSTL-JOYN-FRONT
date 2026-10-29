@@ -1,3 +1,5 @@
+import '../../../recruiter_studio/presentation/studio_components.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -31,7 +33,10 @@ class _MobileRecruiterInsightsScreenState
     final data = controller.analytics;
     return MobileAppSurface(
       systemUiOverlayStyle: SystemUiOverlayStyle.light,
-      backgroundColor: const Color(0xFFF5F7F8),
+      backgroundColor: StudioColors.background(
+        context,
+        const Color(0xFFF5F7F8),
+      ),
       child: Column(
         children: [
           Expanded(
@@ -53,20 +58,26 @@ class _MobileRecruiterInsightsScreenState
                             children: [
                               const RecruiterMobileHeaderBar(),
                               const Spacer(),
-                              const Text(
+                              Text(
                                 'Insights Studio',
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: StudioColors.text(
+                                    context,
+                                    Colors.white,
+                                  ),
                                   fontSize: 28,
                                   fontWeight: FontWeight.w900,
                                   letterSpacing: -.7,
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              const Text(
+                              Text(
                                 'Analyse avancée et coordonnées précises.',
                                 style: TextStyle(
-                                  color: Color(0xFFE5EEF6),
+                                  color: StudioColors.text(
+                                    context,
+                                    Color(0xFFE5EEF6),
+                                  ),
                                   fontSize: 12.5,
                                 ),
                               ),
