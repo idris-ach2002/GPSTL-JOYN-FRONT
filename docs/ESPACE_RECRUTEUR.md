@@ -123,3 +123,27 @@ le serveur doit fournir la liste exploitable, ou un adaptateur de pagination doi
 8. Sur émulateur/appareil, vérifier le clavier, le bouton retour et les zones système.
 
 Les contrôles automatisés et leur résultat exact figurent dans `VALIDATION_RECRUTEUR.md`.
+
+## Appliquer le ZIP en conservant les commits
+
+Après extraction de l’archive, utiliser `appliquer-joyn.sh` à sa racine :
+
+```bash
+bash /chemin/JOYN-espace-recruteur/appliquer-joyn.sh /chemin/GPSTL-JOYN-FRONT
+```
+
+L’importeur utilise le bundle Git pour recréer/avancer `feat/espace-recruteur` avec tous les commits.
+Il vérifie l’absence de modifications locales et refuse d’écraser une branche divergente.
+Il ne modifie pas ta configuration d’auteur Git et ne pousse rien sur GitHub.
+La synchronisation correspond à l’état d’origin/main récupéré lors de la préparation ; si main
+évolue ensuite, le script peut demander une intégration de ses nouveaux commits.
+
+Pour une copie de fichiers seule, la commande est `rsync -av` (pas `git sync -av`) :
+
+```bash
+rsync -av --exclude='.git/' /chemin/JOYN-espace-recruteur/GPSTL-JOYN-FRONT/ /chemin/ton-depot/
+```
+
+Cette seconde méthode copie le code mais ne transporte pas les commits. Pour tester précisément
+la livraison avec son historique, utiliser l’importeur Git. Ne jamais copier un dossier `.git`
+par-dessus celui du projet existant.
