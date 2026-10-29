@@ -249,7 +249,14 @@ class _JoynAppState extends State<JoynApp> {
                     control: true,
                   ): () {
                     if (_authController.user?.role == UserRole.company) {
-                      studioOpenSearch(context, router: _router);
+                      final searchContext = _router
+                          .routerDelegate
+                          .navigatorKey
+                          .currentState
+                          ?.overlay
+                          ?.context;
+                      if (searchContext != null)
+                        studioOpenSearch(searchContext, router: _router);
                     }
                   },
                   const SingleActivator(
@@ -257,7 +264,14 @@ class _JoynAppState extends State<JoynApp> {
                     meta: true,
                   ): () {
                     if (_authController.user?.role == UserRole.company) {
-                      studioOpenSearch(context, router: _router);
+                      final searchContext = _router
+                          .routerDelegate
+                          .navigatorKey
+                          .currentState
+                          ?.overlay
+                          ?.context;
+                      if (searchContext != null)
+                        studioOpenSearch(searchContext, router: _router);
                     }
                   },
                 },

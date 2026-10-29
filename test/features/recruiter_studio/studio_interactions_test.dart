@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -42,6 +43,37 @@ Future<({GoRouter router, StudioController studio, AuthController auth})> setup(
 }
 
 void main() {
+  testWidgets('dashboard : masquer un module puis restaurer la vue', (
+    tester,
+  ) async {
+    final app = await setup(tester, '/recruiter/dashboard');
+    await tester.tap(find.byTooltip('Personnaliser le dashboard'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Mes prochaines actions'));
+    await tester.pumpAndSettle();
+    expect(find.text('Votre prochaine bonne décision.'), findsNothing);
+    await tester.tap(find.text('Tout afficher'));
+    await tester.pumpAndSettle();
+    expect(find.text('Votre prochaine bonne décision.'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+    app.auth.dispose();
+  });
+
+  testWidgets('raccourci Cmd+K : ouvrir la recherche depuis le navigateur', (
+    tester,
+  ) async {
+    final app = await setup(tester, '/recruiter/profile');
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.metaLeft);
+    await tester.sendKeyEvent(LogicalKeyboardKey.keyK);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.metaLeft);
+    await tester.pumpAndSettle();
+    expect(find.text('Une page, un talent, une action…'), findsOneWidget);
+    await tester.tap(find.text('Fermer').last);
+    await tester.pumpAndSettle();
+    await tester.pumpWidget(const SizedBox());
+    app.auth.dispose();
+  });
+
   testWidgets(
     'paramètres : éditer la signature puis créer une réponse enregistrée',
     (tester) async {
