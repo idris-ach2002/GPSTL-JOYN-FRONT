@@ -1,3 +1,4 @@
+import 'package:joyn_front/features/recruiter_studio/presentation/studio_controller.dart';
 import 'package:joyn_front/app/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,6 +27,8 @@ void main() {
         await tester.runAsync(
           () => auth.signIn(email: 'recruteur@joyn.fr', password: 'Joyn2026'),
         );
+        final studio = StudioController();
+        await studio.bind('demo-company');
         final c = WorkspaceController(MockRecruiterWorkspaceRepository());
         final router = GoRouter(
           routes: [
@@ -38,6 +41,7 @@ void main() {
         await tester.pumpWidget(
           MultiProvider(
             providers: [
+              ChangeNotifierProvider.value(value: studio),
               ChangeNotifierProvider.value(value: c),
               ChangeNotifierProvider.value(value: auth),
             ],
@@ -74,6 +78,7 @@ void main() {
         router.dispose();
         c.dispose();
         auth.dispose();
+        studio.dispose();
       });
     }
   }
