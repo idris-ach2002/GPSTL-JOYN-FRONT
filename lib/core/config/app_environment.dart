@@ -41,6 +41,15 @@ class AppEnvironment {
     AppDataMode.auto => apiBaseUrl.isNotEmpty,
   };
 
+  bool _isHttpUrl(String value) {
+    final uri = Uri.tryParse(value);
+    return uri != null &&
+        ['http', 'https'].contains(uri.scheme) &&
+        uri.host.isNotEmpty &&
+        !uri.hasQuery &&
+        !uri.hasFragment;
+  }
+
   void validate() {
     if (useApi && apiBaseUrl.isEmpty) {
       throw StateError(
@@ -48,7 +57,7 @@ class AppEnvironment {
         'Utilisez JOYN_DATA_MODE=mock pour le mode simulé.',
       );
     }
-    if (apiBaseUrl.isNotEmpty && Uri.tryParse(apiBaseUrl)?.hasScheme != true) {
+    if (apiBaseUrl.isNotEmpty && !_isHttpUrl(apiBaseUrl)) {
       throw StateError('JOYN_API_BASE_URL doit être une URL absolue.');
     }
   }

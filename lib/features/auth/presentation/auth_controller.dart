@@ -67,10 +67,17 @@ class AuthController extends ChangeNotifier {
     return _run(() => _repository.sendPasswordResetEmail(email));
   }
 
-  Future<void> signOut() async {
-    await _repository.signOut();
+  void invalidateSession() {
     _user = null;
     notifyListeners();
+  }
+
+  Future<void> signOut() async {
+    try {
+      await _repository.signOut();
+    } finally {
+      invalidateSession();
+    }
   }
 
   /// Efface l'erreur affichée (ex. en changeant d'écran).
