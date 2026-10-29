@@ -1,3 +1,6 @@
+import '../../../recruiter_studio/presentation/studio_talents.dart';
+import '../../../recruiter_studio/presentation/studio_components.dart';
+
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/routing/app_routes.dart';
@@ -26,7 +29,7 @@ class CandidateSurfaceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: StudioColors.background(context, Colors.white),
       borderRadius: BorderRadius.circular(20),
       border: Border.all(color: _border),
       boxShadow: const [
@@ -65,59 +68,69 @@ class CandidateStatsRow extends StatelessWidget {
       ('Matches', stats.matches, Icons.handshake_outlined, _green),
     ];
     return LayoutBuilder(
-      builder: (context, constraints) {
-        final compact = constraints.maxWidth < 720;
-        return GridView.count(
-          crossAxisCount: compact ? 2 : 4,
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          childAspectRatio: compact ? 1.95 : 2.35,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
+      builder: (context, box) {
+        final columns = box.maxWidth < 950 ? 2 : 4;
+        final width = (box.maxWidth - (columns - 1) * 12) / columns;
+        return Wrap(
+          spacing: 12,
+          runSpacing: 12,
           children: [
             for (final item in values)
-              CandidateSurfaceCard(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: item.$4.withValues(alpha: .10),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(item.$3, color: item.$4, size: 20),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+              SizedBox(
+                width: width,
+                child: CandidateSurfaceCard(
+                  padding: const EdgeInsets.all(18),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
                         children: [
-                          Text(
-                            '${item.$2}',
-                            style: const TextStyle(
-                              color: AppColors.navy,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 22,
+                          Container(
+                            width: 34,
+                            height: 34,
+                            decoration: BoxDecoration(
+                              color: StudioColors.background(
+                                context,
+                                item.$4.withValues(alpha: .12),
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Icon(
+                              item.$3,
+                              color: StudioColors.text(context, item.$4),
+                              size: 18,
                             ),
                           ),
-                          Text(
-                            item.$1,
-                            style: const TextStyle(
-                              color: _muted,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              '${item.$2}',
+                              style: TextStyle(
+                                color: StudioColors.text(
+                                  context,
+                                  AppColors.navy,
+                                ),
+                                fontSize: 25,
+                                fontWeight: FontWeight.w900,
+                              ),
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 12),
+                      Text(
+                        item.$1,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: StudioColors.text(context, _muted),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
           ],
@@ -151,12 +164,15 @@ class CandidateStatusTabs extends StatelessWidget {
               onSelected: (_) => onChanged(status),
               showCheckmark: false,
               labelStyle: TextStyle(
-                color: status == value ? Colors.white : AppColors.navy,
+                color: StudioColors.text(
+                  context,
+                  status == value ? Colors.white : AppColors.navy,
+                ),
                 fontWeight: FontWeight.w700,
               ),
               selectedColor: AppColors.navy,
-              backgroundColor: Colors.white,
-              side: const BorderSide(color: _border),
+              backgroundColor: StudioColors.background(context, Colors.white),
+              side: BorderSide(color: StudioColors.border(context, _border)),
               shape: const StadiumBorder(),
             ),
           ),
@@ -205,8 +221,8 @@ class CandidateDeckCard extends StatelessWidget {
                     children: [
                       Text(
                         candidate.fullName,
-                        style: const TextStyle(
-                          color: AppColors.navy,
+                        style: TextStyle(
+                          color: StudioColors.text(context, AppColors.navy),
                           fontSize: 22,
                           fontWeight: FontWeight.w900,
                           letterSpacing: -.3,
@@ -218,8 +234,8 @@ class CandidateDeckCard extends StatelessWidget {
                   const SizedBox(height: 3),
                   Text(
                     candidate.jobTitle,
-                    style: const TextStyle(
-                      color: AppColors.navy,
+                    style: TextStyle(
+                      color: StudioColors.text(context, AppColors.navy),
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                     ),
@@ -267,17 +283,17 @@ class CandidateDeckCard extends StatelessWidget {
         const SizedBox(height: 18),
         Text(
           candidate.summary,
-          style: const TextStyle(
-            color: Color(0xFF43586B),
+          style: TextStyle(
+            color: StudioColors.text(context, Color(0xFF43586B)),
             fontSize: 13,
             height: 1.5,
           ),
         ),
         const SizedBox(height: 18),
-        const Text(
+        Text(
           'Compétences clés',
           style: TextStyle(
-            color: AppColors.navy,
+            color: StudioColors.text(context, AppColors.navy),
             fontWeight: FontWeight.w800,
             fontSize: 12,
           ),
@@ -294,13 +310,13 @@ class CandidateDeckCard extends StatelessWidget {
                   vertical: 7,
                 ),
                 decoration: BoxDecoration(
-                  color: _softBlue,
+                  color: StudioColors.background(context, _softBlue),
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
                   skill,
-                  style: const TextStyle(
-                    color: AppColors.navy,
+                  style: TextStyle(
+                    color: StudioColors.text(context, AppColors.navy),
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                   ),
@@ -361,11 +377,11 @@ class CandidateMatchPanel extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Expanded(
+            Expanded(
               child: Text(
                 'Adéquation avec l’offre',
                 style: TextStyle(
-                  color: AppColors.navy,
+                  color: StudioColors.text(context, AppColors.navy),
                   fontSize: 17,
                   fontWeight: FontWeight.w900,
                 ),
@@ -380,10 +396,10 @@ class CandidateMatchPanel extends StatelessWidget {
           const SizedBox(height: 13),
         ],
         const Divider(height: 28, color: _border),
-        const Text(
+        Text(
           'Pourquoi ce profil ?',
           style: TextStyle(
-            color: AppColors.navy,
+            color: StudioColors.text(context, AppColors.navy),
             fontSize: 13,
             fontWeight: FontWeight.w900,
           ),
@@ -397,10 +413,10 @@ class CandidateMatchPanel extends StatelessWidget {
           ),
         if (candidate.warnings.isNotEmpty) ...[
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Points à vérifier',
             style: TextStyle(
-              color: AppColors.navy,
+              color: StudioColors.text(context, AppColors.navy),
               fontSize: 12,
               fontWeight: FontWeight.w800,
             ),
@@ -466,13 +482,17 @@ class EmptyCandidatesState extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 40),
         child: Column(
           children: [
-            const Icon(Icons.person_search_outlined, size: 46, color: _muted),
+            Icon(
+              Icons.person_search_outlined,
+              size: 46,
+              color: StudioColors.text(context, _muted),
+            ),
             const SizedBox(height: 12),
             Text(
               'Aucun profil dans « $label » pour le moment.',
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: AppColors.navy,
+              style: TextStyle(
+                color: StudioColors.text(context, AppColors.navy),
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -515,15 +535,17 @@ Future<void> showCandidateProfileDialog(
                     children: [
                       Text(
                         candidate.fullName,
-                        style: const TextStyle(
-                          color: AppColors.navy,
+                        style: TextStyle(
+                          color: StudioColors.text(context, AppColors.navy),
                           fontSize: 22,
                           fontWeight: FontWeight.w900,
                         ),
                       ),
                       Text(
                         candidate.jobTitle,
-                        style: const TextStyle(color: _muted),
+                        style: TextStyle(
+                          color: StudioColors.text(context, _muted),
+                        ),
                       ),
                     ],
                   ),
@@ -552,12 +574,14 @@ Future<void> showCandidateProfileDialog(
               label: const Text('Contacter ce candidat'),
             ),
             const SizedBox(height: 16),
+            CandidateStudioPanel(candidate: candidate),
+            const SizedBox(height: 16),
             CandidateMatchPanel(candidate: candidate),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'À propos',
               style: TextStyle(
-                color: AppColors.navy,
+                color: StudioColors.text(context, AppColors.navy),
                 fontSize: 15,
                 fontWeight: FontWeight.w900,
               ),
@@ -565,13 +589,16 @@ Future<void> showCandidateProfileDialog(
             const SizedBox(height: 8),
             Text(
               candidate.summary,
-              style: const TextStyle(color: Color(0xFF43586B), height: 1.5),
+              style: TextStyle(
+                color: StudioColors.text(context, Color(0xFF43586B)),
+                height: 1.5,
+              ),
             ),
             const SizedBox(height: 18),
-            const Text(
+            Text(
               'Compétences',
               style: TextStyle(
-                color: AppColors.navy,
+                color: StudioColors.text(context, AppColors.navy),
                 fontSize: 15,
                 fontWeight: FontWeight.w900,
               ),
@@ -597,9 +624,9 @@ class ReciprocalMatchDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-    icon: const Icon(
+    icon: Icon(
       Icons.celebration_rounded,
-      color: AppColors.orange,
+      color: StudioColors.text(context, AppColors.orange),
       size: 38,
     ),
     title: const Text('C’est un match 🎉', textAlign: TextAlign.center),
@@ -657,14 +684,17 @@ class _CandidateListRow extends StatelessWidget {
             children: [
               Text(
                 candidate.fullName,
-                style: const TextStyle(
-                  color: AppColors.navy,
+                style: TextStyle(
+                  color: StudioColors.text(context, AppColors.navy),
                   fontWeight: FontWeight.w800,
                 ),
               ),
               Text(
                 candidate.jobTitle,
-                style: const TextStyle(color: _muted, fontSize: 11),
+                style: TextStyle(
+                  color: StudioColors.text(context, _muted),
+                  fontSize: 11,
+                ),
               ),
             ],
           ),
@@ -685,9 +715,9 @@ class _CandidateListRow extends StatelessWidget {
         IconButton(
           onPressed: onInterest,
           tooltip: 'Intéressé',
-          icon: const Icon(
+          icon: Icon(
             Icons.favorite_border_rounded,
-            color: AppColors.orange,
+            color: StudioColors.text(context, AppColors.orange),
           ),
         ),
         IconButton(
@@ -714,7 +744,7 @@ class _CandidateAvatar extends StatelessWidget {
         : null;
     return CircleAvatar(
       radius: size / 2,
-      backgroundColor: _softBlue,
+      backgroundColor: StudioColors.background(context, _softBlue),
       backgroundImage: provider,
       child: provider == null
           ? Text(
@@ -722,7 +752,7 @@ class _CandidateAvatar extends StatelessWidget {
                   ? '?'
                   : candidate.firstName.substring(0, 1),
               style: TextStyle(
-                color: AppColors.navy,
+                color: StudioColors.text(context, AppColors.navy),
                 fontSize: size * .32,
                 fontWeight: FontWeight.w900,
               ),
@@ -744,13 +774,19 @@ class _ScorePill extends StatelessWidget {
       vertical: large ? 8 : 6,
     ),
     decoration: BoxDecoration(
-      color: score >= 90 ? AppColors.successTint : _softBlue,
+      color: StudioColors.background(
+        context,
+        score >= 90 ? AppColors.successTint : _softBlue,
+      ),
       borderRadius: BorderRadius.circular(999),
     ),
     child: Text(
       '${score.toStringAsFixed(0)} %',
       style: TextStyle(
-        color: score >= 90 ? AppColors.successDeep : AppColors.navy,
+        color: StudioColors.text(
+          context,
+          score >= 90 ? AppColors.successDeep : AppColors.navy,
+        ),
         fontSize: large ? 16 : 12,
         fontWeight: FontWeight.w900,
       ),
@@ -766,9 +802,15 @@ class _Meta extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Icon(icon, size: 14, color: _muted),
+      Icon(icon, size: 14, color: StudioColors.text(context, _muted)),
       const SizedBox(width: 4),
-      Text(text, style: const TextStyle(color: _muted, fontSize: 11)),
+      Text(
+        text,
+        style: TextStyle(
+          color: StudioColors.text(context, _muted),
+          fontSize: 11,
+        ),
+      ),
     ],
   );
 }
@@ -780,14 +822,14 @@ class _InfoPill extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
     decoration: BoxDecoration(
-      color: const Color(0xFFF5F8FB),
+      color: StudioColors.background(context, const Color(0xFFF5F8FB)),
       borderRadius: BorderRadius.circular(999),
       border: Border.all(color: _border),
     ),
     child: Text(
       text,
-      style: const TextStyle(
-        color: Color(0xFF53697C),
+      style: TextStyle(
+        color: StudioColors.text(context, Color(0xFF53697C)),
         fontSize: 10.5,
         fontWeight: FontWeight.w600,
       ),
@@ -808,8 +850,8 @@ class _MatchMetric extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(
-                color: AppColors.navy,
+              style: TextStyle(
+                color: StudioColors.text(context, AppColors.navy),
                 fontSize: 11.5,
                 fontWeight: FontWeight.w700,
               ),
@@ -817,8 +859,8 @@ class _MatchMetric extends StatelessWidget {
           ),
           Text(
             '${value.toStringAsFixed(0)} %',
-            style: const TextStyle(
-              color: _muted,
+            style: TextStyle(
+              color: StudioColors.text(context, _muted),
               fontSize: 11,
               fontWeight: FontWeight.w800,
             ),
@@ -831,7 +873,10 @@ class _MatchMetric extends StatelessWidget {
         child: LinearProgressIndicator(
           minHeight: 7,
           value: (value / 100).clamp(0.0, 1.0).toDouble(),
-          backgroundColor: const Color(0xFFEAF0F4),
+          backgroundColor: StudioColors.background(
+            context,
+            const Color(0xFFEAF0F4),
+          ),
           valueColor: const AlwaysStoppedAnimation(_blue),
         ),
       ),
@@ -855,13 +900,13 @@ class _ReasonLine extends StatelessWidget {
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 16, color: color),
+        Icon(icon, size: 16, color: StudioColors.text(context, color)),
         const SizedBox(width: 7),
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(
-              color: Color(0xFF53697C),
+            style: TextStyle(
+              color: StudioColors.text(context, Color(0xFF53697C)),
               fontSize: 11.5,
               height: 1.35,
             ),
@@ -893,8 +938,13 @@ class _ActionButton extends StatelessWidget {
       color: color,
       style: IconButton.styleFrom(
         minimumSize: const Size.square(46),
-        side: BorderSide(color: color.withValues(alpha: .28)),
-        backgroundColor: color.withValues(alpha: .06),
+        side: BorderSide(
+          color: StudioColors.border(context, color.withValues(alpha: .28)),
+        ),
+        backgroundColor: StudioColors.background(
+          context,
+          color.withValues(alpha: .06),
+        ),
       ),
     ),
   );

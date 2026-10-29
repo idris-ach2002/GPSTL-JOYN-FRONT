@@ -1,3 +1,6 @@
+import '../../../recruiter_studio/presentation/studio_talents.dart';
+import '../../../recruiter_studio/presentation/studio_components.dart';
+
 import 'dart:math' as math;
 import 'dart:ui' show PointerDeviceKind;
 
@@ -42,7 +45,10 @@ class _WebRecruiterCandidatesScreenState
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7F9),
+      backgroundColor: StudioColors.background(
+        context,
+        const Color(0xFFF4F7F9),
+      ),
       body: RefreshIndicator(
         onRefresh: controller.reload,
         child: CustomScrollView(
@@ -86,7 +92,11 @@ class _CandidatesHero extends StatelessWidget {
     return Stack(
       children: [
         const Positioned.fill(child: RecruiterOfferHeaderArt()),
-        const Positioned.fill(child: ColoredBox(color: Color(0x33001E3B))),
+        Positioned.fill(
+          child: ColoredBox(
+            color: StudioColors.background(context, Color(0x33001E3B)),
+          ),
+        ),
         SafeArea(
           bottom: false,
           child: Center(
@@ -104,13 +114,13 @@ class _CandidatesHero extends StatelessWidget {
                     LayoutBuilder(
                       builder: (context, constraints) {
                         final compact = constraints.maxWidth < 820;
-                        final title = const Column(
+                        final title = Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               'Candidats recommandés',
                               style: TextStyle(
-                                color: Colors.white,
+                                color: StudioColors.text(context, Colors.white),
                                 fontSize: 36,
                                 fontWeight: FontWeight.w900,
                                 letterSpacing: -1,
@@ -120,7 +130,10 @@ class _CandidatesHero extends StatelessWidget {
                             Text(
                               'Découvrez les profils les plus compatibles avec vos offres et comprenez chaque recommandation.',
                               style: TextStyle(
-                                color: Color(0xFFE4EDF5),
+                                color: StudioColors.text(
+                                  context,
+                                  Color(0xFFE4EDF5),
+                                ),
                                 fontSize: 14,
                                 height: 1.35,
                               ),
@@ -184,7 +197,7 @@ class _OfferSelector extends StatelessWidget {
     width: double.infinity,
     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: StudioColors.background(context, Colors.white),
       borderRadius: BorderRadius.circular(14),
       boxShadow: const [
         BoxShadow(
@@ -209,8 +222,8 @@ class _OfferSelector extends StatelessWidget {
               child: Text(
                 offer.title,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: AppColors.navy,
+                style: TextStyle(
+                  color: StudioColors.text(context, AppColors.navy),
                   fontWeight: FontWeight.w700,
                   fontSize: 12,
                 ),
@@ -247,16 +260,17 @@ class _CandidatesBody extends StatelessWidget {
       return CandidateSurfaceCard(
         child: Column(
           children: [
-            const Icon(
+            const TalentStudioToolbar(),
+            Icon(
               Icons.cloud_off_rounded,
               size: 40,
-              color: Color(0xFF6C8093),
+              color: StudioColors.text(context, Color(0xFF6C8093)),
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'Impossible de charger les recommandations.',
               style: TextStyle(
-                color: AppColors.navy,
+                color: StudioColors.text(context, AppColors.navy),
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -350,8 +364,8 @@ class _CandidateToolbar extends StatelessWidget {
         );
         final count = Text(
           '${data.totalItems} profil${data.totalItems > 1 ? 's' : ''}',
-          style: const TextStyle(
-            color: Color(0xFF6C8093),
+          style: TextStyle(
+            color: StudioColors.text(context, Color(0xFF6C8093)),
             fontSize: 11,
             fontWeight: FontWeight.w700,
           ),
@@ -423,6 +437,7 @@ class _WebCandidateStage extends StatefulWidget {
 }
 
 class _WebCandidateStageState extends State<_WebCandidateStage> {
+  final Map<String, double> _cardHeights = {};
   late final PageController _pageController;
   late final FocusNode _focusNode;
   late double _visualPage;
@@ -563,14 +578,14 @@ class _WebCandidateStageState extends State<_WebCandidateStage> {
             children: [
               Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Profils recommandés',
                           style: TextStyle(
-                            color: AppColors.navy,
+                            color: StudioColors.text(context, AppColors.navy),
                             fontSize: 17,
                             fontWeight: FontWeight.w900,
                           ),
@@ -579,7 +594,10 @@ class _WebCandidateStageState extends State<_WebCandidateStage> {
                         Text(
                           'Faites glisser les cartes, cliquez sur un profil latéral ou utilisez ← →.',
                           style: TextStyle(
-                            color: Color(0xFF6C8093),
+                            color: StudioColors.text(
+                              context,
+                              Color(0xFF6C8093),
+                            ),
                             fontSize: 11,
                           ),
                         ),
@@ -594,7 +612,7 @@ class _WebCandidateStageState extends State<_WebCandidateStage> {
               ),
               const SizedBox(height: 16),
               SizedBox(
-                height: 470,
+                height: (_cardHeights[candidate.id] ?? 470) + 20,
                 child: ScrollConfiguration(
                   behavior: const MaterialScrollBehavior().copyWith(
                     dragDevices: {
@@ -626,12 +644,29 @@ class _WebCandidateStageState extends State<_WebCandidateStage> {
                           scale: scale,
                           child: Opacity(
                             opacity: opacity,
-                            child: _StageCandidateCard(
-                              candidate: item,
-                              active: index == controller.currentIndex,
-                              onTap: () => _selectPage(index),
-                              onOpen: () =>
-                                  showCandidateProfileDialog(context, item),
+                            child: OverflowBox(
+                              minHeight: 0,
+                              maxHeight: double.infinity,
+                              alignment: Alignment.topCenter,
+                              child: StudioMeasure(
+                                onSize: (size) {
+                                  if (mounted &&
+                                      (_cardHeights[item.id] == null ||
+                                          (_cardHeights[item.id]! - size.height)
+                                                  .abs() >
+                                              .5))
+                                    setState(
+                                      () => _cardHeights[item.id] = size.height,
+                                    );
+                                },
+                                child: _StageCandidateCard(
+                                  candidate: item,
+                                  active: index == controller.currentIndex,
+                                  onTap: () => _selectPage(index),
+                                  onOpen: () =>
+                                      showCandidateProfileDialog(context, item),
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -655,11 +690,11 @@ class _WebCandidateStageState extends State<_WebCandidateStage> {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: Text(
                       'Votre intérêt reste privé tant que le candidat n’a pas manifesté le sien.',
                       style: TextStyle(
-                        color: Color(0xFF6C8093),
+                        color: StudioColors.text(context, Color(0xFF6C8093)),
                         fontSize: 10.5,
                       ),
                     ),
@@ -726,7 +761,7 @@ class _StageCandidateCard extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
     child: Material(
-      color: Colors.white,
+      color: StudioColors.background(context, Colors.white),
       elevation: active ? 7 : 1,
       shadowColor: const Color(0x22082846),
       borderRadius: BorderRadius.circular(22),
@@ -763,8 +798,11 @@ class _StageCandidateCard extends StatelessWidget {
                                 candidate.fullName,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  color: AppColors.navy,
+                                style: TextStyle(
+                                  color: StudioColors.text(
+                                    context,
+                                    AppColors.navy,
+                                  ),
                                   fontSize: 20,
                                   fontWeight: FontWeight.w900,
                                   letterSpacing: -.3,
@@ -780,8 +818,8 @@ class _StageCandidateCard extends StatelessWidget {
                           candidate.jobTitle,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: AppColors.navy,
+                          style: TextStyle(
+                            color: StudioColors.text(context, AppColors.navy),
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
                           ),
@@ -824,17 +862,17 @@ class _StageCandidateCard extends StatelessWidget {
                 candidate.summary,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Color(0xFF43586B),
+                style: TextStyle(
+                  color: StudioColors.text(context, Color(0xFF43586B)),
                   fontSize: 12.5,
                   height: 1.45,
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'Compétences clés',
                 style: TextStyle(
-                  color: AppColors.navy,
+                  color: StudioColors.text(context, AppColors.navy),
                   fontWeight: FontWeight.w800,
                   fontSize: 11.5,
                 ),
@@ -848,15 +886,15 @@ class _StageCandidateCard extends StatelessWidget {
                     _StageSkill(skill),
                 ],
               ),
-              const Spacer(),
+              const SizedBox(height: 20),
               Row(
                 children: [
                   if (candidate.connections > 0)
                     Expanded(
                       child: Text(
                         '${candidate.connections} connexion${candidate.connections > 1 ? 's' : ''} JOYN',
-                        style: const TextStyle(
-                          color: Color(0xFF6C8093),
+                        style: TextStyle(
+                          color: StudioColors.text(context, Color(0xFF6C8093)),
                           fontSize: 10.5,
                           fontWeight: FontWeight.w600,
                         ),
@@ -871,10 +909,10 @@ class _StageCandidateCard extends StatelessWidget {
                       label: const Text('Profil complet'),
                     )
                   else
-                    const Text(
+                    Text(
                       'Cliquer pour centrer',
                       style: TextStyle(
-                        color: Color(0xFF6C8093),
+                        color: StudioColors.text(context, Color(0xFF6C8093)),
                         fontSize: 10.5,
                       ),
                     ),
@@ -905,7 +943,7 @@ class _StageAvatar extends StatelessWidget {
       width: 62,
       height: 62,
       decoration: BoxDecoration(
-        color: const Color(0xFFE8F1F7),
+        color: StudioColors.background(context, const Color(0xFFE8F1F7)),
         borderRadius: BorderRadius.circular(18),
       ),
       clipBehavior: Clip.antiAlias,
@@ -916,8 +954,8 @@ class _StageAvatar extends StatelessWidget {
               errorBuilder: (_, _, _) => Center(
                 child: Text(
                   initials,
-                  style: const TextStyle(
-                    color: AppColors.navy,
+                  style: TextStyle(
+                    color: StudioColors.text(context, AppColors.navy),
                     fontSize: 19,
                     fontWeight: FontWeight.w900,
                   ),
@@ -927,8 +965,8 @@ class _StageAvatar extends StatelessWidget {
           : Center(
               child: Text(
                 initials,
-                style: const TextStyle(
-                  color: AppColors.navy,
+                style: TextStyle(
+                  color: StudioColors.text(context, AppColors.navy),
                   fontSize: 19,
                   fontWeight: FontWeight.w900,
                 ),
@@ -947,13 +985,13 @@ class _StageScore extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
     decoration: BoxDecoration(
-      color: const Color(0xFFE8F6F0),
+      color: StudioColors.background(context, const Color(0xFFE8F6F0)),
       borderRadius: BorderRadius.circular(999),
     ),
     child: Text(
       '${score.toStringAsFixed(0)} %',
-      style: const TextStyle(
-        color: Color(0xFF17835D),
+      style: TextStyle(
+        color: StudioColors.text(context, Color(0xFF17835D)),
         fontSize: 11,
         fontWeight: FontWeight.w900,
       ),
@@ -971,12 +1009,16 @@ class _StageMeta extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Icon(icon, size: 14, color: const Color(0xFF6C8093)),
+      Icon(
+        icon,
+        size: 14,
+        color: StudioColors.text(context, const Color(0xFF6C8093)),
+      ),
       const SizedBox(width: 4),
       Text(
         text,
-        style: const TextStyle(
-          color: Color(0xFF6C8093),
+        style: TextStyle(
+          color: StudioColors.text(context, Color(0xFF6C8093)),
           fontSize: 10.5,
           fontWeight: FontWeight.w600,
         ),
@@ -994,14 +1036,14 @@ class _StagePill extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
     decoration: BoxDecoration(
-      color: const Color(0xFFF3F6F8),
+      color: StudioColors.background(context, const Color(0xFFF3F6F8)),
       borderRadius: BorderRadius.circular(999),
       border: Border.all(color: const Color(0xFFE1E8EE)),
     ),
     child: Text(
       label,
-      style: const TextStyle(
-        color: AppColors.navy,
+      style: TextStyle(
+        color: StudioColors.text(context, AppColors.navy),
         fontSize: 10.5,
         fontWeight: FontWeight.w700,
       ),
@@ -1018,13 +1060,13 @@ class _StageSkill extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
     decoration: BoxDecoration(
-      color: const Color(0xFFEAF3F9),
+      color: StudioColors.background(context, const Color(0xFFEAF3F9)),
       borderRadius: BorderRadius.circular(999),
     ),
     child: Text(
       label,
-      style: const TextStyle(
-        color: AppColors.navy,
+      style: TextStyle(
+        color: StudioColors.text(context, AppColors.navy),
         fontSize: 10.5,
         fontWeight: FontWeight.w700,
       ),
@@ -1042,13 +1084,13 @@ class _StageCounter extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
     decoration: BoxDecoration(
-      color: const Color(0xFFF0F4F7),
+      color: StudioColors.background(context, const Color(0xFFF0F4F7)),
       borderRadius: BorderRadius.circular(999),
     ),
     child: Text(
       '$position / $total',
-      style: const TextStyle(
-        color: AppColors.navy,
+      style: TextStyle(
+        color: StudioColors.text(context, AppColors.navy),
         fontSize: 11,
         fontWeight: FontWeight.w800,
       ),
@@ -1078,9 +1120,12 @@ class _StageProgress extends StatelessWidget {
             width: start + offset == currentIndex ? 24 : 7,
             height: 7,
             decoration: BoxDecoration(
-              color: start + offset == currentIndex
-                  ? AppColors.navy
-                  : const Color(0xFFD6E0E8),
+              color: StudioColors.background(
+                context,
+                start + offset == currentIndex
+                    ? AppColors.navy
+                    : const Color(0xFFD6E0E8),
+              ),
               borderRadius: BorderRadius.circular(999),
             ),
           ),
@@ -1112,7 +1157,9 @@ class _StageActions extends StatelessWidget {
         onPressed: busy ? null : onReject,
         icon: const Icon(Icons.close_rounded, size: 18),
         label: const Text('Écarter'),
-        style: OutlinedButton.styleFrom(foregroundColor: AppColors.error),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: StudioColors.text(context, AppColors.error),
+        ),
       ),
       FilledButton.tonalIcon(
         onPressed: busy ? null : onSave,
@@ -1123,7 +1170,9 @@ class _StageActions extends StatelessWidget {
         onPressed: busy ? null : onInterest,
         icon: const Icon(Icons.favorite_border_rounded, size: 18),
         label: const Text('Intéressé'),
-        style: FilledButton.styleFrom(backgroundColor: AppColors.orange),
+        style: FilledButton.styleFrom(
+          backgroundColor: StudioColors.background(context, AppColors.orange),
+        ),
       ),
     ],
   );
