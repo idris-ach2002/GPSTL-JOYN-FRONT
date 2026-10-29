@@ -47,10 +47,11 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
             await c.load('messages');
           }
         } catch (_) {
-          if (mounted)
+          if (mounted) {
             setState(
               () => _error = 'Impossible de démarrer cette conversation.',
             );
+          }
         }
       }
       _timer = Timer.periodic(const Duration(seconds: 10), (_) {
@@ -58,8 +59,9 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
             _active &&
             !_loading &&
             !_sending &&
-            !c.repository.isMock)
+            !c.repository.isMock) {
           _refresh();
+        }
       });
     });
   }
@@ -91,6 +93,7 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
   }
 
   Future<void> _refresh() async {
+    if (_sending) return;
     final selected = _selected;
     final ticket = ++_request;
     if (selected == null) {
@@ -116,10 +119,11 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
       await c.load('messages');
       if (wasAtBottom) _bottom();
     } catch (_) {
-      if (mounted && ticket == _request)
+      if (mounted && ticket == _request) {
         setState(
           () => _error = 'Impossible d’actualiser les messages. Réessayez.',
         );
+      }
     } finally {
       if (mounted && ticket == _request) setState(() => _loading = false);
     }
@@ -127,19 +131,21 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
 
   void _bottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && _scroll.hasClients)
+      if (mounted && _scroll.hasClients) {
         _scroll.animateTo(
           _scroll.position.maxScrollExtent,
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOut,
         );
+      }
     });
   }
 
   Future<void> _send() async {
     final text = _text.text.trim();
-    if (_selected == null || text.isEmpty || _sending || text.length > 4000)
+    if (_selected == null || text.isEmpty || _sending || text.length > 4000) {
       return;
+    }
     final selected = _selected!;
     final conversationId = '${selected['id']}';
     final key = '$conversationId\u0000$text';
@@ -164,10 +170,11 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
       _bottom();
       await c.load('messages');
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         setState(
           () => _error = 'Envoi non confirmé. Votre texte est conservé. Réessayez avec le bouton Envoyer.',
         );
+      }
     } finally {
       if (mounted) setState(() => _sending = false);
     }
@@ -448,7 +455,7 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
           padding: EdgeInsets.all(narrow ? 0 : 24),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(narrow ? 0 : 20),
-            child: ColoredBox(
+            child: Material(
               color: const Color(0xFFEDF2F6),
               child: narrow
                   ? (_selected == null
@@ -467,7 +474,7 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
                       children: [
                         SizedBox(
                           width: 330,
-                          child: ColoredBox(color: Colors.white, child: list),
+                          child: Material(color: Colors.white, child: list),
                         ),
                         const VerticalDivider(width: 1),
                         Expanded(child: chat),

@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import '../../../../core/utils/lifecycle_notifier.dart';
 
 import '../../data/recruiter_offers_repository.dart';
 import '../../domain/job_offer.dart';
@@ -6,7 +6,7 @@ import '../../domain/recruiter_company.dart';
 
 enum OfferSort { recent, oldest, title }
 
-class OfferManagementController extends ChangeNotifier {
+class OfferManagementController extends LifecycleNotifier {
   OfferManagementController(this._repository);
   final RecruiterOffersRepository _repository;
 

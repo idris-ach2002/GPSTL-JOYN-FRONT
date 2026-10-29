@@ -1,3 +1,5 @@
+import '../../../recruiter_workspace/presentation/recruiter_greeting.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -111,8 +113,7 @@ class _MobileHero extends StatelessWidget {
               children: [
                 const RecruiterMobileHeaderBar(),
                 const Spacer(),
-                const Text(
-                  'Bonjour Camille 👋',
+                const RecruiterGreeting(
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 28,

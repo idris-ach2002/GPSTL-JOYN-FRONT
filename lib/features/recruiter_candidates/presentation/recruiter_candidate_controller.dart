@@ -1,9 +1,9 @@
-import 'package:flutter/foundation.dart';
+import '../../../core/utils/lifecycle_notifier.dart';
 
 import '../data/recruiter_candidate_repository.dart';
 import '../domain/recruiter_candidate_models.dart';
 
-class RecruiterCandidateController extends ChangeNotifier {
+class RecruiterCandidateController extends LifecycleNotifier {
   RecruiterCandidateController(this._repository);
 
   final RecruiterCandidateRepository _repository;

@@ -52,10 +52,11 @@ class WorkspaceController extends ChangeNotifier {
       await action();
       return generation == _generation;
     } catch (e) {
-      if (generation == _generation)
+      if (generation == _generation) {
         error = e is ApiException && e.statusCode == 403
             ? 'Vous n’avez pas accès à cette action.'
             : 'Impossible de terminer cette action. Réessayez.';
+      }
       return false;
     } finally {
       if (generation == _generation) {
@@ -83,14 +84,20 @@ class WorkspaceController extends ChangeNotifier {
     }
   });
   Future<bool> saveProfile(Map<String, dynamic> value) => run(() async {
-    profile = await repository.saveProfile(value);
+    final generation = _generation;
+    final saved = await repository.saveProfile(value);
+    if (generation == _generation) profile = saved;
   });
   Future<bool> saveSettings(Map<String, dynamic> value) => run(() async {
-    settings = await repository.saveSettings(value);
+    final generation = _generation;
+    final saved = await repository.saveSettings(value);
+    if (generation == _generation) settings = saved;
   });
   Future<bool> readNotification(String id) => run(() async {
+    final generation = _generation;
     await repository.readNotification(id);
-    notifications = await repository.notifications();
+    final saved = await repository.notifications();
+    if (generation == _generation) notifications = saved;
   });
   Future<bool> readAll() => run(() async {
     for (final n in notifications.where((n) => n['read'] != true)) {

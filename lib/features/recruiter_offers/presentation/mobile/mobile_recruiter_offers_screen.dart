@@ -42,6 +42,21 @@ class MobileRecruiterOffersScreen extends StatelessWidget {
                             children: [
                               _SearchAndStatus(controller: controller),
                               const SizedBox(height: 12),
+                              if (controller.errorMessage != null)
+                                Card(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Column(
+                                      children: [
+                                        Text(controller.errorMessage!),
+                                        TextButton(
+                                          onPressed: controller.load,
+                                          child: const Text('Réessayer'),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                               if (controller.isLoading)
                                 const SizedBox(
                                   height: 260,

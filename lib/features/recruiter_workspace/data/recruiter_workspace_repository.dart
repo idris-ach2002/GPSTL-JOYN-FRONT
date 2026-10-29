@@ -3,6 +3,8 @@ import '../../../core/network/api_client.dart';
 /// Contrat v1 : les routes et la normalisation sont isolées de l'interface.
 abstract interface class RecruiterWorkspaceRepository {
   bool get isMock;
+  Future<List<Map<String, dynamic>>> applications(int jobId);
+  Future<void> updateApplication(int jobId, String id, String stage);
   Future<Map<String, dynamic>> profile();
   Future<Map<String, dynamic>> saveProfile(Map<String, dynamic> value);
   Future<Map<String, dynamic>> settings();
@@ -42,6 +44,17 @@ List<Map<String, dynamic>> apiList(Object? value) {
 class ApiRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
   ApiRecruiterWorkspaceRepository(this.api);
   final ApiClient api;
+  @override
+  Future<List<Map<String, dynamic>>> applications(int jobId) async =>
+      apiList(await api.getJson('/api/v1/recruiters/jobs/$jobId/applications'));
+  @override
+  Future<void> updateApplication(int jobId, String id, String stage) async {
+    await api.patchJson(
+      '/api/v1/recruiters/jobs/$jobId/applications/${Uri.encodeComponent(id)}',
+      body: {'stage': stage},
+    );
+  }
+
   static const root = '/api/v1/recruiters';
   @override
   bool get isMock => false;
@@ -119,6 +132,13 @@ class ApiRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
 class MockRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
   @override
   bool get isMock => true;
+  @override
+  Future<List<Map<String, dynamic>>> applications(int jobId) async => [];
+  @override
+  Future<void> updateApplication(int jobId, String id, String stage) async {
+    throw UnsupportedError('Utiliser les aperçus de démonstration.');
+  }
+
   Map<String, dynamic> _profile = {
     'firstName': 'Camille',
     'lastName': 'Martin',

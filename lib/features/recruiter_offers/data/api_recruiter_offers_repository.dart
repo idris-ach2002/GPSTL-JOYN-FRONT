@@ -148,7 +148,7 @@ class ApiRecruiterOffersRepository implements RecruiterOffersRepository {
   Future<void> closeOffer(int id, {String? reason}) async {
     await api.patchJson(
       JobOfferApiMapper.jobPath(id),
-      body: {'status': 'CLOSED', if (reason != null) 'reason': reason},
+      body: {'status': 'CLOSED', 'reason': ?reason},
     );
   }
 

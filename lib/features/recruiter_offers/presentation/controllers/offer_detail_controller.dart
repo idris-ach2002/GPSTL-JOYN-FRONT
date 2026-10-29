@@ -1,10 +1,10 @@
-import 'package:flutter/foundation.dart';
+import '../../../../core/utils/lifecycle_notifier.dart';
 
 import '../../data/recruiter_offers_repository.dart';
 import '../../domain/job_offer.dart';
 import '../../domain/recruiter_company.dart';
 
-class OfferDetailController extends ChangeNotifier {
+class OfferDetailController extends LifecycleNotifier {
   OfferDetailController(this._repository, this.offerId);
   final RecruiterOffersRepository _repository;
   final int offerId;

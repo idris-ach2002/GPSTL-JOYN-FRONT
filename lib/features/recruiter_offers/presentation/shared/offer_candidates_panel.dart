@@ -1,3 +1,8 @@
+import 'package:provider/provider.dart';
+
+import '../../../recruiter_workspace/presentation/workspace_controller.dart';
+import '../../../recruiter_workspace/presentation/application_panel.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -137,6 +142,25 @@ Future<void> showOfferCandidatesPanel(
   BuildContext context, {
   required JobOffer offer,
 }) async {
+  WorkspaceController? workspace;
+  try {
+    workspace = context.read<WorkspaceController>();
+  } on ProviderNotFoundException {
+    workspace = null;
+  }
+  if (workspace != null && !workspace.repository.isMock) {
+    final repository = workspace.repository;
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (_) => SizedBox(
+        height: MediaQuery.sizeOf(context).height * .85,
+        child: ApplicationPanel(repository: repository, jobId: offer.id),
+      ),
+    );
+    return;
+  }
   final width = MediaQuery.sizeOf(context).width;
   if (width < 760) {
     await showModalBottomSheet<void>(

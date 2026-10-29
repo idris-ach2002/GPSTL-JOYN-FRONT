@@ -249,7 +249,7 @@ class WorkspaceCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(20),
       border: Border.all(color: const Color(0xFFE0E8EF)),
     ),
-    child: child,
+    child: Material(color: Colors.transparent, child: child),
   );
 }
 
@@ -382,8 +382,9 @@ class _ProfileState extends State<_Profile> {
                                           'lastName',
                                           'companyName',
                                         ].contains(entry.key) &&
-                                        text.isEmpty)
+                                        text.isEmpty) {
                                       return 'Champ obligatoire';
+                                    }
                                     if (entry.key == 'website' &&
                                         text.isNotEmpty) {
                                       final uri = Uri.tryParse(text);
@@ -392,8 +393,9 @@ class _ProfileState extends State<_Profile> {
                                             'https',
                                             'http',
                                           ].contains(uri.scheme) ||
-                                          uri.host.isEmpty)
+                                          uri.host.isEmpty) {
                                         return 'URL complète attendue (https://…)';
+                                      }
                                     }
                                     return null;
                                   },
@@ -485,7 +487,7 @@ class _SettingsState extends State<_Settings> {
                         ? null
                         : () async {
                             final ok = await controller.saveSettings(_value);
-                            if (context.mounted)
+                            if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
@@ -495,6 +497,7 @@ class _SettingsState extends State<_Settings> {
                                   ),
                                 ),
                               );
+                            }
                           },
                     child: const Text('Enregistrer les préférences'),
                   ),
@@ -513,7 +516,7 @@ class _SettingsState extends State<_Settings> {
                     onTap: () async {
                       final auth = context.read<AuthController>();
                       final ok = await auth.sendPasswordReset(auth.user!.email);
-                      if (context.mounted)
+                      if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
@@ -523,6 +526,7 @@ class _SettingsState extends State<_Settings> {
                             ),
                           ),
                         );
+                      }
                     },
                   ),
                   ListTile(
@@ -665,8 +669,9 @@ class _NotificationsState extends State<_Notifications> {
                                                     .readNotification(
                                                       '${n['id']}',
                                                     );
-                                                if (!context.mounted || !ok)
+                                                if (!context.mounted || !ok) {
                                                   return;
+                                                }
                                                 final target = '${n['target']}';
                                                 final allowed = {
                                                   AppRoutes.recruiterMessages,
@@ -675,8 +680,9 @@ class _NotificationsState extends State<_Notifications> {
                                                   AppRoutes.recruiterProfile,
                                                   AppRoutes.recruiterDashboard,
                                                 };
-                                                if (allowed.contains(target))
+                                                if (allowed.contains(target)) {
                                                   context.go(target);
+                                                }
                                               },
                                         child: const Text('Ouvrir'),
                                       ),

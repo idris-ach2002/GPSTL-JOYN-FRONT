@@ -1,3 +1,5 @@
+import '../../../recruiter_workspace/presentation/recruiter_greeting.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -107,8 +109,7 @@ class _DashboardHero extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  'Bonjour Camille 👋',
+                                RecruiterGreeting(
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 37,

@@ -1,3 +1,8 @@
+import 'package:provider/provider.dart';
+
+import '../../../recruiter_workspace/presentation/workspace_controller.dart';
+import '../../../../design_system/tokens/app_colors.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -14,6 +19,7 @@ class RecruiterOffersTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final workspace = context.watch<WorkspaceController?>();
     final width = MediaQuery.sizeOf(context).width;
     final showLabels = width >= 880;
     return Row(
@@ -91,7 +97,16 @@ class RecruiterOffersTopBar extends StatelessWidget {
           IconButton(
             tooltip: item.$3,
             onPressed: () => context.go(item.$2),
-            icon: Icon(item.$1, color: Colors.white, size: 20),
+            icon: Badge(
+              isLabelVisible:
+                  (item.$2 == AppRoutes.recruiterNotifications
+                      ? workspace?.unread ?? 0
+                      : item.$2 == AppRoutes.recruiterMessages
+                      ? workspace?.unreadMessages ?? 0
+                      : 0) >
+                  0,
+              child: Icon(item.$1, color: Colors.white, size: 20),
+            ),
           ),
           const SizedBox(width: 2),
         ],

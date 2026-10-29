@@ -41,8 +41,9 @@ class ApiAuthRepository implements AuthRepository {
     try {
       final data = _object(await api.postJson(path, body: body));
       final token = data['accessToken'] ?? data['access_token'];
-      if (token is! String || token.isEmpty)
+      if (token is! String || token.isEmpty) {
         throw const AuthException(AuthErrorCode.unknown);
+      }
       final user = _mapUser(data['user']);
       accessToken = token;
       _user = user;

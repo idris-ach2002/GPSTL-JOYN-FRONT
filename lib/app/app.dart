@@ -1,3 +1,4 @@
+import '../features/auth/domain/user_role.dart';
 import '../features/recruiter_workspace/data/recruiter_workspace_repository.dart';
 import '../features/recruiter_workspace/presentation/workspace_controller.dart';
 
@@ -114,7 +115,16 @@ class _JoynAppState extends State<JoynApp> {
     );
     _lastUserId = _authController.user?.id;
     _authController.addListener(_onAuthChanged);
+    _primeWorkspace();
     _router = createAppRouter(_authController, webOverride: widget.webOverride);
+  }
+
+  void _primeWorkspace() {
+    if (_authController.user?.role == UserRole.company) {
+      _workspaceController.load('profile');
+      _workspaceController.load('notifications');
+      _workspaceController.load('messages');
+    }
   }
 
   String? _lastUserId;
@@ -123,6 +133,7 @@ class _JoynAppState extends State<JoynApp> {
     if (id != _lastUserId) {
       _lastUserId = id;
       _workspaceController.reset();
+      _primeWorkspace();
     }
   }
 
