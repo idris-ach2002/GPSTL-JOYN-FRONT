@@ -188,7 +188,7 @@ class MockRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
   final List<Map<String, dynamic>> _conversations = [
     {
       'id': 'c1',
-      'candidateId': 'alex-dupont',
+      'candidateId': 'cand-001',
       'name': 'Alex Dupont',
       'jobTitle': 'Développeur Full-Stack',
       'offerTitle': 'Développeur·se Full-Stack en alternance',
@@ -197,10 +197,10 @@ class MockRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
     },
     {
       'id': 'c2',
-      'candidateId': 'ines-bernard',
-      'name': 'Inès Bernard',
-      'jobTitle': 'Product Designer',
-      'offerTitle': 'UX/UI Designer',
+      'candidateId': 'cand-004',
+      'name': 'Inès Leroy',
+      'jobTitle': 'Développeuse Full-Stack',
+      'offerTitle': 'Développeur·se Full-Stack en alternance',
       'unread': 0,
       'lastMessage': 'Merci pour votre retour !',
     },

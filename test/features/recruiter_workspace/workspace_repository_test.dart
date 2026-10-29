@@ -15,6 +15,10 @@ void main() {
     'mock : état conservé, lecture, suppression, envoi idempotent',
     () async {
       final r = MockRecruiterWorkspaceRepository();
+      expect(
+        (await r.startConversation('cand-001', 'Alex Dupont'))['id'],
+        'c1',
+      );
       await r.saveProfile({'firstName': 'Idris'});
       expect((await r.profile())['firstName'], 'Idris');
       await r.saveSettings({'emailNotifications': false});
