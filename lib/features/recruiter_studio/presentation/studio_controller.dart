@@ -13,6 +13,7 @@ class StudioController extends LifecycleNotifier {
   }
   final StudioStore store;
   late final StudioRepository repository;
+  VoidCallback? settingsBack;
   String? userId;
   Map<String, dynamic> preferences = {};
   Map<String, dynamic> data = {};
@@ -22,6 +23,9 @@ class StudioController extends LifecycleNotifier {
   String? deviceError;
   int _epoch = 0;
   Future<void> _writes = Future.value();
+  Future<void> _deviceWrites = Future.value();
+  Map<String, dynamic> _persistedPreferences = {};
+  int _preferenceRevision = 0;
   ThemeMode get themeMode => switch (preferences['theme']) {
     'dark' => ThemeMode.dark,
     'light' => ThemeMode.light,
@@ -41,34 +45,45 @@ class StudioController extends LifecycleNotifier {
   Future<void> restoreDevice() async {
     try {
       final value = await store.read('joyn.appearance.v2');
-      if (value != null)
+      if (value != null) {
         preferences = Map<String, dynamic>.from(jsonDecode(value) as Map);
+      }
     } catch (_) {
       deviceError = 'Impossible de restaurer les préférences de cet appareil.';
     }
+    _persistedPreferences = Map.from(preferences);
     notifyListeners();
   }
 
-  Future<bool> setPreference(String key, Object value) async {
-    final previous = Map<String, dynamic>.from(preferences);
+  Future<bool> setPreference(String key, Object value) {
+    final revision = ++_preferenceRevision;
     preferences = {...preferences, key: value};
+    final snapshot = Map<String, dynamic>.from(preferences);
     deviceError = null;
     notifyListeners();
-    try {
-      await store.write('joyn.appearance.v2', jsonEncode(preferences));
-      return true;
-    } catch (_) {
-      preferences = previous;
-      deviceError = 'Impossible d’enregistrer sur cet appareil.';
-      notifyListeners();
-      return false;
-    }
+    final operation = _deviceWrites.then((_) async {
+      try {
+        await store.write('joyn.appearance.v2', jsonEncode(snapshot));
+        _persistedPreferences = snapshot;
+        return true;
+      } catch (_) {
+        if (revision == _preferenceRevision) {
+          preferences = Map.from(_persistedPreferences);
+          deviceError = 'Impossible d’enregistrer sur cet appareil.';
+          notifyListeners();
+        }
+        return false;
+      }
+    });
+    _deviceWrites = operation.then<void>((_) {});
+    return operation;
   }
 
   Future<void> bind(String? id) async {
     final epoch = ++_epoch;
     userId = id;
     data = {};
+    saving = false;
     error = null;
     loading = id != null;
     notifyListeners();
@@ -77,8 +92,9 @@ class StudioController extends LifecycleNotifier {
       final value = await repository.load(id);
       if (epoch == _epoch) data = value;
     } catch (_) {
-      if (epoch == _epoch)
+      if (epoch == _epoch) {
         error = 'Votre espace de travail n’a pas pu être chargé. Réessayez.';
+      }
     } finally {
       if (epoch == _epoch) {
         loading = false;

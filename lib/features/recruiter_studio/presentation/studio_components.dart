@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -70,7 +71,7 @@ class StudioSectionTitle extends StatelessWidget {
             ],
           ),
         ),
-        if (action != null) action!,
+        ?action,
       ],
     ),
   );
@@ -120,8 +121,9 @@ class StudioLoadNotice extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.watch<StudioController>();
-    if (c.loading || c.saving)
+    if (c.loading || c.saving) {
       return const LinearProgressIndicator(minHeight: 2);
+    }
     if (c.error == null) return const SizedBox.shrink();
     return MaterialBanner(
       content: Text(c.error!),
@@ -155,8 +157,9 @@ Future<bool> studioConfirm(
     ) ??
     false;
 void studioToast(BuildContext context, String text) {
-  if (context.mounted)
+  if (context.mounted) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
+  }
 }
 
 String studioDate(Object? value) {
@@ -167,21 +170,90 @@ String studioDate(Object? value) {
 
 /// Adaptation des surfaces historiques, sans filtre sur les images ni inversion des graphiques.
 abstract final class StudioColors {
-  static Color background(BuildContext context, Color original) {
-    if (Theme.of(context).brightness != Brightness.dark) return original;
-    final hsl = HSLColor.fromColor(original);
-    if (hsl.lightness > .94) return Theme.of(context).colorScheme.surface;
-    if (hsl.lightness > .82 && hsl.saturation < .65)
-      return Theme.of(context).colorScheme.surfaceContainerHighest;
+  static Gradient? gradient(BuildContext context, Gradient? original) {
+    if (Theme.of(context).brightness != Brightness.dark || original == null)
+      return original;
+    final colors = original.colors.map((c) => background(context, c)).toList();
+    if (original is LinearGradient)
+      return LinearGradient(
+        begin: original.begin,
+        end: original.end,
+        colors: colors,
+        stops: original.stops,
+        tileMode: original.tileMode,
+        transform: original.transform,
+      );
+    if (original is RadialGradient)
+      return RadialGradient(
+        center: original.center,
+        radius: original.radius,
+        colors: colors,
+        stops: original.stops,
+        tileMode: original.tileMode,
+        focal: original.focal,
+        focalRadius: original.focalRadius,
+        transform: original.transform,
+      );
     return original;
   }
 
+  static Color background(BuildContext context, Color? input) {
+    final original = input ?? Colors.transparent;
+    if (original.a < .4) return original;
+    if (Theme.of(context).brightness != Brightness.dark) return original;
+    final hsl = HSLColor.fromColor(original);
+    if (hsl.lightness > .94) return Theme.of(context).colorScheme.surface;
+    if (hsl.lightness > .82 && hsl.saturation < .65) {
+      return Theme.of(context).colorScheme.surfaceContainerHighest;
+    }
+    return original;
+  }
+
+  static Color border(BuildContext context, Color original) =>
+      Theme.of(context).brightness == Brightness.dark &&
+          HSLColor.fromColor(original).lightness > .65
+      ? Theme.of(context).colorScheme.outlineVariant
+      : original;
   static Color text(BuildContext context, Color original) {
     if (Theme.of(context).brightness != Brightness.dark) return original;
     final hsl = HSLColor.fromColor(original);
     if (hsl.lightness < .27) return Theme.of(context).colorScheme.onSurface;
-    if (hsl.lightness < .64 && hsl.saturation < .5)
+    if (hsl.lightness < .64 && hsl.saturation < .5) {
       return Theme.of(context).colorScheme.onSurfaceVariant;
+    }
     return original;
+  }
+}
+
+/// Mesure intrinsèque des cartes paginées : aucun texte ne dépend d'une hauteur fixe.
+class StudioMeasure extends SingleChildRenderObjectWidget {
+  const StudioMeasure({super.key, required this.onSize, required super.child});
+  final ValueChanged<Size> onSize;
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      StudioMeasureRender(onSize);
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    covariant StudioMeasureRender renderObject,
+  ) {
+    renderObject.onSize = onSize;
+  }
+}
+
+class StudioMeasureRender extends RenderProxyBox {
+  StudioMeasureRender(this.onSize);
+  ValueChanged<Size> onSize;
+  Size? _previous;
+  @override
+  void performLayout() {
+    super.performLayout();
+    if (size != _previous) {
+      _previous = size;
+      final measured = size;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (attached) onSize(measured);
+      });
+    }
   }
 }
