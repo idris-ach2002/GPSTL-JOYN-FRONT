@@ -448,7 +448,7 @@ class _MobileTopBar extends StatelessWidget {
         ),
         const Spacer(),
         IconButton(
-          onPressed: () {},
+          onPressed: () => context.go(AppRoutes.recruiterNotifications),
           icon: const Icon(Icons.notifications_none_rounded),
           color: Colors.white,
         ),
@@ -630,8 +630,22 @@ class _MobileTabs extends StatelessWidget {
       children: [
         _Tab(label: 'Description', active: true, onTap: () {}),
         _Tab(label: 'Candidats ($candidateCount)', onTap: onCandidates),
-        _Tab(label: 'Statistiques', onTap: () {}),
-        _Tab(label: 'Paramètres', onTap: () {}),
+        _Tab(
+          label: 'Statistiques',
+          onTap: () => context.go(
+            AppRoutes.recruiterDashboardOffer(
+              context.read<OfferDetailController>().offerId,
+            ),
+          ),
+        ),
+        _Tab(
+          label: 'Paramètres',
+          onTap: () => context.go(
+            AppRoutes.recruiterJobEdit(
+              context.read<OfferDetailController>().offerId,
+            ),
+          ),
+        ),
       ],
     ),
   );

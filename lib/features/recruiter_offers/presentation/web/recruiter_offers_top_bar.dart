@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/routing/app_routes.dart';
 import '../../../../design_system/components/joyn_logo.dart';
-import '../../../../design_system/tokens/app_colors.dart';
 import '../../../../design_system/tokens/app_radius.dart';
 
 class RecruiterOffersTopBar extends StatelessWidget {
@@ -71,28 +70,37 @@ class RecruiterOffersTopBar extends StatelessWidget {
           ),
         ),
         const Spacer(),
-        for (final icon in [
-          Icons.notifications_none_rounded,
-          Icons.settings_outlined,
-          Icons.chat_bubble_outline_rounded,
-        ]) ...[_CircleButton(icon: icon), const SizedBox(width: 8)],
-        const CircleAvatar(
-          radius: 18,
-          backgroundColor: Colors.white,
-          child: Text(
-            'E',
-            style: TextStyle(
-              color: AppColors.navy,
-              fontWeight: FontWeight.w900,
-            ),
+        for (final item in const [
+          (
+            Icons.notifications_none_rounded,
+            AppRoutes.recruiterNotifications,
+            'Notifications',
           ),
-        ),
+          (Icons.settings_outlined, AppRoutes.recruiterSettings, 'Paramètres'),
+          (
+            Icons.chat_bubble_outline_rounded,
+            AppRoutes.recruiterMessages,
+            'Messages',
+          ),
+          (
+            Icons.account_circle_outlined,
+            AppRoutes.recruiterProfile,
+            'Mon profil',
+          ),
+        ]) ...[
+          IconButton(
+            tooltip: item.$3,
+            onPressed: () => context.go(item.$2),
+            icon: Icon(item.$1, color: Colors.white, size: 20),
+          ),
+          const SizedBox(width: 2),
+        ],
       ],
     );
   }
 }
 
-enum RecruiterTopTab { dashboard, offers, candidates }
+enum RecruiterTopTab { dashboard, offers, candidates, workspace }
 
 class _Tab extends StatelessWidget {
   const _Tab({
@@ -138,21 +146,6 @@ class _Tab extends StatelessWidget {
           ],
         ),
       ),
-    ),
-  );
-}
-
-class _CircleButton extends StatelessWidget {
-  const _CircleButton({required this.icon});
-  final IconData icon;
-  @override
-  Widget build(BuildContext context) => IconButton(
-    onPressed: () {},
-    icon: Icon(icon, size: 19),
-    color: Colors.white,
-    style: IconButton.styleFrom(
-      side: BorderSide(color: Colors.white.withValues(alpha: .55)),
-      minimumSize: const Size.square(38),
     ),
   );
 }

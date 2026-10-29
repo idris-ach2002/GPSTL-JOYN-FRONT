@@ -1,3 +1,7 @@
+import 'package:go_router/go_router.dart';
+
+import '../../../../app/routing/app_routes.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../../recruiter_offers/presentation/shared/recruiter_offer_header_art.dart';
@@ -630,12 +634,15 @@ class RecruiterMobileHeaderBar extends StatelessWidget {
       const SizedBox(width: 7),
       _MobileHeaderIcon(icon: Icons.settings_outlined),
       const SizedBox(width: 7),
-      const CircleAvatar(
-        radius: 17,
-        backgroundColor: Colors.white,
-        child: Text(
-          'E',
-          style: TextStyle(color: _navy, fontWeight: FontWeight.w900),
+      GestureDetector(
+        onTap: () => context.go(AppRoutes.recruiterProfile),
+        child: const CircleAvatar(
+          radius: 17,
+          backgroundColor: Colors.white,
+          child: Text(
+            'E',
+            style: TextStyle(color: _navy, fontWeight: FontWeight.w900),
+          ),
         ),
       ),
     ],
@@ -653,6 +660,15 @@ class _MobileHeaderIcon extends StatelessWidget {
       shape: BoxShape.circle,
       border: Border.all(color: Colors.white.withValues(alpha: .52)),
     ),
-    child: Icon(icon, color: Colors.white, size: 18),
+    child: IconButton(
+      padding: EdgeInsets.zero,
+      tooltip: icon == Icons.settings_outlined ? 'Paramètres' : 'Notifications',
+      onPressed: () => context.go(
+        icon == Icons.settings_outlined
+            ? AppRoutes.recruiterSettings
+            : AppRoutes.recruiterNotifications,
+      ),
+      icon: Icon(icon, color: Colors.white, size: 18),
+    ),
   );
 }

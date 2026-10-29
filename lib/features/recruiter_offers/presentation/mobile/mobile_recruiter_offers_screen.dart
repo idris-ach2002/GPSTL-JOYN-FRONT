@@ -92,6 +92,8 @@ class MobileRecruiterOffersScreen extends StatelessWidget {
           MobileBottomNavigation(
             selectedIndex: 2,
             onSelected: (index) {
+              if (index == 3) context.go(AppRoutes.recruiterMessages);
+              if (index == 4) context.go(AppRoutes.recruiterSettings);
               if (index == 0) context.go(AppRoutes.dashboard);
               if (index == 1) context.go(AppRoutes.recruiterCandidates);
               if (index == 2) return;
@@ -226,7 +228,8 @@ class _Hero extends StatelessWidget {
                       ],
                       const Spacer(),
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () =>
+                            context.go(AppRoutes.recruiterNotifications),
                         icon: const Icon(
                           Icons.notifications_none_rounded,
                           size: 19,

@@ -357,7 +357,7 @@ class WebRecruiterOfferAnalyticsScreen extends StatelessWidget {
                           Icons.chevron_right_rounded,
                           size: 18,
                         ),
-                        onTap: () {},
+                        onTap: () => context.go(AppRoutes.recruiterCandidates),
                       ),
                   ],
                 ),

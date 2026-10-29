@@ -1,3 +1,7 @@
+import 'package:go_router/go_router.dart';
+
+import '../../../../app/routing/app_routes.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../../../design_system/tokens/app_colors.dart';
@@ -531,6 +535,23 @@ Future<void> showCandidateProfileDialog(
               ],
             ),
             const SizedBox(height: 20),
+            FilledButton.icon(
+              onPressed: () {
+                Navigator.pop(context);
+                context.go(
+                  Uri(
+                    path: AppRoutes.recruiterMessages,
+                    queryParameters: {
+                      'candidateId': candidate.id,
+                      'name': candidate.fullName,
+                    },
+                  ).toString(),
+                );
+              },
+              icon: const Icon(Icons.chat_bubble_outline),
+              label: const Text('Contacter ce candidat'),
+            ),
+            const SizedBox(height: 16),
             CandidateMatchPanel(candidate: candidate),
             const SizedBox(height: 16),
             const Text(
@@ -593,7 +614,18 @@ class ReciprocalMatchDialog extends StatelessWidget {
         child: const Text('Fermer'),
       ),
       FilledButton.icon(
-        onPressed: () => Navigator.pop(context),
+        onPressed: () {
+          Navigator.pop(context);
+          context.go(
+            Uri(
+              path: AppRoutes.recruiterMessages,
+              queryParameters: {
+                'candidateId': candidate.id,
+                'name': candidate.fullName,
+              },
+            ).toString(),
+          );
+        },
         icon: const Icon(Icons.chat_bubble_outline_rounded),
         label: const Text('Contacter'),
       ),

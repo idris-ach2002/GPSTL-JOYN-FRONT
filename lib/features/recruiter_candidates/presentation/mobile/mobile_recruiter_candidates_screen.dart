@@ -92,6 +92,8 @@ class _MobileRecruiterCandidatesScreenState
           MobileBottomNavigation(
             selectedIndex: 1,
             onSelected: (index) {
+              if (index == 3) context.go(AppRoutes.recruiterMessages);
+              if (index == 4) context.go(AppRoutes.recruiterSettings);
               if (index == 0) context.go(AppRoutes.recruiterDashboard);
               if (index == 1) return;
               if (index == 2) context.go(AppRoutes.recruiterJobs);
