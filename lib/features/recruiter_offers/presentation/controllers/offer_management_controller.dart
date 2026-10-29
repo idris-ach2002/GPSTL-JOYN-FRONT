@@ -1,3 +1,4 @@
+import '../../domain/job_offer_draft.dart';
 import '../../../../core/utils/lifecycle_notifier.dart';
 
 import '../../data/recruiter_offers_repository.dart';
@@ -12,6 +13,7 @@ class OfferManagementController extends LifecycleNotifier {
 
   List<RecruiterCompany> companies = const [];
   List<JobOffer> offers = const [];
+  bool isDuplicating = false;
   bool isLoading = false;
   bool isClosing = false;
   bool isDeleting = false;
@@ -111,6 +113,46 @@ class OfferManagementController extends LifecycleNotifier {
   void setQuery(String value) {
     query = value;
     notifyListeners();
+  }
+
+  Future<JobOffer?> duplicateOffer(int id) async {
+    if (isDuplicating) return null;
+    isDuplicating = true;
+    errorMessage = null;
+    notifyListeners();
+    try {
+      final o = await _repository.fetchOffer(id);
+      if (o == null) throw StateError('Offre introuvable');
+      final result = await _repository.createOffer(
+        JobOfferDraft(
+          companyId: o.companyId,
+          title: '${o.title} (copie)',
+          contractType: o.contractType,
+          location: o.location,
+          remoteMode: o.remoteMode,
+          experienceLevel: o.experienceLevel,
+          description: o.description,
+          skills: [...o.skills],
+          salaryMin: o.salaryMin,
+          salaryMax: o.salaryMax,
+          currency: o.currency,
+          salaryPeriod: o.salaryPeriod,
+          rhythmType: o.rhythmType,
+          startDate: o.startDate,
+          durationMonths: o.durationMonths,
+          degreeLevelRequired: o.degreeLevelRequired,
+        ),
+        JobOfferStatus.draft,
+      );
+      offers = await _repository.fetchOffers();
+      return result;
+    } catch (_) {
+      errorMessage = 'Impossible de dupliquer cette offre.';
+      return null;
+    } finally {
+      isDuplicating = false;
+      notifyListeners();
+    }
   }
 
   Future<bool> closeOffer(int id, {String? reason}) async {

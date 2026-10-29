@@ -1,3 +1,5 @@
+import '../../../recruiter_studio/presentation/studio_components.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -33,17 +35,17 @@ class MobileOfferDetailScreen extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
+                Icon(
                   Icons.error_outline_rounded,
-                  color: AppColors.error,
+                  color: StudioColors.text(context, AppColors.error),
                   size: 34,
                 ),
                 const SizedBox(height: 12),
                 Text(
                   controller.errorMessage ?? 'Offre introuvable.',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: AppColors.navy,
+                  style: TextStyle(
+                    color: StudioColors.text(context, AppColors.navy),
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -61,7 +63,7 @@ class MobileOfferDetailScreen extends StatelessWidget {
 
     return MobileAppSurface(
       systemUiOverlayStyle: SystemUiOverlayStyle.light,
-      backgroundColor: AppColors.background,
+      backgroundColor: StudioColors.background(context, AppColors.background),
       child: Column(
         children: [
           const _MobileTopBar(),
@@ -102,8 +104,11 @@ class MobileOfferDetailScreen extends StatelessWidget {
                         icon: Icons.description_outlined,
                         child: OfferRichText(
                           value: offer.description,
-                          baseStyle: const TextStyle(
-                            color: AppColors.slateDark,
+                          baseStyle: TextStyle(
+                            color: StudioColors.text(
+                              context,
+                              AppColors.slateDark,
+                            ),
                             fontSize: 13.5,
                             height: 1.6,
                           ),
@@ -214,8 +219,11 @@ class MobileOfferDetailScreen extends StatelessWidget {
                                 Expanded(
                                   child: Text(
                                     '${offer.candidateCount} candidat${offer.candidateCount > 1 ? 's' : ''} sur cette offre',
-                                    style: const TextStyle(
-                                      color: AppColors.navy,
+                                    style: TextStyle(
+                                      color: StudioColors.text(
+                                        context,
+                                        AppColors.navy,
+                                      ),
                                       fontSize: 12,
                                       fontWeight: FontWeight.w800,
                                     ),
@@ -236,9 +244,15 @@ class MobileOfferDetailScreen extends StatelessWidget {
                                 ),
                                 label: const Text('Voir les candidats'),
                                 style: OutlinedButton.styleFrom(
-                                  foregroundColor: const Color(0xFF1475D1),
-                                  side: const BorderSide(
-                                    color: Color(0xFFB9DDFB),
+                                  foregroundColor: StudioColors.text(
+                                    context,
+                                    const Color(0xFF1475D1),
+                                  ),
+                                  side: BorderSide(
+                                    color: StudioColors.border(
+                                      context,
+                                      Color(0xFFB9DDFB),
+                                    ),
                                   ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(11),
@@ -287,9 +301,13 @@ class MobileOfferDetailScreen extends StatelessWidget {
           ),
           Container(
             padding: const EdgeInsets.fromLTRB(14, 10, 14, 14),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              border: Border(top: BorderSide(color: Color(0xFFE5ECF1))),
+            decoration: BoxDecoration(
+              color: StudioColors.background(context, Colors.white),
+              border: Border(
+                top: BorderSide(
+                  color: StudioColors.border(context, Color(0xFFE5ECF1)),
+                ),
+              ),
             ),
             child: Row(
               children: [
@@ -302,8 +320,16 @@ class MobileOfferDetailScreen extends StatelessWidget {
                       icon: const Icon(Icons.edit_outlined, size: 18),
                       label: const Text('Modifier'),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF1475D1),
-                        side: const BorderSide(color: Color(0xFFB9DDFB)),
+                        foregroundColor: StudioColors.text(
+                          context,
+                          const Color(0xFF1475D1),
+                        ),
+                        side: BorderSide(
+                          color: StudioColors.border(
+                            context,
+                            Color(0xFFB9DDFB),
+                          ),
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(13),
                         ),
@@ -326,8 +352,14 @@ class MobileOfferDetailScreen extends StatelessWidget {
                         ),
                         label: const Text('Clôturer'),
                         style: FilledButton.styleFrom(
-                          backgroundColor: AppColors.orange,
-                          foregroundColor: Colors.white,
+                          backgroundColor: StudioColors.background(
+                            context,
+                            AppColors.orange,
+                          ),
+                          foregroundColor: StudioColors.text(
+                            context,
+                            Colors.white,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(13),
                           ),
@@ -350,11 +382,11 @@ class MobileOfferDetailScreen extends StatelessWidget {
   ) async {
     final shouldClose = await showModalBottomSheet<bool>(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: StudioColors.background(context, Colors.transparent),
       builder: (context) => Container(
         padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: StudioColors.background(context, Colors.white),
           borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
         ),
         child: SafeArea(
@@ -366,25 +398,25 @@ class MobileOfferDetailScreen extends StatelessWidget {
                 width: 42,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.line,
+                  color: StudioColors.background(context, AppColors.line),
                   borderRadius: BorderRadius.circular(99),
                 ),
               ),
               const SizedBox(height: 18),
-              const Text(
+              Text(
                 'Clôturer l’offre ?',
                 style: TextStyle(
-                  color: AppColors.navy,
+                  color: StudioColors.text(context, AppColors.navy),
                   fontSize: 22,
                   fontWeight: FontWeight.w900,
                 ),
               ),
               const SizedBox(height: 7),
-              const Text(
+              Text(
                 'Elle ne sera plus proposée aux candidats. Les candidatures existantes seront conservées.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: AppColors.slate,
+                  color: StudioColors.text(context, AppColors.slate),
                   fontSize: 12,
                   height: 1.45,
                 ),
@@ -403,7 +435,10 @@ class MobileOfferDetailScreen extends StatelessWidget {
                     child: FilledButton(
                       onPressed: () => Navigator.pop(context, true),
                       style: FilledButton.styleFrom(
-                        backgroundColor: AppColors.orange,
+                        backgroundColor: StudioColors.background(
+                          context,
+                          AppColors.orange,
+                        ),
                       ),
                       child: const Text('Clôturer'),
                     ),
@@ -426,7 +461,7 @@ class _MobileTopBar extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     height: 70,
     padding: const EdgeInsets.symmetric(horizontal: 14),
-    color: AppColors.navy,
+    color: StudioColors.background(context, AppColors.navy),
     child: Row(
       children: [
         const MobileBrandMark(onDark: true, compact: true),
@@ -434,13 +469,16 @@ class _MobileTopBar extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: .14),
+            color: StudioColors.background(
+              context,
+              Colors.white.withValues(alpha: .14),
+            ),
             borderRadius: BorderRadius.circular(5),
           ),
-          child: const Text(
+          child: Text(
             'Entreprise',
             style: TextStyle(
-              color: Colors.white,
+              color: StudioColors.text(context, Colors.white),
               fontSize: 9,
               fontWeight: FontWeight.w800,
             ),
@@ -452,13 +490,13 @@ class _MobileTopBar extends StatelessWidget {
           icon: const Icon(Icons.notifications_none_rounded),
           color: Colors.white,
         ),
-        const CircleAvatar(
+        CircleAvatar(
           radius: 18,
-          backgroundColor: Colors.white,
+          backgroundColor: StudioColors.background(context, Colors.white),
           child: Text(
             'E',
             style: TextStyle(
-              color: AppColors.navy,
+              color: StudioColors.text(context, AppColors.navy),
               fontWeight: FontWeight.w900,
             ),
           ),
@@ -481,18 +519,20 @@ class _Breadcrumb extends StatelessWidget {
           onPressed: () => context.go(AppRoutes.recruiterJobs),
           icon: const Icon(Icons.chevron_left_rounded, size: 18),
           label: const Text('Offres'),
-          style: TextButton.styleFrom(foregroundColor: AppColors.slateDark),
+          style: TextButton.styleFrom(
+            foregroundColor: StudioColors.text(context, AppColors.slateDark),
+          ),
         ),
-        const Icon(
+        Icon(
           Icons.chevron_right_rounded,
           size: 15,
-          color: AppColors.placeholder,
+          color: StudioColors.text(context, AppColors.placeholder),
         ),
         const SizedBox(width: 4),
-        const Text(
+        Text(
           'Détail de l’offre',
           style: TextStyle(
-            color: AppColors.slateDark,
+            color: StudioColors.text(context, AppColors.slateDark),
             fontSize: 11,
             fontWeight: FontWeight.w700,
           ),
@@ -527,8 +567,8 @@ class _SummaryCard extends StatelessWidget {
             const SizedBox(width: 6),
             Text(
               company.name,
-              style: const TextStyle(
-                color: AppColors.navy,
+              style: TextStyle(
+                color: StudioColors.text(context, AppColors.navy),
                 fontSize: 11,
                 fontWeight: FontWeight.w900,
               ),
@@ -544,8 +584,8 @@ class _SummaryCard extends StatelessWidget {
         const SizedBox(height: 10),
         Text(
           offer.title,
-          style: const TextStyle(
-            color: AppColors.navy,
+          style: TextStyle(
+            color: StudioColors.text(context, AppColors.navy),
             fontSize: 24,
             height: 1.08,
             fontWeight: FontWeight.w900,
@@ -557,8 +597,8 @@ class _SummaryCard extends StatelessWidget {
           offer.description.replaceAll(RegExp(r'\s+'), ' ').trim(),
           maxLines: 3,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: AppColors.slate,
+          style: TextStyle(
+            color: StudioColors.text(context, AppColors.slate),
             fontSize: 13.3,
             height: 1.48,
           ),
@@ -603,8 +643,13 @@ class _SummaryCard extends StatelessWidget {
               icon: const Icon(Icons.group_outlined, size: 17),
               label: Text('${offer.candidateCount} candidats'),
               style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF1475D1),
-                side: const BorderSide(color: Color(0xFF88C3F9)),
+                foregroundColor: StudioColors.text(
+                  context,
+                  const Color(0xFF1475D1),
+                ),
+                side: BorderSide(
+                  color: StudioColors.border(context, Color(0xFF88C3F9)),
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -666,7 +711,10 @@ class _Tab extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
         decoration: BoxDecoration(
-          color: active ? const Color(0xFFF0F7FF) : Colors.white,
+          color: StudioColors.background(
+            context,
+            active ? const Color(0xFFF0F7FF) : Colors.white,
+          ),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: active ? const Color(0xFF1687F8) : AppColors.lineSoft,
@@ -675,7 +723,10 @@ class _Tab extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            color: active ? const Color(0xFF1475D1) : AppColors.slate,
+            color: StudioColors.text(
+              context,
+              active ? const Color(0xFF1475D1) : AppColors.slate,
+            ),
             fontSize: 11,
             fontWeight: FontWeight.w800,
           ),
@@ -695,7 +746,7 @@ class _SectionCard extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: StudioColors.background(context, Colors.white),
       borderRadius: BorderRadius.circular(16),
       border: Border.all(color: const Color(0xFFE5ECF1)),
       boxShadow: const [
@@ -718,18 +769,25 @@ class _SectionCard extends StatelessWidget {
                   height: 34,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF0F7FF),
+                    color: StudioColors.background(
+                      context,
+                      const Color(0xFFF0F7FF),
+                    ),
                     borderRadius: BorderRadius.circular(9),
                   ),
-                  child: Icon(icon, size: 18, color: const Color(0xFF1475D1)),
+                  child: Icon(
+                    icon,
+                    size: 18,
+                    color: StudioColors.text(context, const Color(0xFF1475D1)),
+                  ),
                 ),
                 const SizedBox(width: 9),
               ],
               Expanded(
                 child: Text(
                   title!,
-                  style: const TextStyle(
-                    color: AppColors.navy,
+                  style: TextStyle(
+                    color: StudioColors.text(context, AppColors.navy),
                     fontSize: 16,
                     fontWeight: FontWeight.w900,
                   ),
@@ -756,14 +814,18 @@ class _Info extends StatelessWidget {
     padding: const EdgeInsets.only(bottom: 11),
     child: Row(
       children: [
-        Icon(icon, size: 17, color: AppColors.slate),
+        Icon(
+          icon,
+          size: 17,
+          color: StudioColors.text(context, AppColors.slate),
+        ),
         const SizedBox(width: 8),
         SizedBox(
           width: 95,
           child: Text(
             label,
-            style: const TextStyle(
-              color: AppColors.slate,
+            style: TextStyle(
+              color: StudioColors.text(context, AppColors.slate),
               fontSize: 10.5,
               fontWeight: FontWeight.w600,
             ),
@@ -773,8 +835,8 @@ class _Info extends StatelessWidget {
           child: Text(
             value,
             textAlign: TextAlign.right,
-            style: const TextStyle(
-              color: AppColors.navy,
+            style: TextStyle(
+              color: StudioColors.text(context, AppColors.navy),
               fontSize: 10.8,
               fontWeight: FontWeight.w800,
             ),
@@ -794,12 +856,16 @@ class _Meta extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Icon(icon, size: 15, color: const Color(0xFF1475D1)),
+      Icon(
+        icon,
+        size: 15,
+        color: StudioColors.text(context, const Color(0xFF1475D1)),
+      ),
       const SizedBox(width: 5),
       Text(
         label,
-        style: const TextStyle(
-          color: AppColors.slateDark,
+        style: TextStyle(
+          color: StudioColors.text(context, AppColors.slateDark),
           fontSize: 10.5,
           fontWeight: FontWeight.w700,
         ),

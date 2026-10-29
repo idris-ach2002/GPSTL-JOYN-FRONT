@@ -1,3 +1,5 @@
+import '../../../recruiter_studio/presentation/studio_components.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -45,7 +47,7 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
     final isWide = width >= 1020;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: StudioColors.background(context, AppColors.background),
       body: Stack(
         children: [
           Positioned.fill(
@@ -59,20 +61,30 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
                       const RecruiterOfferHeaderArt(),
                       DecoratedBox(
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              const Color(0xFF031A31).withValues(alpha: .08),
-                              const Color(0xFF031A31).withValues(alpha: .30),
-                            ],
+                          gradient: StudioColors.gradient(
+                            context,
+                            LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                const Color(0xFF031A31).withValues(alpha: .08),
+                                const Color(0xFF031A31).withValues(alpha: .30),
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                const Expanded(child: ColoredBox(color: AppColors.background)),
+                Expanded(
+                  child: ColoredBox(
+                    color: StudioColors.background(
+                      context,
+                      AppColors.background,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -108,8 +120,11 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
                                         controller.isEditing
                                             ? 'Modifier l’offre'
                                             : 'Créer une offre',
-                                        style: const TextStyle(
-                                          color: Colors.white,
+                                        style: TextStyle(
+                                          color: StudioColors.text(
+                                            context,
+                                            Colors.white,
+                                          ),
                                           fontFamily: AppFonts.display,
                                           fontSize: 34,
                                           height: 1,
@@ -122,8 +137,11 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
                                         controller.isEditing
                                             ? 'Mettez à jour les informations puis enregistrez vos changements.'
                                             : 'Attirez les meilleurs talents en quelques minutes. Remplissez les informations ci-dessous pour publier votre offre.',
-                                        style: const TextStyle(
-                                          color: Color(0xFFE4F3FB),
+                                        style: TextStyle(
+                                          color: StudioColors.text(
+                                            context,
+                                            Color(0xFFE4F3FB),
+                                          ),
                                           fontSize: 13,
                                           height: 1.4,
                                         ),
@@ -134,15 +152,21 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
                                 TextButton.icon(
                                   onPressed: () =>
                                       context.go(AppRoutes.recruiterJobs),
-                                  icon: const Icon(
+                                  icon: Icon(
                                     Icons.arrow_back_rounded,
-                                    color: Colors.white,
+                                    color: StudioColors.text(
+                                      context,
+                                      Colors.white,
+                                    ),
                                     size: 18,
                                   ),
-                                  label: const Text(
+                                  label: Text(
                                     'Mes offres',
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: StudioColors.text(
+                                        context,
+                                        Colors.white,
+                                      ),
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
@@ -866,7 +890,10 @@ class _EditorJourney extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: .10),
+        color: StudioColors.background(
+          context,
+          Colors.white.withValues(alpha: .10),
+        ),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: Colors.white.withValues(alpha: .18)),
       ),
@@ -905,9 +932,12 @@ class _JourneyStep extends StatelessWidget {
     duration: const Duration(milliseconds: 180),
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
     decoration: BoxDecoration(
-      color: complete
-          ? Colors.white.withValues(alpha: .18)
-          : Colors.white.withValues(alpha: .09),
+      color: StudioColors.background(
+        context,
+        complete
+            ? Colors.white.withValues(alpha: .18)
+            : Colors.white.withValues(alpha: .09),
+      ),
       borderRadius: BorderRadius.circular(10),
       border: Border.all(
         color: Colors.white.withValues(alpha: complete ? .26 : .12),
@@ -921,33 +951,46 @@ class _JourneyStep extends StatelessWidget {
           height: 21,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: complete
-                ? const Color(0xFFDAF5EA)
-                : Colors.white.withValues(alpha: .12),
+            color: StudioColors.background(
+              context,
+              complete
+                  ? const Color(0xFFDAF5EA)
+                  : Colors.white.withValues(alpha: .12),
+            ),
             shape: BoxShape.circle,
           ),
           child: complete
-              ? const Icon(
+              ? Icon(
                   Icons.check_rounded,
                   size: 14,
-                  color: Color(0xFF13845A),
+                  color: StudioColors.text(context, Color(0xFF13845A)),
                 )
               : Text(
                   '$index',
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: StudioColors.text(context, Colors.white),
                     fontSize: 9,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
         ),
         const SizedBox(width: 7),
-        Icon(icon, size: 15, color: Colors.white.withValues(alpha: .88)),
+        Icon(
+          icon,
+          size: 15,
+          color: StudioColors.text(
+            context,
+            Colors.white.withValues(alpha: .88),
+          ),
+        ),
         const SizedBox(width: 5),
         Text(
           label,
           style: TextStyle(
-            color: Colors.white.withValues(alpha: complete ? 1 : .82),
+            color: StudioColors.text(
+              context,
+              Colors.white.withValues(alpha: complete ? 1 : .82),
+            ),
             fontSize: 10,
             fontWeight: FontWeight.w800,
           ),
@@ -976,18 +1019,24 @@ class _CompletionBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
       decoration: BoxDecoration(
-        color: done == values.length
-            ? const Color(0xFFE8F7F1)
-            : const Color(0xFFF1F6FA),
+        color: StudioColors.background(
+          context,
+          done == values.length
+              ? const Color(0xFFE8F7F1)
+              : const Color(0xFFF1F6FA),
+        ),
         borderRadius: BorderRadius.circular(999),
         border: Border.all(color: AppColors.lineSoft),
       ),
       child: Text(
         '$done/${values.length} complété',
         style: TextStyle(
-          color: done == values.length
-              ? const Color(0xFF13845A)
-              : AppColors.slateDark,
+          color: StudioColors.text(
+            context,
+            done == values.length
+                ? const Color(0xFF13845A)
+                : AppColors.slateDark,
+          ),
           fontSize: 9.5,
           fontWeight: FontWeight.w800,
         ),
@@ -1021,7 +1070,7 @@ class _WebCardState extends State<_WebCard> {
       curve: Curves.easeOutCubic,
       padding: widget.padding,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: StudioColors.background(context, Colors.white),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: _hovered ? const Color(0xFFD5E4EF) : AppColors.lineSoft,
@@ -1049,8 +1098,8 @@ class _SectionTitle extends StatelessWidget {
     children: [
       Text(
         title,
-        style: const TextStyle(
-          color: AppColors.navy,
+        style: TextStyle(
+          color: StudioColors.text(context, AppColors.navy),
           fontSize: 16,
           fontWeight: FontWeight.w900,
         ),
@@ -1058,8 +1107,8 @@ class _SectionTitle extends StatelessWidget {
       const SizedBox(height: 3),
       Text(
         subtitle,
-        style: const TextStyle(
-          color: AppColors.slate,
+        style: TextStyle(
+          color: StudioColors.text(context, AppColors.slate),
           fontSize: 10,
           height: 1.35,
         ),
@@ -1079,8 +1128,8 @@ class _Field extends StatelessWidget {
     children: [
       Text(
         label,
-        style: const TextStyle(
-          color: AppColors.navy,
+        style: TextStyle(
+          color: StudioColors.text(context, AppColors.navy),
           fontSize: 11,
           fontWeight: FontWeight.w800,
         ),
@@ -1091,8 +1140,8 @@ class _Field extends StatelessWidget {
         const SizedBox(height: 5),
         Text(
           error!,
-          style: const TextStyle(
-            color: AppColors.error,
+          style: TextStyle(
+            color: StudioColors.text(context, AppColors.error),
             fontSize: 10,
             fontWeight: FontWeight.w700,
           ),
@@ -1150,8 +1199,8 @@ class _SegmentSection<T> extends StatelessWidget {
     children: [
       Text(
         label,
-        style: const TextStyle(
-          color: AppColors.navy,
+        style: TextStyle(
+          color: StudioColors.text(context, AppColors.navy),
           fontSize: 11,
           fontWeight: FontWeight.w800,
         ),
@@ -1164,7 +1213,10 @@ class _SegmentSection<T> extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.only(right: value == values.last ? 0 : 6),
               child: Material(
-                color: active ? const Color(0xFFEAF4FC) : Colors.white,
+                color: StudioColors.background(
+                  context,
+                  active ? const Color(0xFFEAF4FC) : Colors.white,
+                ),
                 borderRadius: BorderRadius.circular(11),
                 child: InkWell(
                   onTap: () => onSelected(value),
@@ -1186,9 +1238,10 @@ class _SegmentSection<T> extends StatelessWidget {
                         Icon(
                           iconOf(value),
                           size: 15,
-                          color: active
-                              ? const Color(0xFF1976D2)
-                              : AppColors.slate,
+                          color: StudioColors.text(
+                            context,
+                            active ? const Color(0xFF1976D2) : AppColors.slate,
+                          ),
                         ),
                         const SizedBox(width: 5),
                         Flexible(
@@ -1196,9 +1249,12 @@ class _SegmentSection<T> extends StatelessWidget {
                             labelOf(value),
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color: active
-                                  ? const Color(0xFF1976D2)
-                                  : AppColors.slate,
+                              color: StudioColors.text(
+                                context,
+                                active
+                                    ? const Color(0xFF1976D2)
+                                    : AppColors.slate,
+                              ),
                               fontSize: 10,
                               fontWeight: active
                                   ? FontWeight.w800
@@ -1233,7 +1289,7 @@ class _CompanyChoice extends StatelessWidget {
   Widget build(BuildContext context) => Tooltip(
     message: company.name,
     child: Material(
-      color: Colors.white,
+      color: StudioColors.background(context, Colors.white),
       borderRadius: BorderRadius.circular(13),
       child: InkWell(
         onTap: onTap,
@@ -1266,8 +1322,8 @@ class _CompanyChoice extends StatelessWidget {
                       company.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppColors.navy,
+                      style: TextStyle(
+                        color: StudioColors.text(context, AppColors.navy),
                         fontSize: 11,
                         fontWeight: FontWeight.w900,
                       ),
@@ -1276,8 +1332,8 @@ class _CompanyChoice extends StatelessWidget {
                       company.activity,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppColors.slate,
+                      style: TextStyle(
+                        color: StudioColors.text(context, AppColors.slate),
                         fontSize: 8,
                       ),
                     ),
@@ -1285,9 +1341,9 @@ class _CompanyChoice extends StatelessWidget {
                 ),
               ),
               if (selected)
-                const Icon(
+                Icon(
                   Icons.check_circle_rounded,
-                  color: Color(0xFF1976D2),
+                  color: StudioColors.text(context, Color(0xFF1976D2)),
                   size: 17,
                 ),
             ],
@@ -1309,19 +1365,23 @@ class _AddCompanyChoice extends StatelessWidget {
       width: 138,
       height: 66,
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FBFD),
+        color: StudioColors.background(context, const Color(0xFFF8FBFD)),
         borderRadius: BorderRadius.circular(13),
         border: Border.all(color: AppColors.blue.withValues(alpha: .65)),
       ),
-      child: const Column(
+      child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.add_rounded, color: Color(0xFF1976D2), size: 20),
+          Icon(
+            Icons.add_rounded,
+            color: StudioColors.text(context, Color(0xFF1976D2)),
+            size: 20,
+          ),
           SizedBox(height: 3),
           Text(
             'Créer une entreprise',
             style: TextStyle(
-              color: Color(0xFF1976D2),
+              color: StudioColors.text(context, Color(0xFF1976D2)),
               fontSize: 9,
               fontWeight: FontWeight.w800,
             ),
@@ -1358,8 +1418,8 @@ class _DateField extends StatelessWidget {
       ),
       child: Text(
         monthYearLabel(value),
-        style: const TextStyle(
-          color: AppColors.navy,
+        style: TextStyle(
+          color: StudioColors.text(context, AppColors.navy),
           fontSize: 12,
           fontWeight: FontWeight.w600,
         ),
@@ -1375,23 +1435,23 @@ class _ErrorBanner extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(13),
     decoration: BoxDecoration(
-      color: AppColors.errorTint,
+      color: StudioColors.background(context, AppColors.errorTint),
       borderRadius: BorderRadius.circular(14),
       border: Border.all(color: const Color(0x33E24B4B)),
     ),
     child: Row(
       children: [
-        const Icon(
+        Icon(
           Icons.error_outline_rounded,
-          color: AppColors.error,
+          color: StudioColors.text(context, AppColors.error),
           size: 19,
         ),
         const SizedBox(width: 9),
         Expanded(
           child: Text(
             message,
-            style: const TextStyle(
-              color: AppColors.errorDeep,
+            style: TextStyle(
+              color: StudioColors.text(context, AppColors.errorDeep),
               fontSize: 12,
               fontWeight: FontWeight.w700,
             ),

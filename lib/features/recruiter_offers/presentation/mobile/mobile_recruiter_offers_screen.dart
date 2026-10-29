@@ -1,3 +1,6 @@
+import '../../../recruiter_studio/presentation/studio_offers.dart';
+import '../../../recruiter_studio/presentation/studio_components.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -21,7 +24,10 @@ class MobileRecruiterOffersScreen extends StatelessWidget {
     final controller = context.watch<OfferManagementController>();
     return MobileAppSurface(
       systemUiOverlayStyle: SystemUiOverlayStyle.light,
-      backgroundColor: const Color(0xFFF5F7F6),
+      backgroundColor: StudioColors.background(
+        context,
+        const Color(0xFFF5F7F6),
+      ),
       child: Column(
         children: [
           Expanded(
@@ -40,6 +46,7 @@ class MobileRecruiterOffersScreen extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
+                              const StudioOffersToolbar(),
                               _SearchAndStatus(controller: controller),
                               const SizedBox(height: 12),
                               if (controller.errorMessage != null)
@@ -133,7 +140,7 @@ class MobileRecruiterOffersScreen extends StatelessWidget {
   ) async {
     final confirmed = await showModalBottomSheet<bool>(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: StudioColors.background(context, Colors.transparent),
       builder: (sheetContext) => _ActionSheet(
         icon: Icons.pause_circle_outline_rounded,
         title: 'Clôturer cette offre ?',
@@ -162,7 +169,7 @@ class MobileRecruiterOffersScreen extends StatelessWidget {
   ) async {
     final confirmed = await showModalBottomSheet<bool>(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: StudioColors.background(context, Colors.transparent),
       builder: (sheetContext) => _ActionSheet(
         icon: Icons.delete_outline_rounded,
         title: 'Supprimer cette offre ?',
@@ -195,17 +202,20 @@ class _Hero extends StatelessWidget {
       fit: StackFit.expand,
       children: [
         const RecruiterOfferHeaderArt(),
-        const DecoratedBox(
+        DecoratedBox(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: [
-                Color(0xC7061F3A),
-                Color(0x42061F3A),
-                Colors.transparent,
-              ],
-              stops: [0, .62, 1],
+            gradient: StudioColors.gradient(
+              context,
+              LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [
+                  Color(0xC7061F3A),
+                  Color(0x42061F3A),
+                  Colors.transparent,
+                ],
+                stops: [0, .62, 1],
+              ),
             ),
           ),
         ),
@@ -228,13 +238,16 @@ class _Hero extends StatelessWidget {
                             vertical: 3,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: .15),
+                            color: StudioColors.background(
+                              context,
+                              Colors.white.withValues(alpha: .15),
+                            ),
                             borderRadius: BorderRadius.circular(5),
                           ),
-                          child: const Text(
+                          child: Text(
                             'Entreprise',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: StudioColors.text(context, Colors.white),
                               fontSize: 9,
                               fontWeight: FontWeight.w800,
                             ),
@@ -252,20 +265,29 @@ class _Hero extends StatelessWidget {
                         color: Colors.white,
                         visualDensity: VisualDensity.compact,
                         style: IconButton.styleFrom(
-                          backgroundColor: Colors.white.withValues(alpha: .08),
+                          backgroundColor: StudioColors.background(
+                            context,
+                            Colors.white.withValues(alpha: .08),
+                          ),
                           side: BorderSide(
-                            color: Colors.white.withValues(alpha: .18),
+                            color: StudioColors.border(
+                              context,
+                              Colors.white.withValues(alpha: .18),
+                            ),
                           ),
                         ),
                       ),
                       const SizedBox(width: 5),
-                      const CircleAvatar(
+                      CircleAvatar(
                         radius: 18,
-                        backgroundColor: Colors.white,
+                        backgroundColor: StudioColors.background(
+                          context,
+                          Colors.white,
+                        ),
                         child: Text(
                           'E',
                           style: TextStyle(
-                            color: AppColors.navy,
+                            color: StudioColors.text(context, AppColors.navy),
                             fontWeight: FontWeight.w900,
                           ),
                         ),
@@ -275,10 +297,10 @@ class _Hero extends StatelessWidget {
                 },
               ),
               const Spacer(),
-              const Text(
+              Text(
                 'Mes offres',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: StudioColors.text(context, Colors.white),
                   fontSize: 36,
                   height: 1,
                   fontWeight: FontWeight.w900,
@@ -286,10 +308,10 @@ class _Hero extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 7),
-              const Text(
+              Text(
                 'Gérez et suivez toutes vos offres d’emploi sur Joyn.',
                 style: TextStyle(
-                  color: Color(0xFFEAF2F8),
+                  color: StudioColors.text(context, Color(0xFFEAF2F8)),
                   fontSize: 14.5,
                   height: 1.4,
                   fontWeight: FontWeight.w500,
@@ -308,8 +330,11 @@ class _Hero extends StatelessWidget {
                       style: TextStyle(fontWeight: FontWeight.w900),
                     ),
                     style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.orange,
-                      foregroundColor: Colors.white,
+                      backgroundColor: StudioColors.background(
+                        context,
+                        AppColors.orange,
+                      ),
+                      foregroundColor: StudioColors.text(context, Colors.white),
                       padding: const EdgeInsets.symmetric(horizontal: 18),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(22),
@@ -364,18 +389,21 @@ class _MobileHeroMetric extends StatelessWidget {
     mainAxisSize: MainAxisSize.min,
     children: [
       if (icon != null)
-        Icon(icon, size: 14, color: Colors.white)
+        Icon(icon, size: 14, color: StudioColors.text(context, Colors.white))
       else
         Container(
           width: 6,
           height: 6,
-          decoration: BoxDecoration(color: dot, shape: BoxShape.circle),
+          decoration: BoxDecoration(
+            color: StudioColors.background(context, dot),
+            shape: BoxShape.circle,
+          ),
         ),
       const SizedBox(width: 6),
       Text(
         label,
-        style: const TextStyle(
-          color: Colors.white,
+        style: TextStyle(
+          color: StudioColors.text(context, Colors.white),
           fontSize: 10.3,
           fontWeight: FontWeight.w700,
         ),
@@ -403,9 +431,12 @@ class _CompanyFilters extends StatelessWidget {
             selected: active,
             onSelected: (_) => controller.setCompanyFilter(null),
             selectedColor: AppColors.navy,
-            backgroundColor: Colors.white,
+            backgroundColor: StudioColors.background(context, Colors.white),
             labelStyle: TextStyle(
-              color: active ? Colors.white : AppColors.navy,
+              color: StudioColors.text(
+                context,
+                active ? Colors.white : AppColors.navy,
+              ),
               fontSize: 12,
               fontWeight: FontWeight.w800,
             ),
@@ -420,14 +451,17 @@ class _CompanyFilters extends StatelessWidget {
           selected: active,
           onSelected: (_) => controller.setCompanyFilter(company.id),
           selectedColor: AppColors.orangeTint,
-          backgroundColor: Colors.white,
-          labelStyle: const TextStyle(
-            color: AppColors.navy,
+          backgroundColor: StudioColors.background(context, Colors.white),
+          labelStyle: TextStyle(
+            color: StudioColors.text(context, AppColors.navy),
             fontSize: 12,
             fontWeight: FontWeight.w800,
           ),
           side: BorderSide(
-            color: active ? AppColors.orange : const Color(0xFFE4E8E3),
+            color: StudioColors.border(
+              context,
+              active ? AppColors.orange : const Color(0xFFE4E8E3),
+            ),
           ),
         );
       },
@@ -446,23 +480,30 @@ class _SearchAndStatus extends StatelessWidget {
       TextField(
         onChanged: controller.setQuery,
         decoration: InputDecoration(
-          prefixIcon: const Icon(Icons.search_rounded, color: AppColors.slate),
-          suffixIcon: const Icon(
+          prefixIcon: Icon(
+            Icons.search_rounded,
+            color: StudioColors.text(context, AppColors.slate),
+          ),
+          suffixIcon: Icon(
             Icons.tune_rounded,
             size: 19,
-            color: AppColors.navy,
+            color: StudioColors.text(context, AppColors.navy),
           ),
           hintText: 'Rechercher une offre…',
           filled: true,
-          fillColor: Colors.white,
+          fillColor: StudioColors.background(context, Colors.white),
           contentPadding: const EdgeInsets.symmetric(vertical: 13),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(13),
-            borderSide: const BorderSide(color: Color(0xFFE0E7EC)),
+            borderSide: BorderSide(
+              color: StudioColors.border(context, Color(0xFFE0E7EC)),
+            ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(13),
-            borderSide: const BorderSide(color: Color(0xFFE0E7EC)),
+            borderSide: BorderSide(
+              color: StudioColors.border(context, Color(0xFFE0E7EC)),
+            ),
           ),
         ),
       ),
@@ -558,22 +599,30 @@ class _MobileDropdown<T> extends StatelessWidget {
     isExpanded: true,
     icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 18),
     decoration: InputDecoration(
-      prefixIcon: Icon(icon, size: 17, color: AppColors.navy),
+      prefixIcon: Icon(
+        icon,
+        size: 17,
+        color: StudioColors.text(context, AppColors.navy),
+      ),
       filled: true,
-      fillColor: Colors.white,
+      fillColor: StudioColors.background(context, Colors.white),
       isDense: true,
       contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 11),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFFE0E7EC)),
+        borderSide: BorderSide(
+          color: StudioColors.border(context, Color(0xFFE0E7EC)),
+        ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFFE0E7EC)),
+        borderSide: BorderSide(
+          color: StudioColors.border(context, Color(0xFFE0E7EC)),
+        ),
       ),
     ),
-    style: const TextStyle(
-      color: AppColors.navy,
+    style: TextStyle(
+      color: StudioColors.text(context, AppColors.navy),
       fontSize: 10.5,
       fontWeight: FontWeight.w800,
     ),
@@ -612,12 +661,18 @@ class _StatusFilter extends StatelessWidget {
       onSelected: (_) => onTap(),
       label: Text(label),
       selectedColor: tone ?? const Color(0xFFEAF4FC),
-      backgroundColor: Colors.white,
+      backgroundColor: StudioColors.background(context, Colors.white),
       side: BorderSide(
-        color: active ? AppColors.blue : const Color(0xFFE4E8E3),
+        color: StudioColors.border(
+          context,
+          active ? AppColors.blue : const Color(0xFFE4E8E3),
+        ),
       ),
       labelStyle: TextStyle(
-        color: active ? const Color(0xFF1976D2) : AppColors.slate,
+        color: StudioColors.text(
+          context,
+          active ? const Color(0xFF1976D2) : AppColors.slate,
+        ),
         fontSize: 11.5,
         fontWeight: FontWeight.w800,
       ),
@@ -657,7 +712,7 @@ class _MobileOfferCard extends StatelessWidget {
         );
 
     return Material(
-      color: Colors.transparent,
+      color: StudioColors.background(context, Colors.transparent),
       child: InkWell(
         onTap: onTap,
         child: OfferCardSurface(
@@ -685,17 +740,25 @@ class _MobileOfferCard extends StatelessWidget {
                                   c.name,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    color: AppColors.navy,
+                                  style: TextStyle(
+                                    color: StudioColors.text(
+                                      context,
+                                      AppColors.navy,
+                                    ),
                                     fontSize: 12,
                                     fontWeight: FontWeight.w800,
                                   ),
                                 ),
                               ),
                               const SizedBox(width: 5),
-                              const Text(
+                              Text(
                                 '·',
-                                style: TextStyle(color: AppColors.placeholder),
+                                style: TextStyle(
+                                  color: StudioColors.text(
+                                    context,
+                                    AppColors.placeholder,
+                                  ),
+                                ),
                               ),
                               const SizedBox(width: 5),
                               Flexible(
@@ -703,8 +766,11 @@ class _MobileOfferCard extends StatelessWidget {
                                   offer.location,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    color: AppColors.slate,
+                                  style: TextStyle(
+                                    color: StudioColors.text(
+                                      context,
+                                      AppColors.slate,
+                                    ),
                                     fontSize: 11,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -717,8 +783,8 @@ class _MobileOfferCard extends StatelessWidget {
                             offer.title,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: AppColors.navy,
+                            style: TextStyle(
+                              color: StudioColors.text(context, AppColors.navy),
                               fontSize: 18,
                               height: 1.16,
                               fontWeight: FontWeight.w900,
@@ -745,8 +811,8 @@ class _MobileOfferCard extends StatelessWidget {
                   _plainDescription(offer.description),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.slate,
+                  style: TextStyle(
+                    color: StudioColors.text(context, AppColors.slate),
                     fontSize: 13.2,
                     height: 1.42,
                   ),
@@ -756,10 +822,10 @@ class _MobileOfferCard extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                   child: InkWell(
                     onTap: onTap,
-                    child: const Text(
+                    child: Text(
                       'Lire la suite  →',
                       style: TextStyle(
-                        color: Color(0xFF1475D1),
+                        color: StudioColors.text(context, Color(0xFF1475D1)),
                         fontSize: 12.2,
                         fontWeight: FontWeight.w800,
                       ),
@@ -795,7 +861,13 @@ class _MobileOfferCard extends StatelessWidget {
                   ),
                 ],
                 const SizedBox(height: 9),
-                Container(height: 1, color: const Color(0xFFDDE7EF)),
+                Container(
+                  height: 1,
+                  color: StudioColors.background(
+                    context,
+                    const Color(0xFFDDE7EF),
+                  ),
+                ),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 14,
@@ -814,16 +886,16 @@ class _MobileOfferCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 7),
                         ],
-                        const Icon(
+                        Icon(
                           Icons.group_outlined,
                           size: 15,
-                          color: AppColors.slate,
+                          color: StudioColors.text(context, AppColors.slate),
                         ),
                         const SizedBox(width: 4),
                         Text(
                           '${offer.candidateCount} candidat${offer.candidateCount > 1 ? 's' : ''}',
-                          style: const TextStyle(
-                            color: AppColors.slate,
+                          style: TextStyle(
+                            color: StudioColors.text(context, AppColors.slate),
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                           ),
@@ -833,16 +905,16 @@ class _MobileOfferCard extends StatelessWidget {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.calendar_today_outlined,
                           size: 14,
-                          color: AppColors.slate,
+                          color: StudioColors.text(context, AppColors.slate),
                         ),
                         const SizedBox(width: 5),
                         Text(
                           dateLabel(offer.publishedAt ?? offer.updatedAt),
-                          style: const TextStyle(
-                            color: AppColors.slate,
+                          style: TextStyle(
+                            color: StudioColors.text(context, AppColors.slate),
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                           ),
@@ -889,8 +961,8 @@ class _ActionSheet extends StatelessWidget {
       top: false,
       child: Container(
         padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: StudioColors.background(context, Colors.white),
           borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
         child: Column(
@@ -900,7 +972,7 @@ class _ActionSheet extends StatelessWidget {
               width: 42,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.line,
+                color: StudioColors.background(context, AppColors.line),
                 borderRadius: BorderRadius.circular(99),
               ),
             ),
@@ -910,17 +982,24 @@ class _ActionSheet extends StatelessWidget {
               height: 58,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: actionColor.withValues(alpha: .1),
+                color: StudioColors.background(
+                  context,
+                  actionColor.withValues(alpha: .1),
+                ),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: actionColor, size: 28),
+              child: Icon(
+                icon,
+                color: StudioColors.text(context, actionColor),
+                size: 28,
+              ),
             ),
             const SizedBox(height: 14),
             Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: AppColors.navy,
+              style: TextStyle(
+                color: StudioColors.text(context, AppColors.navy),
                 fontSize: 28,
                 fontWeight: FontWeight.w900,
               ),
@@ -929,8 +1008,8 @@ class _ActionSheet extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: AppColors.slate,
+              style: TextStyle(
+                color: StudioColors.text(context, AppColors.slate),
                 fontSize: 11,
                 height: 1.4,
               ),
@@ -942,8 +1021,11 @@ class _ActionSheet extends StatelessWidget {
               child: FilledButton.icon(
                 onPressed: onConfirm,
                 style: FilledButton.styleFrom(
-                  backgroundColor: actionColor,
-                  foregroundColor: Colors.white,
+                  backgroundColor: StudioColors.background(
+                    context,
+                    actionColor,
+                  ),
+                  foregroundColor: StudioColors.text(context, Colors.white),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -970,22 +1052,32 @@ class _Empty extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(28),
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: StudioColors.background(context, Colors.white),
       borderRadius: BorderRadius.circular(18),
     ),
-    child: const Column(
+    child: Column(
       children: [
-        Icon(Icons.work_outline_rounded, color: AppColors.orange, size: 32),
+        Icon(
+          Icons.work_outline_rounded,
+          color: StudioColors.text(context, AppColors.orange),
+          size: 32,
+        ),
         SizedBox(height: 10),
         Text(
           'Aucune offre à afficher',
-          style: TextStyle(color: AppColors.navy, fontWeight: FontWeight.w900),
+          style: TextStyle(
+            color: StudioColors.text(context, AppColors.navy),
+            fontWeight: FontWeight.w900,
+          ),
         ),
         SizedBox(height: 5),
         Text(
           'Changez vos filtres ou créez une nouvelle offre.',
           textAlign: TextAlign.center,
-          style: TextStyle(color: AppColors.slate, fontSize: 11),
+          style: TextStyle(
+            color: StudioColors.text(context, AppColors.slate),
+            fontSize: 11,
+          ),
         ),
       ],
     ),

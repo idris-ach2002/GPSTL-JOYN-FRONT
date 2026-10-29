@@ -1,3 +1,5 @@
+import '../../../recruiter_studio/presentation/studio_components.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../../../design_system/mobile/mobile_app_surface.dart';
@@ -13,7 +15,7 @@ Future<void> showMobileCompanyPicker(
 ) => showModalBottomSheet<void>(
   context: context,
   isScrollControlled: true,
-  backgroundColor: Colors.transparent,
+  backgroundColor: StudioColors.background(context, Colors.transparent),
   builder: (context) => FractionallySizedBox(
     heightFactor: .92,
     child: _MobileCompanyPicker(controller: controller),
@@ -50,8 +52,8 @@ class _MobileCompanyPickerState extends State<_MobileCompanyPicker> {
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: widget.controller,
     builder: (context, _) => DecoratedBox(
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: StudioColors.background(context, Colors.white),
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       child: SafeArea(
@@ -63,7 +65,7 @@ class _MobileCompanyPickerState extends State<_MobileCompanyPicker> {
               width: 42,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.line,
+                color: StudioColors.background(context, AppColors.line),
                 borderRadius: BorderRadius.circular(99),
               ),
             ),
@@ -71,14 +73,14 @@ class _MobileCompanyPickerState extends State<_MobileCompanyPicker> {
               padding: const EdgeInsets.fromLTRB(20, 16, 12, 10),
               child: Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Ajouter une entreprise',
                           style: TextStyle(
-                            color: AppColors.navy,
+                            color: StudioColors.text(context, AppColors.navy),
                             fontSize: 23,
                             fontWeight: FontWeight.w900,
                           ),
@@ -87,7 +89,7 @@ class _MobileCompanyPickerState extends State<_MobileCompanyPicker> {
                         Text(
                           'Recherchez-la dans la base ou créez-la.',
                           style: TextStyle(
-                            color: AppColors.slate,
+                            color: StudioColors.text(context, AppColors.slate),
                             fontSize: 12,
                           ),
                         ),
@@ -118,7 +120,10 @@ class _MobileCompanyPickerState extends State<_MobileCompanyPicker> {
                     loading:
                         widget.controller.companyLookupStatus ==
                         CompanyLookupStatus.loading,
-                    backgroundColor: AppColors.navy,
+                    backgroundColor: StudioColors.background(
+                      context,
+                      AppColors.navy,
+                    ),
                     onPressed: () =>
                         widget.controller.lookupCompany(siret.text),
                   ),
@@ -143,7 +148,7 @@ class _MobileCompanyPickerState extends State<_MobileCompanyPicker> {
                           'Entreprise absente de la base. Créez-la ci-dessous.',
                     ),
                   ],
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.symmetric(vertical: 22),
                     child: Row(
                       children: [
@@ -153,7 +158,10 @@ class _MobileCompanyPickerState extends State<_MobileCompanyPicker> {
                           child: Text(
                             'ou créer manuellement',
                             style: TextStyle(
-                              color: AppColors.placeholder,
+                              color: StudioColors.text(
+                                context,
+                                AppColors.placeholder,
+                              ),
                               fontSize: 11,
                             ),
                           ),
@@ -162,10 +170,10 @@ class _MobileCompanyPickerState extends State<_MobileCompanyPicker> {
                       ],
                     ),
                   ),
-                  const Text(
+                  Text(
                     'Créer l’entreprise',
                     style: TextStyle(
-                      color: AppColors.navy,
+                      color: StudioColors.text(context, AppColors.navy),
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
                     ),
@@ -219,8 +227,8 @@ class _MobileCompanyPickerState extends State<_MobileCompanyPicker> {
                     const SizedBox(height: 10),
                     Text(
                       widget.controller.companyLookupError!,
-                      style: const TextStyle(
-                        color: AppColors.error,
+                      style: TextStyle(
+                        color: StudioColors.text(context, AppColors.error),
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                       ),
@@ -230,7 +238,10 @@ class _MobileCompanyPickerState extends State<_MobileCompanyPicker> {
                   MobilePrimaryButton(
                     label: 'Créer et sélectionner',
                     icon: Icons.apartment_rounded,
-                    backgroundColor: AppColors.orange,
+                    backgroundColor: StudioColors.background(
+                      context,
+                      AppColors.orange,
+                    ),
                     loading: widget.controller.isCreatingCompany,
                     onPressed: () async {
                       final company = await widget.controller.createCompany(
@@ -266,7 +277,7 @@ class _FoundCompany extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(15),
     decoration: BoxDecoration(
-      color: AppColors.successTint,
+      color: StudioColors.background(context, AppColors.successTint),
       borderRadius: BorderRadius.circular(18),
       border: Border.all(color: AppColors.successLine),
     ),
@@ -282,15 +293,15 @@ class _FoundCompany extends StatelessWidget {
                 children: [
                   Text(
                     company.name,
-                    style: const TextStyle(
-                      color: AppColors.navy,
+                    style: TextStyle(
+                      color: StudioColors.text(context, AppColors.navy),
                       fontWeight: FontWeight.w900,
                     ),
                   ),
                   Text(
                     '${company.activity} · ${company.city}',
-                    style: const TextStyle(
-                      color: AppColors.slate,
+                    style: TextStyle(
+                      color: StudioColors.text(context, AppColors.slate),
                       fontSize: 11,
                     ),
                   ),
@@ -303,7 +314,10 @@ class _FoundCompany extends StatelessWidget {
         MobilePrimaryButton(
           label: 'Choisir cette entreprise',
           icon: Icons.check_rounded,
-          backgroundColor: AppColors.successDeep,
+          backgroundColor: StudioColors.background(
+            context,
+            AppColors.successDeep,
+          ),
           onPressed: onChoose,
         ),
       ],
@@ -318,22 +332,22 @@ class _Info extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(12),
     decoration: BoxDecoration(
-      color: AppColors.warningTint,
+      color: StudioColors.background(context, AppColors.warningTint),
       borderRadius: BorderRadius.circular(14),
     ),
     child: Row(
       children: [
-        const Icon(
+        Icon(
           Icons.info_outline_rounded,
-          color: AppColors.warningDeep,
+          color: StudioColors.text(context, AppColors.warningDeep),
           size: 18,
         ),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(
-              color: AppColors.warningDeep,
+            style: TextStyle(
+              color: StudioColors.text(context, AppColors.warningDeep),
               fontSize: 11,
               fontWeight: FontWeight.w700,
             ),
@@ -361,8 +375,8 @@ class _MobileDropdown extends StatelessWidget {
     children: [
       Text(
         label,
-        style: const TextStyle(
-          color: AppColors.navy,
+        style: TextStyle(
+          color: StudioColors.text(context, AppColors.navy),
           fontSize: 13,
           fontWeight: FontWeight.w800,
         ),
@@ -379,14 +393,16 @@ class _MobileDropdown extends StatelessWidget {
         },
         decoration: InputDecoration(
           filled: true,
-          fillColor: const Color(0xFFF4F6F3),
+          fillColor: StudioColors.background(context, const Color(0xFFF4F6F3)),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide.none,
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: Color(0xFFE4E8E3)),
+            borderSide: BorderSide(
+              color: StudioColors.border(context, Color(0xFFE4E8E3)),
+            ),
           ),
         ),
       ),

@@ -1,3 +1,6 @@
+import '../../../recruiter_studio/presentation/studio_offers.dart';
+import '../../../recruiter_studio/presentation/studio_components.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -32,7 +35,7 @@ class _WebRecruiterOffersScreenState extends State<WebRecruiterOffersScreen> {
     final controller = context.watch<OfferManagementController>();
     final width = MediaQuery.sizeOf(context).width;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: StudioColors.background(context, AppColors.background),
       body: Stack(
         children: [
           Positioned.fill(
@@ -46,22 +49,32 @@ class _WebRecruiterOffersScreenState extends State<WebRecruiterOffersScreen> {
                       const RecruiterOfferHeaderArt(),
                       DecoratedBox(
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                            colors: [
-                              const Color(0xFF061F3A).withValues(alpha: .76),
-                              const Color(0xFF061F3A).withValues(alpha: .24),
-                              Colors.transparent,
-                            ],
-                            stops: const [0, .42, .72],
+                          gradient: StudioColors.gradient(
+                            context,
+                            LinearGradient(
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                              colors: [
+                                const Color(0xFF061F3A).withValues(alpha: .76),
+                                const Color(0xFF061F3A).withValues(alpha: .24),
+                                Colors.transparent,
+                              ],
+                              stops: const [0, .42, .72],
+                            ),
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                const Expanded(child: ColoredBox(color: AppColors.background)),
+                Expanded(
+                  child: ColoredBox(
+                    color: StudioColors.background(
+                      context,
+                      AppColors.background,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -87,14 +100,17 @@ class _WebRecruiterOffersScreenState extends State<WebRecruiterOffersScreen> {
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              const Expanded(
+                              Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       'Mes offres',
                                       style: TextStyle(
-                                        color: Colors.white,
+                                        color: StudioColors.text(
+                                          context,
+                                          Colors.white,
+                                        ),
                                         fontFamily: AppFonts.display,
                                         fontSize: 44,
                                         height: 1,
@@ -106,7 +122,10 @@ class _WebRecruiterOffersScreenState extends State<WebRecruiterOffersScreen> {
                                     Text(
                                       'Gérez, modifiez et suivez toutes vos offres d’emploi sur Joyn.',
                                       style: TextStyle(
-                                        color: Color(0xFFEAF2F8),
+                                        color: StudioColors.text(
+                                          context,
+                                          Color(0xFFEAF2F8),
+                                        ),
                                         fontSize: 15.5,
                                         height: 1.35,
                                         fontWeight: FontWeight.w500,
@@ -135,6 +154,7 @@ class _WebRecruiterOffersScreenState extends State<WebRecruiterOffersScreen> {
                           if (controller.isLoading)
                             const _LoadingPanel()
                           else ...[
+                            const StudioOffersToolbar(),
                             _FiltersCard(controller: controller),
                             const SizedBox(height: 14),
                             _StatusFiltersRow(controller: controller),
@@ -143,8 +163,11 @@ class _WebRecruiterOffersScreenState extends State<WebRecruiterOffersScreen> {
                               children: [
                                 Text(
                                   '${controller.visibleOffers.length} offre${controller.visibleOffers.length > 1 ? 's' : ''}',
-                                  style: const TextStyle(
-                                    color: AppColors.navy,
+                                  style: TextStyle(
+                                    color: StudioColors.text(
+                                      context,
+                                      AppColors.navy,
+                                    ),
                                     fontSize: 15,
                                     fontWeight: FontWeight.w900,
                                   ),
@@ -273,15 +296,18 @@ class _WebRecruiterOffersScreenState extends State<WebRecruiterOffersScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: StudioColors.background(context, Colors.white),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Row(
+        title: Row(
           children: [
             CircleAvatar(
-              backgroundColor: AppColors.orangeTint,
+              backgroundColor: StudioColors.background(
+                context,
+                AppColors.orangeTint,
+              ),
               child: Icon(
                 Icons.pause_circle_outline_rounded,
-                color: AppColors.orange,
+                color: StudioColors.text(context, AppColors.orange),
               ),
             ),
             SizedBox(width: 12),
@@ -289,7 +315,7 @@ class _WebRecruiterOffersScreenState extends State<WebRecruiterOffersScreen> {
               child: Text(
                 'Clôturer l’offre ?',
                 style: TextStyle(
-                  color: AppColors.navy,
+                  color: StudioColors.text(context, AppColors.navy),
                   fontWeight: FontWeight.w900,
                 ),
               ),
@@ -302,15 +328,18 @@ class _WebRecruiterOffersScreenState extends State<WebRecruiterOffersScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
+              Text(
                 'Elle ne sera plus proposée aux candidats. Les candidatures et conversations existantes sont conservées.',
-                style: TextStyle(color: AppColors.slate, height: 1.45),
+                style: TextStyle(
+                  color: StudioColors.text(context, AppColors.slate),
+                  height: 1.45,
+                ),
               ),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'Motif (facultatif)',
                 style: TextStyle(
-                  color: AppColors.navy,
+                  color: StudioColors.text(context, AppColors.navy),
                   fontWeight: FontWeight.w800,
                   fontSize: 12,
                 ),
@@ -323,10 +352,15 @@ class _WebRecruiterOffersScreenState extends State<WebRecruiterOffersScreen> {
                 decoration: InputDecoration(
                   hintText: 'Ex. : poste pourvu, changement de besoin…',
                   filled: true,
-                  fillColor: AppColors.surfaceSubtle,
+                  fillColor: StudioColors.background(
+                    context,
+                    AppColors.surfaceSubtle,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: AppColors.lineSoft),
+                    borderSide: BorderSide(
+                      color: StudioColors.border(context, AppColors.lineSoft),
+                    ),
                   ),
                 ),
               ),
@@ -341,8 +375,11 @@ class _WebRecruiterOffersScreenState extends State<WebRecruiterOffersScreen> {
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, true),
             style: FilledButton.styleFrom(
-              backgroundColor: AppColors.orange,
-              foregroundColor: Colors.white,
+              backgroundColor: StudioColors.background(
+                context,
+                AppColors.orange,
+              ),
+              foregroundColor: StudioColors.text(context, Colors.white),
             ),
             child: const Text('Clôturer l’offre'),
           ),
@@ -374,32 +411,41 @@ class _WebRecruiterOffersScreenState extends State<WebRecruiterOffersScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: StudioColors.background(context, Colors.white),
         surfaceTintColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Row(
+        title: Row(
           children: [
             CircleAvatar(
-              backgroundColor: Color(0xFFFFECE8),
-              child: Icon(Icons.delete_outline_rounded, color: AppColors.error),
+              backgroundColor: StudioColors.background(
+                context,
+                Color(0xFFFFECE8),
+              ),
+              child: Icon(
+                Icons.delete_outline_rounded,
+                color: StudioColors.text(context, AppColors.error),
+              ),
             ),
             SizedBox(width: 12),
             Expanded(
               child: Text(
                 'Supprimer cette offre ?',
                 style: TextStyle(
-                  color: AppColors.navy,
+                  color: StudioColors.text(context, AppColors.navy),
                   fontWeight: FontWeight.w900,
                 ),
               ),
             ),
           ],
         ),
-        content: const SizedBox(
+        content: SizedBox(
           width: 440,
           child: Text(
             'Cette action retire définitivement l’offre de votre espace JOYN. Cette suppression est simulée côté Front tant que l’API dédiée n’est pas disponible.',
-            style: TextStyle(color: AppColors.slate, height: 1.45),
+            style: TextStyle(
+              color: StudioColors.text(context, AppColors.slate),
+              height: 1.45,
+            ),
           ),
         ),
         actions: [
@@ -410,8 +456,11 @@ class _WebRecruiterOffersScreenState extends State<WebRecruiterOffersScreen> {
           FilledButton.icon(
             onPressed: () => Navigator.pop(dialogContext, true),
             style: FilledButton.styleFrom(
-              backgroundColor: AppColors.error,
-              foregroundColor: Colors.white,
+              backgroundColor: StudioColors.background(
+                context,
+                AppColors.error,
+              ),
+              foregroundColor: StudioColors.text(context, Colors.white),
             ),
             icon: const Icon(Icons.delete_outline_rounded, size: 18),
             label: const Text('Supprimer'),
@@ -441,10 +490,10 @@ class _CompanyFilterCard extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text(
+        Text(
           'Filtrer par entreprise',
           style: TextStyle(
-            color: AppColors.navy,
+            color: StudioColors.text(context, AppColors.navy),
             fontSize: 14,
             fontWeight: FontWeight.w900,
           ),
@@ -581,18 +630,28 @@ class _HeroStatItem extends StatelessWidget {
     mainAxisSize: MainAxisSize.min,
     children: [
       if (icon != null)
-        Icon(icon, color: Colors.white.withValues(alpha: .94), size: 19)
+        Icon(
+          icon,
+          color: StudioColors.text(
+            context,
+            Colors.white.withValues(alpha: .94),
+          ),
+          size: 19,
+        )
       else
         Container(
           width: 8,
           height: 8,
-          decoration: BoxDecoration(color: dot, shape: BoxShape.circle),
+          decoration: BoxDecoration(
+            color: StudioColors.background(context, dot),
+            shape: BoxShape.circle,
+          ),
         ),
       const SizedBox(width: 9),
       Text(
         label,
-        style: const TextStyle(
-          color: Color(0xFFF2F6F9),
+        style: TextStyle(
+          color: StudioColors.text(context, Color(0xFFF2F6F9)),
           fontSize: 13.5,
           fontWeight: FontWeight.w700,
         ),
@@ -602,7 +661,10 @@ class _HeroStatItem extends StatelessWidget {
         width: 1,
         height: 20,
         margin: const EdgeInsets.only(left: 17),
-        color: Colors.white.withValues(alpha: .16),
+        color: StudioColors.background(
+          context,
+          Colors.white.withValues(alpha: .16),
+        ),
       ),
     ],
   );
@@ -618,37 +680,44 @@ class _FiltersCard extends StatelessWidget {
       children: [
         TextField(
           onChanged: controller.setQuery,
-          style: const TextStyle(
-            color: AppColors.navy,
+          style: TextStyle(
+            color: StudioColors.text(context, AppColors.navy),
             fontSize: 14.5,
             fontWeight: FontWeight.w600,
           ),
           decoration: InputDecoration(
-            prefixIcon: const Icon(
+            prefixIcon: Icon(
               Icons.search_rounded,
-              color: AppColors.slate,
+              color: StudioColors.text(context, AppColors.slate),
             ),
-            suffixIcon: const Icon(Icons.tune_rounded, color: AppColors.navy),
+            suffixIcon: Icon(
+              Icons.tune_rounded,
+              color: StudioColors.text(context, AppColors.navy),
+            ),
             hintText: 'Rechercher une offre (poste, compétences, lieu…)',
             isDense: true,
             filled: true,
-            fillColor: Colors.white,
+            fillColor: StudioColors.background(context, Colors.white),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 14,
               vertical: 14,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppColors.lineSoft),
+              borderSide: BorderSide(
+                color: StudioColors.border(context, AppColors.lineSoft),
+              ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppColors.lineSoft),
+              borderSide: BorderSide(
+                color: StudioColors.border(context, AppColors.lineSoft),
+              ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Color(0xFF7BB9F4),
+              borderSide: BorderSide(
+                color: StudioColors.border(context, Color(0xFF7BB9F4)),
                 width: 1.2,
               ),
             ),
@@ -745,7 +814,7 @@ class _ViewToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     decoration: BoxDecoration(
-      color: const Color(0xFFF0F4F7),
+      color: StudioColors.background(context, const Color(0xFFF0F4F7)),
       borderRadius: BorderRadius.circular(10),
     ),
     padding: const EdgeInsets.all(3),
@@ -915,8 +984,8 @@ class _OfferGridCardState extends State<_OfferGridCard> {
                     offer.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: AppColors.navy,
+                    style: TextStyle(
+                      color: StudioColors.text(context, AppColors.navy),
                       fontFamily: AppFonts.display,
                       fontSize: 19,
                       height: 1.12,
@@ -929,8 +998,8 @@ class _OfferGridCardState extends State<_OfferGridCard> {
                     _plainOfferDescription(offer.description),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: AppColors.slate,
+                    style: TextStyle(
+                      color: StudioColors.text(context, AppColors.slate),
                       fontSize: 12.5,
                       height: 1.42,
                     ),
@@ -967,7 +1036,13 @@ class _OfferGridCardState extends State<_OfferGridCard> {
                     ),
                   ],
                   const Spacer(),
-                  Container(height: 1, color: const Color(0xFFDDE7EF)),
+                  Container(
+                    height: 1,
+                    color: StudioColors.background(
+                      context,
+                      const Color(0xFFDDE7EF),
+                    ),
+                  ),
                   const SizedBox(height: 11),
                   Row(
                     children: [
@@ -991,10 +1066,10 @@ class _OfferGridCardState extends State<_OfferGridCard> {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.calendar_today_outlined,
                         size: 15,
-                        color: AppColors.slate,
+                        color: StudioColors.text(context, AppColors.slate),
                       ),
                       const SizedBox(width: 6),
                       Expanded(
@@ -1004,8 +1079,8 @@ class _OfferGridCardState extends State<_OfferGridCard> {
                               : 'Publiée le ${dateLabel(offer.publishedAt)}',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: AppColors.slate,
+                          style: TextStyle(
+                            color: StudioColors.text(context, AppColors.slate),
                             fontSize: 11.5,
                             fontWeight: FontWeight.w700,
                           ),
@@ -1018,10 +1093,13 @@ class _OfferGridCardState extends State<_OfferGridCard> {
                         child: AnimatedOpacity(
                           duration: const Duration(milliseconds: 180),
                           opacity: _hovered ? 1 : .72,
-                          child: const Icon(
+                          child: Icon(
                             Icons.arrow_forward_rounded,
                             size: 18,
-                            color: Color(0xFF1687F8),
+                            color: StudioColors.text(
+                              context,
+                              Color(0xFF1687F8),
+                            ),
                           ),
                         ),
                       ),
@@ -1144,8 +1222,8 @@ class _OfferRowState extends State<_OfferRow> {
                 offer.title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: AppColors.navy,
+                style: TextStyle(
+                  color: StudioColors.text(context, AppColors.navy),
                   fontFamily: AppFonts.display,
                   fontSize: 20,
                   height: 1.12,
@@ -1158,8 +1236,8 @@ class _OfferRowState extends State<_OfferRow> {
                 _plainDescription(offer.description),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: AppColors.slate,
+                style: TextStyle(
+                  color: StudioColors.text(context, AppColors.slate),
                   fontSize: 13,
                   height: 1.42,
                 ),
@@ -1167,10 +1245,10 @@ class _OfferRowState extends State<_OfferRow> {
               const SizedBox(height: 4),
               InkWell(
                 onTap: widget.onTap,
-                child: const Text(
+                child: Text(
                   'Lire la suite  →',
                   style: TextStyle(
-                    color: Color(0xFF1475D1),
+                    color: StudioColors.text(context, Color(0xFF1475D1)),
                     fontSize: 12.5,
                     fontWeight: FontWeight.w800,
                   ),
@@ -1184,7 +1262,10 @@ class _OfferRowState extends State<_OfferRow> {
           ),
         ),
         const SizedBox(width: 22),
-        Container(width: 1, color: const Color(0xFFDDE7EF)),
+        Container(
+          width: 1,
+          color: StudioColors.background(context, const Color(0xFFDDE7EF)),
+        ),
         const SizedBox(width: 22),
         Expanded(
           flex: 5,
@@ -1279,8 +1360,8 @@ class _OfferRowState extends State<_OfferRow> {
                   offer.title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.navy,
+                  style: TextStyle(
+                    color: StudioColors.text(context, AppColors.navy),
                     fontFamily: AppFonts.display,
                     fontSize: 18,
                     height: 1.16,
@@ -1307,8 +1388,8 @@ class _OfferRowState extends State<_OfferRow> {
         _plainDescription(offer.description),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
-        style: const TextStyle(
-          color: AppColors.slate,
+        style: TextStyle(
+          color: StudioColors.text(context, AppColors.slate),
           fontSize: 12.5,
           height: 1.42,
         ),
@@ -1316,10 +1397,10 @@ class _OfferRowState extends State<_OfferRow> {
       const SizedBox(height: 4),
       InkWell(
         onTap: widget.onTap,
-        child: const Text(
+        child: Text(
           'Lire la suite  →',
           style: TextStyle(
-            color: Color(0xFF1475D1),
+            color: StudioColors.text(context, Color(0xFF1475D1)),
             fontSize: 12,
             fontWeight: FontWeight.w800,
           ),
@@ -1349,7 +1430,10 @@ class _OfferRowState extends State<_OfferRow> {
         Wrap(spacing: 6, runSpacing: 6, children: _skillTags(offer)),
       ],
       const SizedBox(height: 10),
-      Container(height: 1, color: const Color(0xFFDDE7EF)),
+      Container(
+        height: 1,
+        color: StudioColors.background(context, const Color(0xFFDDE7EF)),
+      ),
       const SizedBox(height: 9),
       Wrap(
         spacing: 12,
@@ -1414,23 +1498,28 @@ class _CompanyLine extends StatelessWidget {
           company.name,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: AppColors.navy,
+          style: TextStyle(
+            color: StudioColors.text(context, AppColors.navy),
             fontSize: 12.5,
             fontWeight: FontWeight.w800,
           ),
         ),
       ),
       const SizedBox(width: 6),
-      const Text('·', style: TextStyle(color: AppColors.placeholder)),
+      Text(
+        '·',
+        style: TextStyle(
+          color: StudioColors.text(context, AppColors.placeholder),
+        ),
+      ),
       const SizedBox(width: 6),
       Flexible(
         child: Text(
           location,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: AppColors.slate,
+          style: TextStyle(
+            color: StudioColors.text(context, AppColors.slate),
             fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
@@ -1449,12 +1538,12 @@ class _OfferMetric extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Icon(icon, size: 16, color: AppColors.slate),
+      Icon(icon, size: 16, color: StudioColors.text(context, AppColors.slate)),
       const SizedBox(width: 5),
       Text(
         label,
-        style: const TextStyle(
-          color: AppColors.slate,
+        style: TextStyle(
+          color: StudioColors.text(context, AppColors.slate),
           fontSize: 11.5,
           fontWeight: FontWeight.w700,
         ),
@@ -1470,7 +1559,7 @@ class _Card extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(14),
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: StudioColors.background(context, Colors.white),
       borderRadius: BorderRadius.circular(16),
       border: Border.all(color: AppColors.lineSoft),
       boxShadow: AppShadows.card,
@@ -1497,7 +1586,10 @@ class _CompanyFilterTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Material(
-    color: selected ? const Color(0xFFF4F9FD) : Colors.white,
+    color: StudioColors.background(
+      context,
+      selected ? const Color(0xFFF4F9FD) : Colors.white,
+    ),
     borderRadius: BorderRadius.circular(12),
     child: InkWell(
       onTap: onTap,
@@ -1522,10 +1614,17 @@ class _CompanyFilterTile extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEAF4FC),
+                  color: StudioColors.background(
+                    context,
+                    const Color(0xFFEAF4FC),
+                  ),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, size: 20, color: const Color(0xFF1976D2)),
+                child: Icon(
+                  icon,
+                  size: 20,
+                  color: StudioColors.text(context, const Color(0xFF1976D2)),
+                ),
               ),
             const SizedBox(width: 9),
             Expanded(
@@ -1536,16 +1635,16 @@ class _CompanyFilterTile extends StatelessWidget {
                     label,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: AppColors.navy,
+                    style: TextStyle(
+                      color: StudioColors.text(context, AppColors.navy),
                       fontSize: 13,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
                   Text(
                     subtitle,
-                    style: const TextStyle(
-                      color: AppColors.slate,
+                    style: TextStyle(
+                      color: StudioColors.text(context, AppColors.slate),
                       fontSize: 11,
                     ),
                   ),
@@ -1583,7 +1682,7 @@ class _StatCard extends StatelessWidget {
   String get _trend => switch (label) {
     'Brouillons' => 'En cours',
     'Total' => 'Toutes vos offres',
-    _ => '+1 cette semaine',
+    _ => 'Statut actuel',
   };
 
   @override
@@ -1601,13 +1700,16 @@ class _StatCard extends StatelessWidget {
           12,
         ),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.white,
-              Color.alphaBlend(tint.withValues(alpha: .28), Colors.white),
-            ],
+          gradient: StudioColors.gradient(
+            context,
+            LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white,
+                Color.alphaBlend(tint.withValues(alpha: .28), Colors.white),
+              ],
+            ),
           ),
           borderRadius: BorderRadius.circular(17),
           border: Border.all(color: const Color(0xFFE4EBF0)),
@@ -1626,10 +1728,14 @@ class _StatCard extends StatelessWidget {
               height: compact ? 46 : 52,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: tint,
+                color: StudioColors.background(context, tint),
                 borderRadius: BorderRadius.circular(15),
               ),
-              child: Icon(icon, color: iconColor, size: 24),
+              child: Icon(
+                icon,
+                color: StudioColors.text(context, iconColor),
+                size: 24,
+              ),
             ),
             SizedBox(width: compact ? 9 : 11),
             Expanded(
@@ -1639,8 +1745,8 @@ class _StatCard extends StatelessWidget {
                 children: [
                   Text(
                     '$value',
-                    style: const TextStyle(
-                      color: AppColors.navy,
+                    style: TextStyle(
+                      color: StudioColors.text(context, AppColors.navy),
                       fontSize: 30,
                       height: 1,
                       fontWeight: FontWeight.w900,
@@ -1651,8 +1757,8 @@ class _StatCard extends StatelessWidget {
                     label,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: AppColors.navy,
+                    style: TextStyle(
+                      color: StudioColors.text(context, AppColors.navy),
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
                     ),
@@ -1663,9 +1769,12 @@ class _StatCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: label == 'Brouillons' || label == 'Total'
-                          ? AppColors.placeholder
-                          : AppColors.successDeep,
+                      color: StudioColors.text(
+                        context,
+                        label == 'Brouillons' || label == 'Total'
+                            ? AppColors.placeholder
+                            : AppColors.successDeep,
+                      ),
                       fontSize: 10.5,
                       fontWeight: FontWeight.w700,
                     ),
@@ -1707,8 +1816,13 @@ class _StatusChip extends StatelessWidget {
     selected: active,
     onSelected: (_) => onTap(),
     selectedColor: const Color(0xFFEAF4FC),
-    backgroundColor: Colors.white,
-    side: BorderSide(color: active ? AppColors.blue : AppColors.lineSoft),
+    backgroundColor: StudioColors.background(context, Colors.white),
+    side: BorderSide(
+      color: StudioColors.border(
+        context,
+        active ? AppColors.blue : AppColors.lineSoft,
+      ),
+    ),
     label: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -1716,17 +1830,26 @@ class _StatusChip extends StatelessWidget {
           Container(
             width: 7,
             height: 7,
-            decoration: BoxDecoration(color: dot, shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: StudioColors.background(context, dot),
+              shape: BoxShape.circle,
+            ),
           ),
           const SizedBox(width: 5),
         ],
         Text(label),
         const SizedBox(width: 5),
-        Text('$count', style: const TextStyle(color: AppColors.slate)),
+        Text(
+          '$count',
+          style: TextStyle(color: StudioColors.text(context, AppColors.slate)),
+        ),
       ],
     ),
     labelStyle: TextStyle(
-      color: active ? const Color(0xFF1976D2) : AppColors.slateDark,
+      color: StudioColors.text(
+        context,
+        active ? const Color(0xFF1976D2) : AppColors.slateDark,
+      ),
       fontSize: 12,
       fontWeight: FontWeight.w800,
     ),
@@ -1757,8 +1880,8 @@ class _MiniSelect<T> extends StatelessWidget {
   Widget build(BuildContext context) => DropdownButtonFormField<T?>(
     initialValue: value,
     isExpanded: true,
-    style: const TextStyle(
-      color: AppColors.navy,
+    style: TextStyle(
+      color: StudioColors.text(context, AppColors.navy),
       fontSize: 13,
       fontWeight: FontWeight.w700,
     ),
@@ -1771,23 +1894,27 @@ class _MiniSelect<T> extends StatelessWidget {
     onChanged: onChanged,
     decoration: InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(
-        color: AppColors.slate,
+      labelStyle: TextStyle(
+        color: StudioColors.text(context, AppColors.slate),
         fontSize: 12,
         fontWeight: FontWeight.w700,
       ),
       prefixIcon: Icon(icon, size: 20),
       isDense: true,
       filled: true,
-      fillColor: Colors.white,
+      fillColor: StudioColors.background(context, Colors.white),
       contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.lineSoft),
+        borderSide: BorderSide(
+          color: StudioColors.border(context, AppColors.lineSoft),
+        ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.lineSoft),
+        borderSide: BorderSide(
+          color: StudioColors.border(context, AppColors.lineSoft),
+        ),
       ),
     ),
   );
@@ -1813,24 +1940,33 @@ class _EmptyState extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 42),
       child: Column(
         children: [
-          const CircleAvatar(
+          CircleAvatar(
             radius: 28,
-            backgroundColor: Color(0xFFEAF4FC),
-            child: Icon(Icons.work_outline_rounded, color: AppColors.navy),
+            backgroundColor: StudioColors.background(
+              context,
+              Color(0xFFEAF4FC),
+            ),
+            child: Icon(
+              Icons.work_outline_rounded,
+              color: StudioColors.text(context, AppColors.navy),
+            ),
           ),
           const SizedBox(height: 14),
-          const Text(
+          Text(
             'Aucune offre à afficher',
             style: TextStyle(
-              color: AppColors.navy,
+              color: StudioColors.text(context, AppColors.navy),
               fontSize: 18,
               fontWeight: FontWeight.w900,
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
+          Text(
             'Modifiez vos filtres ou publiez votre première offre.',
-            style: TextStyle(color: AppColors.slate, fontSize: 12),
+            style: TextStyle(
+              color: StudioColors.text(context, AppColors.slate),
+              fontSize: 12,
+            ),
           ),
           const SizedBox(height: 16),
           JoynButton(
@@ -1851,13 +1987,13 @@ class _ErrorMessage extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(12),
     decoration: BoxDecoration(
-      color: AppColors.errorTint,
+      color: StudioColors.background(context, AppColors.errorTint),
       borderRadius: BorderRadius.circular(12),
     ),
     child: Text(
       message,
-      style: const TextStyle(
-        color: AppColors.errorDeep,
+      style: TextStyle(
+        color: StudioColors.text(context, AppColors.errorDeep),
         fontWeight: FontWeight.w700,
       ),
     ),

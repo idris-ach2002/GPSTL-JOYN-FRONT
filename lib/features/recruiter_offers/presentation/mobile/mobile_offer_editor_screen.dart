@@ -1,3 +1,5 @@
+import '../../../recruiter_studio/presentation/studio_components.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -39,7 +41,7 @@ class _MobileOfferEditorScreenState extends State<MobileOfferEditorScreen> {
     final controller = context.watch<OfferEditorController>();
     if (!controller.isLoading) _bindDescription(controller);
     return MobileAppSurface(
-      backgroundColor: Colors.white,
+      backgroundColor: StudioColors.background(context, Colors.white),
       child: controller.isLoading
           ? const Center(child: CircularProgressIndicator())
           : Column(
@@ -754,7 +756,7 @@ class _MobileCompanyChoice extends StatelessWidget {
       width: 90,
       padding: const EdgeInsets.all(9),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: StudioColors.background(context, Colors.white),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: selected ? AppColors.orange : const Color(0xFFE4E8E3),
@@ -769,16 +771,19 @@ class _MobileCompanyChoice extends StatelessWidget {
             children: [
               CompanyAvatar(company: company, size: 48),
               if (selected)
-                const Positioned(
+                Positioned(
                   right: -5,
                   top: -5,
                   child: CircleAvatar(
                     radius: 9,
-                    backgroundColor: Color(0xFF1976D2),
+                    backgroundColor: StudioColors.background(
+                      context,
+                      Color(0xFF1976D2),
+                    ),
                     child: Icon(
                       Icons.check_rounded,
                       size: 12,
-                      color: Colors.white,
+                      color: StudioColors.text(context, Colors.white),
                     ),
                   ),
                 ),
@@ -789,8 +794,8 @@ class _MobileCompanyChoice extends StatelessWidget {
             company.name,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: AppColors.navy,
+            style: TextStyle(
+              color: StudioColors.text(context, AppColors.navy),
               fontSize: 11,
               fontWeight: FontWeight.w900,
             ),
@@ -828,9 +833,10 @@ class _MobileSegments<T> extends StatelessWidget {
               duration: const Duration(milliseconds: 150),
               height: 54,
               decoration: BoxDecoration(
-                color: active
-                    ? const Color(0xFFEAF4FC)
-                    : const Color(0xFFF7F8F6),
+                color: StudioColors.background(
+                  context,
+                  active ? const Color(0xFFEAF4FC) : const Color(0xFFF7F8F6),
+                ),
                 borderRadius: BorderRadius.circular(13),
                 border: Border.all(
                   color: active ? AppColors.blue : const Color(0xFFE4E8E3),
@@ -841,7 +847,10 @@ class _MobileSegments<T> extends StatelessWidget {
                 children: [
                   Icon(
                     iconOf(value),
-                    color: active ? const Color(0xFF1976D2) : AppColors.slate,
+                    color: StudioColors.text(
+                      context,
+                      active ? const Color(0xFF1976D2) : AppColors.slate,
+                    ),
                     size: 17,
                   ),
                   const SizedBox(height: 4),
@@ -850,7 +859,10 @@ class _MobileSegments<T> extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: active ? const Color(0xFF1976D2) : AppColors.slate,
+                      color: StudioColors.text(
+                        context,
+                        active ? const Color(0xFF1976D2) : AppColors.slate,
+                      ),
                       fontSize: 9,
                       fontWeight: FontWeight.w800,
                     ),
@@ -900,14 +912,16 @@ class _Dropdown<T> extends StatelessWidget {
         },
         decoration: InputDecoration(
           filled: true,
-          fillColor: const Color(0xFFF4F6F3),
+          fillColor: StudioColors.background(context, const Color(0xFFF4F6F3)),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide.none,
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: Color(0xFFE4E8E3)),
+            borderSide: BorderSide(
+              color: StudioColors.border(context, Color(0xFFE4E8E3)),
+            ),
           ),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 14,
@@ -949,15 +963,15 @@ class _MobileDateField extends StatelessWidget {
           height: 56,
           padding: const EdgeInsets.symmetric(horizontal: 13),
           decoration: BoxDecoration(
-            color: const Color(0xFFF4F6F3),
+            color: StudioColors.background(context, const Color(0xFFF4F6F3)),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: const Color(0xFFE4E8E3)),
           ),
           child: Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.calendar_month_outlined,
-                color: Color(0xFF1976D2),
+                color: StudioColors.text(context, Color(0xFF1976D2)),
                 size: 18,
               ),
               const SizedBox(width: 8),
@@ -965,8 +979,8 @@ class _MobileDateField extends StatelessWidget {
                 child: Text(
                   monthYearLabel(value),
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.navy,
+                  style: TextStyle(
+                    color: StudioColors.text(context, AppColors.navy),
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                   ),

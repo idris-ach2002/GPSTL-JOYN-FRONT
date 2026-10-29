@@ -1,3 +1,6 @@
+import '../../../recruiter_studio/presentation/studio_search.dart';
+import '../../../recruiter_studio/presentation/studio_controller.dart';
+
 import 'package:provider/provider.dart';
 
 import '../../../recruiter_workspace/presentation/workspace_controller.dart';
@@ -19,6 +22,7 @@ class RecruiterOffersTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final studio = context.watch<StudioController?>();
     final workspace = context.watch<WorkspaceController?>();
     final width = MediaQuery.sizeOf(context).width;
     final showLabels = width >= 880;
@@ -76,6 +80,11 @@ class RecruiterOffersTopBar extends StatelessWidget {
           ),
         ),
         const Spacer(),
+        IconButton(
+          tooltip: 'Rechercher dans le studio',
+          onPressed: () => studioOpenSearch(context),
+          icon: const Icon(Icons.search_rounded, color: Colors.white),
+        ),
         for (final item in const [
           (
             Icons.notifications_none_rounded,
@@ -100,7 +109,22 @@ class RecruiterOffersTopBar extends StatelessWidget {
             icon: Badge(
               isLabelVisible:
                   (item.$2 == AppRoutes.recruiterNotifications
-                      ? workspace?.unread ?? 0
+                      ? workspace?.notifications
+                                .where(
+                                  (n) =>
+                                      n['read'] != true &&
+                                      studio?.contains(
+                                            'archivedNotifications',
+                                            '${n['id']}',
+                                          ) !=
+                                          true &&
+                                      !(DateTime.tryParse(
+                                            '${studio?.object('snoozedNotifications')['${n['id']}']}',
+                                          )?.isAfter(DateTime.now()) ??
+                                          false),
+                                )
+                                .length ??
+                            0
                       : item.$2 == AppRoutes.recruiterMessages
                       ? workspace?.unreadMessages ?? 0
                       : 0) >

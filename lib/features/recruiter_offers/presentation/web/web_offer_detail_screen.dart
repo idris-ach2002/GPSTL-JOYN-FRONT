@@ -1,3 +1,5 @@
+import '../../../recruiter_studio/presentation/studio_components.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -21,8 +23,8 @@ class WebOfferDetailScreen extends StatelessWidget {
     final width = MediaQuery.sizeOf(context).width;
 
     if (controller.isLoading) {
-      return const Scaffold(
-        backgroundColor: AppColors.background,
+      return Scaffold(
+        backgroundColor: StudioColors.background(context, AppColors.background),
         body: Center(child: CircularProgressIndicator()),
       );
     }
@@ -31,21 +33,21 @@ class WebOfferDetailScreen extends StatelessWidget {
     final company = controller.company;
     if (offer == null || company == null) {
       return Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: StudioColors.background(context, AppColors.background),
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
+              Icon(
                 Icons.error_outline_rounded,
                 size: 38,
-                color: AppColors.error,
+                color: StudioColors.text(context, AppColors.error),
               ),
               const SizedBox(height: 12),
               Text(
                 controller.errorMessage ?? 'Offre introuvable.',
-                style: const TextStyle(
-                  color: AppColors.navy,
+                style: TextStyle(
+                  color: StudioColors.text(context, AppColors.navy),
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -61,15 +63,17 @@ class WebOfferDetailScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: StudioColors.background(context, AppColors.background),
       body: Stack(
         children: [
-          const Positioned(
+          Positioned(
             left: 0,
             right: 0,
             top: 0,
             height: 84,
-            child: ColoredBox(color: AppColors.navy),
+            child: ColoredBox(
+              color: StudioColors.background(context, AppColors.navy),
+            ),
           ),
           SafeArea(
             child: ListView(
@@ -193,7 +197,12 @@ class WebOfferDetailScreen extends StatelessWidget {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            style: FilledButton.styleFrom(backgroundColor: AppColors.orange),
+            style: FilledButton.styleFrom(
+              backgroundColor: StudioColors.background(
+                context,
+                AppColors.orange,
+              ),
+            ),
             child: const Text('Clôturer'),
           ),
         ],
@@ -214,12 +223,14 @@ class _Breadcrumb extends StatelessWidget {
         onPressed: () => context.go(AppRoutes.recruiterJobs),
         icon: const Icon(Icons.chevron_left_rounded, size: 18),
         label: const Text('Offres'),
-        style: TextButton.styleFrom(foregroundColor: AppColors.slateDark),
+        style: TextButton.styleFrom(
+          foregroundColor: StudioColors.text(context, AppColors.slateDark),
+        ),
       ),
-      const Icon(
+      Icon(
         Icons.chevron_right_rounded,
         size: 16,
-        color: AppColors.placeholder,
+        color: StudioColors.text(context, AppColors.placeholder),
       ),
       const SizedBox(width: 6),
       Expanded(
@@ -227,8 +238,8 @@ class _Breadcrumb extends StatelessWidget {
           offer.title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: AppColors.navy,
+          style: TextStyle(
+            color: StudioColors.text(context, AppColors.navy),
             fontSize: 12,
             fontWeight: FontWeight.w800,
           ),
@@ -274,32 +285,42 @@ class _OfferSummaryCard extends StatelessWidget {
                       CompanyMiniLogo(company: company, size: 24),
                       Text(
                         company.name,
-                        style: const TextStyle(
-                          color: AppColors.navy,
+                        style: TextStyle(
+                          color: StudioColors.text(context, AppColors.navy),
                           fontSize: 12,
                           fontWeight: FontWeight.w900,
                         ),
                       ),
-                      const Text(
+                      Text(
                         '·',
-                        style: TextStyle(color: AppColors.placeholder),
+                        style: TextStyle(
+                          color: StudioColors.text(
+                            context,
+                            AppColors.placeholder,
+                          ),
+                        ),
                       ),
                       Text(
                         offer.location,
-                        style: const TextStyle(
-                          color: AppColors.slate,
+                        style: TextStyle(
+                          color: StudioColors.text(context, AppColors.slate),
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const Text(
+                      Text(
                         '·',
-                        style: TextStyle(color: AppColors.placeholder),
+                        style: TextStyle(
+                          color: StudioColors.text(
+                            context,
+                            AppColors.placeholder,
+                          ),
+                        ),
                       ),
                       Text(
                         offer.remoteMode.label,
-                        style: const TextStyle(
-                          color: AppColors.slate,
+                        style: TextStyle(
+                          color: StudioColors.text(context, AppColors.slate),
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
@@ -309,8 +330,8 @@ class _OfferSummaryCard extends StatelessWidget {
                   const SizedBox(height: 10),
                   Text(
                     offer.title,
-                    style: const TextStyle(
-                      color: AppColors.navy,
+                    style: TextStyle(
+                      color: StudioColors.text(context, AppColors.navy),
                       fontFamily: AppFonts.display,
                       fontSize: 28,
                       height: 1.08,
@@ -323,8 +344,8 @@ class _OfferSummaryCard extends StatelessWidget {
                     offer.description.replaceAll(RegExp(r'\s+'), ' ').trim(),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: AppColors.slate,
+                    style: TextStyle(
+                      color: StudioColors.text(context, AppColors.slate),
                       fontSize: 14,
                       height: 1.45,
                     ),
@@ -359,13 +380,13 @@ class _OfferSummaryCard extends StatelessWidget {
                     height: 40,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: StudioColors.background(context, Colors.white),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: AppColors.lineSoft),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.more_horiz_rounded,
-                      color: AppColors.navy,
+                      color: StudioColors.text(context, AppColors.navy),
                     ),
                   ),
                 ),
@@ -432,9 +453,10 @@ class _CandidatesButton extends StatelessWidget {
       duration: const Duration(milliseconds: 170),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
       decoration: BoxDecoration(
-        color: onPressed == null
-            ? const Color(0xFFF5F7F9)
-            : const Color(0xFFF0F7FF),
+        color: StudioColors.background(
+          context,
+          onPressed == null ? const Color(0xFFF5F7F9) : const Color(0xFFF0F7FF),
+        ),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: onPressed == null
@@ -445,12 +467,16 @@ class _CandidatesButton extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.group_outlined, size: 18, color: Color(0xFF1475D1)),
+          Icon(
+            Icons.group_outlined,
+            size: 18,
+            color: StudioColors.text(context, Color(0xFF1475D1)),
+          ),
           const SizedBox(width: 7),
           Text(
             '${offer.candidateCount} candidat${offer.candidateCount > 1 ? 's' : ''}',
-            style: const TextStyle(
-              color: Color(0xFF1475D1),
+            style: TextStyle(
+              color: StudioColors.text(context, Color(0xFF1475D1)),
               fontSize: 12,
               fontWeight: FontWeight.w900,
             ),
@@ -468,8 +494,12 @@ class _DetailTabs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    decoration: const BoxDecoration(
-      border: Border(bottom: BorderSide(color: AppColors.lineSoft)),
+    decoration: BoxDecoration(
+      border: Border(
+        bottom: BorderSide(
+          color: StudioColors.border(context, AppColors.lineSoft),
+        ),
+      ),
     ),
     child: Row(
       children: [
@@ -496,7 +526,10 @@ class _Tab extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: active ? const Color(0xFF1687F8) : Colors.transparent,
+            color: StudioColors.border(
+              context,
+              active ? const Color(0xFF1687F8) : Colors.transparent,
+            ),
             width: 2,
           ),
         ),
@@ -504,7 +537,10 @@ class _Tab extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          color: active ? const Color(0xFF1475D1) : AppColors.slate,
+          color: StudioColors.text(
+            context,
+            active ? const Color(0xFF1475D1) : AppColors.slate,
+          ),
           fontSize: 12,
           fontWeight: FontWeight.w800,
         ),
@@ -525,8 +561,8 @@ class _OfferContentCards extends StatelessWidget {
         icon: Icons.description_outlined,
         child: OfferRichText(
           value: offer.description,
-          baseStyle: const TextStyle(
-            color: AppColors.slateDark,
+          baseStyle: TextStyle(
+            color: StudioColors.text(context, AppColors.slateDark),
             fontSize: 14,
             height: 1.65,
           ),
@@ -654,8 +690,8 @@ class _OfferSideCards extends StatelessWidget {
                 Expanded(
                   child: Text(
                     '${offer.candidateCount} candidat${offer.candidateCount > 1 ? 's' : ''} sur cette offre',
-                    style: const TextStyle(
-                      color: AppColors.navy,
+                    style: TextStyle(
+                      color: StudioColors.text(context, AppColors.navy),
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
                     ),
@@ -670,8 +706,13 @@ class _OfferSideCards extends StatelessWidget {
                 icon: const Icon(Icons.people_alt_outlined, size: 17),
                 label: const Text('Voir les candidats'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF1475D1),
-                  side: const BorderSide(color: Color(0xFFB9DDFB)),
+                  foregroundColor: StudioColors.text(
+                    context,
+                    const Color(0xFF1475D1),
+                  ),
+                  side: BorderSide(
+                    color: StudioColors.border(context, Color(0xFFB9DDFB)),
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -733,7 +774,7 @@ class _InteractiveCardState extends State<_InteractiveCard> {
         curve: Curves.easeOutCubic,
         padding: widget.padding,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: StudioColors.background(context, Colors.white),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: hovered ? const Color(0xFFD7E8F6) : const Color(0xFFE5ECF1),
@@ -759,12 +800,18 @@ class _InteractiveCardState extends State<_InteractiveCard> {
                       height: 36,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF0F7FF),
+                        color: StudioColors.background(
+                          context,
+                          const Color(0xFFF0F7FF),
+                        ),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
                         widget.icon,
-                        color: const Color(0xFF1475D1),
+                        color: StudioColors.text(
+                          context,
+                          const Color(0xFF1475D1),
+                        ),
                         size: 19,
                       ),
                     ),
@@ -773,8 +820,8 @@ class _InteractiveCardState extends State<_InteractiveCard> {
                   Expanded(
                     child: Text(
                       widget.title!,
-                      style: const TextStyle(
-                        color: AppColors.navy,
+                      style: TextStyle(
+                        color: StudioColors.text(context, AppColors.navy),
                         fontSize: 17,
                         fontWeight: FontWeight.w900,
                       ),
@@ -807,13 +854,17 @@ class _FactCard extends StatelessWidget {
     width: 190,
     padding: const EdgeInsets.all(13),
     decoration: BoxDecoration(
-      color: const Color(0xFFF8FAFC),
+      color: StudioColors.background(context, const Color(0xFFF8FAFC)),
       borderRadius: BorderRadius.circular(12),
       border: Border.all(color: const Color(0xFFE7EDF2)),
     ),
     child: Row(
       children: [
-        Icon(icon, size: 18, color: const Color(0xFF1475D1)),
+        Icon(
+          icon,
+          size: 18,
+          color: StudioColors.text(context, const Color(0xFF1475D1)),
+        ),
         const SizedBox(width: 9),
         Expanded(
           child: Column(
@@ -821,8 +872,8 @@ class _FactCard extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: const TextStyle(
-                  color: AppColors.placeholder,
+                style: TextStyle(
+                  color: StudioColors.text(context, AppColors.placeholder),
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                 ),
@@ -832,8 +883,8 @@ class _FactCard extends StatelessWidget {
                 value,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: AppColors.navy,
+                style: TextStyle(
+                  color: StudioColors.text(context, AppColors.navy),
                   fontSize: 11.5,
                   fontWeight: FontWeight.w800,
                 ),
@@ -860,8 +911,8 @@ class _DetailLine extends StatelessWidget {
         Expanded(
           child: Text(
             label,
-            style: const TextStyle(
-              color: AppColors.slate,
+            style: TextStyle(
+              color: StudioColors.text(context, AppColors.slate),
               fontSize: 11,
               fontWeight: FontWeight.w700,
             ),
@@ -872,8 +923,8 @@ class _DetailLine extends StatelessWidget {
           child: Text(
             value,
             textAlign: TextAlign.right,
-            style: const TextStyle(
-              color: AppColors.navy,
+            style: TextStyle(
+              color: StudioColors.text(context, AppColors.navy),
               fontSize: 11,
               fontWeight: FontWeight.w800,
             ),
@@ -893,12 +944,12 @@ class _Meta extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Icon(icon, size: 17, color: AppColors.slate),
+      Icon(icon, size: 17, color: StudioColors.text(context, AppColors.slate)),
       const SizedBox(width: 6),
       Text(
         label,
-        style: const TextStyle(
-          color: AppColors.slate,
+        style: TextStyle(
+          color: StudioColors.text(context, AppColors.slate),
           fontSize: 11.5,
           fontWeight: FontWeight.w700,
         ),

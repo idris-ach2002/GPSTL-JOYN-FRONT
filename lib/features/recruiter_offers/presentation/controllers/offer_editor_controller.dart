@@ -9,7 +9,68 @@ import '../../domain/recruiter_company.dart';
 enum CompanyLookupStatus { idle, loading, found, notFound }
 
 class OfferEditorController extends LifecycleNotifier {
-  OfferEditorController(this._repository, {this.offerId});
+  OfferEditorController(
+    this._repository, {
+    this.offerId,
+    Map<String, dynamic>? defaults,
+    bool emptyDraft = false,
+    Map<String, dynamic>? template,
+  }) {
+    if (offerId == null && emptyDraft) {
+      title = '';
+      description = '';
+      skills = [];
+      salaryMin = null;
+      salaryMax = null;
+      startDate = null;
+    }
+    if (offerId == null && defaults != null) {
+      location = '${defaults['location'] ?? location}';
+      contractType =
+          ContractType.values
+              .where((v) => v.apiValue == defaults['contract'])
+              .firstOrNull ??
+          contractType;
+      remoteMode =
+          RemoteMode.values
+              .where((v) => v.apiValue == defaults['remote'])
+              .firstOrNull ??
+          remoteMode;
+    }
+    if (offerId == null && template != null) {
+      title = '${template['title'] ?? title}';
+      description = '${template['description'] ?? description}';
+      location = '${template['location'] ?? location}';
+      contractType =
+          ContractType.values
+              .where((v) => v.apiValue == template['contract'])
+              .firstOrNull ??
+          contractType;
+      remoteMode =
+          RemoteMode.values
+              .where((v) => v.apiValue == template['remote'])
+              .firstOrNull ??
+          remoteMode;
+      experienceLevel =
+          ExperienceLevel.values
+              .where((v) => v.apiValue == template['experience'])
+              .firstOrNull ??
+          experienceLevel;
+      salaryMin = (template['salaryMin'] as num?)?.toDouble();
+      salaryMax = (template['salaryMax'] as num?)?.toDouble();
+      currency = '${template['currency'] ?? currency}';
+      salaryPeriod =
+          SalaryPeriod.values
+              .where((v) => v.apiValue == template['salaryPeriod'])
+              .firstOrNull ??
+          salaryPeriod;
+      skills = List<String>.from(template['skills'] as List? ?? []);
+      rhythmType = '${template['rhythmType'] ?? rhythmType}';
+      durationMonths = (template['durationMonths'] as num?)?.toInt();
+      degreeLevelRequired =
+          '${template['degreeLevelRequired'] ?? degreeLevelRequired}';
+    }
+  }
 
   final RecruiterOffersRepository _repository;
   final int? offerId;
