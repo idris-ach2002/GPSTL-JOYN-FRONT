@@ -5,7 +5,7 @@ import '../data/recruiter_workspace_repository.dart';
 
 class WorkspaceController extends ChangeNotifier {
   WorkspaceController(this.repository);
-  final RecruiterWorkspaceRepository repository;
+  RecruiterWorkspaceRepository repository;
   Map<String, dynamic>? profile;
   Map<String, dynamic>? settings;
   List<Map<String, dynamic>> notifications = [];
@@ -98,6 +98,14 @@ class WorkspaceController extends ChangeNotifier {
     await repository.readNotification(id);
     final saved = await repository.notifications();
     if (generation == _generation) notifications = saved;
+  });
+  Future<bool> setRead(Iterable<String> ids, bool read) => run(() async {
+    final epoch = _generation;
+    for (final id in ids) {
+      await repository.updateNotification(id, {'read': read});
+    }
+    final value = await repository.notifications();
+    if (epoch == _generation) notifications = value;
   });
   Future<bool> readAll() => run(() async {
     for (final n in notifications.where((n) => n['read'] != true)) {

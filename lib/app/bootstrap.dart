@@ -1,3 +1,7 @@
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../features/recruiter_studio/data/studio_store.dart';
+import '../features/recruiter_studio/data/studio_repository.dart';
 import '../features/registration/data/api_registration_repository.dart';
 import '../features/auth/data/api_auth_repository.dart';
 import '../features/recruiter_offers/data/api_recruiter_offers_repository.dart';
@@ -29,6 +33,7 @@ import 'app.dart';
 Future<void> bootstrapJoyn({bool? webOverride}) async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  final deviceStore = DeviceStudioStore(await SharedPreferences.getInstance());
   final environment = AppEnvironment.fromCompileTime()..validate();
   ApiAuthRepository? apiAuth;
   late final AuthController authController;
@@ -71,6 +76,10 @@ Future<void> bootstrapJoyn({bool? webOverride}) async {
   runApp(
     JoynApp(
       webOverride: webOverride,
+      studioStore: deviceStore,
+      studioRepository: api == null
+          ? LocalStudioRepository(deviceStore)
+          : ApiStudioRepository(api),
       workspaceRepository: api == null
           ? MockRecruiterWorkspaceRepository()
           : ApiRecruiterWorkspaceRepository(api),

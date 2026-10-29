@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import '../../recruiter_studio/data/studio_store.dart';
 import '../../../core/network/api_client.dart';
 
 /// Contrat v1 : les routes et la normalisation sont isolées de l'interface.
@@ -11,6 +14,7 @@ abstract interface class RecruiterWorkspaceRepository {
   Future<Map<String, dynamic>> saveSettings(Map<String, dynamic> value);
   Future<List<Map<String, dynamic>>> notifications();
   Future<void> readNotification(String id);
+  Future<void> updateNotification(String id, Map<String, dynamic> changes);
   Future<void> deleteNotification(String id);
   Future<List<Map<String, dynamic>>> conversations();
   Future<Map<String, dynamic>> startConversation(
@@ -84,6 +88,17 @@ class ApiRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
     await api.patchJson(
       '$root/notifications/${Uri.encodeComponent(id)}',
       body: {'read': true},
+    );
+  }
+
+  @override
+  Future<void> updateNotification(
+    String id,
+    Map<String, dynamic> changes,
+  ) async {
+    await api.patchJson(
+      '$root/notifications/${Uri.encodeComponent(id)}',
+      body: changes,
     );
   }
 
@@ -229,6 +244,46 @@ class MockRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
       },
     ],
   };
+  Map<String, dynamic> snapshot() => jsonDecode(
+    jsonEncode({
+      'profile': _profile,
+      'settings': _settings,
+      'notifications': _notifications,
+      'conversations': _conversations,
+      'messages': _messages,
+    }),
+  ) as Map<String, dynamic>;
+  void hydrate(Map<String, dynamic> state) {
+    _profile = Map<String, dynamic>.from(state['profile'] as Map);
+    _settings = Map<String, dynamic>.from(state['settings'] as Map);
+    _notifications
+      ..clear()
+      ..addAll(
+        (state['notifications'] as List).map(
+          (e) => Map<String, dynamic>.from(e as Map),
+        ),
+      );
+    _conversations
+      ..clear()
+      ..addAll(
+        (state['conversations'] as List).map(
+          (e) => Map<String, dynamic>.from(e as Map),
+        ),
+      );
+    _messages
+      ..clear()
+      ..addAll(
+        (state['messages'] as Map).map(
+          (k, v) => MapEntry(
+            '$k',
+            (v as List)
+                .map((e) => Map<String, dynamic>.from(e as Map))
+                .toList(),
+          ),
+        ),
+      );
+  }
+
   Map<String, dynamic> _copy(Map<String, dynamic> value) =>
       Map<String, dynamic>.from(value);
   @override
@@ -253,6 +308,14 @@ class MockRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
   @override
   Future<void> readNotification(String id) async {
     _notifications.firstWhere((n) => n['id'] == id)['read'] = true;
+  }
+
+  @override
+  Future<void> updateNotification(
+    String id,
+    Map<String, dynamic> changes,
+  ) async {
+    _notifications.firstWhere((n) => n['id'] == id).addAll(changes);
   }
 
   @override
@@ -312,5 +375,81 @@ class MockRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
     _conversations.firstWhere((c) => c['id'] == conversationId)['lastMessage'] =
         text;
     return _copy(message);
+  }
+}
+
+/// Le scénario mock est persistant et isolé par compte. Aucune session auth n'est stockée ici.
+class PersistentMockWorkspaceRepository
+    extends MockRecruiterWorkspaceRepository {
+  PersistentMockWorkspaceRepository(this.store, this.userId);
+  final StudioStore store;
+  final String userId;
+  String get key => 'joyn.mock.workspace.v2.$userId';
+  Future<void> restore() async {
+    final raw = await store.read(key);
+    if (raw != null) hydrate(Map<String, dynamic>.from(jsonDecode(raw) as Map));
+  }
+
+  Future<void> _persist() => store.write(key, jsonEncode(snapshot()));
+  @override
+  Future<Map<String, dynamic>> saveProfile(Map<String, dynamic> value) async {
+    final result = await super.saveProfile(value);
+    await _persist();
+    return result;
+  }
+
+  @override
+  Future<Map<String, dynamic>> saveSettings(Map<String, dynamic> value) async {
+    final result = await super.saveSettings(value);
+    await _persist();
+    return result;
+  }
+
+  @override
+  Future<void> readNotification(String id) async {
+    await super.readNotification(id);
+    await _persist();
+  }
+
+  @override
+  Future<void> updateNotification(
+    String id,
+    Map<String, dynamic> changes,
+  ) async {
+    await super.updateNotification(id, changes);
+    await _persist();
+  }
+
+  @override
+  Future<void> deleteNotification(String id) async {
+    await super.deleteNotification(id);
+    await _persist();
+  }
+
+  @override
+  Future<Map<String, dynamic>> startConversation(
+    String candidateId,
+    String name,
+  ) async {
+    final result = await super.startConversation(candidateId, name);
+    await _persist();
+    return result;
+  }
+
+  @override
+  Future<void> readConversation(String id) async {
+    await super.readConversation(id);
+    await _persist();
+  }
+
+  @override
+  Future<Map<String, dynamic>> send(
+    String id,
+    String text,
+    String clientId,
+  ) async {
+    final result = await super.send(id, text, clientId);
+    await _persist();
+    return result;
   }
 }

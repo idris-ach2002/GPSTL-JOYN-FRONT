@@ -1,3 +1,6 @@
+import '../../recruiter_studio/presentation/studio_settings.dart';
+import '../../recruiter_studio/presentation/studio_notifications.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -57,7 +60,7 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
       _ => 'Paramètres',
     };
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7F9),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: compact
           ? AppBar(
               title: Text(title),
@@ -125,14 +128,17 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
             if (controller.repository.isMock)
               Container(
                 width: double.infinity,
-                color: const Color(0xFFE9F2FA),
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20,
                   vertical: 8,
                 ),
-                child: const Text(
-                  'Démonstration · vos modifications sont conservées pendant cette session.',
-                  style: TextStyle(fontSize: 12, color: workspaceNavy),
+                child: Text(
+                  'Espace de démonstration',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
             if (controller.busy) const LinearProgressIndicator(minHeight: 2),
@@ -204,7 +210,7 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
                   candidateId: widget.candidateId,
                   candidateName: widget.candidateName,
                 ),
-                'notifications' => const _Notifications(),
+                'notifications' => const StudioNotifications(),
                 'profile' =>
                   controller.profile == null
                       ? const _Waiting()
@@ -212,13 +218,7 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
                           key: ValueKey(controller.profile),
                           value: controller.profile!,
                         ),
-                _ =>
-                  controller.settings == null
-                      ? const _Waiting()
-                      : _Settings(
-                          key: ValueKey(controller.settings),
-                          value: controller.settings!,
-                        ),
+                _ => const StudioSettings(),
               },
             ),
           ],
@@ -245,9 +245,9 @@ class WorkspaceCard extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(24),
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.circular(20),
-      border: Border.all(color: const Color(0xFFE0E8EF)),
+      border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
     ),
     child: Material(color: Colors.transparent, child: child),
   );
@@ -436,294 +436,5 @@ class _ProfileState extends State<_Profile> {
         ],
       ),
     );
-  }
-}
-
-class _Settings extends StatefulWidget {
-  const _Settings({super.key, required this.value});
-  final Map<String, dynamic> value;
-  @override
-  State<_Settings> createState() => _SettingsState();
-}
-
-class _SettingsState extends State<_Settings> {
-  late final Map<String, dynamic> _value = Map.from(widget.value);
-  @override
-  Widget build(BuildContext context) {
-    final controller = context.watch<WorkspaceController>();
-    return ListView(
-      padding: const EdgeInsets.all(20),
-      children: [
-        Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 860),
-            child: WorkspaceCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    'Vos préférences',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
-                  ),
-                  for (final e in const {
-                    'emailNotifications':
-                        'Recevoir les notifications par e-mail',
-                    'messageNotifications': 'Être averti des nouveaux messages',
-                    'matchNotifications': 'Être averti des nouveaux matches',
-                    'profileVisible':
-                        'Rendre le profil entreprise visible aux candidats',
-                  }.entries)
-                    SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(e.value),
-                      value: _value[e.key] == true,
-                      onChanged: controller.busy
-                          ? null
-                          : (v) => setState(() => _value[e.key] = v),
-                    ),
-                  const SizedBox(height: 16),
-                  FilledButton(
-                    onPressed: controller.busy
-                        ? null
-                        : () async {
-                            final ok = await controller.saveSettings(_value);
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    ok
-                                        ? 'Préférences enregistrées.'
-                                        : 'Impossible d’enregistrer.',
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                    child: const Text('Enregistrer les préférences'),
-                  ),
-                  const Divider(height: 40),
-                  const Text(
-                    'Compte et sécurité',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
-                  ),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.lock_reset),
-                    title: const Text('Réinitialiser mon mot de passe'),
-                    subtitle: const Text(
-                      'Recevoir un lien à l’adresse du compte',
-                    ),
-                    onTap: () async {
-                      final auth = context.read<AuthController>();
-                      final ok = await auth.sendPasswordReset(auth.user!.email);
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              ok
-                                  ? 'Demande de réinitialisation envoyée.'
-                                  : auth.errorMessage ?? 'Échec de la demande.',
-                            ),
-                          ),
-                        );
-                      }
-                    },
-                  ),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.logout),
-                    title: const Text('Se déconnecter'),
-                    onTap: () async {
-                      final yes = await showDialog<bool>(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: const Text('Se déconnecter ?'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(ctx, false),
-                              child: const Text('Annuler'),
-                            ),
-                            FilledButton(
-                              onPressed: () => Navigator.pop(ctx, true),
-                              child: const Text('Se déconnecter'),
-                            ),
-                          ],
-                        ),
-                      );
-                      if (yes == true && context.mounted) {
-                        try {
-                          await context.read<AuthController>().signOut();
-                        } catch (_) {
-                          /* La session locale est effacée même si le serveur ne répond pas. */
-                        }
-                      }
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _Notifications extends StatefulWidget {
-  const _Notifications();
-  @override
-  State<_Notifications> createState() => _NotificationsState();
-}
-
-class _NotificationsState extends State<_Notifications> {
-  bool _unreadOnly = false;
-  @override
-  Widget build(BuildContext context) {
-    final c = context.watch<WorkspaceController>();
-    final items = c.notifications
-        .where((n) => !_unreadOnly || n['read'] != true)
-        .toList();
-    return RefreshIndicator(
-      onRefresh: () async {
-        await c.load('notifications');
-      },
-      child: ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(20),
-        children: [
-          Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1000),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Wrap(
-                    alignment: WrapAlignment.spaceBetween,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    spacing: 12,
-                    children: [
-                      FilterChip(
-                        label: Text('Non lues (${c.unread})'),
-                        selected: _unreadOnly,
-                        onSelected: (v) => setState(() => _unreadOnly = v),
-                      ),
-                      TextButton.icon(
-                        onPressed: c.busy || c.unread == 0 ? null : c.readAll,
-                        icon: const Icon(Icons.done_all),
-                        label: const Text('Tout marquer comme lu'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  if (items.isEmpty && !c.busy)
-                    const WorkspaceCard(
-                      child: Text(
-                        'Vous êtes à jour. Aucune notification à afficher.',
-                      ),
-                    ),
-                  for (final n in items)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: WorkspaceCard(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Icon(
-                              n['kind'] == 'message'
-                                  ? Icons.chat_bubble_outline
-                                  : Icons.notifications_outlined,
-                              color: n['read'] == true
-                                  ? Colors.blueGrey
-                                  : Colors.deepOrange,
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '${n['title']}',
-                                    style: TextStyle(
-                                      fontWeight: n['read'] == true
-                                          ? FontWeight.w500
-                                          : FontWeight.w800,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text('${n['body'] ?? ''}'),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    _date(n['createdAt']),
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.blueGrey,
-                                    ),
-                                  ),
-                                  Wrap(
-                                    children: [
-                                      TextButton(
-                                        onPressed: c.busy
-                                            ? null
-                                            : () async {
-                                                final ok = await c
-                                                    .readNotification(
-                                                      '${n['id']}',
-                                                    );
-                                                if (!context.mounted || !ok) {
-                                                  return;
-                                                }
-                                                final target = '${n['target']}';
-                                                final allowed = {
-                                                  AppRoutes.recruiterMessages,
-                                                  AppRoutes.recruiterCandidates,
-                                                  AppRoutes.recruiterJobs,
-                                                  AppRoutes.recruiterProfile,
-                                                  AppRoutes.recruiterDashboard,
-                                                };
-                                                if (allowed.contains(target)) {
-                                                  context.go(target);
-                                                }
-                                              },
-                                        child: const Text('Ouvrir'),
-                                      ),
-                                      if (n['read'] != true)
-                                        TextButton(
-                                          onPressed: c.busy
-                                              ? null
-                                              : () => c.readNotification(
-                                                  '${n['id']}',
-                                                ),
-                                          child: const Text('Marquer comme lu'),
-                                        ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            IconButton(
-                              tooltip: 'Supprimer la notification',
-                              onPressed: c.busy
-                                  ? null
-                                  : () => c.deleteNotification('${n['id']}'),
-                              icon: const Icon(Icons.close, size: 18),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _date(Object? value) {
-    final d = DateTime.tryParse('$value')?.toLocal();
-    return d == null
-        ? ''
-        : '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
   }
 }

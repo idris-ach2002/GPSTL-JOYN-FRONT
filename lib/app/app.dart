@@ -1,3 +1,6 @@
+import '../features/recruiter_studio/data/studio_store.dart';
+import '../features/recruiter_studio/data/studio_repository.dart';
+import '../features/recruiter_studio/presentation/studio_controller.dart';
 import '../features/auth/domain/user_role.dart';
 import '../features/recruiter_workspace/data/recruiter_workspace_repository.dart';
 import '../features/recruiter_workspace/presentation/workspace_controller.dart';
@@ -34,6 +37,8 @@ class JoynApp extends StatefulWidget {
   const JoynApp({
     super.key,
     this.webOverride,
+    this.studioStore,
+    this.studioRepository,
     this.workspaceRepository,
     this.authController,
     this.dashboardRepository,
@@ -45,6 +50,8 @@ class JoynApp extends StatefulWidget {
   });
 
   final RecruiterWorkspaceRepository? workspaceRepository;
+  final StudioStore? studioStore;
+  final StudioRepository? studioRepository;
   final bool? webOverride;
   final AuthController? authController;
   final DashboardRepository? dashboardRepository;
@@ -67,6 +74,7 @@ class _JoynAppState extends State<JoynApp> {
   late final RecruiterOffersRepository _recruiterOffersRepository;
   late final RecruiterCandidateRepository _recruiterCandidateRepository;
   late final GoRouter _router;
+  late final StudioController _studio;
   late final WorkspaceController _workspaceController;
   late final bool _ownsAuthController;
 
@@ -110,6 +118,12 @@ class _JoynAppState extends State<JoynApp> {
         widget.profileRepository ??
         FakeProfileRepository(latency: Duration.zero);
 
+    _studio = StudioController(
+      store: widget.studioStore,
+      repository: widget.studioRepository,
+    )..restoreDevice();
+    _studio.bind(_authController.user?.id);
+
     _workspaceController = WorkspaceController(
       widget.workspaceRepository ?? MockRecruiterWorkspaceRepository(),
     );
@@ -119,12 +133,31 @@ class _JoynAppState extends State<JoynApp> {
     _router = createAppRouter(_authController, webOverride: widget.webOverride);
   }
 
-  void _primeWorkspace() {
-    if (_authController.user?.role == UserRole.company) {
-      _workspaceController.load('profile');
-      _workspaceController.load('notifications');
-      _workspaceController.load('messages');
+  Future<void> _primeWorkspace() async {
+    final user = _authController.user;
+    if (user?.role != UserRole.company) return;
+    if (widget.studioStore != null && _workspaceController.repository.isMock) {
+      final repository = PersistentMockWorkspaceRepository(
+        widget.studioStore!,
+        user!.id,
+      );
+      try {
+        await repository.restore();
+      } catch (_) {
+        if (mounted) {
+          _workspaceController.error =
+              'Impossible de restaurer les données de démonstration.';
+          _workspaceController.notifyListeners();
+        }
+        return;
+      }
+      if (!mounted || _authController.user?.id != user.id) return;
+      _workspaceController.repository = repository;
     }
+    _workspaceController.load('profile');
+    _workspaceController.load('notifications');
+    _workspaceController.load('messages');
+    _workspaceController.load('settings');
   }
 
   String? _lastUserId;
@@ -132,6 +165,7 @@ class _JoynAppState extends State<JoynApp> {
     final id = _authController.user?.id;
     if (id != _lastUserId) {
       _lastUserId = id;
+      _studio.bind(id);
       _workspaceController.reset();
       _primeWorkspace();
     }
@@ -141,6 +175,7 @@ class _JoynAppState extends State<JoynApp> {
   void dispose() {
     _authController.removeListener(_onAuthChanged);
     _workspaceController.dispose();
+    _studio.dispose();
     _router.dispose();
     if (_ownsAuthController) _authController.dispose();
     super.dispose();
@@ -150,6 +185,7 @@ class _JoynAppState extends State<JoynApp> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider<StudioController>.value(value: _studio),
         ChangeNotifierProvider<WorkspaceController>.value(
           value: _workspaceController,
         ),
@@ -167,14 +203,42 @@ class _JoynAppState extends State<JoynApp> {
           value: _recruiterCandidateRepository,
         ),
       ],
-      child: MaterialApp.router(
-        title: 'JOYN — Le match avant la candidature',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.light,
-        routerConfig: _router,
-        locale: const Locale('fr', 'FR'),
-        supportedLocales: const [Locale('fr', 'FR')],
-        localizationsDelegates: GlobalMaterialLocalizations.delegates,
+      child: ListenableBuilder(
+        listenable: _studio,
+        builder: (context, _) => MaterialApp.router(
+          title: 'JOYN — Le match avant la candidature',
+          debugShowCheckedModeBanner: false,
+          theme: RecruiterTheme.build(
+            dark: false,
+            accent: _studio.accentColor,
+            compact: _studio.compact,
+            contrast: _studio.highContrast,
+          ),
+          darkTheme: RecruiterTheme.build(
+            dark: true,
+            accent: _studio.accentColor,
+            compact: _studio.compact,
+            contrast: _studio.highContrast,
+          ),
+          themeMode: _studio.themeMode,
+          builder: (context, child) {
+            final media = MediaQuery.of(context);
+            return MediaQuery(
+              data: media.copyWith(
+                textScaler: TextScaler.linear(
+                  media.textScaler.scale(1) * _studio.textScale,
+                ),
+                disableAnimations:
+                    media.disableAnimations || _studio.reducedMotion,
+              ),
+              child: child!,
+            );
+          },
+          routerConfig: _router,
+          locale: const Locale('fr', 'FR'),
+          supportedLocales: const [Locale('fr', 'FR')],
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
+        ),
       ),
     );
   }
