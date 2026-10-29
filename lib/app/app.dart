@@ -255,8 +255,9 @@ class _JoynAppState extends State<JoynApp> {
                           .currentState
                           ?.overlay
                           ?.context;
-                      if (searchContext != null)
+                      if (searchContext != null) {
                         studioOpenSearch(searchContext, router: _router);
+                      }
                     }
                   },
                   const SingleActivator(
@@ -270,8 +271,9 @@ class _JoynAppState extends State<JoynApp> {
                           .currentState
                           ?.overlay
                           ?.context;
-                      if (searchContext != null)
+                      if (searchContext != null) {
                         studioOpenSearch(searchContext, router: _router);
+                      }
                     }
                   },
                 },
