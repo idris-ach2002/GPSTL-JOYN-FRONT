@@ -1,3 +1,5 @@
+import '../../features/recruiter_workspace/presentation/workspace_screen.dart';
+
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -195,7 +197,7 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
             return ChangeNotifierProvider(
               create: (context) => RecruiterDashboardController(
                 context.read<RecruiterDashboardRepository>(),
-              )..loadOverview(),
+              )..loadDashboard(),
               child: useMobile(context)
                   ? const MobileRecruiterDashboardScreen()
                   : const WebRecruiterDashboardScreen(),
@@ -341,6 +343,32 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
           );
         },
       ),
+      GoRoute(
+        path: AppRoutes.recruiterCompany,
+        redirect: (context, state) => AppRoutes.recruiterProfile,
+      ),
+      GoRoute(
+        path: AppRoutes.messages,
+        redirect: (context, state) => auth.user?.role == UserRole.company
+            ? AppRoutes.recruiterMessages
+            : AppRoutes.dashboard,
+      ),
+      for (final section in [
+        'profile',
+        'notifications',
+        'messages',
+        'settings',
+      ])
+        GoRoute(
+          path: '/recruiter/$section',
+          builder: (context, state) => RecruiterWorkspaceScreen(
+            key: ValueKey(section),
+            section: section,
+            mobile: useMobile(context),
+            candidateId: state.uri.queryParameters['candidateId'],
+            candidateName: state.uri.queryParameters['name'],
+          ),
+        ),
       for (final entry in informationPages.entries)
         GoRoute(
           path: entry.key,

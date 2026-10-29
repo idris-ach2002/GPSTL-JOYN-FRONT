@@ -58,6 +58,9 @@ class ApiAuthRepository implements AuthRepository {
     }
   }
 
+  Future<AppUser> register(Map<String, dynamic> body) =>
+      _authenticate('/api/v1/auth/register', body);
+
   @override
   Future<AppUser> signIn({
     required String email,

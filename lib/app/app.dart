@@ -1,3 +1,6 @@
+import '../features/recruiter_workspace/data/recruiter_workspace_repository.dart';
+import '../features/recruiter_workspace/presentation/workspace_controller.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
@@ -30,6 +33,7 @@ class JoynApp extends StatefulWidget {
   const JoynApp({
     super.key,
     this.webOverride,
+    this.workspaceRepository,
     this.authController,
     this.dashboardRepository,
     this.registrationRepository,
@@ -39,6 +43,7 @@ class JoynApp extends StatefulWidget {
     this.recruiterCandidateRepository,
   });
 
+  final RecruiterWorkspaceRepository? workspaceRepository;
   final bool? webOverride;
   final AuthController? authController;
   final DashboardRepository? dashboardRepository;
@@ -61,6 +66,7 @@ class _JoynAppState extends State<JoynApp> {
   late final RecruiterOffersRepository _recruiterOffersRepository;
   late final RecruiterCandidateRepository _recruiterCandidateRepository;
   late final GoRouter _router;
+  late final WorkspaceController _workspaceController;
   late final bool _ownsAuthController;
 
   @override
@@ -103,11 +109,27 @@ class _JoynAppState extends State<JoynApp> {
         widget.profileRepository ??
         FakeProfileRepository(latency: Duration.zero);
 
+    _workspaceController = WorkspaceController(
+      widget.workspaceRepository ?? MockRecruiterWorkspaceRepository(),
+    );
+    _lastUserId = _authController.user?.id;
+    _authController.addListener(_onAuthChanged);
     _router = createAppRouter(_authController, webOverride: widget.webOverride);
+  }
+
+  String? _lastUserId;
+  void _onAuthChanged() {
+    final id = _authController.user?.id;
+    if (id != _lastUserId) {
+      _lastUserId = id;
+      _workspaceController.reset();
+    }
   }
 
   @override
   void dispose() {
+    _authController.removeListener(_onAuthChanged);
+    _workspaceController.dispose();
     _router.dispose();
     if (_ownsAuthController) _authController.dispose();
     super.dispose();
@@ -117,6 +139,9 @@ class _JoynAppState extends State<JoynApp> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider<WorkspaceController>.value(
+          value: _workspaceController,
+        ),
         ChangeNotifierProvider<AuthController>.value(value: _authController),
         Provider<DashboardRepository>.value(value: _dashboardRepository),
         Provider<RegistrationRepository>.value(value: _registrationRepository),
