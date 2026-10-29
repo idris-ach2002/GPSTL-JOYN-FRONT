@@ -1,4 +1,6 @@
-# Livraison espace recruteur — 29 octobre 2026
+# Livraison espace recruteur — V1
+
+La suite V2 est décrite dans `STUDIO_RECRUTEUR_V2.md` et `CONTRAT_API_STUDIO_V2.md`. Les limites de persistance ci-dessous décrivent la livraison initiale.
 
 Base vérifiée par `git fetch origin main` : `4f00aa99da534e958e467b3306eb1c96264e878b`.
 Branche : `feat/espace-recruteur`.

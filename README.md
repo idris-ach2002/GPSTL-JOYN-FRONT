@@ -1,3 +1,5 @@
+> Studio recruteur V2 : voir [le guide](docs/STUDIO_RECRUTEUR_V2.md), [le contrat API](docs/CONTRAT_API_STUDIO_V2.md) et [la validation](docs/VALIDATION_STUDIO_V2.md).
+
 # JOYN
 
 **JOYN** est une application de mise en relation entre candidats et entreprises pour l'emploi, le stage et surtout l'alternance.
