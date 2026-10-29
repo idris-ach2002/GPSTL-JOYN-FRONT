@@ -1,3 +1,6 @@
+import 'package:flutter/services.dart';
+
+import '../features/recruiter_studio/presentation/studio_search.dart';
 import '../features/recruiter_studio/data/studio_store.dart';
 import '../features/recruiter_studio/data/studio_repository.dart';
 import '../features/recruiter_studio/presentation/studio_controller.dart';
@@ -231,7 +234,27 @@ class _JoynAppState extends State<JoynApp> {
                 disableAnimations:
                     media.disableAnimations || _studio.reducedMotion,
               ),
-              child: child!,
+              child: CallbackShortcuts(
+                bindings: {
+                  const SingleActivator(
+                    LogicalKeyboardKey.keyK,
+                    control: true,
+                  ): () {
+                    if (_authController.user?.role == UserRole.company) {
+                      studioOpenSearch(context, router: _router);
+                    }
+                  },
+                  const SingleActivator(
+                    LogicalKeyboardKey.keyK,
+                    meta: true,
+                  ): () {
+                    if (_authController.user?.role == UserRole.company) {
+                      studioOpenSearch(context, router: _router);
+                    }
+                  },
+                },
+                child: child!,
+              ),
             );
           },
           routerConfig: _router,

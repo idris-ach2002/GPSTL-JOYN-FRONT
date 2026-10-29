@@ -384,72 +384,59 @@ class PersistentMockWorkspaceRepository
   PersistentMockWorkspaceRepository(this.store, this.userId);
   final StudioStore store;
   final String userId;
+  Future<void> _pending = Future.value();
   String get key => 'joyn.mock.workspace.v2.$userId';
   Future<void> restore() async {
     final raw = await store.read(key);
     if (raw != null) hydrate(Map<String, dynamic>.from(jsonDecode(raw) as Map));
   }
 
-  Future<void> _persist() => store.write(key, jsonEncode(snapshot()));
-  @override
-  Future<Map<String, dynamic>> saveProfile(Map<String, dynamic> value) async {
-    final result = await super.saveProfile(value);
-    await _persist();
-    return result;
+  Future<T> _transaction<T>(Future<T> Function() action) {
+    final operation = _pending.then((_) async {
+      final before = snapshot();
+      try {
+        final result = await action();
+        await store.write(key, jsonEncode(snapshot()));
+        return result;
+      } catch (_) {
+        hydrate(before);
+        rethrow;
+      }
+    });
+    _pending = operation.then<void>(
+      (_) {},
+      onError: (Object error, StackTrace stack) {},
+    );
+    return operation;
   }
 
   @override
-  Future<Map<String, dynamic>> saveSettings(Map<String, dynamic> value) async {
-    final result = await super.saveSettings(value);
-    await _persist();
-    return result;
-  }
-
+  Future<Map<String, dynamic>> saveProfile(Map<String, dynamic> value) =>
+      _transaction(() => super.saveProfile(value));
   @override
-  Future<void> readNotification(String id) async {
-    await super.readNotification(id);
-    await _persist();
-  }
-
+  Future<Map<String, dynamic>> saveSettings(Map<String, dynamic> value) =>
+      _transaction(() => super.saveSettings(value));
   @override
-  Future<void> updateNotification(
-    String id,
-    Map<String, dynamic> changes,
-  ) async {
-    await super.updateNotification(id, changes);
-    await _persist();
-  }
-
+  Future<void> readNotification(String id) =>
+      _transaction(() => super.readNotification(id));
   @override
-  Future<void> deleteNotification(String id) async {
-    await super.deleteNotification(id);
-    await _persist();
-  }
-
+  Future<void> updateNotification(String id, Map<String, dynamic> changes) =>
+      _transaction(() => super.updateNotification(id, changes));
+  @override
+  Future<void> deleteNotification(String id) =>
+      _transaction(() => super.deleteNotification(id));
   @override
   Future<Map<String, dynamic>> startConversation(
     String candidateId,
     String name,
-  ) async {
-    final result = await super.startConversation(candidateId, name);
-    await _persist();
-    return result;
-  }
-
+  ) => _transaction(() => super.startConversation(candidateId, name));
   @override
-  Future<void> readConversation(String id) async {
-    await super.readConversation(id);
-    await _persist();
-  }
-
+  Future<void> readConversation(String id) =>
+      _transaction(() => super.readConversation(id));
   @override
   Future<Map<String, dynamic>> send(
-    String id,
+    String conversationId,
     String text,
     String clientId,
-  ) async {
-    final result = await super.send(id, text, clientId);
-    await _persist();
-    return result;
-  }
+  ) => _transaction(() => super.send(conversationId, text, clientId));
 }

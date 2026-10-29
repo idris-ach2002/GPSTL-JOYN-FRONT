@@ -69,6 +69,19 @@ class _StudioSettingsState extends State<StudioSettings> {
       Color(0xFF58778D),
     ),
   ];
+  StudioController? _studio;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _studio = context.read<StudioController>();
+  }
+
+  @override
+  void dispose() {
+    _studio?.settingsBack = null;
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final studio = context.watch<StudioController>();
@@ -76,6 +89,11 @@ class _StudioSettingsState extends State<StudioSettings> {
       builder: (context, constraints) {
         final wide = constraints.maxWidth >= 900;
         final selected = _selected ?? (wide ? 'appearance' : null);
+        studio.settingsBack = !wide && _selected != null
+            ? () {
+                if (mounted) setState(() => _selected = null);
+              }
+            : null;
         final menu = ListView(
           padding: const EdgeInsets.all(18),
           children: [
@@ -547,8 +565,9 @@ class _StudioSettingsState extends State<StudioSettings> {
                                 'Supprimer ce modèle ?',
                                 'Cette action retire la réponse enregistrée.',
                               ) &&
-                              mounted)
+                              mounted) {
                             c.remove('templates', '${template['id']}');
+                          }
                         },
                 ),
               ),
@@ -622,7 +641,7 @@ class _StudioSettingsState extends State<StudioSettings> {
             onTap: () async {
               if (auth.user == null) return;
               final ok = await auth.sendPasswordReset(auth.user!.email);
-              if (mounted)
+              if (mounted) {
                 studioToast(
                   context,
                   ok
@@ -631,6 +650,7 @@ class _StudioSettingsState extends State<StudioSettings> {
                             : 'Demande envoyée.'
                       : auth.errorMessage ?? 'Demande impossible.',
                 );
+              }
             },
           ),
           ListTile(
@@ -735,6 +755,7 @@ class _StudioSettingsState extends State<StudioSettings> {
     Map<String, String> values,
     ValueChanged<String> changed,
   ) => DropdownButtonFormField<String>(
+    key: ValueKey('$label-$value'),
     initialValue: values.containsKey(value) ? value : values.keys.first,
     decoration: InputDecoration(labelText: label),
     items: [
@@ -776,8 +797,9 @@ class _StudioSettingsState extends State<StudioSettings> {
           ),
           FilledButton(
             onPressed: () {
-              if (form.currentState!.validate())
+              if (form.currentState!.validate()) {
                 Navigator.pop(ctx, text.text.trim());
+              }
             },
             child: const Text('Enregistrer'),
           ),
@@ -786,13 +808,14 @@ class _StudioSettingsState extends State<StudioSettings> {
     );
     if (value != null) {
       final ok = await save(value);
-      if (mounted)
+      if (mounted) {
         studioToast(
           context,
           ok
               ? 'Modification enregistrée.'
               : 'Enregistrement impossible. Réessayez.',
         );
+      }
     }
     // Le contrôleur reste vivant jusqu’à la fin de l’animation du dialogue.
     WidgetsBinding.instance.addPostFrameCallback((_) => text.dispose());
@@ -842,12 +865,13 @@ class _StudioSettingsState extends State<StudioSettings> {
           ),
           FilledButton(
             onPressed: () {
-              if (form.currentState!.validate())
+              if (form.currentState!.validate()) {
                 Navigator.pop(ctx, {
                   'id': StudioController.newId(),
                   'title': title.text.trim(),
                   'text': text.text.trim(),
                 });
+              }
             },
             child: const Text('Créer'),
           ),
@@ -856,11 +880,12 @@ class _StudioSettingsState extends State<StudioSettings> {
     );
     if (value != null) {
       final ok = await c.upsert('templates', value);
-      if (mounted)
+      if (mounted) {
         studioToast(
           context,
           ok ? 'Réponse enregistrée.' : 'Création impossible.',
         );
+      }
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       title.dispose();
@@ -891,8 +916,9 @@ class _StudioSettingsState extends State<StudioSettings> {
           FilledButton.icon(
             onPressed: () async {
               await Clipboard.setData(ClipboardData(text: content));
-              if (ctx.mounted)
+              if (ctx.mounted) {
                 studioToast(ctx, 'Données copiées dans le presse-papiers.');
+              }
             },
             icon: const Icon(Icons.copy),
             label: const Text('Copier le JSON'),
@@ -996,12 +1022,13 @@ class _NotificationPreferencesState extends State<_NotificationPreferences> {
                               : 0,
                         ),
                       );
-                      if (value != null && mounted)
+                      if (value != null && mounted) {
                         setState(() {
                           d[e.$1] =
                               '${value.hour.toString().padLeft(2, '0')}:${value.minute.toString().padLeft(2, '0')}';
                           _dirty = true;
                         });
+                      }
                     },
                     icon: const Icon(Icons.schedule),
                     label: Text('${e.$2} · ${d[e.$1] ?? e.$3}'),
@@ -1014,7 +1041,7 @@ class _NotificationPreferencesState extends State<_NotificationPreferences> {
                 ? null
                 : () async {
                     final ok = await c.saveSettings(d);
-                    if (mounted) {
+                    if (context.mounted) {
                       if (ok) setState(() => _dirty = false);
                       studioToast(
                         context,

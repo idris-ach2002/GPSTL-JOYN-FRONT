@@ -13,6 +13,7 @@ class WorkspaceController extends ChangeNotifier {
   int _pending = 0;
   bool get busy => _pending > 0;
   String? error;
+  bool profileDirty = false;
   bool _disposed = false;
   int _generation = 0;
   int get unread => notifications.where((n) => n['read'] != true).length;
@@ -34,6 +35,7 @@ class WorkspaceController extends ChangeNotifier {
 
   void reset() {
     _generation++;
+    profileDirty = false;
     profile = null;
     settings = null;
     notifications = [];

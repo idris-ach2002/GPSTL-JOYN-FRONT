@@ -1,3 +1,5 @@
+import '../../recruiter_studio/presentation/studio_controller.dart';
+import '../../recruiter_studio/presentation/studio_profile.dart';
 import '../../recruiter_studio/presentation/studio_settings.dart';
 import '../../recruiter_studio/presentation/studio_notifications.dart';
 
@@ -6,7 +8,6 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../app/routing/app_routes.dart';
-import '../../auth/presentation/auth_controller.dart';
 import '../../recruiter_offers/presentation/web/recruiter_offers_top_bar.dart';
 import 'workspace_controller.dart';
 import 'workspace_messages.dart';
@@ -65,9 +66,16 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
           ? AppBar(
               title: Text(title),
               leading: IconButton(
-                tooltip: 'Dashboard',
+                tooltip: widget.section == 'settings' ? 'Retour' : 'Dashboard',
                 icon: const Icon(Icons.arrow_back),
-                onPressed: () => context.go(AppRoutes.recruiterDashboard),
+                onPressed: () {
+                  final back = context.read<StudioController?>()?.settingsBack;
+                  if (widget.section == 'settings' && back != null) {
+                    back();
+                  } else {
+                    context.go(AppRoutes.recruiterDashboard);
+                  }
+                },
               ),
               actions: [
                 IconButton(
@@ -162,9 +170,10 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
                     Expanded(
                       child: Text(
                         title,
-                        style: const TextStyle(
-                          color: workspaceNavy,
-                          fontSize: 30,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontFamily: 'BricolageGrotesque',
+                          fontSize: 32,
                           fontWeight: FontWeight.w900,
                         ),
                       ),
@@ -214,10 +223,7 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
                 'profile' =>
                   controller.profile == null
                       ? const _Waiting()
-                      : _Profile(
-                          key: ValueKey(controller.profile),
-                          value: controller.profile!,
-                        ),
+                      : StudioProfile(value: controller.profile!),
                 _ => const StudioSettings(),
               },
             ),
@@ -251,190 +257,4 @@ class WorkspaceCard extends StatelessWidget {
     ),
     child: Material(color: Colors.transparent, child: child),
   );
-}
-
-class _Profile extends StatefulWidget {
-  const _Profile({super.key, required this.value});
-  final Map<String, dynamic> value;
-  @override
-  State<_Profile> createState() => _ProfileState();
-}
-
-class _ProfileState extends State<_Profile> {
-  final _form = GlobalKey<FormState>();
-  late final Map<String, TextEditingController> _fields;
-  bool _dirty = false;
-  static const labels = {
-    'firstName': 'Prénom',
-    'lastName': 'Nom',
-    'jobTitle': 'Fonction',
-    'phone': 'Téléphone professionnel',
-    'companyName': 'Entreprise',
-    'city': 'Ville',
-    'website': 'Site internet',
-    'description': 'Présentation de votre entreprise',
-  };
-  @override
-  void initState() {
-    super.initState();
-    _fields = {
-      for (final key in labels.keys)
-        key: TextEditingController(text: '${widget.value[key] ?? ''}'),
-    };
-  }
-
-  @override
-  void dispose() {
-    for (final c in _fields.values) {
-      c.dispose();
-    }
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final controller = context.watch<WorkspaceController>();
-    return PopScope(
-      canPop: !_dirty,
-      onPopInvokedWithResult: (didPop, result) async {
-        if (didPop) return;
-        final leave = await showDialog<bool>(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: const Text('Quitter sans enregistrer ?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: const Text('Rester'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                child: const Text('Quitter'),
-              ),
-            ],
-          ),
-        );
-        if (leave == true && context.mounted) {
-          setState(() => _dirty = false);
-          context.go(AppRoutes.recruiterDashboard);
-        }
-      },
-      child: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 860),
-              child: WorkspaceCard(
-                child: Form(
-                  key: _form,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const Text(
-                        'Votre identité professionnelle',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w800,
-                          color: workspaceNavy,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        context.read<AuthController>().user?.email ?? '',
-                        style: const TextStyle(color: Colors.blueGrey),
-                      ),
-                      const SizedBox(height: 24),
-                      LayoutBuilder(
-                        builder: (context, box) => Wrap(
-                          spacing: 20,
-                          runSpacing: 20,
-                          children: [
-                            for (final entry in labels.entries)
-                              SizedBox(
-                                width:
-                                    box.maxWidth > 620 &&
-                                        entry.key != 'description'
-                                    ? (box.maxWidth - 20) / 2
-                                    : box.maxWidth,
-                                child: TextFormField(
-                                  controller: _fields[entry.key],
-                                  onChanged: (_) => _dirty = true,
-                                  enabled: !controller.busy,
-                                  maxLines: entry.key == 'description' ? 4 : 1,
-                                  maxLength: entry.key == 'description'
-                                      ? 2000
-                                      : 200,
-                                  keyboardType: entry.key == 'phone'
-                                      ? TextInputType.phone
-                                      : entry.key == 'website'
-                                      ? TextInputType.url
-                                      : TextInputType.text,
-                                  decoration: InputDecoration(
-                                    labelText: entry.value,
-                                    border: const OutlineInputBorder(),
-                                    counterText: '',
-                                  ),
-                                  validator: (v) {
-                                    final text = (v ?? '').trim();
-                                    if ([
-                                          'firstName',
-                                          'lastName',
-                                          'companyName',
-                                        ].contains(entry.key) &&
-                                        text.isEmpty) {
-                                      return 'Champ obligatoire';
-                                    }
-                                    if (entry.key == 'website' &&
-                                        text.isNotEmpty) {
-                                      final uri = Uri.tryParse(text);
-                                      if (uri == null ||
-                                          ![
-                                            'https',
-                                            'http',
-                                          ].contains(uri.scheme) ||
-                                          uri.host.isEmpty) {
-                                        return 'URL complète attendue (https://…)';
-                                      }
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      FilledButton.icon(
-                        onPressed: controller.busy
-                            ? null
-                            : () async {
-                                if (!_form.currentState!.validate()) return;
-                                final ok = await controller.saveProfile({
-                                  for (final e in _fields.entries)
-                                    e.key: e.value.text.trim(),
-                                });
-                                if (!context.mounted) return;
-                                if (ok) _dirty = false;
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      ok ? 'Profil enregistré.' : 'Enregistrement impossible. Vos champs sont conservés.',
-                                    ),
-                                  ),
-                                );
-                              },
-                        icon: const Icon(Icons.check),
-                        label: const Text('Enregistrer le profil'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
