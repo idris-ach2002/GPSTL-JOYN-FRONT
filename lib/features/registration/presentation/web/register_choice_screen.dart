@@ -5,22 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:joyn_front/app/routing/app_routes.dart';
-import 'package:joyn_front/design_system/components/joyn_button.dart';
 import 'package:joyn_front/design_system/components/joyn_logo.dart';
-import 'package:joyn_front/design_system/components/joyn_pill.dart';
+import 'package:joyn_front/design_system/theme/joyn_material_theme.dart';
 import 'package:joyn_front/design_system/tokens/app_colors.dart';
-import 'package:joyn_front/design_system/tokens/app_fonts.dart';
 import 'package:joyn_front/features/registration/domain/account_type.dart';
-import 'package:joyn_front/features/registration/presentation/mobile/mobile_register_choice_screen.dart';
-import 'package:joyn_front/features/registration/presentation/widgets/choice_illustrations.dart';
-import 'package:joyn_front/features/registration/presentation/widgets/register_choice_card.dart';
-import 'package:joyn_front/features/registration/presentation/widgets/registration_backdrop.dart';
+import 'package:joyn_front/features/registration/presentation/web/widgets/choice_illustrations.dart';
+import 'package:joyn_front/features/registration/presentation/web/widgets/register_choice_card.dart';
+import 'package:joyn_front/features/registration/presentation/web/widgets/registration_backdrop.dart';
 
 /// Écran 02a — Inscription, étape 1 sur 2 : choix du type de compte.
 class RegisterChoiceScreen extends StatefulWidget {
-  const RegisterChoiceScreen({super.key, this.mobile = false});
-
-  final bool mobile;
+  const RegisterChoiceScreen({super.key});
 
   @override
   State<RegisterChoiceScreen> createState() => _RegisterChoiceScreenState();
@@ -40,59 +35,68 @@ class _RegisterChoiceScreenState extends State<RegisterChoiceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.mobile) return const MobileRegisterChoiceScreen();
-
     final width = MediaQuery.sizeOf(context).width;
     final compact = width < 640;
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(12),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: math.max(0.0, constraints.maxHeight - 24),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(compact ? 24 : 32),
-                  child: RegistrationBackdrop(
-                    child: Padding(
-                      padding: compact
-                          ? const EdgeInsets.fromLTRB(18, 20, 18, 28)
-                          : const EdgeInsets.fromLTRB(40, 26, 40, 56),
-                      child: Column(
-                        children: [
-                          _Header(compact: compact),
-                          SizedBox(height: compact ? 32 : 44),
-                          _Intro(width: width),
-                          SizedBox(height: compact ? 32 : 44),
-                          _ChoiceCards(
-                            selected: _selected,
-                            onSelected: (type) =>
-                                setState(() => _selected = type),
-                          ),
-                          SizedBox(height: compact ? 32 : 44),
-                          JoynButton(
-                            key: const ValueKey('register-continue'),
-                            label: _selected == AccountType.student
-                                ? 'Continuer comme étudiant·e'
-                                : 'Continuer comme entreprise',
-                            trailingIcon: Icons.arrow_forward_rounded,
-                            height: 58,
-                            fontSize: 17,
-                            onPressed: _continue,
-                          ),
-                        ],
+    return JoynMaterialScope(
+      child: Scaffold(
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final density = _Density.of(constraints.maxHeight, compact);
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(12),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: math.max(0.0, constraints.maxHeight - 24),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(compact ? 24 : 32),
+                    child: RegistrationBackdrop(
+                      child: Padding(
+                        padding: compact
+                            ? const EdgeInsets.fromLTRB(18, 20, 18, 28)
+                            : EdgeInsets.fromLTRB(
+                                40,
+                                density.outerTop,
+                                40,
+                                density.outerBottom,
+                              ),
+                        child: Column(
+                          children: [
+                            _Header(compact: compact),
+                            SizedBox(height: density.gap),
+                            _Intro(width: width, density: density),
+                            SizedBox(height: density.gap),
+                            _ChoiceCards(
+                              density: density,
+                              selected: _selected,
+                              onSelected: (type) =>
+                                  setState(() => _selected = type),
+                            ),
+                            SizedBox(height: density.gap),
+                            FilledButton.icon(
+                              key: const ValueKey('register-continue'),
+                              style: JoynButtonStyles.large.merge(
+                                JoynButtonStyles.trailingIcon,
+                              ),
+                              onPressed: _continue,
+                              icon: const Icon(Icons.arrow_forward_rounded),
+                              label: Text(
+                                _selected == AccountType.student
+                                    ? 'Continuer comme étudiant·e'
+                                    : 'Continuer comme entreprise',
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );
@@ -109,10 +113,8 @@ class _Header extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Semantics(
-          link: true,
-          label: "Joyn, retour à l'accueil",
-          excludeSemantics: true,
+        Tooltip(
+          message: kIsWeb ? "Retour à l'accueil" : 'Retour à la connexion',
           child: InkWell(
             onTap: () =>
                 context.go(kIsWeb ? AppRoutes.landing : AppRoutes.login),
@@ -127,18 +129,17 @@ class _Header extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (!compact) ...[
-              const Text(
+              Text(
                 'Déjà un compte ?',
-                style: TextStyle(fontSize: 14, color: AppColors.skyMist),
+                style: Theme.of(context).textTheme.bodyMedium
+                    ?.copyWith(color: AppColors.skyMist),
               ),
               const SizedBox(width: 12),
             ],
-            JoynButton(
-              label: 'Se connecter',
-              variant: JoynButtonVariant.outlineOnDark,
-              height: 42,
-              fontSize: 14,
+            OutlinedButton(
+              style: JoynButtonStyles.outlinedOnDark,
               onPressed: () => context.go(AppRoutes.login),
+              child: const Text('Se connecter'),
             ),
           ],
         ),
@@ -148,26 +149,22 @@ class _Header extends StatelessWidget {
 }
 
 class _Intro extends StatelessWidget {
-  const _Intro({required this.width});
+  const _Intro({required this.width, required this.density});
 
   final double width;
+  final _Density density;
 
   @override
   Widget build(BuildContext context) {
-    final titleSize = (width * 0.052).clamp(36.0, 68.0).toDouble();
+    final textTheme = Theme.of(context).textTheme;
+    final titleSize = (width * 0.052)
+        .clamp(34.0, density.maxTitleSize)
+        .toDouble();
 
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 760),
       child: Column(
         children: [
-          const JoynPill(
-            label: 'Inscription · étape 1 sur 2',
-            background: Color(0x1FFFFFFF),
-            foreground: AppColors.white,
-            borderColor: Color(0x38FFFFFF),
-            padding: EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-          ),
-          const SizedBox(height: 16),
           Semantics(
             header: true,
             child: Text.rich(
@@ -181,25 +178,22 @@ class _Intro extends StatelessWidget {
                 ],
               ),
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontFamily: AppFonts.display,
+              style: textTheme.displayLarge?.copyWith(
                 fontSize: titleSize,
                 height: 1.0,
                 letterSpacing: -titleSize * 0.05,
-                fontWeight: FontWeight.w800,
                 color: AppColors.white,
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: density.introSpacing),
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 580),
-            child: const Text(
+            child: Text(
               "Étudiant·e en recherche d'alternance ou entreprise qui recrute : chaque profil a son espace.",
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 18,
-                height: 1.5,
+              style: textTheme.bodyLarge?.copyWith(
+                fontSize: density.subtitleSize,
                 color: AppColors.skyMist,
               ),
             ),
@@ -211,8 +205,13 @@ class _Intro extends StatelessWidget {
 }
 
 class _ChoiceCards extends StatelessWidget {
-  const _ChoiceCards({required this.selected, required this.onSelected});
+  const _ChoiceCards({
+    required this.density,
+    required this.selected,
+    required this.onSelected,
+  });
 
+  final _Density density;
   final AccountType selected;
   final ValueChanged<AccountType> onSelected;
 
@@ -223,6 +222,8 @@ class _ChoiceCards extends StatelessWidget {
       selected: selected == AccountType.student,
       onSelected: () => onSelected(AccountType.student),
       illustration: const StudentChoiceIllustration(),
+      illustrationHeight: density.illustrationHeight,
+      showBenefits: density.showBenefits,
       tagLabel: 'Étudiant·e',
       tagIcon: Icons.school_outlined,
       tint: AppColors.skyTint,
@@ -241,6 +242,8 @@ class _ChoiceCards extends StatelessWidget {
       selected: selected == AccountType.company,
       onSelected: () => onSelected(AccountType.company),
       illustration: const CompanyChoiceIllustration(),
+      illustrationHeight: density.illustrationHeight,
+      showBenefits: density.showBenefits,
       tagLabel: 'Entreprise',
       tagIcon: Icons.apartment_outlined,
       tint: AppColors.orangeTint,
@@ -255,10 +258,11 @@ class _ChoiceCards extends StatelessWidget {
     );
 
     return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 1080),
+      // Deux cartes à peu près carrées : leur largeur suit leur hauteur.
+      constraints: BoxConstraints(maxWidth: density.cardMaxWidth * 2 + 24),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          if (constraints.maxWidth < 824) {
+          if (constraints.maxWidth < 600) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [student, const SizedBox(height: 24), company],
@@ -278,4 +282,91 @@ class _ChoiceCards extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Tailles de l'écran selon la hauteur disponible : sur un écran
+/// d'ordinateur courant, tout tient sans défilement.
+class _Density {
+  const _Density({
+    required this.outerTop,
+    required this.outerBottom,
+    required this.gap,
+    required this.introSpacing,
+    required this.maxTitleSize,
+    required this.subtitleSize,
+    required this.illustrationHeight,
+    required this.showBenefits,
+    required this.cardMaxWidth,
+  });
+
+  /// Fenêtre haute (≥ 980 px) : mise en page aérée.
+  static const _roomy = _Density(
+    outerTop: 26,
+    outerBottom: 36,
+    gap: 32,
+    introSpacing: 14,
+    maxTitleSize: 62,
+    subtitleSize: 18,
+    illustrationHeight: 180,
+    showBenefits: true,
+    cardMaxWidth: 440,
+  );
+
+  /// Fenêtre moyenne (≥ 760 px) : écran d’ordinateur courant.
+  static const _medium = _Density(
+    outerTop: 20,
+    outerBottom: 24,
+    gap: 22,
+    introSpacing: 10,
+    maxTitleSize: 50,
+    subtitleSize: 16,
+    illustrationHeight: 140,
+    showBenefits: true,
+    cardMaxWidth: 400,
+  );
+
+  /// Fenêtre basse : les avantages des cartes sont masqués.
+  static const _tight = _Density(
+    outerTop: 16,
+    outerBottom: 20,
+    gap: 16,
+    introSpacing: 8,
+    maxTitleSize: 42,
+    subtitleSize: 15,
+    illustrationHeight: 112,
+    showBenefits: false,
+    cardMaxWidth: 330,
+  );
+
+  /// Sur mobile, la page défile de toute façon : on garde tout le contenu.
+  static const _mobile = _Density(
+    outerTop: 20,
+    outerBottom: 28,
+    gap: 28,
+    introSpacing: 12,
+    maxTitleSize: 44,
+    subtitleSize: 16,
+    illustrationHeight: 180,
+    showBenefits: true,
+    cardMaxWidth: 480,
+  );
+
+  static _Density of(double height, bool compact) {
+    if (compact) return _mobile;
+    if (height >= 980) return _roomy;
+    if (height >= 760) return _medium;
+    return _tight;
+  }
+
+  final double outerTop;
+  final double outerBottom;
+  final double gap;
+  final double introSpacing;
+  final double maxTitleSize;
+  final double subtitleSize;
+  final double illustrationHeight;
+  final bool showBenefits;
+
+  /// Largeur maximale d'une carte de choix.
+  final double cardMaxWidth;
 }

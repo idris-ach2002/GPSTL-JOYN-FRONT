@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'package:joyn_front/design_system/components/joyn_pill.dart';
+import 'package:joyn_front/design_system/material/joyn_chip_group.dart';
 import 'package:joyn_front/design_system/components/joyn_score_ring.dart';
 import 'package:joyn_front/design_system/tokens/app_colors.dart';
 import 'package:joyn_front/design_system/tokens/app_fonts.dart';
-import 'package:joyn_front/features/registration/presentation/widgets/registration_preview_shell.dart';
+import 'package:joyn_front/features/registration/presentation/web/widgets/registration_preview_shell.dart';
 
 /// Aperçu en direct du profil étudiant (écran 02b).
 class ProfileLivePreview extends StatelessWidget {
@@ -97,21 +97,19 @@ class ProfileLivePreview extends StatelessWidget {
             runSpacing: 6,
             children: [
               if (verifiedStudent)
-                const JoynPill(
+                const JoynInfoChip(
                   label: 'Étudiant·e vérifié·e',
                   icon: Icons.verified_user_outlined,
                   background: AppColors.successTint,
                   foreground: AppColors.successDeep,
-                  fontSize: 12,
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  small: true,
                 ),
-              const JoynPill(
+              const JoynInfoChip(
                 label: 'CV à importer',
                 icon: Icons.description_outlined,
                 background: AppColors.background,
                 foreground: AppColors.slate,
-                fontSize: 12,
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                small: true,
               ),
             ],
           ),
@@ -137,31 +135,6 @@ class ProfileLivePreview extends StatelessWidget {
             ],
           ),
         ],
-      ),
-      footer: const PreviewFooter(
-        title: 'Elles recrutent en alternance sur Joyn',
-        badges: [
-          PreviewBadge(
-            'N',
-            'Alex Dupont',
-            AppColors.textPrimary,
-            AppColors.white,
-          ),
-          PreviewBadge(
-            'L',
-            'Lumen Santé',
-            AppColors.cyanBlue,
-            AppColors.textPrimary,
-          ),
-          PreviewBadge(
-            'K',
-            'Kôr Mobility',
-            AppColors.navyLight,
-            AppColors.white,
-          ),
-        ],
-        icon: Icons.lock_outline_rounded,
-        note: "Ton CV n'est envoyé qu'aux entreprises auxquelles tu dis « Intéressé ».",
       ),
     );
   }
