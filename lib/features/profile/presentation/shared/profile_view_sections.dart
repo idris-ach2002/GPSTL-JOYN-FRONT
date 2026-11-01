@@ -201,10 +201,12 @@ class _AvailabilityPill extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          Text(
-            'Disponible dès ${start.toLowerCase()}',
-            style: Theme.of(context).textTheme.labelSmall
-                ?.copyWith(color: AppColors.white, letterSpacing: 0),
+          Flexible(
+            child: Text(
+              'Disponible dès ${start.toLowerCase()}',
+              style: Theme.of(context).textTheme.labelSmall
+                  ?.copyWith(color: AppColors.white, letterSpacing: 0),
+            ),
           ),
         ],
       ),
