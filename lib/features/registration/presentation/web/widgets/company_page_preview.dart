@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'package:joyn_front/design_system/components/joyn_pill.dart';
+import 'package:joyn_front/design_system/material/joyn_chip_group.dart';
 import 'package:joyn_front/design_system/tokens/app_colors.dart';
 import 'package:joyn_front/design_system/tokens/app_fonts.dart';
-import 'package:joyn_front/features/registration/presentation/widgets/registration_preview_shell.dart';
+import 'package:joyn_front/features/registration/presentation/web/widgets/registration_preview_shell.dart';
 
 /// Aperçu en direct de la page entreprise (écran 02c).
 class CompanyPagePreview extends StatelessWidget {
@@ -66,26 +66,18 @@ class CompanyPagePreview extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: 4),
                 child: verified
-                    ? const JoynPill(
+                    ? const JoynInfoChip(
                         label: 'Entreprise vérifiée',
                         icon: Icons.verified_outlined,
                         background: AppColors.successTint,
                         foreground: AppColors.successDeep,
-                        fontSize: 12,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
-                        ),
+                        small: true,
                       )
-                    : const JoynPill(
+                    : const JoynInfoChip(
                         label: 'En attente du SIRET',
                         background: AppColors.background,
                         foreground: AppColors.slate,
-                        fontSize: 12,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
-                        ),
+                        small: true,
                       ),
               ),
             ],
@@ -185,32 +177,6 @@ class CompanyPagePreview extends StatelessWidget {
             ],
           ),
         ],
-      ),
-      footer: const PreviewFooter(
-        title: 'Ils cherchent leur alternance sur Joyn',
-        roundAvatars: true,
-        badges: [
-          PreviewBadge(
-            'YK',
-            'Yasmine K.',
-            AppColors.cyanBlue,
-            AppColors.textPrimary,
-          ),
-          PreviewBadge(
-            'HL',
-            'Hugo L.',
-            AppColors.orangeLight,
-            AppColors.textPrimary,
-          ),
-          PreviewBadge(
-            'NB',
-            'Nora B.',
-            AppColors.skyMist,
-            AppColors.textPrimary,
-          ),
-        ],
-        icon: Icons.verified_user_outlined,
-        note: 'Chaque entreprise est vérifiée par notre équipe avant la publication de sa première offre.',
       ),
     );
   }
