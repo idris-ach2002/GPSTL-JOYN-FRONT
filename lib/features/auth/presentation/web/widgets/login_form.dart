@@ -154,6 +154,32 @@ class _LoginFormState extends State<LoginForm> {
               isLoading: auth.isLoading,
               onPressed: _submit,
             ),
+            if (auth.isLoading) ...[
+              const SizedBox(height: 12),
+              Semantics(
+                liveRegion: true,
+                label: 'Authentification en cours',
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    SizedBox(width: 10),
+                    Text(
+                      'Authentification en cours…',
+                      style: TextStyle(
+                        color: Color(0xFF5E748A),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ],
         ),
       ),

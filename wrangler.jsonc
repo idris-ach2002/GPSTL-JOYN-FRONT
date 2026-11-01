@@ -1,0 +1,17 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "gpstl-joyn-front",
+  "compatibility_date": "2026-10-27",
+
+  "assets": {
+    "directory": "./build/web",
+    "not_found_handling": "single-page-application"
+  },
+
+  "exports": {
+    "JoynFrontend": {
+      "type": "durable-object",
+      "state": "deleted"
+    }
+  }
+}

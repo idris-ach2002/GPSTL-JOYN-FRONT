@@ -88,7 +88,7 @@ class _NavTabs extends StatelessWidget {
             icon: Icons.work_outline_rounded,
             label: 'Offres',
             showLabel: showLabels,
-            onTap: () => showComingSoon(context, 'Offres'),
+            onTap: () => context.go(AppRoutes.recruiterJobs),
           ),
           _NavTab(
             icon: Icons.grid_view_rounded,

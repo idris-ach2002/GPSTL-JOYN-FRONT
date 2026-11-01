@@ -10,8 +10,14 @@ import '../features/dashboard/data/fake_dashboard_repository.dart';
 import '../features/profile/data/fake_profile_repository.dart';
 import '../features/profile/data/profile_repository.dart';
 import '../features/registration/data/auth_registration_repository.dart';
+import '../features/recruiter_dashboard/data/mock_recruiter_dashboard_repository.dart';
+import '../features/recruiter_dashboard/data/recruiter_dashboard_repository.dart';
+import '../features/recruiter_candidates/data/mock_recruiter_candidate_repository.dart';
+import '../features/recruiter_candidates/data/recruiter_candidate_repository.dart';
 import '../features/registration/data/mock_registration_repository.dart';
 import '../features/registration/data/registration_repository.dart';
+import '../features/recruiter_offers/data/mock_recruiter_offers_repository.dart';
+import '../features/recruiter_offers/data/recruiter_offers_repository.dart';
 import 'routing/app_router.dart';
 import 'theme/app_theme.dart';
 
@@ -28,6 +34,9 @@ class JoynApp extends StatefulWidget {
     this.dashboardRepository,
     this.registrationRepository,
     this.profileRepository,
+    this.recruiterDashboardRepository,
+    this.recruiterOffersRepository,
+    this.recruiterCandidateRepository,
   });
 
   final bool? webOverride;
@@ -35,6 +44,9 @@ class JoynApp extends StatefulWidget {
   final DashboardRepository? dashboardRepository;
   final RegistrationRepository? registrationRepository;
   final ProfileRepository? profileRepository;
+  final RecruiterDashboardRepository? recruiterDashboardRepository;
+  final RecruiterOffersRepository? recruiterOffersRepository;
+  final RecruiterCandidateRepository? recruiterCandidateRepository;
 
   @override
   State<JoynApp> createState() => _JoynAppState();
@@ -45,6 +57,9 @@ class _JoynAppState extends State<JoynApp> {
   late final DashboardRepository _dashboardRepository;
   late final RegistrationRepository _registrationRepository;
   late final ProfileRepository _profileRepository;
+  late final RecruiterDashboardRepository _recruiterDashboardRepository;
+  late final RecruiterOffersRepository _recruiterOffersRepository;
+  late final RecruiterCandidateRepository _recruiterCandidateRepository;
   late final GoRouter _router;
   late final bool _ownsAuthController;
 
@@ -74,6 +89,15 @@ class _JoynAppState extends State<JoynApp> {
     _dashboardRepository =
         widget.dashboardRepository ??
         FakeDashboardRepository(latency: Duration.zero);
+    _recruiterDashboardRepository =
+        widget.recruiterDashboardRepository ??
+        MockRecruiterDashboardRepository(latency: Duration.zero);
+    _recruiterOffersRepository =
+        widget.recruiterOffersRepository ??
+        MockRecruiterOffersRepository(latency: Duration.zero);
+    _recruiterCandidateRepository =
+        widget.recruiterCandidateRepository ??
+        MockRecruiterCandidateRepository(latency: Duration.zero);
 
     _profileRepository =
         widget.profileRepository ??
@@ -97,6 +121,15 @@ class _JoynAppState extends State<JoynApp> {
         Provider<DashboardRepository>.value(value: _dashboardRepository),
         Provider<RegistrationRepository>.value(value: _registrationRepository),
         Provider<ProfileRepository>.value(value: _profileRepository),
+        Provider<RecruiterDashboardRepository>.value(
+          value: _recruiterDashboardRepository,
+        ),
+        Provider<RecruiterOffersRepository>.value(
+          value: _recruiterOffersRepository,
+        ),
+        Provider<RecruiterCandidateRepository>.value(
+          value: _recruiterCandidateRepository,
+        ),
       ],
       child: MaterialApp.router(
         title: 'JOYN — Le match avant la candidature',

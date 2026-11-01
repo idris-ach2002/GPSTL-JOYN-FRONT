@@ -16,6 +16,7 @@ REQUIRED_PRESENTATION_DIRS = {
     "onboarding": ("web", "mobile"),
     "profile": ("web", "mobile"),
     "registration": ("web", "mobile"),
+    "recruiter_offers": ("web", "mobile"),
     "startup": ("web", "mobile"),
 }
 

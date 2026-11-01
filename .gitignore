@@ -120,3 +120,9 @@ app.*.symbols
 # Fichiers système et verrou des dépendances de cette application.
 .DS_Store
 !pubspec.lock
+
+# Local environment (never commit)
+.env
+# JS Files
+node_modules/
+.wrangler/
