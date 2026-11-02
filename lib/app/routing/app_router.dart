@@ -3,6 +3,11 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../design_system/mobile/mobile_entry_transition.dart';
+import '../../features/admin_companies/data/admin_company_repository.dart';
+import '../../features/admin_companies/presentation/controllers/admin_companies_controller.dart';
+import '../../features/admin_companies/presentation/mobile/mobile_admin_companies_screen.dart';
+import '../../features/admin_companies/presentation/shared/admin_forbidden_screen.dart';
+import '../../features/admin_companies/presentation/web/admin_companies_screen.dart';
 import '../../features/auth/domain/user_role.dart';
 import '../../features/auth/presentation/auth_controller.dart';
 import '../../features/auth/presentation/mobile/mobile_forgot_password_screen.dart';
@@ -96,6 +101,24 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
           isRecruiterArea &&
           auth.user?.role != UserRole.company) {
         return AppRoutes.dashboard;
+      }
+
+      // Espace d'administration : réservé au rôle admin (RBAC). Les autres
+      // comptes connectés voient une page 403 ; les visiteurs non connectés
+      // ont déjà été renvoyés vers la connexion.
+      final isAdminArea =
+          location == AppRoutes.admin ||
+          location.startsWith('${AppRoutes.admin}/');
+      final isAdmin = auth.user?.role == UserRole.admin;
+      if (auth.isAuthenticated && isAdminArea && !isAdmin) {
+        return AppRoutes.forbidden;
+      }
+
+      // Un admin arrive directement sur son espace.
+      if (isAdmin &&
+          (location == AppRoutes.dashboard ||
+              AppRoutes.authEntryRoutes.contains(location))) {
+        return AppRoutes.adminCompanies;
       }
 
       if (auth.isAuthenticated &&
@@ -210,6 +233,28 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
                 : const DashboardPage(),
           );
         },
+      ),
+
+      GoRoute(
+        path: AppRoutes.admin,
+        redirect: (context, state) => AppRoutes.adminCompanies,
+      ),
+      GoRoute(
+        path: AppRoutes.adminCompanies,
+        name: 'adminCompanies',
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) =>
+              AdminCompaniesController(context.read<AdminCompanyRepository>())
+                ..load(),
+          child: useMobile(context)
+              ? const MobileAdminCompaniesScreen()
+              : const AdminCompaniesScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.forbidden,
+        name: 'forbidden',
+        builder: (context, state) => const AdminForbiddenScreen(),
       ),
 
       GoRoute(

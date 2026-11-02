@@ -2,6 +2,9 @@ import 'package:flutter/widgets.dart';
 
 import '../core/config/app_environment.dart';
 import '../core/network/api_client.dart';
+import '../features/admin_companies/data/admin_company_repository.dart';
+import '../features/admin_companies/data/api_admin_company_repository.dart';
+import '../features/admin_companies/data/fake_admin_company_repository.dart';
 import '../features/auth/data/auth_repository.dart';
 import '../features/auth/data/fake_auth_repository.dart';
 import '../features/auth/presentation/auth_controller.dart';
@@ -53,6 +56,14 @@ Future<void> bootstrapJoyn({bool? webOverride}) async {
               )
             : MockRecruiterCandidateRepository(),
       );
+  final AdminCompanyRepository adminCompanyRepository = environment.useApi
+      ? ApiAdminCompanyRepository(
+          ApiClient(
+            baseUrl: environment.apiBaseUrl,
+            timeout: environment.apiTimeout,
+          ),
+        )
+      : FakeAdminCompanyRepository();
   final RegistrationRepository registrationRepository =
       AuthRegistrationRepository(
         authRepository,
@@ -71,6 +82,7 @@ Future<void> bootstrapJoyn({bool? webOverride}) async {
       registrationRepository: registrationRepository,
       recruiterOffersRepository: recruiterOffersRepository,
       recruiterCandidateRepository: recruiterCandidateRepository,
+      adminCompanyRepository: adminCompanyRepository,
     ),
   );
 }

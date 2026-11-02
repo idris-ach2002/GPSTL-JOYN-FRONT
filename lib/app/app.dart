@@ -3,6 +3,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../features/admin_companies/data/admin_company_repository.dart';
+import '../features/admin_companies/data/fake_admin_company_repository.dart';
 import '../features/auth/data/fake_auth_repository.dart';
 import '../features/auth/presentation/auth_controller.dart';
 import '../features/dashboard/data/dashboard_repository.dart';
@@ -37,6 +39,7 @@ class JoynApp extends StatefulWidget {
     this.recruiterDashboardRepository,
     this.recruiterOffersRepository,
     this.recruiterCandidateRepository,
+    this.adminCompanyRepository,
   });
 
   final bool? webOverride;
@@ -47,6 +50,7 @@ class JoynApp extends StatefulWidget {
   final RecruiterDashboardRepository? recruiterDashboardRepository;
   final RecruiterOffersRepository? recruiterOffersRepository;
   final RecruiterCandidateRepository? recruiterCandidateRepository;
+  final AdminCompanyRepository? adminCompanyRepository;
 
   @override
   State<JoynApp> createState() => _JoynAppState();
@@ -60,6 +64,7 @@ class _JoynAppState extends State<JoynApp> {
   late final RecruiterDashboardRepository _recruiterDashboardRepository;
   late final RecruiterOffersRepository _recruiterOffersRepository;
   late final RecruiterCandidateRepository _recruiterCandidateRepository;
+  late final AdminCompanyRepository _adminCompanyRepository;
   late final GoRouter _router;
   late final bool _ownsAuthController;
 
@@ -102,6 +107,9 @@ class _JoynAppState extends State<JoynApp> {
     _profileRepository =
         widget.profileRepository ??
         FakeProfileRepository(latency: Duration.zero);
+    _adminCompanyRepository =
+        widget.adminCompanyRepository ??
+        FakeAdminCompanyRepository(latency: Duration.zero);
 
     _router = createAppRouter(_authController, webOverride: widget.webOverride);
   }
@@ -130,6 +138,7 @@ class _JoynAppState extends State<JoynApp> {
         Provider<RecruiterCandidateRepository>.value(
           value: _recruiterCandidateRepository,
         ),
+        Provider<AdminCompanyRepository>.value(value: _adminCompanyRepository),
       ],
       child: MaterialApp.router(
         title: 'JOYN — Le match avant la candidature',
