@@ -1,7 +1,9 @@
-const upstream = 'https://gpstl-joyn-back.onrender.com';
-
 export default {
   async fetch(request, env) {
+    const upstream = env.JOYN_BACKEND_URL?.trim().replace(/\/+$/, '');
+    if (!upstream) {
+      return new Response('JOYN_BACKEND_URL manquante', { status: 503 });
+    }
     const url = new URL(request.url);
     if (!url.pathname.startsWith('/api/v1/')) return env.ASSETS.fetch(request);
     const headers = new Headers();
