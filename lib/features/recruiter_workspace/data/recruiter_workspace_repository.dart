@@ -54,8 +54,8 @@ class ApiRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
   @override
   Future<void> updateApplication(int jobId, String id, String stage) async {
     await api.patchJson(
-      '/api/v1/recruiters/jobs/$jobId/applications/${Uri.encodeComponent(id)}',
-      body: {'stage': stage},
+      '/api/v1/applications/${Uri.encodeComponent(id)}/status',
+      body: {'status': stage.toUpperCase()},
     );
   }
 
@@ -67,7 +67,7 @@ class ApiRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
       apiObject(await api.getJson('$root/profile'));
   @override
   Future<Map<String, dynamic>> saveProfile(Map<String, dynamic> value) async {
-    final response = await api.patchJson('$root/profile', body: value);
+    final response = await api.patchJson('$root/profile', body: {for (final key in ['firstName', 'lastName']) if (value.containsKey(key)) key: value[key]});
     return response == null ? profile() : apiObject(response);
   }
 

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../../core/network/api_client.dart';
 import '../../../core/network/api_exception.dart';
 import '../domain/app_user.dart';
@@ -44,7 +46,19 @@ class ApiAuthRepository implements AuthRepository {
       if (token is! String || token.isEmpty) {
         throw const AuthException(AuthErrorCode.unknown);
       }
-      final user = _mapUser(data['user']);
+      final AppUser user;
+      if (data['user'] is Map) {
+        user = _mapUser(data['user']);
+      } else {
+        final parts = token.split('.');
+        if (parts.length != 3) throw const AuthException(AuthErrorCode.unknown);
+        try {
+          final claims = jsonDecode(utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))));
+          user = _mapUser({'id': claims['sub'], 'email': body['email'], 'role': data['role']});
+        } on FormatException {
+          throw const AuthException(AuthErrorCode.unknown);
+        }
+      }
       accessToken = token;
       _user = user;
       return user;
@@ -95,11 +109,7 @@ class ApiAuthRepository implements AuthRepository {
 
   @override
   Future<void> signOut() async {
-    try {
-      await api.postJson('/api/v1/auth/logout');
-    } finally {
-      accessToken = null;
-      _user = null;
-    }
+    accessToken = null;
+    _user = null;
   }
 }

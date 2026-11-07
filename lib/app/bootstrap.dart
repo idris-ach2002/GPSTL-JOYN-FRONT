@@ -77,9 +77,7 @@ Future<void> bootstrapJoyn({bool? webOverride}) async {
     JoynApp(
       webOverride: webOverride,
       studioStore: deviceStore,
-      studioRepository: api == null
-          ? LocalStudioRepository(deviceStore)
-          : ApiStudioRepository(api),
+      studioRepository: LocalStudioRepository(deviceStore),
       workspaceRepository: api == null
           ? MockRecruiterWorkspaceRepository()
           : ApiRecruiterWorkspaceRepository(api),

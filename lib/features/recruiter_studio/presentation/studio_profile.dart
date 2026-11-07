@@ -75,6 +75,16 @@ class _StudioProfileState extends State<StudioProfile> {
   Widget build(BuildContext context) {
     final c = context.watch<WorkspaceController>();
     final colors = Theme.of(context).colorScheme;
+    if (!c.repository.isMock) {
+      return Form(key: _form, child: ListView(padding: const EdgeInsets.all(24), children: [
+        ListTile(title: Text('${widget.value['companyName'] ?? ''}'), subtitle: Text('${widget.value['email'] ?? ''}')),
+        for (final key in ['firstName', 'lastName'])
+          TextFormField(controller: _fields[key], decoration: InputDecoration(labelText: labels[key]),
+            maxLength: 100, onChanged: (_) => _changed(),
+            validator: (value) => (value ?? '').trim().isEmpty ? 'Champ requis' : null),
+        FilledButton(onPressed: _dirty ? _save : null, child: const Text('Enregistrer')),
+      ]));
+    }
     final complete = [
       'firstName',
       'lastName',
