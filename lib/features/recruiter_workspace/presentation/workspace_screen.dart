@@ -43,7 +43,7 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final c = context.read<WorkspaceController>();
-      if (c.repository.isMock || widget.section == 'profile') c.load(widget.section);
+      if (c.repository.isMock || ['profile','notifications'].contains(widget.section)) c.load(widget.section);
     });
   }
 
@@ -63,7 +63,7 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
       'messages' => 'Messagerie',
       _ => 'Paramètres',
     };
-    if (!controller.repository.isMock && widget.section != 'profile') {
+    if (!controller.repository.isMock && widget.section == 'messages') {
       return Scaffold(appBar: AppBar(title: Text(title), leading: BackButton(
         onPressed: () => context.go(AppRoutes.recruiterDashboard))),
         body: const Center(child: Text('Cette rubrique attend son raccordement au serveur.')));
@@ -164,7 +164,7 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
                 content: Text(controller.error!),
                 actions: [
                   TextButton(
-                    onPressed: controller.busy
+                    onPressed: controller.busy || (widget.section == 'settings' && !controller.repository.isMock)
                         ? null
                         : () => controller.load(widget.section),
                     child: const Text('Réessayer'),
@@ -188,7 +188,7 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
                       ),
                     ),
                     TextButton.icon(
-                      onPressed: controller.busy
+                      onPressed: controller.busy || (widget.section == 'settings' && !controller.repository.isMock)
                           ? null
                           : () => controller.load(widget.section),
                       icon: const Icon(Icons.refresh),
@@ -228,7 +228,15 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
                   candidateId: widget.candidateId,
                   candidateName: widget.candidateName,
                 ),
-                'notifications' => const StudioNotifications(),
+                'notifications' => controller.repository.isMock ? const StudioNotifications() :
+                  ListView(padding: const EdgeInsets.all(16), children: [
+                    const ListTile(title: Text('Activité des 30 derniers jours')),
+                    if (controller.busy) const LinearProgressIndicator(),
+                    if (!controller.busy && controller.error == null && controller.notifications.isEmpty)
+                      const ListTile(title: Text('Aucune activité sur cette période.')),
+                    for (final event in controller.notifications)
+                      ListTile(title: Text('${event['title'] ?? ''}'), subtitle: Text('${event['subtitle'] ?? ''} · ${event['whenLabel'] ?? ''}')),
+                  ]),
                 'profile' =>
                   controller.profile == null
                       ? const _Waiting()

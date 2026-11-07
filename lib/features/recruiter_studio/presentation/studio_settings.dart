@@ -139,7 +139,7 @@ class _StudioSettingsState extends State<StudioSettings> {
               ),
             const SizedBox(height: 14),
             for (final category in categories.where(
-              (c) => '${c.$3} ${c.$4}'.toLowerCase().contains(_search),
+              (c) => (context.read<WorkspaceController>().repository.isMock || const {'appearance','recruitment','messaging','help'}.contains(c.$1)) && '${c.$3} ${c.$4}'.toLowerCase().contains(_search),
             ))
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
