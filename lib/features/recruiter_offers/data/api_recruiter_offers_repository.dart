@@ -1,5 +1,5 @@
 import '../../../core/network/api_client.dart';
-import '../../../core/network/api_exception.dart';
+
 import '../../recruiter_workspace/data/recruiter_workspace_repository.dart';
 import '../domain/job_offer.dart';
 import '../domain/job_offer_draft.dart';
@@ -75,85 +75,76 @@ class ApiRecruiterOffersRepository implements RecruiterOffersRepository {
     updatedAt: DateTime.parse('${j['updated_at']}'),
     candidateCount: _int(j['candidate_count'] ?? 0),
   );
-  @override
-  Future<List<RecruiterCompany>> fetchCompanies() async =>
-      apiList(await api.getJson(companiesPath)).map(_company).toList();
-  @override
-  Future<RecruiterCompany?> findCompanyBySiret(String siret) async {
-    final items = apiList(
-      await api.getJson(companiesPath, query: {'siret': siret}),
-    );
-    return items.isEmpty ? null : _company(items.first);
+  String? _token;
+  Map<int, JobOffer> _offers = {};
+
+  Future<Map<int, JobOffer>> _session() async {
+    final token = await api.tokenProvider?.call();
+    if (token != _token) {
+      _token = token;
+      _offers = {};
+    }
+    return _offers;
   }
+
+  @override
+  Future<List<RecruiterCompany>> fetchCompanies() async {
+    final session = await _session();
+    final profile = apiObject(await api.getJson('/api/v1/recruiters/profile'));
+    return [_company({'id': session.values.firstOrNull?.companyId ?? 0,
+      'name': profile['companyName']})];
+  }
+
+  @override
+  Future<RecruiterCompany?> findCompanyBySiret(String siret) async => null;
 
   @override
   Future<RecruiterCompany> createCompany(RecruiterCompanyDraft draft) async =>
-      _company(
-        apiObject(
-          await api.postJson(
-            companiesPath,
-            body: {
-              'name': draft.name,
-              'sector': draft.sector,
-              'sizeRange': draft.sizeRange,
-              'city': draft.city,
-              'siret': draft.siret,
-              'website': draft.website,
-              'description': draft.description,
-            },
-          ),
-        ),
-      );
+      throw UnsupportedError('Les offres utilisent l’entreprise du compte.');
+
   @override
-  Future<List<JobOffer>> fetchOffers() async =>
-      apiList(await api.getJson(offersPath)).map(_offer).toList();
+  Future<List<JobOffer>> fetchOffers() async => (await _session()).values.toList();
+
   @override
-  Future<JobOffer?> fetchOffer(int id) async {
-    try {
-      return _offer(
-        apiObject(await api.getJson(JobOfferApiMapper.jobPath(id))),
-      );
-    } on ApiException catch (e) {
-      if (e.statusCode == 404) return null;
-      rethrow;
-    }
+  Future<JobOffer?> fetchOffer(int id) async => (await _session())[id];
+
+  @override
+  Future<JobOffer> createOffer(JobOfferDraft draft, JobOfferStatus status) async {
+    final session = await _session();
+    final offer = _offer(apiObject(await api.postJson(offersPath,
+        body: JobOfferApiMapper.toCreateJson(draft, status))));
+    session[offer.id] = offer;
+    return offer;
   }
 
   @override
-  Future<JobOffer> createOffer(
-    JobOfferDraft draft,
-    JobOfferStatus status,
-  ) async => _offer(
-    apiObject(
-      await api.postJson(
-        offersPath,
-        body: JobOfferApiMapper.toCreateJson(draft, status),
-      ),
-    ),
-  );
-  @override
   Future<JobOffer> updateOffer(int id, JobOfferDraft draft) async {
+    final session = await _session();
+    if (session[id]?.contractType != draft.contractType) {
+      throw UnsupportedError('Le changement de contrat nécessite le catalogue des contrats.');
+    }
     final body = JobOfferApiMapper.toCreateJson(draft, JobOfferStatus.draft)
-      ..remove('status');
-    final response = await api.putJson(
-      JobOfferApiMapper.jobPath(id),
-      body: body,
-    );
-    return response == null
-        ? (await fetchOffer(id))!
-        : _offer(apiObject(response));
+      ..remove('status')
+      ..remove('contract_type');
+    body['remote_mode'] = body.remove('remote_policy');
+    body['experience_level_required'] = body.remove('experience_level');
+    body['salary_currency'] = body.remove('currency');
+    final json = apiObject(await api.patchJson(JobOfferApiMapper.jobPath(id), body: body));
+    final offer = _offer({...json, 'contract_type': draft.contractType.apiValue,
+      'remote_policy': json['remote_mode'], 'experience_level': json['experience_level_required'],
+      'currency': json['salary_currency']});
+    session[id] = offer;
+    return offer;
   }
 
   @override
   Future<void> closeOffer(int id, {String? reason}) async {
-    await api.patchJson(
-      JobOfferApiMapper.jobPath(id),
-      body: {'status': 'CLOSED', 'reason': ?reason},
-    );
+    final session = await _session();
+    await api.deleteJson(JobOfferApiMapper.jobPath(id),
+        body: reason == null ? null : {'reason': reason});
+    session.remove(id);
   }
 
   @override
-  Future<void> deleteOffer(int id) async {
-    await api.deleteJson(JobOfferApiMapper.jobPath(id));
-  }
+  Future<void> deleteOffer(int id) => closeOffer(id);
 }

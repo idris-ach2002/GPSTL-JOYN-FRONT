@@ -163,6 +163,7 @@ class _JoynAppState extends State<JoynApp> {
       _workspaceController.repository = repository;
     }
     _workspaceController.load('profile');
+    if (!_workspaceController.repository.isMock) return;
     _workspaceController.load('notifications');
     _workspaceController.load('messages');
     _workspaceController.load('settings');

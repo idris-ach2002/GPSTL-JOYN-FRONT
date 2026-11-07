@@ -1,3 +1,4 @@
+import '../../data/api_recruiter_offers_repository.dart';
 import '../../domain/job_offer_draft.dart';
 import '../../../../core/utils/lifecycle_notifier.dart';
 
@@ -13,6 +14,7 @@ class OfferManagementController extends LifecycleNotifier {
 
   List<RecruiterCompany> companies = const [];
   List<JobOffer> offers = const [];
+  bool get sessionOnly => _repository is ApiRecruiterOffersRepository;
   bool isDuplicating = false;
   bool isLoading = false;
   bool isClosing = false;

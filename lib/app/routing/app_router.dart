@@ -1,3 +1,6 @@
+import '../../features/registration/data/api_registration_repository.dart';
+import '../../features/registration/data/registration_repository.dart';
+import '../../features/recruiter_workspace/presentation/connected_recruiter_screen.dart';
 import '../../features/recruiter_studio/presentation/studio_planner.dart';
 import '../../features/recruiter_studio/presentation/studio_talents.dart';
 import '../../features/recruiter_workspace/presentation/workspace_controller.dart';
@@ -167,11 +170,15 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
       GoRoute(
         path: AppRoutes.recruiterRegister,
         name: 'recruiterRegister',
-        builder: (context, state) => adaptiveAuth(
+        builder: (context, state) {
+          final repo = context.read<RegistrationRepository>();
+          if (repo is ApiRegistrationRepository) return ConnectedRecruiterScreen(repo.api, registration: true);
+          return adaptiveAuth(
           context,
           mobile: const MobileCompanyRegisterScreen(),
           web: const CompanyRegisterScreen(),
-        ),
+        );
+        },
       ),
       ShellRoute(
         builder: (context, state, child) => OnboardingScope(child: child),
@@ -222,14 +229,18 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
       GoRoute(
         path: AppRoutes.recruiterDashboard,
         name: 'recruiterDashboard',
-        builder: (context, state) => ChangeNotifierProvider(
+        builder: (context, state) {
+          final repo = context.read<RegistrationRepository>();
+          if (repo is ApiRegistrationRepository) return ConnectedRecruiterScreen(repo.api);
+          return ChangeNotifierProvider(
           create: (context) => RecruiterDashboardController(
             context.read<RecruiterDashboardRepository>(),
           )..loadDashboard(),
           child: useMobile(context)
               ? const MobileRecruiterDashboardScreen()
               : const WebRecruiterDashboardScreen(),
-        ),
+        );
+        },
       ),
       GoRoute(
         path: AppRoutes.recruiterDashboardInsights,

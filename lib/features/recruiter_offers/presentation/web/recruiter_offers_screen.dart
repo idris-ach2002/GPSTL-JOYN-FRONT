@@ -120,7 +120,7 @@ class _WebRecruiterOffersScreenState extends State<WebRecruiterOffersScreen> {
                                     ),
                                     SizedBox(height: 8),
                                     Text(
-                                      'Gérez, modifiez et suivez toutes vos offres d’emploi sur Joyn.',
+                                      controller.sessionOnly ? 'Offres créées pendant cette session. Le serveur ne fournit pas encore l’historique.' : 'Gérez, modifiez et suivez toutes vos offres d’emploi sur Joyn.',
                                       style: TextStyle(
                                         color: StudioColors.text(
                                           context,
