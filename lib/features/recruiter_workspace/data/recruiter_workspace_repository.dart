@@ -49,8 +49,21 @@ class ApiRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
   ApiRecruiterWorkspaceRepository(this.api);
   final ApiClient api;
   @override
-  Future<List<Map<String, dynamic>>> applications(int jobId) async =>
-      apiList(await api.getJson('/api/v1/recruiters/jobs/$jobId/applications'));
+  Future<List<Map<String, dynamic>>> applications(int jobId) async {
+    final items = <Map<String, dynamic>>[];
+    for (var page = 1; ; page++) {
+      final result = apiObject(await api.getJson('$root/jobs/$jobId/recommendations',
+          query: {'page': '$page', 'limit': '50'}));
+      for (final row in result['content'] as List) {
+        final candidate = row['candidate'] as Map;
+        items.add({'id': row['application_id'], 'candidateId': candidate['id'],
+          'name': [candidate['first_name'], candidate['last_name']].whereType<String>().join(' '),
+          'stage': row['application_status'], 'score': row['match_score'],
+          'education': candidate['headline']});
+      }
+      if (result['hasNext'] != true) return items;
+    }
+  }
   @override
   Future<void> updateApplication(int jobId, String id, String stage) async {
     await api.patchJson(
@@ -82,7 +95,8 @@ class ApiRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
 
   @override
   Future<List<Map<String, dynamic>>> notifications() async =>
-      apiList(await api.getJson('$root/notifications'));
+      (apiObject(await api.getJson('$root/dashboard',query:{'period':'30d'}))['activities'] as List)
+          .map((e) => {...Map<String,dynamic>.from(e as Map), 'read': true}).toList();
   @override
   Future<void> readNotification(String id) async {
     await api.patchJson(

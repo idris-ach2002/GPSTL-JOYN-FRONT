@@ -1,3 +1,5 @@
+import 'application_panel.dart';
+import '../data/recruiter_workspace_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -19,7 +21,8 @@ class ConnectedRecruiterScreen extends StatefulWidget {
 class _ConnectedRecruiterScreenState extends State<ConnectedRecruiterScreen> {
   final form = GlobalKey<FormState>();
   final fields = <String, String>{};
-  String action = 'Candidat';
+  String action = 'Postulants par offre';
+  String outcome = 'NOT_FILLED';
   String status = 'IN_REVIEW';
   bool busy = false;
   String message = '';
@@ -34,6 +37,19 @@ class _ConnectedRecruiterScreenState extends State<ConnectedRecruiterScreen> {
       if (widget.registration) {
         await widget.api.postJson('/api/v1/recruiters/register', body: fields);
         if (mounted) context.go(AppRoutes.login);
+      } else if (action == 'Postulants par offre') {
+        await showModalBottomSheet<void>(context:context,isScrollControlled:true,
+          builder:(_)=>FractionallySizedBox(heightFactor:.85,
+            child:ApplicationPanel(repository:ApiRecruiterWorkspaceRepository(widget.api),jobId:int.parse(id!))));
+      } else if (action == 'Archiver une offre') {
+        final confirmed = await showDialog<bool>(context:context,builder:(ctx)=>AlertDialog(
+          title:Text('Archiver l’offre n°$id ?'),actions:[
+            TextButton(onPressed:()=>Navigator.pop(ctx,false),child:const Text('Annuler')),
+            FilledButton(onPressed:()=>Navigator.pop(ctx,true),child:const Text('Archiver'))]));
+        if(confirmed != true) return;
+        await widget.api.postJson('/api/v1/jobs/$id/archive',body:{'outcome':outcome,
+          if(outcome=='FILLED') 'hiredApplicationId':int.parse(fields['hired']!)});
+        message='Offre archivée.';
       } else if (action == 'Candidat') {
         final data = await widget.api.getJson('/api/v1/candidates/$id/profile') as Map;
         message = [data['first_name'], data['last_name'], data['headline'], data['bio'],
@@ -53,7 +69,7 @@ class _ConnectedRecruiterScreenState extends State<ConnectedRecruiterScreen> {
       message = switch (e.statusCode) {
         401 => 'Veuillez vous reconnecter.',
         403 => 'Votre compte ne peut pas effectuer cette action.',
-        404 => 'Élément introuvable ou inaccessible.',
+        404 => 'Élément introuvable ou fonctionnalité indisponible sur ce serveur.',
         409 => 'Le serveur a refusé cette inscription. Vérifiez les informations saisies.',
         null => 'Serveur inaccessible. Vérifiez la connexion avant de réessayer.',
         _ => 'Requête refusée (HTTP ${e.statusCode}).',
@@ -67,7 +83,7 @@ class _ConnectedRecruiterScreenState extends State<ConnectedRecruiterScreen> {
     key: ValueKey('$action-$key'), enabled: !busy, obscureText: key == 'password',
     decoration: InputDecoration(labelText: label),
     validator: (s) => (s ?? '').trim().isEmpty ? 'Champ requis' :
-      key == 'id' && (int.tryParse(s!.trim()) ?? 0) < 1 ? 'Identifiant numérique requis' : null,
+      (key == 'id' || key == 'hired') && (int.tryParse(s!.trim()) ?? 0) < 1 ? 'Identifiant numérique requis' : null,
     onSaved: (s) => fields[key] = key == 'password' ? s! : s!.trim(),
   );
 
@@ -87,10 +103,14 @@ class _ConnectedRecruiterScreenState extends State<ConnectedRecruiterScreen> {
             ListTile(title:Text(entry.key),trailing:const Icon(Icons.chevron_right),onTap:()=>context.go(entry.value)),
           const Divider(),
           DropdownButton<String>(value:action,isExpanded:true,
-            items:[for(final a in ['Candidat','Entreprise','Présentation entreprise','Statut de candidature'])
+            items:[for(final a in ['Postulants par offre','Archiver une offre','Candidat','Entreprise','Présentation entreprise','Statut de candidature'])
               DropdownMenuItem(value:a,child:Text(a))],
             onChanged:busy ? null : (v)=>setState(() {action=v!;message='';fields.clear();})),
-          field('id',switch(action){'Candidat'=>'Identifiant du candidat','Statut de candidature'=>'Identifiant de candidature',_=>'Identifiant de l’entreprise'}),
+          field('id',switch(action){'Postulants par offre'||'Archiver une offre'=>'Identifiant de l’offre','Candidat'=>'Identifiant du candidat','Statut de candidature'=>'Identifiant de candidature',_=>'Identifiant de l’entreprise'}),
+          if(action=='Archiver une offre') DropdownButton<String>(value:outcome,
+            items:[for(final e in {'FILLED':'Poste pourvu','NOT_FILLED':'Poste non pourvu','ONGOING':'Recrutement en cours'}.entries)
+              DropdownMenuItem(value:e.key, child:Text(e.value))], onChanged:busy?null:(v)=>setState(()=>outcome=v!)),
+          if(action=='Archiver une offre' && outcome=='FILLED') field('hired','Identifiant de la candidature retenue'),
           if(action=='Présentation entreprise') field('description','Nouvelle présentation'),
           if(action=='Statut de candidature') DropdownButton<String>(value:status,
             items:[for(final e in statuses.entries) DropdownMenuItem(value:e.key,child:Text(e.value))],
@@ -98,7 +118,7 @@ class _ConnectedRecruiterScreenState extends State<ConnectedRecruiterScreen> {
         ],
         const SizedBox(height:16),
         FilledButton(onPressed: busy ? null : submit,child:Text(widget.registration ? 'Créer mon compte' :
-          action=='Candidat' || action=='Entreprise' ? 'Consulter' : 'Enregistrer')),
+          action=='Postulants par offre' || action=='Candidat' || action=='Entreprise' ? 'Consulter' : 'Enregistrer')),
         if(message.isNotEmpty) SelectableText(message),
       ])))),
   );

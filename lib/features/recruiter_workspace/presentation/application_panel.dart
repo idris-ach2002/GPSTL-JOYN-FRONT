@@ -24,11 +24,7 @@ class _ApplicationPanelState extends State<ApplicationPanel> {
   @override
   void initState() {
     super.initState();
-    if (widget.repository.isMock) {
-      _load();
-    } else {
-      _busy = false;
-    }
+    _load();
   }
 
   Future<void> _load() async {
@@ -85,9 +81,6 @@ class _ApplicationPanelState extends State<ApplicationPanel> {
             icon: const Icon(Icons.close),
           ),
         ),
-        if (!widget.repository.isMock)
-          const Padding(padding: EdgeInsets.all(16), child: Text(
-            'La liste des candidatures par offre n’est pas disponible. Le statut d’une candidature connue peut être modifié depuis l’accueil recruteur.')),
         if (_busy) const LinearProgressIndicator(),
         if (_error != null)
           Padding(
@@ -114,7 +107,7 @@ class _ApplicationPanelState extends State<ApplicationPanel> {
                 ListTile(
                   title: Text('${item['name']}'),
                   subtitle: Text(
-                    '${item['education'] ?? ''}\n${item['stage'] ?? 'NEW'}',
+                    '${item['education'] ?? ''} ${item['score'] == null ? '' : '· ${item['score']} %'}\n${item['stage'] ?? 'NEW'}',
                   ),
                   isThreeLine: true,
                   trailing: PopupMenuButton<String>(
@@ -137,9 +130,9 @@ class _ApplicationPanelState extends State<ApplicationPanel> {
                         _stage(item, v);
                       }
                     },
-                    itemBuilder: (_) => const [
+                    itemBuilder: (_) => [
                       PopupMenuItem(
-                        value: 'IN_PROGRESS',
+                        value: 'IN_REVIEW',
                         child: Text('En cours'),
                       ),
                       PopupMenuItem(
@@ -147,7 +140,7 @@ class _ApplicationPanelState extends State<ApplicationPanel> {
                         child: Text('Entretien'),
                       ),
                       PopupMenuItem(value: 'REJECTED', child: Text('Refuser')),
-                      PopupMenuItem(value: 'contact', child: Text('Contacter')),
+                      if (widget.repository.isMock) PopupMenuItem(value: 'contact', child: Text('Contacter')),
                     ],
                   ),
                 ),
