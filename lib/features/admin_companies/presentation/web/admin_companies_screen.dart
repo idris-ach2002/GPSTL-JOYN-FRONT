@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'package:joyn_front/app/routing/app_routes.dart';
-import 'package:joyn_front/design_system/material/joyn_chip_group.dart';
 import 'package:joyn_front/design_system/theme/joyn_material_theme.dart';
 import 'package:joyn_front/design_system/tokens/app_colors.dart';
 import 'package:joyn_front/features/admin_companies/domain/admin_company.dart';
@@ -12,7 +11,8 @@ import 'package:joyn_front/features/admin_companies/domain/company_validators.da
 import 'package:joyn_front/features/admin_companies/presentation/controllers/admin_companies_controller.dart';
 import 'package:joyn_front/features/admin_companies/presentation/shared/company_actions.dart';
 import 'package:joyn_front/features/admin_companies/presentation/shared/company_visuals.dart';
-import 'package:joyn_front/features/admin_companies/presentation/web/admin_shell.dart';
+import 'package:joyn_front/features/admin/presentation/shared/admin_ui.dart';
+import 'package:joyn_front/features/admin/presentation/web/admin_shell.dart';
 
 /// Back-office : gestion des entreprises (web).
 class AdminCompaniesScreen extends StatelessWidget {
@@ -33,86 +33,71 @@ class _AdminCompaniesView extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = context.watch<AdminCompaniesController>();
     final handler = CompanyActionsHandler(controller);
-    final textTheme = Theme.of(context).textTheme;
 
     return AdminShell(
+      section: AdminSection.companies,
       child: controller.status == AdminCompaniesStatus.forbidden
-          ? Card(
-              margin: const EdgeInsets.all(36),
-              child: AdminForbiddenView(
-                message: controller.error,
-                onLeave: () => context.go(AppRoutes.dashboard),
-              ),
+          ? AdminForbiddenView(
+              message: controller.error,
+              onLeave: () => context.go(AppRoutes.dashboard),
             )
           : SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(36, 40, 36, 48),
+              padding: const EdgeInsets.fromLTRB(32, 28, 32, 40),
               child: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 1280),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Semantics(
-                                  header: true,
-                                  child: Text(
-                                    'Entreprises',
-                                    style: textTheme.displaySmall?.copyWith(
-                                      color: AppColors.white,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  'Valider, modifier et modérer les entreprises enregistrées.',
-                                  style: textTheme.bodyLarge?.copyWith(
-                                    color: const Color(0xE6FFFFFF),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 16),
+                      AdminPageHeader(
+                        title: 'Entreprises',
+                        subtitle: 'Valider, modifier et modérer les entreprises enregistrées.',
+                        actions: [
                           FilledButton.icon(
                             key: const ValueKey('admin-add-company'),
                             style: FilledButton.styleFrom(
-                              backgroundColor: AppColors.white,
-                              foregroundColor: AppColors.textPrimary,
+                              backgroundColor: AdminShell.sidebarColor,
+                              minimumSize: const Size(0, 40),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
                             ),
                             onPressed: () => handler.create(context),
-                            icon: const Icon(Icons.add_rounded),
+                            icon: const Icon(Icons.add_rounded, size: 18),
                             label: const Text('Ajouter une entreprise'),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 28),
-                      Card(
+                      const SizedBox(height: 20),
+                      AdminPanel(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            if (controller.isRefreshing)
-                              const LinearProgressIndicator(minHeight: 3)
-                            else
-                              const SizedBox(height: 3),
                             Padding(
-                              padding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
+                              padding: const EdgeInsets.all(12),
                               child: _Toolbar(controller: controller),
                             ),
-                            const Divider(),
+                            if (controller.isRefreshing)
+                              const LinearProgressIndicator(minHeight: 2)
+                            else
+                              const Divider(height: 2, thickness: 1),
                             _TableArea(
                               controller: controller,
                               handler: handler,
                             ),
                             if (controller.status ==
-                                AdminCompaniesStatus.ready) ...[
-                              const Divider(),
-                              _Pagination(controller: controller),
+                                    AdminCompaniesStatus.ready &&
+                                controller.companies.isNotEmpty) ...[
+                              const Divider(height: 1),
+                              if (controller.page case final page?)
+                                AdminPagination(
+                                  firstIndex: page.firstIndex,
+                                  lastIndex: page.lastIndex,
+                                  total: page.total,
+                                  page: page.page,
+                                  totalPages: page.totalPages,
+                                  onPage: controller.goToPage,
+                                ),
                             ],
                           ],
                         ),
@@ -152,79 +137,93 @@ class _ToolbarState extends State<_Toolbar> {
     final controller = widget.controller;
     final query = controller.query;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            SizedBox(
-              width: 320,
-              child: TextField(
-                key: const ValueKey('admin-company-search'),
-                controller: _search,
-                onChanged: (value) {
-                  controller.setSearch(value);
-                  setState(() {});
-                },
-                decoration: InputDecoration(
-                  hintText: 'Rechercher un nom ou un SIRET',
-                  prefixIcon: const Icon(Icons.search_rounded, size: 20),
-                  suffixIcon: _search.text.isEmpty
-                      ? null
-                      : IconButton(
-                          tooltip: 'Effacer',
-                          onPressed: () {
-                            _search.clear();
-                            controller.setSearch('');
-                            setState(() {});
-                          },
-                          icon: const Icon(Icons.close_rounded, size: 18),
-                        ),
-                ),
-              ),
-            ),
-            DropdownMenu<String>(
-              key: const ValueKey('admin-company-sector'),
-              width: 220,
-              requestFocusOnTap: false,
-              label: const Text('Secteur'),
-              initialSelection: query.sector ?? '',
-              onSelected: (value) => controller.setSector(
-                value == null || value.isEmpty ? null : value,
-              ),
-              dropdownMenuEntries: [
-                const DropdownMenuEntry(value: '', label: 'Tous les secteurs'),
-                for (final sector in AdminCompanyOptions.sectors)
-                  DropdownMenuEntry(value: sector, label: sector),
-              ],
-            ),
-            DropdownMenu<CompanySort>(
-              key: const ValueKey('admin-company-sort'),
-              width: 200,
-              requestFocusOnTap: false,
-              label: const Text('Trier par'),
-              initialSelection: query.sort,
-              onSelected: (sort) {
-                if (sort != null) controller.setSort(sort);
+    return AdminDenseFields(
+      child: Wrap(
+        spacing: 10,
+        runSpacing: 10,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          SizedBox(
+            width: 280,
+            child: TextField(
+              key: const ValueKey('admin-company-search'),
+              controller: _search,
+              onChanged: (value) {
+                controller.setSearch(value);
+                setState(() {});
               },
-              dropdownMenuEntries: [
-                for (final sort in CompanySort.values)
-                  DropdownMenuEntry(value: sort, label: sort.label),
-              ],
+              decoration: InputDecoration(
+                hintText: 'Rechercher un nom ou un SIRET',
+                prefixIcon: const Icon(Icons.search_rounded, size: 18),
+                suffixIcon: _search.text.isEmpty
+                    ? null
+                    : IconButton(
+                        tooltip: 'Effacer',
+                        onPressed: () {
+                          _search.clear();
+                          controller.setSearch('');
+                          setState(() {});
+                        },
+                        icon: const Icon(Icons.close_rounded, size: 16),
+                      ),
+              ),
             ),
-          ],
-        ),
-        const SizedBox(height: 14),
-        JoynChipGroup<CompanyStatusFilter>.single(
-          options: CompanyStatusFilter.values,
-          selected: query.status,
-          labelOf: (filter) => filter.label,
-          onSelected: controller.setStatusFilter,
-        ),
-      ],
+          ),
+          DropdownMenu<CompanyStatusFilter>(
+            key: ValueKey('company-status-${query.status.name}'),
+            width: 210,
+            requestFocusOnTap: false,
+            label: const Text('Statut'),
+            initialSelection: query.status,
+            onSelected: (status) {
+              if (status != null) controller.setStatusFilter(status);
+            },
+            dropdownMenuEntries: [
+              for (final status in CompanyStatusFilter.values)
+                DropdownMenuEntry(value: status, label: status.label),
+            ],
+          ),
+          DropdownMenu<String>(
+            key: ValueKey('admin-company-sector-${query.sector}'),
+            width: 190,
+            requestFocusOnTap: false,
+            label: const Text('Secteur'),
+            initialSelection: query.sector ?? '',
+            onSelected: (value) => controller.setSector(
+              value == null || value.isEmpty ? null : value,
+            ),
+            dropdownMenuEntries: [
+              const DropdownMenuEntry(value: '', label: 'Tous les secteurs'),
+              for (final sector in AdminCompanyOptions.sectors)
+                DropdownMenuEntry(value: sector, label: sector),
+            ],
+          ),
+          DropdownMenu<CompanySort>(
+            key: ValueKey('admin-company-sort-${query.sort.name}'),
+            width: 180,
+            requestFocusOnTap: false,
+            label: const Text('Trier par'),
+            initialSelection: query.sort,
+            onSelected: (sort) {
+              if (sort != null) controller.setSort(sort);
+            },
+            dropdownMenuEntries: [
+              for (final sort in CompanySort.values)
+                DropdownMenuEntry(value: sort, label: sort.label),
+            ],
+          ),
+          TextButton.icon(
+            onPressed: controller.hasActiveFilters
+                ? () {
+                    _search.clear();
+                    controller.resetFilters();
+                  }
+                : null,
+            icon: const Icon(Icons.filter_alt_off_outlined, size: 16),
+            label: const Text('Réinitialiser'),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -243,7 +242,7 @@ class _TableArea extends StatelessWidget {
     if (controller.showSkeleton) return const _TableSkeleton();
 
     if (controller.status == AdminCompaniesStatus.error) {
-      return _Message(
+      return AdminMessage(
         icon: Icons.cloud_off_rounded,
         title: 'Chargement impossible',
         text: controller.error ?? '',
@@ -256,7 +255,7 @@ class _TableArea extends StatelessWidget {
 
     final companies = controller.companies;
     if (companies.isEmpty) {
-      return _Message(
+      return AdminMessage(
         icon: Icons.search_off_rounded,
         title: 'Aucune entreprise',
         text: controller.hasActiveFilters
@@ -277,110 +276,110 @@ class _TableArea extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         child: ConstrainedBox(
           constraints: BoxConstraints(minWidth: constraints.maxWidth),
-          child: DataTable(
-            sortColumnIndex: sort.byName ? 0 : 3,
-            sortAscending: sort.ascending,
-            headingTextStyle: textTheme.labelSmall?.copyWith(
-              color: AppColors.slate,
-            ),
-            dataRowMinHeight: 68,
-            dataRowMaxHeight: 78,
-            horizontalMargin: 20,
-            columnSpacing: 28,
-            columns: [
-              DataColumn(
-                label: const Text('ENTREPRISE'),
-                onSort: (_, ascending) => controller.setSort(
-                  ascending ? CompanySort.nameAsc : CompanySort.nameDesc,
+          child: AdminTableTheme(
+            child: DataTable(
+              sortColumnIndex: sort.byName ? 0 : 3,
+              sortAscending: sort.ascending,
+              columns: [
+                DataColumn(
+                  label: const Text('ENTREPRISE'),
+                  onSort: (_, ascending) => controller.setSort(
+                    ascending ? CompanySort.nameAsc : CompanySort.nameDesc,
+                  ),
                 ),
-              ),
-              const DataColumn(label: Text('SIRET')),
-              const DataColumn(label: Text('SECTEUR · VILLE')),
-              DataColumn(
-                label: const Text('INSCRIPTION'),
-                onSort: (_, ascending) => controller.setSort(
-                  ascending ? CompanySort.oldest : CompanySort.newest,
+                const DataColumn(label: Text('SIRET')),
+                const DataColumn(label: Text('SECTEUR · VILLE')),
+                DataColumn(
+                  label: const Text('INSCRIPTION'),
+                  onSort: (_, ascending) => controller.setSort(
+                    ascending ? CompanySort.oldest : CompanySort.newest,
+                  ),
                 ),
-              ),
-              const DataColumn(label: Text('STATUT')),
-              const DataColumn(label: Text('ACTIONS')),
-            ],
-            rows: [
-              for (final company in companies)
-                DataRow(
-                  cells: [
-                    DataCell(
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          CompanyLogoAvatar(
-                            name: company.name,
-                            initials: company.initials,
-                            logo: company.logo,
-                            size: 38,
-                          ),
-                          const SizedBox(width: 12),
-                          ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 220),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  company.name,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: textTheme.titleSmall,
-                                ),
-                                if (company.website.isNotEmpty)
-                                  Text(
-                                    company.website.replaceFirst(
-                                      RegExp(r'^https?://'),
-                                      '',
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                    style: textTheme.bodySmall,
-                                  ),
-                              ],
+                const DataColumn(label: Text('STATUT')),
+                const DataColumn(label: Text('ACTIONS')),
+              ],
+              rows: [
+                for (final company in companies)
+                  DataRow(
+                    cells: [
+                      DataCell(
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CompanyLogoAvatar(
+                              name: company.name,
+                              initials: company.initials,
+                              logo: company.logo,
+                              size: 30,
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    DataCell(
-                      Text(
-                        CompanyValidators.formatSiret(company.siret),
-                        style: textTheme.bodyMedium?.copyWith(
-                          fontFeatures: const [FontFeature.tabularFigures()],
+                            const SizedBox(width: 10),
+                            ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 220),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    company.name,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13.5,
+                                    ),
+                                  ),
+                                  if (company.website.isNotEmpty)
+                                    Text(
+                                      company.website.replaceFirst(
+                                        RegExp(r'^https?://'),
+                                        '',
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                      style: textTheme.bodySmall,
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                    DataCell(
-                      _TwoLines(top: company.sector, bottom: company.city),
-                    ),
-                    DataCell(
-                      _TwoLines(
-                        top: formatCompanyDate(company.createdAt),
-                        bottom: company.recruiterName == null
-                            ? "Créée par l'administration"
-                            : 'par ${company.recruiterName}',
+                      DataCell(
+                        Text(
+                          CompanyValidators.formatSiret(company.siret),
+                          style: textTheme.bodySmall?.copyWith(
+                            color: AppColors.textPrimary,
+                            fontSize: 13,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
+                        ),
                       ),
-                    ),
-                    DataCell(
-                      Tooltip(
-                        message: company.statusReason ?? '',
-                        child: CompanyStatusBadge(status: company.status),
+                      DataCell(
+                        _TwoLines(top: company.sector, bottom: company.city),
                       ),
-                    ),
-                    DataCell(
-                      CompanyRowActions(
-                        company: company,
-                        handler: handler,
-                        busy: controller.isBusy(company.id),
+                      DataCell(
+                        _TwoLines(
+                          top: formatCompanyDate(company.createdAt),
+                          bottom: company.recruiterName == null
+                              ? "Créée par l'administration"
+                              : 'par ${company.recruiterName}',
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-            ],
+                      DataCell(
+                        Tooltip(
+                          message: company.statusReason ?? '',
+                          child: CompanyStatusBadge(status: company.status),
+                        ),
+                      ),
+                      DataCell(
+                        CompanyRowActions(
+                          company: company,
+                          handler: handler,
+                          busy: controller.isBusy(company.id),
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
           ),
         ),
       ),
@@ -401,8 +400,14 @@ class _TwoLines extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(top, style: textTheme.bodyMedium),
-        Text(bottom, style: textTheme.bodySmall),
+        Text(
+          top,
+          style: textTheme.bodySmall?.copyWith(
+            color: AppColors.textPrimary,
+            fontSize: 13,
+          ),
+        ),
+        Text(bottom, style: textTheme.bodySmall?.copyWith(fontSize: 12)),
       ],
     );
   }
@@ -422,10 +427,10 @@ class _TableSkeleton extends StatelessWidget {
           children: [
             for (var i = 0; i < 8; i++)
               const Padding(
-                padding: EdgeInsets.symmetric(vertical: 14),
+                padding: EdgeInsets.symmetric(vertical: 11),
                 child: Row(
                   children: [
-                    SkeletonBox(width: 38, height: 38, radius: 10),
+                    SkeletonBox(width: 30, height: 30, radius: 5),
                     SizedBox(width: 12),
                     Expanded(flex: 3, child: _SkeletonLines()),
                     Expanded(flex: 2, child: SkeletonBox(width: 120)),
@@ -458,83 +463,6 @@ class _SkeletonLines extends StatelessWidget {
         SizedBox(height: 8),
         SkeletonBox(width: 80, height: 10),
       ],
-    );
-  }
-}
-
-class _Message extends StatelessWidget {
-  const _Message({
-    required this.icon,
-    required this.title,
-    required this.text,
-    this.action,
-  });
-
-  final IconData icon;
-  final String title;
-  final String text;
-  final Widget? action;
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final action = this.action;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 56),
-      child: Column(
-        children: [
-          Icon(icon, size: 40, color: AppColors.slate),
-          const SizedBox(height: 12),
-          Text(title, style: textTheme.titleMedium),
-          const SizedBox(height: 4),
-          Text(text, textAlign: TextAlign.center, style: textTheme.bodySmall),
-          if (action != null) ...[const SizedBox(height: 14), action],
-        ],
-      ),
-    );
-  }
-}
-
-class _Pagination extends StatelessWidget {
-  const _Pagination({required this.controller});
-
-  final AdminCompaniesController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    final page = controller.page;
-    if (page == null || page.total == 0) return const SizedBox.shrink();
-    final textTheme = Theme.of(context).textTheme;
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 12, 8),
-      child: Row(
-        children: [
-          Text(
-            '${page.firstIndex}–${page.lastIndex} sur ${page.total}',
-            style: textTheme.bodySmall,
-          ),
-          const Spacer(),
-          IconButton(
-            tooltip: 'Page précédente',
-            onPressed: page.page > 1
-                ? () => controller.goToPage(page.page - 1)
-                : null,
-            icon: const Icon(Icons.chevron_left_rounded),
-          ),
-          Text(
-            'Page ${page.page} / ${page.totalPages}',
-            style: textTheme.labelMedium,
-          ),
-          IconButton(
-            tooltip: 'Page suivante',
-            onPressed: page.page < page.totalPages
-                ? () => controller.goToPage(page.page + 1)
-                : null,
-            icon: const Icon(Icons.chevron_right_rounded),
-          ),
-        ],
-      ),
     );
   }
 }

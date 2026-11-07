@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/routing/app_routes.dart';
 import '../../../../design_system/theme/joyn_material_theme.dart';
-import 'company_visuals.dart';
+import 'admin_ui.dart';
 
 /// Page 403 : affichée quand un compte sans le rôle `admin` tente d'ouvrir
 /// l'espace d'administration.

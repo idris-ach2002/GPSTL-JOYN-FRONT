@@ -4,7 +4,7 @@ import '../../../../design_system/tokens/app_colors.dart';
 import '../../domain/admin_company.dart';
 import '../controllers/admin_companies_controller.dart';
 import 'company_dialogs.dart';
-import 'company_visuals.dart';
+import '../../../admin/presentation/shared/admin_ui.dart';
 
 /// Enchaîne modale → appel au contrôleur → notification, pour chaque action.
 /// Partagé par le tableau web et les cartes mobiles.

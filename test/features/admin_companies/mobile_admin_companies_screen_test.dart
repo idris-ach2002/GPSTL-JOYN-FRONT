@@ -33,13 +33,15 @@ void main() {
 
     expect(find.text('Entreprises'), findsOneWidget);
     expect(find.text('Ajouter'), findsOneWidget);
-    expect(find.text('Valider'), findsWidgets);
     expect(tester.takeException(), isNull);
 
-    // Valider la première entreprise en attente : notification affichée.
-    await tester.ensureVisible(find.text('Valider').first);
+    // Valider la première entreprise en attente via le menu « ⋮ ».
+    final pendingMenu = find.byKey(const ValueKey('menu-cmp-3'));
+    await tester.ensureVisible(pendingMenu);
     await tester.pump();
-    await tester.tap(find.text('Valider').first);
+    await tester.tap(pendingMenu);
+    await _settle(tester);
+    await tester.tap(find.text('Valider').last);
     await _settle(tester);
     expect(
       find.textContaining('ses offres sont maintenant visibles'),

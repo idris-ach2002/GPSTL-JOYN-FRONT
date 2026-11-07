@@ -7,7 +7,8 @@ import '../../../../design_system/material/joyn_chip_group.dart';
 import '../../../../design_system/mobile/mobile_app_surface.dart';
 import '../../../../design_system/theme/joyn_material_theme.dart';
 import '../../../../design_system/tokens/app_colors.dart';
-import '../../../auth/presentation/auth_controller.dart';
+import '../../../admin/presentation/mobile/mobile_admin_section_menu.dart';
+import '../../../admin/presentation/shared/admin_ui.dart';
 import '../../domain/admin_company.dart';
 import '../../domain/admin_company_options.dart';
 import '../../domain/company_validators.dart';
@@ -98,11 +99,8 @@ class _MobileAdminCompaniesViewState extends State<_MobileAdminCompaniesView> {
                           ],
                         ),
                       ),
-                      IconButton(
-                        tooltip: 'Se déconnecter',
-                        onPressed: () =>
-                            context.read<AuthController>().signOut(),
-                        icon: const Icon(Icons.logout_rounded),
+                      const MobileAdminSectionMenu(
+                        current: AdminSection.companies,
                       ),
                     ],
                   ),
@@ -148,6 +146,9 @@ class _MobileAdminCompaniesViewState extends State<_MobileAdminCompaniesView> {
                         Padding(
                           padding: const EdgeInsets.only(right: 8),
                           child: ChoiceChip(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4),
+                            ),
                             label: Text(filter.label),
                             selected: controller.query.status == filter,
                             showCheckmark: false,
@@ -178,6 +179,9 @@ class _MobileAdminCompaniesViewState extends State<_MobileAdminCompaniesView> {
             bottom: 16,
             child: FloatingActionButton.extended(
               key: const ValueKey('mobile-admin-add-company'),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(adminRadius),
+              ),
               backgroundColor: AppColors.navy,
               foregroundColor: AppColors.white,
               onPressed: () => handler.create(context),
@@ -197,12 +201,19 @@ class _MobileAdminCompaniesViewState extends State<_MobileAdminCompaniesView> {
   ) {
     if (controller.showSkeleton) {
       return [
-        SliverList.separated(
-          itemCount: 5,
-          separatorBuilder: (context, _) => const SizedBox(height: 12),
-          itemBuilder: (context, _) => const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: _CardSkeleton(),
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          sliver: DecoratedSliver(
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(adminRadius),
+              border: Border.all(color: AppColors.line),
+            ),
+            sliver: SliverList.separated(
+              itemCount: 5,
+              separatorBuilder: (context, _) => const Divider(height: 1),
+              itemBuilder: (context, _) => const _CardSkeleton(),
+            ),
           ),
         ),
       ];
@@ -248,13 +259,20 @@ class _MobileAdminCompaniesViewState extends State<_MobileAdminCompaniesView> {
     return [
       SliverPadding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        sliver: SliverList.separated(
-          itemCount: companies.length,
-          separatorBuilder: (context, _) => const SizedBox(height: 12),
-          itemBuilder: (context, index) => _CompanyCard(
-            company: companies[index],
-            handler: handler,
-            busy: controller.isBusy(companies[index].id),
+        sliver: DecoratedSliver(
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(adminRadius),
+            border: Border.all(color: AppColors.line),
+          ),
+          sliver: SliverList.separated(
+            itemCount: companies.length,
+            separatorBuilder: (context, _) => const Divider(height: 1),
+            itemBuilder: (context, index) => _CompanyCard(
+              company: companies[index],
+              handler: handler,
+              busy: controller.isBusy(companies[index].id),
+            ),
           ),
         ),
       ),
@@ -309,69 +327,71 @@ class _CompanyCard extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final reason = company.statusReason;
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 16, 8, 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CompanyLogoAvatar(
-                  name: company.name,
-                  initials: company.initials,
-                  logo: company.logo,
-                  size: 44,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(company.name, style: textTheme.titleMedium),
-                      const SizedBox(height: 2),
-                      Text(
-                        'SIRET ${CompanyValidators.formatSiret(company.siret)}',
-                        style: textTheme.bodySmall,
+    // Ligne de liste (dans le panneau) plutôt qu'une carte arrondie.
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 12, 4, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CompanyLogoAvatar(
+                name: company.name,
+                initials: company.initials,
+                logo: company.logo,
+                size: 34,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      company.name,
+                      style: textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
                       ),
-                      const SizedBox(height: 8),
-                      CompanyStatusBadge(status: company.status),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              '${company.sector} · ${company.city}',
-              style: textTheme.bodyMedium,
-            ),
-            Text(
-              'Inscrite le ${formatCompanyDate(company.createdAt)}'
-              '${company.recruiterName == null ? " par l'administration" : ' par ${company.recruiterName}'}',
-              style: textTheme.bodySmall,
-            ),
-            if (reason != null &&
-                (company.status == CompanyStatus.rejected ||
-                    company.status == CompanyStatus.suspended)) ...[
-              const SizedBox(height: 6),
-              Text(
-                'Motif : $reason',
-                style: textTheme.bodySmall?.copyWith(
-                  color: AppColors.errorDeep,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'SIRET ${CompanyValidators.formatSiret(company.siret)}',
+                      style: textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 8),
+                    CompanyStatusBadge(status: company.status),
+                  ],
                 ),
               ),
             ],
-            const SizedBox(height: 8),
-            CompanyRowActions(
-              company: company,
-              handler: handler,
-              busy: busy,
-              expandQuickActions: true,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            '${company.sector} · ${company.city}',
+            style: textTheme.bodyMedium,
+          ),
+          Text(
+            'Inscrite le ${formatCompanyDate(company.createdAt)}'
+            '${company.recruiterName == null ? " par l'administration" : ' par ${company.recruiterName}'}',
+            style: textTheme.bodySmall,
+          ),
+          if (reason != null &&
+              (company.status == CompanyStatus.rejected ||
+                  company.status == CompanyStatus.suspended)) ...[
+            const SizedBox(height: 6),
+            Text(
+              'Motif : $reason',
+              style: textTheme.bodySmall?.copyWith(color: AppColors.errorDeep),
             ),
           ],
-        ),
+          const SizedBox(height: 8),
+          CompanyRowActions(
+            company: company,
+            handler: handler,
+            busy: busy,
+            expandQuickActions: true,
+          ),
+        ],
       ),
     );
   }
@@ -428,30 +448,28 @@ class _CardSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Card(
-      child: Padding(
-        padding: EdgeInsets.all(16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SkeletonBox(width: 44, height: 44, radius: 11),
-            SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SkeletonBox(width: 160, height: 14),
-                  SizedBox(height: 8),
-                  SkeletonBox(width: 120, height: 10),
-                  SizedBox(height: 12),
-                  SkeletonBox(width: 90, height: 22, radius: 99),
-                  SizedBox(height: 14),
-                  SkeletonBox(width: 200, height: 10),
-                ],
-              ),
+    return const Padding(
+      padding: EdgeInsets.all(14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SkeletonBox(width: 34, height: 34, radius: 5),
+          SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SkeletonBox(width: 160, height: 14),
+                SizedBox(height: 8),
+                SkeletonBox(width: 120, height: 10),
+                SizedBox(height: 12),
+                SkeletonBox(width: 90, height: 22, radius: 99),
+                SizedBox(height: 14),
+                SkeletonBox(width: 200, height: 10),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

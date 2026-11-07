@@ -41,6 +41,7 @@ abstract final class AppRoutes {
   // Administration (rôle admin uniquement)
   static const String admin = '/admin';
   static const String adminCompanies = '/admin/companies';
+  static const String adminUsers = '/admin/users';
   static const String forbidden = '/403';
 
   static const Set<String> authEntryRoutes = {login, connexion};

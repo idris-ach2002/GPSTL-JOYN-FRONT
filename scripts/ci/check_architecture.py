@@ -9,7 +9,9 @@ ROOT = Path(__file__).resolve().parents[2]
 LIB = ROOT / "lib"
 
 REQUIRED_PRESENTATION_DIRS = {
+    "admin": ("web", "mobile"),
     "admin_companies": ("web", "mobile"),
+    "admin_users": ("web", "mobile"),
     "auth": ("web", "mobile"),
     "dashboard": ("web", "mobile"),
     "information": ("web", "mobile"),

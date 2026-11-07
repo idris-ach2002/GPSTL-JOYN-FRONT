@@ -5,6 +5,9 @@ import '../core/network/api_client.dart';
 import '../features/admin_companies/data/admin_company_repository.dart';
 import '../features/admin_companies/data/api_admin_company_repository.dart';
 import '../features/admin_companies/data/fake_admin_company_repository.dart';
+import '../features/admin_users/data/admin_user_repository.dart';
+import '../features/admin_users/data/api_admin_user_repository.dart';
+import '../features/admin_users/data/fake_admin_user_repository.dart';
 import '../features/auth/data/auth_repository.dart';
 import '../features/auth/data/fake_auth_repository.dart';
 import '../features/auth/presentation/auth_controller.dart';
@@ -64,6 +67,14 @@ Future<void> bootstrapJoyn({bool? webOverride}) async {
           ),
         )
       : FakeAdminCompanyRepository();
+  final AdminUserRepository adminUserRepository = environment.useApi
+      ? ApiAdminUserRepository(
+          ApiClient(
+            baseUrl: environment.apiBaseUrl,
+            timeout: environment.apiTimeout,
+          ),
+        )
+      : FakeAdminUserRepository();
   final RegistrationRepository registrationRepository =
       AuthRegistrationRepository(
         authRepository,
@@ -83,6 +94,7 @@ Future<void> bootstrapJoyn({bool? webOverride}) async {
       recruiterOffersRepository: recruiterOffersRepository,
       recruiterCandidateRepository: recruiterCandidateRepository,
       adminCompanyRepository: adminCompanyRepository,
+      adminUserRepository: adminUserRepository,
     ),
   );
 }

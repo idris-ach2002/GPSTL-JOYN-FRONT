@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:joyn_front/app/app.dart';
 import 'package:joyn_front/app/routing/app_routes.dart';
-import 'package:joyn_front/features/admin_companies/presentation/shared/admin_forbidden_screen.dart';
+import 'package:joyn_front/features/admin/presentation/shared/admin_forbidden_screen.dart';
 import 'package:joyn_front/features/admin_companies/presentation/web/admin_companies_screen.dart';
 import 'package:joyn_front/features/auth/data/fake_auth_repository.dart';
 import 'package:joyn_front/features/auth/presentation/auth_controller.dart';
@@ -16,6 +16,8 @@ Future<void> _openAdminAs(WidgetTester tester, String? email) async {
 
   final auth = AuthController(FakeAuthRepository(latency: Duration.zero));
   if (email != null) {
+    // runAsync : la connexion simulée attend un vrai délai (Future.delayed),
+    // que l'horloge figée de testWidgets ne ferait jamais avancer.
     await tester.runAsync(
       () =>
           auth.signIn(email: email, password: FakeAuthRepository.demoPassword),
