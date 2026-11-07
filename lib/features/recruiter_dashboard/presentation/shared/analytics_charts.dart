@@ -1,3 +1,5 @@
+import '../../../recruiter_studio/presentation/studio_components.dart';
+
 import 'dart:math' as math;
 
 import 'package:fl_chart/fl_chart.dart';
@@ -42,27 +44,54 @@ class InteractiveMultiSeriesChart extends StatelessWidget {
     if (points.isEmpty) {
       return SizedBox(
         height: height,
-        child: const Center(
+        child: Center(
           child: Text(
             'Aucune donnée disponible.',
-            style: TextStyle(color: dashboardMuted, fontSize: 11),
+            style: TextStyle(
+              color: StudioColors.text(context, dashboardMuted),
+              fontSize: 11,
+            ),
           ),
         ),
       );
     }
 
-    final config = _settings;
+    final base = _settings;
+    final config = Theme.of(context).brightness == Brightness.dark
+        ? base.copyWith(
+            customSeriesColors: {
+              for (final kind in DashboardSeriesKind.values)
+                kind: StudioColors.text(
+                  context,
+                  base.colorFor(kind),
+                ).toARGB32(),
+            },
+          )
+        : base;
     final series = <DashboardSeriesKind>[
       ...config.visibleSeries,
       if (config.showPrevious) DashboardSeriesKind.previousApplications,
     ];
     final maxY = _maxY(series);
 
+    final motion = MediaQuery.disableAnimationsOf(context)
+        ? Duration.zero
+        : const Duration(milliseconds: 180);
     final chart = switch (config.visualType) {
-      AnalyticsVisualType.bars => _buildBarChart(config, series, maxY),
-      AnalyticsVisualType.scatter => _buildScatterChart(config, series, maxY),
-      AnalyticsVisualType.lines => _buildLineChart(config, series, maxY),
-      AnalyticsVisualType.area => _buildLineChart(config, series, maxY),
+      AnalyticsVisualType.bars => _buildBarChart(config, series, maxY, motion),
+      AnalyticsVisualType.scatter => _buildScatterChart(
+        config,
+        series,
+        maxY,
+        motion,
+      ),
+      AnalyticsVisualType.lines => _buildLineChart(
+        config,
+        series,
+        maxY,
+        motion,
+      ),
+      AnalyticsVisualType.area => _buildLineChart(config, series, maxY, motion),
     };
 
     return SizedBox(height: height, child: chart);
@@ -82,6 +111,7 @@ class InteractiveMultiSeriesChart extends StatelessWidget {
     VisualizationSettings config,
     List<DashboardSeriesKind> series,
     double maxY,
+    Duration motion,
   ) {
     final isArea = config.visualType == AnalyticsVisualType.area;
     return LineChart(
@@ -209,7 +239,7 @@ class InteractiveMultiSeriesChart extends StatelessWidget {
             ),
         ],
       ),
-      duration: const Duration(milliseconds: 180),
+      duration: motion,
       curve: Curves.easeOutCubic,
     );
   }
@@ -218,6 +248,7 @@ class InteractiveMultiSeriesChart extends StatelessWidget {
     VisualizationSettings config,
     List<DashboardSeriesKind> series,
     double maxY,
+    Duration motion,
   ) {
     final barKinds = series.take(4).toList();
     final width = math.max(3.0, math.min(8.0, 22 / barKinds.length));
@@ -258,7 +289,7 @@ class InteractiveMultiSeriesChart extends StatelessWidget {
             ),
         ],
       ),
-      duration: const Duration(milliseconds: 180),
+      duration: motion,
       curve: Curves.easeOutCubic,
     );
   }
@@ -267,6 +298,7 @@ class InteractiveMultiSeriesChart extends StatelessWidget {
     VisualizationSettings config,
     List<DashboardSeriesKind> series,
     double maxY,
+    Duration motion,
   ) {
     final spots = <ScatterSpot>[];
     for (var seriesIndex = 0; seriesIndex < series.length; seriesIndex++) {
@@ -307,7 +339,7 @@ class InteractiveMultiSeriesChart extends StatelessWidget {
         borderData: FlBorderData(show: false),
         titlesData: _titles(config, maxY),
       ),
-      duration: const Duration(milliseconds: 180),
+      duration: motion,
       curve: Curves.easeOutCubic,
     );
   }
@@ -460,8 +492,8 @@ class _AnalyticsDonutChartState extends State<AnalyticsDonutChart> {
               Text(
                 widget.centerLabel,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: dashboardNavy,
+                style: TextStyle(
+                  color: StudioColors.text(context, dashboardNavy),
                   fontSize: 13,
                   fontWeight: FontWeight.w900,
                 ),
@@ -481,7 +513,10 @@ class _AnalyticsDonutChartState extends State<AnalyticsDonutChart> {
                       width: 8,
                       height: 8,
                       decoration: BoxDecoration(
-                        color: _colors[i % _colors.length],
+                        color: StudioColors.background(
+                          context,
+                          _colors[i % _colors.length],
+                        ),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -490,8 +525,8 @@ class _AnalyticsDonutChartState extends State<AnalyticsDonutChart> {
                       child: Text(
                         widget.items[i].label,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: dashboardMuted,
+                        style: TextStyle(
+                          color: StudioColors.text(context, dashboardMuted),
                           fontSize: 10.5,
                         ),
                       ),
@@ -500,8 +535,8 @@ class _AnalyticsDonutChartState extends State<AnalyticsDonutChart> {
                       total <= 0
                           ? '0%'
                           : '${(widget.items[i].value / total * 100).round()}%',
-                      style: const TextStyle(
-                        color: dashboardNavy,
+                      style: TextStyle(
+                        color: StudioColors.text(context, dashboardNavy),
                         fontSize: 10.5,
                         fontWeight: FontWeight.w800,
                       ),
@@ -583,12 +618,15 @@ class _HeatmapChartState extends State<HeatmapChart> {
   @override
   Widget build(BuildContext context) {
     if (data.rows.isEmpty || data.columns.isEmpty) {
-      return const SizedBox(
+      return SizedBox(
         height: 240,
         child: Center(
           child: Text(
             'Aucune donnée de concentration.',
-            style: TextStyle(color: dashboardMuted, fontSize: 10),
+            style: TextStyle(
+              color: StudioColors.text(context, dashboardMuted),
+              fontSize: 10,
+            ),
           ),
         ),
       );
@@ -651,8 +689,8 @@ class _HeatmapChartState extends State<HeatmapChart> {
                 child: Center(
                   child: Text(
                     day,
-                    style: const TextStyle(
-                      color: dashboardMuted,
+                    style: TextStyle(
+                      color: StudioColors.text(context, dashboardMuted),
                       fontSize: 8.5,
                       fontWeight: FontWeight.w700,
                     ),
@@ -671,8 +709,8 @@ class _HeatmapChartState extends State<HeatmapChart> {
                   width: 34,
                   child: Text(
                     data.columns[hour],
-                    style: const TextStyle(
-                      color: dashboardMuted,
+                    style: TextStyle(
+                      color: StudioColors.text(context, dashboardMuted),
                       fontSize: 8.5,
                     ),
                   ),
@@ -685,7 +723,10 @@ class _HeatmapChartState extends State<HeatmapChart> {
                         message:
                             '${data.rows[day]} ${data.columns[hour]} · ${_valueAt(day, hour).round()} candidatures',
                         child: Material(
-                          color: Colors.transparent,
+                          color: StudioColors.background(
+                            context,
+                            Colors.transparent,
+                          ),
                           child: InkWell(
                             borderRadius: BorderRadius.circular(5),
                             onTap: () => setState(() {
@@ -696,12 +737,15 @@ class _HeatmapChartState extends State<HeatmapChart> {
                               duration: const Duration(milliseconds: 120),
                               height: 30,
                               decoration: BoxDecoration(
-                                color: Color.lerp(
-                                  const Color(0xFFF2F6FA),
-                                  const Color(0xFF1267C4),
-                                  (_valueAt(day, hour) / maxValue)
-                                      .clamp(0, 1)
-                                      .toDouble(),
+                                color: StudioColors.background(
+                                  context,
+                                  Color.lerp(
+                                    const Color(0xFFF2F6FA),
+                                    const Color(0xFF1267C4),
+                                    (_valueAt(day, hour) / maxValue)
+                                        .clamp(0, 1)
+                                        .toDouble(),
+                                  ),
                                 ),
                                 borderRadius: BorderRadius.circular(5),
                                 border:
@@ -726,7 +770,7 @@ class _HeatmapChartState extends State<HeatmapChart> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           decoration: BoxDecoration(
-            color: const Color(0xFFF6F9FC),
+            color: StudioColors.background(context, const Color(0xFFF6F9FC)),
             borderRadius: BorderRadius.circular(10),
             border: Border.all(color: dashboardBorder),
           ),
@@ -735,8 +779,8 @@ class _HeatmapChartState extends State<HeatmapChart> {
               Container(
                 width: 8,
                 height: 8,
-                decoration: const BoxDecoration(
-                  color: dashboardBlue,
+                decoration: BoxDecoration(
+                  color: StudioColors.background(context, dashboardBlue),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -744,8 +788,8 @@ class _HeatmapChartState extends State<HeatmapChart> {
               Expanded(
                 child: Text(
                   '${data.rows[_selectedDay]} · ${data.columns[_selectedHour]}',
-                  style: const TextStyle(
-                    color: dashboardNavy,
+                  style: TextStyle(
+                    color: StudioColors.text(context, dashboardNavy),
                     fontSize: 9.5,
                     fontWeight: FontWeight.w800,
                   ),
@@ -753,8 +797,8 @@ class _HeatmapChartState extends State<HeatmapChart> {
               ),
               Text(
                 '${selectedValue.round()} candidatures',
-                style: const TextStyle(
-                  color: dashboardNavy,
+                style: TextStyle(
+                  color: StudioColors.text(context, dashboardNavy),
                   fontSize: 9.5,
                   fontWeight: FontWeight.w900,
                 ),
@@ -765,9 +809,12 @@ class _HeatmapChartState extends State<HeatmapChart> {
         const SizedBox(height: 10),
         Row(
           children: [
-            const Text(
+            Text(
               'Faible',
-              style: TextStyle(color: dashboardMuted, fontSize: 8),
+              style: TextStyle(
+                color: StudioColors.text(context, dashboardMuted),
+                fontSize: 8,
+              ),
             ),
             const SizedBox(width: 7),
             for (var i = 1; i <= 6; i++)
@@ -776,18 +823,24 @@ class _HeatmapChartState extends State<HeatmapChart> {
                 height: 7,
                 margin: const EdgeInsets.only(right: 2),
                 decoration: BoxDecoration(
-                  color: Color.lerp(
-                    const Color(0xFFF2F6FA),
-                    const Color(0xFF1267C4),
-                    i / 6,
+                  color: StudioColors.background(
+                    context,
+                    Color.lerp(
+                      const Color(0xFFF2F6FA),
+                      const Color(0xFF1267C4),
+                      i / 6,
+                    ),
                   ),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
             const SizedBox(width: 5),
-            const Text(
+            Text(
               'Élevée',
-              style: TextStyle(color: dashboardMuted, fontSize: 8),
+              style: TextStyle(
+                color: StudioColors.text(context, dashboardMuted),
+                fontSize: 8,
+              ),
             ),
           ],
         ),
@@ -811,23 +864,26 @@ class _HeatmapStat extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
     decoration: BoxDecoration(
-      color: const Color(0xFFF6F9FC),
+      color: StudioColors.background(context, const Color(0xFFF6F9FC)),
       borderRadius: BorderRadius.circular(9),
       border: Border.all(color: dashboardBorder),
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 12, color: dashboardBlue),
+        Icon(icon, size: 12, color: StudioColors.text(context, dashboardBlue)),
         const SizedBox(width: 5),
         Text(
           '$label · ',
-          style: const TextStyle(color: dashboardMuted, fontSize: 8),
+          style: TextStyle(
+            color: StudioColors.text(context, dashboardMuted),
+            fontSize: 8,
+          ),
         ),
         Text(
           value,
-          style: const TextStyle(
-            color: dashboardNavy,
+          style: TextStyle(
+            color: StudioColors.text(context, dashboardNavy),
             fontSize: 8.5,
             fontWeight: FontWeight.w900,
           ),
@@ -857,7 +913,10 @@ class FunnelChart extends StatelessWidget {
                   width: 94,
                   child: Text(
                     steps[i].label,
-                    style: const TextStyle(color: dashboardMuted, fontSize: 10),
+                    style: TextStyle(
+                      color: StudioColors.text(context, dashboardMuted),
+                      fontSize: 10,
+                    ),
                   ),
                 ),
                 Expanded(
@@ -872,19 +931,25 @@ class FunnelChart extends StatelessWidget {
                         alignment: Alignment.centerRight,
                         padding: const EdgeInsets.symmetric(horizontal: 9),
                         decoration: BoxDecoration(
-                          color: Color.lerp(
-                            const Color(0xFFE7F0F9),
-                            const Color(0xFF174F85),
-                            i / math.max(1, steps.length - 1),
+                          color: StudioColors.background(
+                            context,
+                            Color.lerp(
+                              const Color(0xFFE7F0F9),
+                              const Color(0xFF174F85),
+                              i / math.max(1, steps.length - 1),
+                            ),
                           ),
                           borderRadius: BorderRadius.circular(7),
                         ),
                         child: Text(
                           steps[i].value.round().toString(),
                           style: TextStyle(
-                            color: i >= steps.length ~/ 2
-                                ? Colors.white
-                                : dashboardNavy,
+                            color: StudioColors.text(
+                              context,
+                              i >= steps.length ~/ 2
+                                  ? Colors.white
+                                  : dashboardNavy,
+                            ),
                             fontSize: 10,
                             fontWeight: FontWeight.w900,
                           ),

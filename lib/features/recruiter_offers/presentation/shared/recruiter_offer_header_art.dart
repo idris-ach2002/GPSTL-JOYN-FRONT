@@ -1,3 +1,5 @@
+import '../../../recruiter_studio/presentation/studio_components.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -78,7 +80,9 @@ class _RecruiterOfferHeaderArtState extends State<RecruiterOfferHeaderArt> {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          const ColoredBox(color: Color(0xFF061F3A)),
+          ColoredBox(
+            color: StudioColors.background(context, Color(0xFF061F3A)),
+          ),
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 1700),
             switchInCurve: Curves.easeInOutCubic,
@@ -112,33 +116,41 @@ class _RecruiterOfferHeaderArtState extends State<RecruiterOfferHeaderArt> {
           ),
           // Wash uniforme : une image claire ne donne plus l'impression
           // que le header s'arrête avant le bord droit.
-          const ColoredBox(color: Color(0x26061F3A)),
-          const DecoratedBox(
+          ColoredBox(
+            color: StudioColors.background(context, Color(0x26061F3A)),
+          ),
+          DecoratedBox(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [
-                  Color(0xEE061F3A),
-                  Color(0xBE061F3A),
-                  Color(0x76061F3A),
-                  Color(0x52061F3A),
-                ],
-                stops: [0, .27, .66, 1],
+              gradient: StudioColors.gradient(
+                context,
+                LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [
+                    Color(0xEE061F3A),
+                    Color(0xBE061F3A),
+                    Color(0x76061F3A),
+                    Color(0x52061F3A),
+                  ],
+                  stops: [0, .27, .66, 1],
+                ),
               ),
             ),
           ),
-          const DecoratedBox(
+          DecoratedBox(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Color(0x08000000),
-                  Color(0x00061F3A),
-                  Color(0x34061F3A),
-                ],
-                stops: [0, .56, 1],
+              gradient: StudioColors.gradient(
+                context,
+                LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0x08000000),
+                    Color(0x00061F3A),
+                    Color(0x34061F3A),
+                  ],
+                  stops: [0, .56, 1],
+                ),
               ),
             ),
           ),

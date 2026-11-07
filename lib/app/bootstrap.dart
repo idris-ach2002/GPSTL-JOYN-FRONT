@@ -1,3 +1,12 @@
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../features/recruiter_studio/data/studio_store.dart';
+import '../features/recruiter_studio/data/studio_repository.dart';
+import '../features/registration/data/api_registration_repository.dart';
+import '../features/auth/data/api_auth_repository.dart';
+import '../features/recruiter_offers/data/api_recruiter_offers_repository.dart';
+import '../features/recruiter_workspace/data/recruiter_workspace_repository.dart';
+
 import 'package:flutter/widgets.dart';
 
 import '../core/config/app_environment.dart';
@@ -11,11 +20,9 @@ import '../features/registration/data/auth_registration_repository.dart';
 import '../features/registration/data/mock_registration_repository.dart';
 import '../features/registration/data/registration_repository.dart';
 import '../features/recruiter_dashboard/data/api_recruiter_dashboard_repository.dart';
-import '../features/recruiter_dashboard/data/cached_recruiter_dashboard_repository.dart';
 import '../features/recruiter_dashboard/data/mock_recruiter_dashboard_repository.dart';
 import '../features/recruiter_dashboard/data/recruiter_dashboard_repository.dart';
 import '../features/recruiter_candidates/data/api_recruiter_candidate_repository.dart';
-import '../features/recruiter_candidates/data/cached_recruiter_candidate_repository.dart';
 import '../features/recruiter_candidates/data/mock_recruiter_candidate_repository.dart';
 import '../features/recruiter_candidates/data/recruiter_candidate_repository.dart';
 import '../features/recruiter_offers/data/mock_recruiter_offers_repository.dart';
@@ -26,45 +33,56 @@ import 'app.dart';
 Future<void> bootstrapJoyn({bool? webOverride}) async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  final deviceStore = DeviceStudioStore(await SharedPreferences.getInstance());
   final environment = AppEnvironment.fromCompileTime()..validate();
-  final AuthRepository authRepository = FakeAuthRepository();
+  ApiAuthRepository? apiAuth;
+  late final AuthController authController;
+  final api = environment.useApi
+      ? ApiClient(
+          baseUrl: environment.apiBaseUrl,
+          timeout: environment.apiTimeout,
+          tokenProvider: () async => apiAuth?.accessToken,
+          onUnauthorized: () {
+            apiAuth?.accessToken = null;
+            authController.invalidateSession();
+          },
+        )
+      : null;
+  final AuthRepository authRepository = api == null
+      ? FakeAuthRepository()
+      : (apiAuth = ApiAuthRepository(api));
   final DashboardRepository dashboardRepository = FakeDashboardRepository();
   final RecruiterDashboardRepository recruiterDashboardRepository =
-      CachedRecruiterDashboardRepository(
-        environment.useApi
-            ? ApiRecruiterDashboardRepository(
-                ApiClient(
-                  baseUrl: environment.apiBaseUrl,
-                  timeout: environment.apiTimeout,
-                ),
-              )
-            : MockRecruiterDashboardRepository(),
-      );
-  final RecruiterOffersRepository recruiterOffersRepository =
-      MockRecruiterOffersRepository();
+      (environment.useApi
+      ? ApiRecruiterDashboardRepository(api!)
+      : MockRecruiterDashboardRepository());
+  final RecruiterOffersRepository recruiterOffersRepository = api == null
+      ? MockRecruiterOffersRepository()
+      : ApiRecruiterOffersRepository(api);
   final RecruiterCandidateRepository recruiterCandidateRepository =
-      CachedRecruiterCandidateRepository(
-        environment.useApi
-            ? ApiRecruiterCandidateRepository(
-                ApiClient(
-                  baseUrl: environment.apiBaseUrl,
-                  timeout: environment.apiTimeout,
-                ),
-              )
-            : MockRecruiterCandidateRepository(),
-      );
-  final RegistrationRepository registrationRepository =
-      AuthRegistrationRepository(
-        authRepository,
-        companyLookupRepository: MockRegistrationRepository(),
-      );
+      (environment.useApi
+      ? ApiRecruiterCandidateRepository(api!)
+      : MockRecruiterCandidateRepository());
+  final RegistrationRepository registrationRepository = api != null
+      ? ApiRegistrationRepository(api, apiAuth!)
+      : AuthRegistrationRepository(
+          authRepository,
+          companyLookupRepository: MockRegistrationRepository(),
+        );
 
-  final authController = AuthController(authRepository);
+  authController = AuthController(authRepository);
   await authController.restoreSession();
 
   runApp(
     JoynApp(
       webOverride: webOverride,
+      studioStore: deviceStore,
+      studioRepository: api == null
+          ? LocalStudioRepository(deviceStore)
+          : ApiStudioRepository(api),
+      workspaceRepository: api == null
+          ? MockRecruiterWorkspaceRepository()
+          : ApiRecruiterWorkspaceRepository(api),
       authController: authController,
       dashboardRepository: dashboardRepository,
       recruiterDashboardRepository: recruiterDashboardRepository,

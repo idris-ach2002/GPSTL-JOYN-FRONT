@@ -1,3 +1,5 @@
+import '../../../recruiter_studio/presentation/studio_components.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -27,14 +29,14 @@ class CompanyAvatar extends StatelessWidget {
     height: size,
     alignment: Alignment.center,
     decoration: BoxDecoration(
-      color: companyColor(company.id),
+      color: StudioColors.background(context, companyColor(company.id)),
       borderRadius: BorderRadius.circular(size * .28),
       boxShadow: AppShadows.card,
     ),
     child: Text(
       company.initial,
       style: TextStyle(
-        color: Colors.white,
+        color: StudioColors.text(context, Colors.white),
         fontFamily: AppFonts.display,
         fontSize: size * .42,
         fontWeight: FontWeight.w800,
@@ -55,7 +57,7 @@ class CompanyMiniLogo extends StatelessWidget {
     height: size,
     alignment: Alignment.center,
     decoration: BoxDecoration(
-      color: companyColor(company.id),
+      color: StudioColors.background(context, companyColor(company.id)),
       shape: BoxShape.circle,
       border: Border.all(
         color: Colors.white.withValues(alpha: .92),
@@ -72,7 +74,7 @@ class CompanyMiniLogo extends StatelessWidget {
     child: Text(
       company.initial,
       style: TextStyle(
-        color: Colors.white,
+        color: StudioColors.text(context, Colors.white),
         fontFamily: AppFonts.display,
         fontSize: size * .42,
         height: 1,
@@ -103,7 +105,7 @@ class OfferStatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
       decoration: BoxDecoration(
-        color: background,
+        color: StudioColors.background(context, background),
         borderRadius: BorderRadius.circular(7),
       ),
       child: Row(
@@ -113,7 +115,7 @@ class OfferStatusBadge extends StatelessWidget {
             width: 6,
             height: 6,
             decoration: BoxDecoration(
-              color: foreground,
+              color: StudioColors.background(context, foreground),
               shape: BoxShape.circle,
             ),
           ),
@@ -121,7 +123,7 @@ class OfferStatusBadge extends StatelessWidget {
           Text(
             status.label,
             style: TextStyle(
-              color: foreground,
+              color: StudioColors.text(context, foreground),
               fontSize: 12,
               height: 1,
               fontWeight: FontWeight.w800,
@@ -155,7 +157,10 @@ class _OfferMetaChipState extends State<OfferMetaChip> {
       curve: Curves.easeOutCubic,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: _hovered ? const Color(0xFFE4F2FC) : const Color(0xFFEDF6FC),
+        color: StudioColors.background(
+          context,
+          _hovered ? const Color(0xFFE4F2FC) : const Color(0xFFEDF6FC),
+        ),
         borderRadius: BorderRadius.circular(999),
         border: Border.all(
           color: _hovered ? const Color(0xFFB9DDFB) : const Color(0xFFD7E9F6),
@@ -170,13 +175,17 @@ class _OfferMetaChipState extends State<OfferMetaChip> {
             curve: Curves.easeOutBack,
             builder: (context, scale, child) =>
                 Transform.scale(scale: scale, child: child),
-            child: Icon(widget.icon, size: 17, color: const Color(0xFF1488F5)),
+            child: Icon(
+              widget.icon,
+              size: 17,
+              color: StudioColors.text(context, const Color(0xFF1488F5)),
+            ),
           ),
           const SizedBox(width: 7),
           Text(
             widget.label,
-            style: const TextStyle(
-              color: Color(0xFF1674CF),
+            style: TextStyle(
+              color: StudioColors.text(context, Color(0xFF1674CF)),
               fontSize: 12.5,
               height: 1,
               fontWeight: FontWeight.w800,
@@ -196,13 +205,13 @@ class OfferSkillTag extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
     decoration: BoxDecoration(
-      color: const Color(0xFFEDF5FB),
+      color: StudioColors.background(context, const Color(0xFFEDF5FB)),
       borderRadius: BorderRadius.circular(8),
     ),
     child: Text(
       label,
-      style: const TextStyle(
-        color: Color(0xFF1769C2),
+      style: TextStyle(
+        color: StudioColors.text(context, Color(0xFF1769C2)),
         fontSize: 11.5,
         height: 1,
         fontWeight: FontWeight.w800,
@@ -230,7 +239,7 @@ class OfferCardSurface extends StatelessWidget {
     duration: const Duration(milliseconds: 180),
     curve: Curves.easeOutCubic,
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: StudioColors.background(context, Colors.white),
       borderRadius: BorderRadius.circular(14),
       border: Border.all(
         color: hovered ? const Color(0xFFD5E4EF) : const Color(0xFFE6EDF2),
@@ -247,59 +256,68 @@ class OfferCardSurface extends StatelessWidget {
     child: Stack(
       children: [
         // Couche 1 : blanc -> gris froid -> bleu très clair.
-        const Positioned.fill(
+        Positioned.fill(
           child: IgnorePointer(
             child: DecoratedBox(
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [
-                    Color(0xFFFFFFFF),
-                    Color(0xFFFCFDFE),
-                    Color(0xFFF4F7FA),
-                    Color(0xFFEEF6FC),
-                    Color(0xFFEAF5FF),
-                  ],
-                  stops: [0, .28, .56, .78, 1],
+                gradient: StudioColors.gradient(
+                  context,
+                  LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [
+                      Color(0xFFFFFFFF),
+                      Color(0xFFFCFDFE),
+                      Color(0xFFF4F7FA),
+                      Color(0xFFEEF6FC),
+                      Color(0xFFEAF5FF),
+                    ],
+                    stops: [0, .28, .56, .78, 1],
+                  ),
                 ),
               ),
             ),
           ),
         ),
         // Couche 2 : halo bleu supérieur droit.
-        const Positioned.fill(
+        Positioned.fill(
           child: IgnorePointer(
             child: DecoratedBox(
               decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  center: Alignment(1.05, -1.0),
-                  radius: 1.18,
-                  colors: [
-                    Color(0x55D7ECFF),
-                    Color(0x22EAF5FF),
-                    Color(0x00FFFFFF),
-                  ],
-                  stops: [0, .48, 1],
+                gradient: StudioColors.gradient(
+                  context,
+                  RadialGradient(
+                    center: Alignment(1.05, -1.0),
+                    radius: 1.18,
+                    colors: [
+                      Color(0x55D7ECFF),
+                      Color(0x22EAF5FF),
+                      Color(0x00FFFFFF),
+                    ],
+                    stops: [0, .48, 1],
+                  ),
                 ),
               ),
             ),
           ),
         ),
         // Couche 3 : halo gris-bleu inférieur droit pour donner de la profondeur.
-        const Positioned.fill(
+        Positioned.fill(
           child: IgnorePointer(
             child: DecoratedBox(
               decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  center: Alignment(1.1, 1.25),
-                  radius: 1.0,
-                  colors: [
-                    Color(0x3ADBE3EA),
-                    Color(0x20EEF3F7),
-                    Color(0x00FFFFFF),
-                  ],
-                  stops: [0, .52, 1],
+                gradient: StudioColors.gradient(
+                  context,
+                  RadialGradient(
+                    center: Alignment(1.1, 1.25),
+                    radius: 1.0,
+                    colors: [
+                      Color(0x3ADBE3EA),
+                      Color(0x20EEF3F7),
+                      Color(0x00FFFFFF),
+                    ],
+                    stops: [0, .52, 1],
+                  ),
                 ),
               ),
             ),
@@ -317,8 +335,14 @@ class OfferCardSurface extends StatelessWidget {
             child: DecoratedBox(
               decoration: BoxDecoration(
                 border: Border(
-                  top: BorderSide(color: Color(0xFFF0F4F7), width: .8),
-                  bottom: BorderSide(color: Color(0xFFE4EBF1), width: .8),
+                  top: BorderSide(
+                    color: StudioColors.border(context, Color(0xFFF0F4F7)),
+                    width: .8,
+                  ),
+                  bottom: BorderSide(
+                    color: StudioColors.border(context, Color(0xFFE4EBF1)),
+                    width: .8,
+                  ),
                 ),
               ),
             ),
@@ -591,14 +615,17 @@ class OfferCandidateAvatars extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEAF2F8),
+                  color: StudioColors.background(
+                    context,
+                    const Color(0xFFEAF2F8),
+                  ),
                   borderRadius: BorderRadius.circular(size / 2),
                   border: Border.all(color: Colors.white, width: 1.5),
                 ),
                 child: Text(
                   '+$extra',
-                  style: const TextStyle(
-                    color: AppColors.slateDark,
+                  style: TextStyle(
+                    color: StudioColors.text(context, AppColors.slateDark),
                     fontSize: 10.5,
                     fontWeight: FontWeight.w800,
                   ),
@@ -791,16 +818,19 @@ class OfferPreviewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white,
-            Color.alphaBlend(
-              companyColor(company.id).withValues(alpha: .035),
+        gradient: StudioColors.gradient(
+          context,
+          LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
               Colors.white,
-            ),
-          ],
+              Color.alphaBlend(
+                companyColor(company.id).withValues(alpha: .035),
+                Colors.white,
+              ),
+            ],
+          ),
         ),
         borderRadius: BorderRadius.circular(compact ? 22 : 28),
         border: Border.all(color: AppColors.lineSoft),
@@ -827,7 +857,7 @@ class OfferPreviewCard extends StatelessWidget {
                           Text(
                             offer.title,
                             style: TextStyle(
-                              color: AppColors.navy,
+                              color: StudioColors.text(context, AppColors.navy),
                               fontFamily: AppFonts.display,
                               fontSize: compact ? 18 : 22,
                               height: 1.08,
@@ -837,8 +867,11 @@ class OfferPreviewCard extends StatelessWidget {
                           const SizedBox(height: 5),
                           Text(
                             '${company.name} · ${company.activity}',
-                            style: const TextStyle(
-                              color: AppColors.slate,
+                            style: TextStyle(
+                              color: StudioColors.text(
+                                context,
+                                AppColors.slate,
+                              ),
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),
@@ -905,7 +938,7 @@ class OfferPreviewCard extends StatelessWidget {
                 OfferRichText(
                   value: offer.description,
                   baseStyle: TextStyle(
-                    color: AppColors.slate,
+                    color: StudioColors.text(context, AppColors.slate),
                     fontSize: compact ? 11 : 12,
                     height: 1.5,
                   ),
@@ -954,13 +987,17 @@ class _InfoLine extends StatelessWidget {
     padding: const EdgeInsets.only(bottom: 7),
     child: Row(
       children: [
-        Icon(icon, size: 17, color: AppColors.slate),
+        Icon(
+          icon,
+          size: 17,
+          color: StudioColors.text(context, AppColors.slate),
+        ),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
             label,
-            style: const TextStyle(
-              color: AppColors.slate,
+            style: TextStyle(
+              color: StudioColors.text(context, AppColors.slate),
               fontSize: 12,
               fontWeight: FontWeight.w600,
             ),
@@ -1067,7 +1104,10 @@ class _OfferOptionsButtonState extends State<OfferOptionsButton> {
           height: widget.compact ? 36 : 42,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: _hovered ? foreground : background,
+            color: StudioColors.background(
+              context,
+              _hovered ? foreground : background,
+            ),
             borderRadius: BorderRadius.circular(widget.compact ? 12 : 14),
             border: Border.all(color: _hovered ? foreground : border),
             boxShadow: _hovered
@@ -1091,7 +1131,10 @@ class _OfferOptionsButtonState extends State<OfferOptionsButton> {
             child: Icon(
               Icons.settings_outlined,
               size: widget.compact ? 19 : 21,
-              color: _hovered ? background : foreground,
+              color: StudioColors.text(
+                context,
+                _hovered ? background : foreground,
+              ),
             ),
           ),
         ),
@@ -1126,12 +1169,19 @@ class _OfferMenuEntry extends StatelessWidget {
             height: 34,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: destructive
-                  ? AppColors.error.withValues(alpha: .08)
-                  : const Color(0xFFEAF4FC),
+              color: StudioColors.background(
+                context,
+                destructive
+                    ? AppColors.error.withValues(alpha: .08)
+                    : const Color(0xFFEAF4FC),
+              ),
               borderRadius: BorderRadius.circular(11),
             ),
-            child: Icon(icon, size: 18, color: color),
+            child: Icon(
+              icon,
+              size: 18,
+              color: StudioColors.text(context, color),
+            ),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -1141,7 +1191,7 @@ class _OfferMenuEntry extends StatelessWidget {
                 Text(
                   title,
                   style: TextStyle(
-                    color: color,
+                    color: StudioColors.text(context, color),
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
                   ),
@@ -1149,8 +1199,8 @@ class _OfferMenuEntry extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: const TextStyle(
-                    color: AppColors.slate,
+                  style: TextStyle(
+                    color: StudioColors.text(context, AppColors.slate),
                     fontSize: 9.5,
                     height: 1.25,
                   ),
@@ -1231,8 +1281,8 @@ class OfferRichText extends StatelessWidget {
                   width: 5,
                   height: 5,
                   margin: const EdgeInsets.only(top: 7, right: 9),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF1976D2),
+                  decoration: BoxDecoration(
+                    color: StudioColors.background(context, Color(0xFF1976D2)),
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -1284,10 +1334,13 @@ class OfferRichText extends StatelessWidget {
             width: double.infinity,
             margin: const EdgeInsets.symmetric(vertical: 4),
             padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-            decoration: const BoxDecoration(
-              color: Color(0xFFF4F1FF),
+            decoration: BoxDecoration(
+              color: StudioColors.background(context, Color(0xFFF4F1FF)),
               border: Border(
-                left: BorderSide(color: Color(0xFF6956E8), width: 3),
+                left: BorderSide(
+                  color: StudioColors.border(context, Color(0xFF6956E8)),
+                  width: 3,
+                ),
               ),
             ),
             child: _InlineMarkup(
@@ -1356,8 +1409,8 @@ class _InlineMarkup extends StatelessWidget {
         spans.add(
           TextSpan(
             text: token.substring(1, labelEnd),
-            style: const TextStyle(
-              color: Color(0xFF1976D2),
+            style: TextStyle(
+              color: StudioColors.text(context, Color(0xFF1976D2)),
               decoration: TextDecoration.underline,
               fontWeight: FontWeight.w700,
             ),

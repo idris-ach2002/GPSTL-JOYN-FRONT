@@ -1,3 +1,5 @@
+import '../../../recruiter_studio/presentation/studio_components.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../domain/recruiter_dashboard_models.dart';
@@ -142,6 +144,7 @@ class _AdvancedVisualizationPanelState
       _label('Type de schéma'),
       const SizedBox(height: 6),
       DropdownButtonFormField<AnalyticsVisualType>(
+        isExpanded: true,
         initialValue: settings.visualType,
         decoration: _inputDecoration(),
         items: const [
@@ -301,6 +304,7 @@ class _AdvancedVisualizationPanelState
       _label('Palette'),
       const SizedBox(height: 6),
       DropdownButtonFormField<VisualizationPalette>(
+        isExpanded: true,
         initialValue: settings.palette,
         decoration: _inputDecoration(),
         items: const [
@@ -332,6 +336,7 @@ class _AdvancedVisualizationPanelState
       _label('Police'),
       const SizedBox(height: 6),
       DropdownButtonFormField<VisualizationFont>(
+        isExpanded: true,
         initialValue: settings.font,
         decoration: _inputDecoration(),
         items: const [
@@ -568,8 +573,8 @@ class _PageNavigator extends StatelessWidget {
         child: Text(
           '${page + 1} / $pageCount',
           textAlign: TextAlign.center,
-          style: const TextStyle(
-            color: dashboardMuted,
+          style: TextStyle(
+            color: StudioColors.text(context, dashboardMuted),
             fontSize: 10,
             fontWeight: FontWeight.w800,
           ),
@@ -594,18 +599,25 @@ class _SafetyRow extends StatelessWidget {
     padding: const EdgeInsets.only(bottom: 8),
     child: Row(
       children: [
-        const Icon(Icons.shield_outlined, size: 15, color: dashboardBlue),
+        Icon(
+          Icons.shield_outlined,
+          size: 15,
+          color: StudioColors.text(context, dashboardBlue),
+        ),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
             label,
-            style: const TextStyle(color: dashboardNavy, fontSize: 10.5),
+            style: TextStyle(
+              color: StudioColors.text(context, dashboardNavy),
+              fontSize: 10.5,
+            ),
           ),
         ),
         Text(
           value,
-          style: const TextStyle(
-            color: dashboardMuted,
+          style: TextStyle(
+            color: StudioColors.text(context, dashboardMuted),
             fontSize: 9.5,
             fontWeight: FontWeight.w800,
           ),
@@ -640,7 +652,10 @@ class _SeriesToggle extends StatelessWidget {
       Expanded(
         child: Text(
           kind.label,
-          style: const TextStyle(color: dashboardNavy, fontSize: 11),
+          style: TextStyle(
+            color: StudioColors.text(context, dashboardNavy),
+            fontSize: 11,
+          ),
         ),
       ),
       Tooltip(
@@ -652,7 +667,7 @@ class _SeriesToggle extends StatelessWidget {
             width: 22,
             height: 22,
             decoration: BoxDecoration(
-              color: color,
+              color: StudioColors.background(context, color),
               shape: BoxShape.circle,
               border: Border.all(color: dashboardBorder),
             ),
@@ -700,8 +715,8 @@ class _BoundedSlider extends StatelessWidget {
               Expanded(
                 child: Text(
                   label,
-                  style: const TextStyle(
-                    color: dashboardNavy,
+                  style: TextStyle(
+                    color: StudioColors.text(context, dashboardNavy),
                     fontSize: 10.5,
                     fontWeight: FontWeight.w700,
                   ),
@@ -709,8 +724,8 @@ class _BoundedSlider extends StatelessWidget {
               ),
               Text(
                 display,
-                style: const TextStyle(
-                  color: dashboardMuted,
+                style: TextStyle(
+                  color: StudioColors.text(context, dashboardMuted),
                   fontSize: 9.5,
                   fontWeight: FontWeight.w800,
                 ),

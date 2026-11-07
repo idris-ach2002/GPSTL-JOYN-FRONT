@@ -36,6 +36,10 @@ abstract final class AppRoutes {
   static const String recruiterCandidates = '/recruiter/candidates';
   static const String recruiterCompany = '/recruiter/company';
 
+  static const String recruiterProfile = '/recruiter/profile';
+  static const String recruiterNotifications = '/recruiter/notifications';
+  static const String recruiterMessages = '/recruiter/messages';
+  static const String recruiterSettings = '/recruiter/settings';
   static const String messages = '/messages';
 
   static const Set<String> authEntryRoutes = {login, connexion};

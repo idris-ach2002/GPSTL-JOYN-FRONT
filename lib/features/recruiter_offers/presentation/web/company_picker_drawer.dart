@@ -1,3 +1,5 @@
+import '../../../recruiter_studio/presentation/studio_components.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../../../design_system/components/joyn_button.dart';
@@ -23,7 +25,7 @@ Future<void> showCompanyPickerDrawer(
     pageBuilder: (context, animation, secondaryAnimation) => Align(
       alignment: Alignment.centerRight,
       child: Material(
-        color: Colors.transparent,
+        color: StudioColors.background(context, Colors.transparent),
         child: FractionallySizedBox(
           widthFactor: MediaQuery.sizeOf(context).width >= 1200 ? .36 : .48,
           heightFactor: 1,
@@ -85,7 +87,7 @@ class _CompanyPickerDrawerState extends State<_CompanyPickerDrawer> {
     return AnimatedBuilder(
       animation: widget.controller,
       builder: (context, _) => Container(
-        color: AppColors.background,
+        color: StudioColors.background(context, AppColors.background),
         child: SafeArea(
           left: false,
           child: Column(
@@ -119,7 +121,7 @@ class _CompanyPickerDrawerState extends State<_CompanyPickerDrawer> {
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -127,7 +129,7 @@ class _CompanyPickerDrawerState extends State<_CompanyPickerDrawer> {
                 'Ajouter une entreprise',
                 style: TextStyle(
                   fontFamily: AppFonts.display,
-                  color: AppColors.navy,
+                  color: StudioColors.text(context, AppColors.navy),
                   fontSize: 25,
                   fontWeight: FontWeight.w800,
                 ),
@@ -136,7 +138,7 @@ class _CompanyPickerDrawerState extends State<_CompanyPickerDrawer> {
               Text(
                 'Recherchez une entreprise existante par son SIRET ou créez-la manuellement si elle n’existe pas encore.',
                 style: TextStyle(
-                  color: AppColors.slate,
+                  color: StudioColors.text(context, AppColors.slate),
                   fontSize: 12,
                   height: 1.4,
                 ),
@@ -507,6 +509,7 @@ class _CompanyPickerDrawerState extends State<_CompanyPickerDrawer> {
       ),
       const SizedBox(height: 7),
       DropdownButtonFormField<String>(
+        isExpanded: true,
         initialValue: value,
         items: values
             .map((item) => DropdownMenuItem(value: item, child: Text(item)))
@@ -536,9 +539,13 @@ class _CompanyPickerDrawerState extends State<_CompanyPickerDrawer> {
 
   Widget _footer(BuildContext context) => Container(
     padding: const EdgeInsets.fromLTRB(24, 14, 24, 18),
-    decoration: const BoxDecoration(
-      color: Colors.white,
-      border: Border(top: BorderSide(color: AppColors.lineSoft)),
+    decoration: BoxDecoration(
+      color: StudioColors.background(context, Colors.white),
+      border: Border(
+        top: BorderSide(
+          color: StudioColors.border(context, AppColors.lineSoft),
+        ),
+      ),
     ),
     child: Row(
       children: [

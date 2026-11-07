@@ -1,3 +1,8 @@
+import '../../../recruiter_studio/presentation/studio_dashboard.dart';
+import '../../../recruiter_studio/presentation/studio_planner.dart';
+import '../../../recruiter_studio/presentation/studio_components.dart';
+import '../../../recruiter_workspace/presentation/recruiter_greeting.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -30,7 +35,10 @@ class _WebRecruiterDashboardScreenState
   Widget build(BuildContext context) {
     final controller = context.watch<RecruiterDashboardController>();
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7F9),
+      backgroundColor: StudioColors.background(
+        context,
+        const Color(0xFFF4F7F9),
+      ),
       body: RefreshIndicator(
         onRefresh: controller.loadDashboard,
         child: CustomScrollView(
@@ -80,7 +88,9 @@ class _DashboardHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) => SizedBox(
     width: double.infinity,
-    height: 286,
+    height:
+        (MediaQuery.sizeOf(context).width < 1000 ? 340.0 : 286.0) +
+        (MediaQuery.textScalerOf(context).scale(1) - 1) * 180,
     child: ClipRect(
       child: Stack(
         fit: StackFit.expand,
@@ -103,14 +113,16 @@ class _DashboardHero extends StatelessWidget {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          const Expanded(
+                          Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  'Bonjour Camille 👋',
+                                RecruiterGreeting(
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: StudioColors.text(
+                                      context,
+                                      Colors.white,
+                                    ),
                                     fontSize: 37,
                                     fontWeight: FontWeight.w900,
                                     letterSpacing: -1.1,
@@ -120,7 +132,10 @@ class _DashboardHero extends StatelessWidget {
                                 Text(
                                   'Voici la performance de vos recrutements et les actions qui méritent votre attention.',
                                   style: TextStyle(
-                                    color: Color(0xFFE5EEF6),
+                                    color: StudioColors.text(
+                                      context,
+                                      Color(0xFFE5EEF6),
+                                    ),
                                     fontSize: 14,
                                     height: 1.35,
                                   ),
@@ -175,15 +190,17 @@ class _DashboardBody extends StatelessWidget {
       return DashboardCard(
         child: Column(
           children: [
-            const Icon(
+            Icon(
               Icons.cloud_off_rounded,
               size: 34,
-              color: dashboardMuted,
+              color: StudioColors.text(context, dashboardMuted),
             ),
             const SizedBox(height: 10),
             Text(
               controller.errorMessage!,
-              style: const TextStyle(color: dashboardNavy),
+              style: TextStyle(
+                color: StudioColors.text(context, dashboardNavy),
+              ),
             ),
             const SizedBox(height: 12),
             FilledButton(
@@ -247,84 +264,96 @@ class _DashboardBody extends StatelessWidget {
 
     return Column(
       children: [
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final count = dashboard.kpis.length;
-            final columns = constraints.maxWidth < 850 ? 2 : math.max(1, count);
-            final width = (constraints.maxWidth - (columns - 1) * 12) / columns;
-            return Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: [
-                for (final kpi in dashboard.kpis)
-                  SizedBox(
-                    width: width,
-                    child: DashboardKpiCard(kpi: kpi),
-                  ),
-              ],
-            );
-          },
-        ),
-        const SizedBox(height: 16),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            if (constraints.maxWidth >= 860) {
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        const StudioDashboardToolbar(),
+        if (studioPanelVisible(context, 'actions')) const StudioOverview(),
+        if (studioPanelVisible(context, 'kpis'))
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final count = dashboard.kpis.length;
+              final columns = constraints.maxWidth < 850
+                  ? 2
+                  : math.max(1, count);
+              final width =
+                  (constraints.maxWidth - (columns - 1) * 12) / columns;
+              return Wrap(
+                spacing: 12,
+                runSpacing: 12,
                 children: [
-                  Expanded(child: chartCard),
-                  const SizedBox(width: 14),
-                  SizedBox(width: 340, child: settingsCard),
+                  for (final kpi in dashboard.kpis)
+                    SizedBox(
+                      width: width,
+                      child: DashboardKpiCard(kpi: kpi),
+                    ),
                 ],
               );
-            }
+            },
+          ),
+        const SizedBox(height: 16),
+        if (studioPanelVisible(context, 'charts'))
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth >= 860) {
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: chartCard),
+                    const SizedBox(width: 14),
+                    SizedBox(width: 340, child: settingsCard),
+                  ],
+                );
+              }
 
-            return Column(
-              children: [chartCard, const SizedBox(height: 14), settingsCard],
-            );
-          },
-        ),
-        if (heatmapCard != null) ...[const SizedBox(height: 16), heatmapCard],
-        const SizedBox(height: 16),
-        DashboardCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const DashboardSectionTitle(
-                title: 'Activité récente',
-                subtitle: 'Les événements importants à consulter ou à traiter maintenant.',
-              ),
-              const SizedBox(height: 12),
-              PaginatedActivityFeed(
-                activities: dashboard.activities,
-                pageSize: 5,
-                onAction: (item) => _openActivity(context, item),
-              ),
-            ],
+              return Column(
+                children: [chartCard, const SizedBox(height: 14), settingsCard],
+              );
+            },
           ),
-        ),
+        if (heatmapCard != null && studioPanelVisible(context, 'charts')) ...[
+          const SizedBox(height: 16),
+          heatmapCard,
+        ],
         const SizedBox(height: 16),
-        DashboardCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              DashboardSectionTitle(
-                title: 'Top des offres',
-                trailing: TextButton(
-                  onPressed: () => context.go(AppRoutes.recruiterJobs),
-                  child: const Text('Voir toutes les offres →'),
+        if (studioPanelVisible(context, 'activity'))
+          DashboardCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const DashboardSectionTitle(
+                  title: 'Activité récente',
+                  subtitle: 'Les événements importants à consulter ou à traiter maintenant.',
                 ),
-              ),
-              const SizedBox(height: 12),
-              PaginatedOfferCards(
-                offers: dashboard.topOffers,
-                pageSize: 5,
-                onOpen: (id) =>
-                    context.go(AppRoutes.recruiterDashboardOffer(id)),
-              ),
-            ],
+                const SizedBox(height: 12),
+                PaginatedActivityFeed(
+                  activities: dashboard.activities,
+                  pageSize: 5,
+                  onAction: (item) => _openActivity(context, item),
+                ),
+              ],
+            ),
           ),
-        ),
+        const SizedBox(height: 16),
+        if (studioPanelVisible(context, 'offers'))
+          DashboardCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DashboardSectionTitle(
+                  title: 'Top des offres',
+                  trailing: TextButton(
+                    onPressed: () => context.go(AppRoutes.recruiterJobs),
+                    child: const Text('Voir toutes les offres →'),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                PaginatedOfferCards(
+                  offers: dashboard.topOffers,
+                  pageSize: 5,
+                  onOpen: (id) =>
+                      context.go(AppRoutes.recruiterDashboardOffer(id)),
+                ),
+              ],
+            ),
+          ),
         const SizedBox(height: 28),
       ],
     );
@@ -386,7 +415,10 @@ class _SeriesLegend extends StatelessWidget {
                 width: 9,
                 height: 9,
                 decoration: BoxDecoration(
-                  color: settings.colorFor(kind),
+                  color: StudioColors.background(
+                    context,
+                    settings.colorFor(kind),
+                  ),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -394,7 +426,7 @@ class _SeriesLegend extends StatelessWidget {
               Text(
                 kind.label,
                 style: TextStyle(
-                  color: dashboardMuted,
+                  color: StudioColors.text(context, dashboardMuted),
                   fontFamily: settings.fontFamily,
                   fontSize: 10.5,
                   fontWeight: FontWeight.w700,
