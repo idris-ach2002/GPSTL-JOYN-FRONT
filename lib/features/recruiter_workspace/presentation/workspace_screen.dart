@@ -41,7 +41,9 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
 
   void _load() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) context.read<WorkspaceController>().load(widget.section);
+      if (!mounted) return;
+      final c = context.read<WorkspaceController>();
+      if (c.repository.isMock || widget.section == 'profile') c.load(widget.section);
     });
   }
 
@@ -61,6 +63,11 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
       'messages' => 'Messagerie',
       _ => 'Paramètres',
     };
+    if (!controller.repository.isMock && widget.section != 'profile') {
+      return Scaffold(appBar: AppBar(title: Text(title), leading: BackButton(
+        onPressed: () => context.go(AppRoutes.recruiterDashboard))),
+        body: const Center(child: Text('Cette rubrique attend son raccordement au serveur.')));
+    }
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: compact

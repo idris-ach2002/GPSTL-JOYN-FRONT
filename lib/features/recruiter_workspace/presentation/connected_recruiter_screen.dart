@@ -23,7 +23,7 @@ class _ConnectedRecruiterScreenState extends State<ConnectedRecruiterScreen> {
   String status = 'IN_REVIEW';
   bool busy = false;
   String message = '';
-  final statuses = const {'VIEWED':'Vue','IN_REVIEW':'En étude','INTERVIEW':'Entretien','ACCEPTED':'Acceptée','REJECTED':'Refusée'};
+  static const statuses = {'VIEWED':'Vue','IN_REVIEW':'En étude','INTERVIEW':'Entretien','ACCEPTED':'Acceptée','REJECTED':'Refusée'};
 
   Future<void> submit() async {
     if (!form.currentState!.validate()) return;
@@ -41,7 +41,7 @@ class _ConnectedRecruiterScreenState extends State<ConnectedRecruiterScreen> {
       } else if (action == 'Entreprise') {
         final data = await widget.api.getJson('/api/v1/companies/$id') as Map;
         message = [data['name'], data['description'], data['website'],
-          for (final job in data['jobs'] as List? ?? []) '${job['title']} · ${job['location'] ?? ''}'].whereType<String>().join('\n');
+          for (final job in data['jobs'] as List? ?? const []) '${job['title']} · ${job['location'] ?? ''}'].whereType<String>().join('\n');
       } else if (action == 'Présentation entreprise') {
         await widget.api.patchJson('/api/v1/companies/$id',body:{'description':fields['description']});
         message = 'Présentation enregistrée.';
