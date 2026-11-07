@@ -204,6 +204,7 @@ class _MobileBody extends StatelessWidget {
     return Column(
       children: [
         const StudioDashboardToolbar(),
+        const RecruiterDashboardDetails(),
         if (studioPanelVisible(context, 'actions')) const StudioOverview(),
         if (studioPanelVisible(context, 'kpis'))
           LayoutBuilder(

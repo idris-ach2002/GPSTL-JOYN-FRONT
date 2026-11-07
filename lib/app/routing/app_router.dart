@@ -206,8 +206,6 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
         name: 'dashboard',
         builder: (context, state) {
           if (auth.user?.role == UserRole.company) {
-            final repo = context.read<RegistrationRepository?>();
-            if (repo is ApiRegistrationRepository) return ConnectedRecruiterScreen(repo.api);
             return ChangeNotifierProvider(
               create: (context) => RecruiterDashboardController(
                 context.read<RecruiterDashboardRepository>(),
@@ -232,8 +230,6 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
         path: AppRoutes.recruiterDashboard,
         name: 'recruiterDashboard',
         builder: (context, state) {
-          final repo = context.read<RegistrationRepository?>();
-          if (repo is ApiRegistrationRepository) return ConnectedRecruiterScreen(repo.api);
           return ChangeNotifierProvider(
           create: (context) => RecruiterDashboardController(
             context.read<RecruiterDashboardRepository>(),
@@ -267,8 +263,19 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
       ),
 
       GoRoute(
+        path: '/recruiter/postulants',
+        builder: (context, state) {
+          final repo = context.read<RegistrationRepository>();
+          return repo is ApiRegistrationRepository
+              ? ConnectedRecruiterScreen(repo.api)
+              : const WebRecruiterCandidatesScreen();
+        },
+      ),
+      GoRoute(
         path: AppRoutes.recruiterCandidates,
         name: 'recruiterCandidates',
+        redirect: (context, state) => context.read<RegistrationRepository?>() is ApiRegistrationRepository
+            ? '/recruiter/postulants' : null,
         builder: (context, state) => ChangeNotifierProvider(
           create: (context) => RecruiterCandidateController(
             context.read<RecruiterCandidateRepository>(),
