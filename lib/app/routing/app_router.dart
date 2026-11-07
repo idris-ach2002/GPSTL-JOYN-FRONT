@@ -171,7 +171,7 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
         path: AppRoutes.recruiterRegister,
         name: 'recruiterRegister',
         builder: (context, state) {
-          final repo = context.read<RegistrationRepository>();
+          final repo = context.read<RegistrationRepository?>();
           if (repo is ApiRegistrationRepository) return ConnectedRecruiterScreen(repo.api, registration: true);
           return adaptiveAuth(
           context,
@@ -206,6 +206,8 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
         name: 'dashboard',
         builder: (context, state) {
           if (auth.user?.role == UserRole.company) {
+            final repo = context.read<RegistrationRepository?>();
+            if (repo is ApiRegistrationRepository) return ConnectedRecruiterScreen(repo.api);
             return ChangeNotifierProvider(
               create: (context) => RecruiterDashboardController(
                 context.read<RecruiterDashboardRepository>(),
@@ -230,7 +232,7 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
         path: AppRoutes.recruiterDashboard,
         name: 'recruiterDashboard',
         builder: (context, state) {
-          final repo = context.read<RegistrationRepository>();
+          final repo = context.read<RegistrationRepository?>();
           if (repo is ApiRegistrationRepository) return ConnectedRecruiterScreen(repo.api);
           return ChangeNotifierProvider(
           create: (context) => RecruiterDashboardController(

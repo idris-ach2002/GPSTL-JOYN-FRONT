@@ -91,11 +91,11 @@ void main() {
       httpClient: MockClient((q) async {
         if (q.url.path.endsWith('/login')) {
           return http.Response(
-            '{"accessToken":"session","user":{"id":"42","email":"test@joyn.fr","role":"COMPANY"}}',
+            jsonEncode({'access_token': 'x.${base64Url.encode(utf8.encode('{"sub":"42"}'))}.y', 'role': 'RECRUITER', 'expires_in': 3600, 'token_type': 'Bearer'}),
             200,
           );
         }
-        expect(q.headers['Authorization'], 'Bearer session');
+        expect(q.headers['Authorization'], 'Bearer ${auth.accessToken}');
         return http.Response('', 204);
       }),
     );

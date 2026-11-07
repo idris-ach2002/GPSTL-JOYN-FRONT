@@ -24,7 +24,11 @@ class _ApplicationPanelState extends State<ApplicationPanel> {
   @override
   void initState() {
     super.initState();
-    _load();
+    if (widget.repository.isMock) {
+      _load();
+    } else {
+      _busy = false;
+    }
   }
 
   Future<void> _load() async {
@@ -81,6 +85,9 @@ class _ApplicationPanelState extends State<ApplicationPanel> {
             icon: const Icon(Icons.close),
           ),
         ),
+        if (!widget.repository.isMock)
+          const Padding(padding: EdgeInsets.all(16), child: Text(
+            'La liste des candidatures par offre n’est pas disponible. Le statut d’une candidature connue peut être modifié depuis l’accueil recruteur.')),
         if (_busy) const LinearProgressIndicator(),
         if (_error != null)
           Padding(
