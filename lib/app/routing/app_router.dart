@@ -6,6 +6,10 @@ import 'package:provider/provider.dart';
 import '../../design_system/mobile/mobile_entry_transition.dart';
 import '../../features/admin_companies/data/admin_company_repository.dart';
 import '../../features/admin_users/data/admin_user_repository.dart';
+import '../../features/admin_verifications/data/verification_repository.dart';
+import '../../features/admin_verifications/presentation/controllers/admin_verifications_controller.dart';
+import '../../features/admin_verifications/presentation/mobile/mobile_admin_verifications_screen.dart';
+import '../../features/admin_verifications/presentation/web/admin_verifications_screen.dart';
 import '../../features/admin_users/domain/user_query.dart';
 import '../../features/admin_users/presentation/controllers/admin_users_controller.dart';
 import '../../features/admin_users/presentation/mobile/mobile_admin_users_screen.dart';
@@ -286,6 +290,18 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
                 : AdminUsersScreen(urlQuery: urlQuery),
           );
         },
+      ),
+      GoRoute(
+        path: AppRoutes.adminVerifications,
+        name: 'adminVerifications',
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) => AdminVerificationsController(
+            context.read<VerificationRepository>(),
+          )..load(),
+          child: useMobile(context)
+              ? const MobileAdminVerificationsScreen()
+              : const AdminVerificationsScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.forbidden,

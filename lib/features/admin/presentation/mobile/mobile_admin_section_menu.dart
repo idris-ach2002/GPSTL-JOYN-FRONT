@@ -15,22 +15,19 @@ class MobileAdminSectionMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sections = AdminSection.values.where((s) => s.route != null);
-
     return PopupMenuButton<Object>(
       key: const ValueKey('mobile-admin-menu'),
       tooltip: 'Menu administration',
       icon: const Icon(Icons.menu_rounded),
       onSelected: (value) {
         if (value case final AdminSection section) {
-          final route = section.route;
-          if (route != null && section != current) context.go(route);
+          if (section != current) context.go(section.route);
         } else {
           context.read<AuthController>().signOut();
         }
       },
       itemBuilder: (context) => [
-        for (final section in sections)
+        for (final section in AdminSection.values)
           PopupMenuItem<Object>(
             value: section,
             child: ListTile(

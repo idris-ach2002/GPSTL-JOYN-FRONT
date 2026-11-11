@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import 'package:joyn_front/core/feedback/coming_soon.dart';
 import 'package:joyn_front/design_system/components/joyn_logo.dart';
 import 'package:joyn_front/design_system/tokens/app_colors.dart';
 import 'package:joyn_front/features/admin/presentation/shared/admin_section.dart';
@@ -155,14 +154,7 @@ class _NavItem extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final color = selected ? AppColors.white : _muted;
 
-    void open() {
-      final route = section.route;
-      if (route == null) {
-        showComingSoon(context, section.label);
-      } else {
-        context.go(route);
-      }
-    }
+    void open() => context.go(section.route);
 
     return Semantics(
       selected: selected,
