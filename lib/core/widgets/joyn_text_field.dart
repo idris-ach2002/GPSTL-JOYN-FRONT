@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/app_dimens.dart';
 import '../theme/app_theme.dart';
+import '../utils/obscure_toggle.dart';
 
 /// Champ de saisie Joyn : libellé au-dessus, champ arrondi, erreur en dessous.
 ///
@@ -109,7 +110,9 @@ class _JoynTextFieldState extends State<JoynTextField> {
                             ? Icons.visibility_outlined
                             : Icons.visibility_off_outlined,
                       ),
-                      onPressed: () => setState(() => _obscured = !_obscured),
+                      onPressed: () => toggleObscureText(
+                        () => setState(() => _obscured = !_obscured),
+                      ),
                     )
                   : null,
             ),

@@ -15,6 +15,10 @@ import 'package:provider/provider.dart';
 
 import '../features/auth/data/fake_auth_repository.dart';
 import '../features/auth/presentation/auth_controller.dart';
+import '../features/candidate_applications/data/candidate_applications_repository.dart';
+import '../features/candidate_applications/data/mock_candidate_applications_repository.dart';
+import '../features/candidate_discover/data/mock_recommended_offers_repository.dart';
+import '../features/candidate_discover/data/recommended_offers_repository.dart';
 import '../features/dashboard/data/dashboard_repository.dart';
 import '../features/dashboard/data/fake_dashboard_repository.dart';
 import '../features/profile/data/fake_profile_repository.dart';
@@ -50,6 +54,8 @@ class JoynApp extends StatefulWidget {
     this.recruiterDashboardRepository,
     this.recruiterOffersRepository,
     this.recruiterCandidateRepository,
+    this.recommendedOffersRepository,
+    this.candidateApplicationsRepository,
   });
 
   final RecruiterWorkspaceRepository? workspaceRepository;
@@ -63,6 +69,8 @@ class JoynApp extends StatefulWidget {
   final RecruiterDashboardRepository? recruiterDashboardRepository;
   final RecruiterOffersRepository? recruiterOffersRepository;
   final RecruiterCandidateRepository? recruiterCandidateRepository;
+  final RecommendedOffersRepository? recommendedOffersRepository;
+  final CandidateApplicationsRepository? candidateApplicationsRepository;
 
   @override
   State<JoynApp> createState() => _JoynAppState();
@@ -76,6 +84,8 @@ class _JoynAppState extends State<JoynApp> {
   late final RecruiterDashboardRepository _recruiterDashboardRepository;
   late final RecruiterOffersRepository _recruiterOffersRepository;
   late final RecruiterCandidateRepository _recruiterCandidateRepository;
+  late final RecommendedOffersRepository _recommendedOffersRepository;
+  late final CandidateApplicationsRepository _candidateApplicationsRepository;
   late final GoRouter _router;
   late final StudioController _studio;
   late final WorkspaceController _workspaceController;
@@ -116,6 +126,19 @@ class _JoynAppState extends State<JoynApp> {
     _recruiterCandidateRepository =
         widget.recruiterCandidateRepository ??
         MockRecruiterCandidateRepository(latency: Duration.zero);
+    // Un seul dépôt de candidatures simulé, partagé avec « Matchs » : une
+    // offre glissée à droite apparaît dans la colonne « Intéressé ».
+    final mockApplications = MockCandidateApplicationsRepository(
+      latency: Duration.zero,
+    );
+    _candidateApplicationsRepository =
+        widget.candidateApplicationsRepository ?? mockApplications;
+    _recommendedOffersRepository =
+        widget.recommendedOffersRepository ??
+        MockRecommendedOffersRepository(
+          latency: Duration.zero,
+          applications: mockApplications,
+        );
 
     _profileRepository =
         widget.profileRepository ??
@@ -209,6 +232,12 @@ class _JoynAppState extends State<JoynApp> {
         ),
         Provider<RecruiterCandidateRepository>.value(
           value: _recruiterCandidateRepository,
+        ),
+        Provider<RecommendedOffersRepository>.value(
+          value: _recommendedOffersRepository,
+        ),
+        Provider<CandidateApplicationsRepository>.value(
+          value: _candidateApplicationsRepository,
         ),
       ],
       child: ListenableBuilder(

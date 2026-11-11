@@ -71,6 +71,19 @@ lib/features/onboarding/
 lib/features/dashboard/
 ```
 
+## Candidate discover (« Matchs »)
+
+**But :** proposer au candidat des offres ciblées sous forme de cartes à faire glisser (CA82).
+
+- glisser à droite pour postuler, à gauche pour ignorer, vers le haut pour sauvegarder ;
+- détail du score de compatibilité (« Pourquoi 92 % ? ») ;
+- annulation du dernier geste ;
+- données de démo par défaut, contrat API dans [candidate-discover.md](candidate-discover.md).
+
+```text
+lib/features/candidate_discover/
+```
+
 ## Information
 
 **But :** afficher les pages d'information publiques et les contenus liés au footer.
