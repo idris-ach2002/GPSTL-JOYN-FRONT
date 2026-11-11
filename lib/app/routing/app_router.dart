@@ -16,6 +16,14 @@ import '../../features/auth/presentation/mobile/mobile_forgot_password_screen.da
 import '../../features/auth/presentation/mobile/mobile_login_screen.dart';
 import '../../features/auth/presentation/web/forgot_password_page.dart';
 import '../../features/auth/presentation/web/login_page.dart';
+import '../../features/candidate_applications/data/candidate_applications_repository.dart';
+import '../../features/candidate_applications/presentation/candidate_applications_controller.dart';
+import '../../features/candidate_applications/presentation/mobile/mobile_candidate_applications_screen.dart';
+import '../../features/candidate_applications/presentation/web/candidate_applications_screen.dart';
+import '../../features/candidate_discover/data/recommended_offers_repository.dart';
+import '../../features/candidate_discover/presentation/controllers/discover_controller.dart';
+import '../../features/candidate_discover/presentation/mobile/mobile_discover_screen.dart';
+import '../../features/candidate_discover/presentation/web/discover_screen.dart';
 import '../../features/dashboard/data/dashboard_repository.dart';
 import '../../features/dashboard/presentation/dashboard_controller.dart';
 import '../../features/dashboard/presentation/mobile/mobile_dashboard_screen.dart';
@@ -217,6 +225,32 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
                 : const DashboardPage(),
           );
         },
+      ),
+
+      GoRoute(
+        path: AppRoutes.candidateApplications,
+        name: 'candidateApplications',
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) => CandidateApplicationsController(
+            context.read<CandidateApplicationsRepository>(),
+          )..load(),
+          child: useMobile(context)
+              ? const MobileCandidateApplicationsScreen()
+              : const WebCandidateApplicationsScreen(),
+        ),
+      ),
+
+      GoRoute(
+        path: AppRoutes.candidateDiscover,
+        name: 'candidateDiscover',
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) =>
+              DiscoverController(context.read<RecommendedOffersRepository>())
+                ..load(),
+          child: useMobile(context)
+              ? const MobileDiscoverScreen()
+              : const WebDiscoverScreen(),
+        ),
       ),
 
       GoRoute(
