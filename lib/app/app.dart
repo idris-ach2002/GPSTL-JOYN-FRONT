@@ -241,7 +241,8 @@ class _JoynAppState extends State<JoynApp> {
         ),
       ],
       child: ListenableBuilder(
-        listenable: _studio,
+        // L'auth est écoutée aussi : le thème change à la connexion.
+        listenable: Listenable.merge([_studio, _authController]),
         builder: (context, _) => MaterialApp.router(
           title: 'JOYN — Le match avant la candidature',
           debugShowCheckedModeBanner: false,
@@ -257,7 +258,10 @@ class _JoynAppState extends State<JoynApp> {
             compact: _studio.compact,
             contrast: _studio.highContrast,
           ),
-          themeMode: _studio.themeMode,
+          themeMode: themeModeFor(
+            _authController.user?.role,
+            _studio.themeMode,
+          ),
           themeAnimationDuration: _studio.reducedMotion
               ? Duration.zero
               : kThemeAnimationDuration,
@@ -319,3 +323,12 @@ class _JoynAppState extends State<JoynApp> {
     );
   }
 }
+
+/// Thème appliqué à l'application.
+///
+/// Seul l'espace recruteur sait s'afficher en sombre (réglage « Thème » du
+/// studio, qui suit le système par défaut). La landing, la connexion,
+/// l'inscription et l'espace candidat ne sont conçus qu'en clair : sur un
+/// système en mode sombre, ils afficheraient du texte clair sur fond clair.
+ThemeMode themeModeFor(UserRole? role, ThemeMode recruiterPreference) =>
+    role == UserRole.company ? recruiterPreference : ThemeMode.light;
