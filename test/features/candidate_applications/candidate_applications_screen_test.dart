@@ -104,7 +104,7 @@ void main() {
     expect(find.text('Entreprise XY'), findsOneWidget);
     expect(find.text('Aujourd’hui'), findsOneWidget);
     expect(find.text('84 %'), findsOneWidget);
-    expect(find.text('Je suis intéressé·e'), findsOneWidget);
+    expect(find.text('Envoyer ma candidature'), findsOneWidget);
     expect(find.text('Entretien · 15/10/2026'), findsOneWidget);
     expect(find.text('En attente de l’entreprise'), findsOneWidget);
     // Candidature sans données : tirets à la place des valeurs.
