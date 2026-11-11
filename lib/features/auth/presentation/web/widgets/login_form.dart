@@ -14,8 +14,8 @@ import 'package:joyn_front/features/auth/presentation/widgets/social_auth_button
 
 /// Formulaire de connexion (e-mail + mot de passe).
 ///
-/// La redirection après succès n'est pas gérée ici : le routeur écoute
-/// l'`AuthController` et envoie automatiquement vers l'accueil.
+/// Après succès, navigue explicitement vers le dashboard : la redirection du
+/// routeur ne suffit pas quand la page a été ouverte via `push` (ex. landing).
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
 
@@ -49,11 +49,12 @@ class _LoginFormState extends State<LoginForm> {
     setState(() => _submitted = true);
     if (!_formKey.currentState!.validate()) return;
 
-    await auth.signIn(
+    final success = await auth.signIn(
       email: _emailController.text.trim(),
       password: _passwordController.text,
       rememberMe: _rememberMe,
     );
+    if (success && mounted) context.go(AppRoutes.dashboard);
   }
 
   void _showComingSoon(String provider) {
@@ -123,23 +124,44 @@ class _LoginFormState extends State<LoginForm> {
               autofillHints: const [AutofillHints.password],
               validator: Validators.loginPassword,
               onFieldSubmitted: (_) => _submit(),
-              trailingLabel: TextButton(
-                onPressed: _goToForgotPassword,
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  minimumSize: const Size(0, 32),
-                  textStyle: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                child: const Text('Mot de passe oublié ?'),
-              ),
             ),
             const SizedBox(height: AppSpacing.sm),
-            _RememberMeCheckbox(
-              value: _rememberMe,
-              onChanged: (value) => setState(() => _rememberMe = value),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final remember = _RememberMeCheckbox(
+                  value: _rememberMe,
+                  onChanged: (value) => setState(() => _rememberMe = value),
+                );
+                final forgot = TextButton(
+                  onPressed: _goToForgotPassword,
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    minimumSize: const Size(0, 32),
+                    textStyle: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  child: const Text('Mot de passe oublié ?'),
+                );
+
+                if (constraints.maxWidth < 300) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      remember,
+                      Align(alignment: Alignment.centerRight, child: forgot),
+                    ],
+                  );
+                }
+
+                return Row(
+                  children: [
+                    Expanded(child: remember),
+                    forgot,
+                  ],
+                );
+              },
             ),
 
             if (auth.errorMessage != null) ...[
