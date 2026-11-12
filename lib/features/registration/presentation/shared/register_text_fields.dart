@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/utils/obscure_toggle.dart';
 import '../../../../design_system/tokens/app_colors.dart';
 
 /// Deux champs côte à côte, ou l'un sous l'autre si [stacked].
@@ -55,7 +56,7 @@ class PasswordVisibilityButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
       tooltip: visible ? 'Masquer le mot de passe' : 'Afficher le mot de passe',
-      onPressed: onPressed,
+      onPressed: () => toggleObscureText(onPressed),
       iconSize: 20,
       icon: Icon(
         visible ? Icons.visibility_off_outlined : Icons.visibility_outlined,

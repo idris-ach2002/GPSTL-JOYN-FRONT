@@ -87,7 +87,7 @@ class _Tabs extends StatelessWidget {
       (
         Icons.work_outline_rounded,
         'Offres',
-        () => showComingSoon(context, 'Les offres'),
+        () => context.go(AppRoutes.candidateDiscover),
       ),
       (
         Icons.grid_view_rounded,
@@ -97,7 +97,7 @@ class _Tabs extends StatelessWidget {
       (
         Icons.article_outlined,
         'Candidatures',
-        () => showComingSoon(context, 'Les candidatures'),
+        () => context.go(AppRoutes.candidateApplications),
       ),
     ];
 

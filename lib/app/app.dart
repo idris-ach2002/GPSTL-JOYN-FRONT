@@ -13,8 +13,18 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../features/admin_companies/data/admin_company_repository.dart';
+import '../features/admin_companies/data/fake_admin_company_repository.dart';
+import '../features/admin_users/data/admin_user_repository.dart';
+import '../features/admin_users/data/fake_admin_user_repository.dart';
+import '../features/admin_verifications/data/fake_verification_repository.dart';
+import '../features/admin_verifications/data/verification_repository.dart';
 import '../features/auth/data/fake_auth_repository.dart';
 import '../features/auth/presentation/auth_controller.dart';
+import '../features/candidate_applications/data/candidate_applications_repository.dart';
+import '../features/candidate_applications/data/mock_candidate_applications_repository.dart';
+import '../features/candidate_discover/data/mock_recommended_offers_repository.dart';
+import '../features/candidate_discover/data/recommended_offers_repository.dart';
 import '../features/dashboard/data/dashboard_repository.dart';
 import '../features/dashboard/data/fake_dashboard_repository.dart';
 import '../features/profile/data/fake_profile_repository.dart';
@@ -50,6 +60,11 @@ class JoynApp extends StatefulWidget {
     this.recruiterDashboardRepository,
     this.recruiterOffersRepository,
     this.recruiterCandidateRepository,
+    this.recommendedOffersRepository,
+    this.candidateApplicationsRepository,
+    this.adminCompanyRepository,
+    this.adminUserRepository,
+    this.verificationRepository,
   });
 
   final RecruiterWorkspaceRepository? workspaceRepository;
@@ -63,6 +78,11 @@ class JoynApp extends StatefulWidget {
   final RecruiterDashboardRepository? recruiterDashboardRepository;
   final RecruiterOffersRepository? recruiterOffersRepository;
   final RecruiterCandidateRepository? recruiterCandidateRepository;
+  final RecommendedOffersRepository? recommendedOffersRepository;
+  final CandidateApplicationsRepository? candidateApplicationsRepository;
+  final AdminCompanyRepository? adminCompanyRepository;
+  final AdminUserRepository? adminUserRepository;
+  final VerificationRepository? verificationRepository;
 
   @override
   State<JoynApp> createState() => _JoynAppState();
@@ -76,6 +96,11 @@ class _JoynAppState extends State<JoynApp> {
   late final RecruiterDashboardRepository _recruiterDashboardRepository;
   late final RecruiterOffersRepository _recruiterOffersRepository;
   late final RecruiterCandidateRepository _recruiterCandidateRepository;
+  late final RecommendedOffersRepository _recommendedOffersRepository;
+  late final CandidateApplicationsRepository _candidateApplicationsRepository;
+  late final AdminCompanyRepository _adminCompanyRepository;
+  late final AdminUserRepository _adminUserRepository;
+  late final VerificationRepository _verificationRepository;
   late final GoRouter _router;
   late final StudioController _studio;
   late final WorkspaceController _workspaceController;
@@ -116,10 +141,32 @@ class _JoynAppState extends State<JoynApp> {
     _recruiterCandidateRepository =
         widget.recruiterCandidateRepository ??
         MockRecruiterCandidateRepository(latency: Duration.zero);
+    // Un seul dépôt de candidatures simulé, partagé avec « Matchs » : une
+    // offre glissée à droite apparaît dans la colonne « Intéressé ».
+    final mockApplications = MockCandidateApplicationsRepository(
+      latency: Duration.zero,
+    );
+    _candidateApplicationsRepository =
+        widget.candidateApplicationsRepository ?? mockApplications;
+    _recommendedOffersRepository =
+        widget.recommendedOffersRepository ??
+        MockRecommendedOffersRepository(
+          latency: Duration.zero,
+          applications: mockApplications,
+        );
 
     _profileRepository =
         widget.profileRepository ??
         FakeProfileRepository(latency: Duration.zero);
+    _adminCompanyRepository =
+        widget.adminCompanyRepository ??
+        FakeAdminCompanyRepository(latency: Duration.zero);
+    _adminUserRepository =
+        widget.adminUserRepository ??
+        FakeAdminUserRepository(latency: Duration.zero);
+    _verificationRepository =
+        widget.verificationRepository ??
+        FakeVerificationRepository(latency: Duration.zero);
 
     _studio = StudioController(
       store: widget.studioStore,
@@ -211,9 +258,19 @@ class _JoynAppState extends State<JoynApp> {
         Provider<RecruiterCandidateRepository>.value(
           value: _recruiterCandidateRepository,
         ),
+        Provider<RecommendedOffersRepository>.value(
+          value: _recommendedOffersRepository,
+        ),
+        Provider<CandidateApplicationsRepository>.value(
+          value: _candidateApplicationsRepository,
+        ),
+        Provider<AdminCompanyRepository>.value(value: _adminCompanyRepository),
+        Provider<AdminUserRepository>.value(value: _adminUserRepository),
+        Provider<VerificationRepository>.value(value: _verificationRepository),
       ],
       child: ListenableBuilder(
-        listenable: _studio,
+        // L'auth est écoutée aussi : le thème change à la connexion.
+        listenable: Listenable.merge([_studio, _authController]),
         builder: (context, _) => MaterialApp.router(
           title: 'JOYN — Le match avant la candidature',
           debugShowCheckedModeBanner: false,
@@ -229,7 +286,10 @@ class _JoynAppState extends State<JoynApp> {
             compact: _studio.compact,
             contrast: _studio.highContrast,
           ),
-          themeMode: _studio.themeMode,
+          themeMode: themeModeFor(
+            _authController.user?.role,
+            _studio.themeMode,
+          ),
           themeAnimationDuration: _studio.reducedMotion
               ? Duration.zero
               : kThemeAnimationDuration,
@@ -291,3 +351,12 @@ class _JoynAppState extends State<JoynApp> {
     );
   }
 }
+
+/// Thème appliqué à l'application.
+///
+/// Seul l'espace recruteur sait s'afficher en sombre (réglage « Thème » du
+/// studio, qui suit le système par défaut). La landing, la connexion,
+/// l'inscription et l'espace candidat ne sont conçus qu'en clair : sur un
+/// système en mode sombre, ils afficheraient du texte clair sur fond clair.
+ThemeMode themeModeFor(UserRole? role, ThemeMode recruiterPreference) =>
+    role == UserRole.company ? recruiterPreference : ThemeMode.light;

@@ -1,7 +1,11 @@
 /// Type de profil choisi à l'inscription.
 enum UserRole {
   student('Étudiant·e'),
-  company('Entreprise');
+  company('Entreprise'),
+
+  /// Administrateur de la plateforme (back-office). Pas d'inscription
+  /// publique : les comptes sont créés par l'équipe.
+  admin('Administrateur');
 
   const UserRole(this.label);
 

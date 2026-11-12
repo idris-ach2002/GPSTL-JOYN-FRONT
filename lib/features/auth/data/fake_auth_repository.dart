@@ -11,6 +11,7 @@ import 'auth_repository.dart';
 /// Comptes de démonstration (mot de passe `Joyn2026`) :
 /// - `etudiant@joyn.fr` (profil étudiant)
 /// - `recruteur@joyn.fr` (profil entreprise)
+/// - `admin@joyn.fr` (administrateur de la plateforme)
 class FakeAuthRepository implements AuthRepository {
   FakeAuthRepository({this.latency = const Duration(milliseconds: 800)});
 
@@ -34,6 +35,14 @@ class FakeAuthRepository implements AuthRepository {
         id: 'demo-company',
         email: 'recruteur@joyn.fr',
         role: UserRole.company,
+      ),
+    ),
+    'admin@joyn.fr': const _FakeAccount(
+      password: demoPassword,
+      user: AppUser(
+        id: 'demo-admin',
+        email: 'admin@joyn.fr',
+        role: UserRole.admin,
       ),
     ),
   };

@@ -39,8 +39,6 @@ Future<void> studioExport(
             final result = await FilePicker.saveFile(
               dialogTitle: 'Enregistrer l’export',
               fileName: name,
-              type: FileType.custom,
-              allowedExtensions: [extension],
               bytes: Uint8List.fromList(utf8.encode(text)),
             );
             if (result != null && ctx.mounted) {

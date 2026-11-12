@@ -11,9 +11,22 @@ import 'package:flutter/widgets.dart';
 
 import '../core/config/app_environment.dart';
 import '../core/network/api_client.dart';
+import '../features/admin_companies/data/admin_company_repository.dart';
+import '../features/admin_companies/data/api_admin_company_repository.dart';
+import '../features/admin_companies/data/fake_admin_company_repository.dart';
+import '../features/admin_users/data/admin_user_repository.dart';
+import '../features/admin_users/data/api_admin_user_repository.dart';
+import '../features/admin_users/data/fake_admin_user_repository.dart';
+import '../features/admin_verifications/data/api_verification_repository.dart';
+import '../features/admin_verifications/data/fake_verification_repository.dart';
+import '../features/admin_verifications/data/verification_repository.dart';
 import '../features/auth/data/auth_repository.dart';
 import '../features/auth/data/fake_auth_repository.dart';
 import '../features/auth/presentation/auth_controller.dart';
+import '../features/candidate_applications/data/api_candidate_applications_repository.dart';
+import '../features/candidate_applications/data/mock_candidate_applications_repository.dart';
+import '../features/candidate_discover/data/api_recommended_offers_repository.dart';
+import '../features/candidate_discover/data/mock_recommended_offers_repository.dart';
 import '../features/dashboard/data/dashboard_repository.dart';
 import '../features/dashboard/data/fake_dashboard_repository.dart';
 import '../features/registration/data/auth_registration_repository.dart';
@@ -63,12 +76,40 @@ Future<void> bootstrapJoyn({bool? webOverride}) async {
       (environment.useApi
       ? ApiRecruiterCandidateRepository(api!)
       : MockRecruiterCandidateRepository());
+  final AdminCompanyRepository adminCompanyRepository = environment.useApi
+      ? ApiAdminCompanyRepository(
+          ApiClient(
+            baseUrl: environment.apiBaseUrl,
+            timeout: environment.apiTimeout,
+          ),
+        )
+      : FakeAdminCompanyRepository();
+  final AdminUserRepository adminUserRepository = environment.useApi
+      ? ApiAdminUserRepository(
+          ApiClient(
+            baseUrl: environment.apiBaseUrl,
+            timeout: environment.apiTimeout,
+          ),
+        )
+      : FakeAdminUserRepository();
+  final VerificationRepository verificationRepository = environment.useApi
+      ? ApiVerificationRepository(
+          ApiClient(
+            baseUrl: environment.apiBaseUrl,
+            timeout: environment.apiTimeout,
+          ),
+        )
+      : FakeVerificationRepository();
   final RegistrationRepository registrationRepository = api != null
       ? ApiRegistrationRepository(api, apiAuth!)
       : AuthRegistrationRepository(
           authRepository,
           companyLookupRepository: MockRegistrationRepository(),
         );
+
+  // Démo : candidatures simulées partagées entre « Matchs » et
+  // « Mes candidatures ».
+  final demoApplications = MockCandidateApplicationsRepository.demo();
 
   authController = AuthController(authRepository);
   await authController.restoreSession();
@@ -87,6 +128,15 @@ Future<void> bootstrapJoyn({bool? webOverride}) async {
       registrationRepository: registrationRepository,
       recruiterOffersRepository: recruiterOffersRepository,
       recruiterCandidateRepository: recruiterCandidateRepository,
+      recommendedOffersRepository: api == null
+          ? MockRecommendedOffersRepository(applications: demoApplications)
+          : ApiRecommendedOffersRepository(api),
+      candidateApplicationsRepository: api == null
+          ? demoApplications
+          : ApiCandidateApplicationsRepository(api),
+      adminCompanyRepository: adminCompanyRepository,
+      adminUserRepository: adminUserRepository,
+      verificationRepository: verificationRepository,
     ),
   );
 }
