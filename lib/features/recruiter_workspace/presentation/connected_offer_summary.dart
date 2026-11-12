@@ -38,7 +38,7 @@ class _ConnectedOfferSummaryState extends State<ConnectedOfferSummary> {
     body: FutureBuilder<OfferAnalyticsData>(
       future: summary,
       builder: (context, snapshot) {
-        if (snapshot.hasError)
+        if (snapshot.hasError) {
           return Center(
             child: TextButton(
               onPressed: () => setState(() => summary = load()),
@@ -47,8 +47,10 @@ class _ConnectedOfferSummaryState extends State<ConnectedOfferSummary> {
               ),
             ),
           );
-        if (!snapshot.hasData)
+        }
+        if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
+        }
         final offer = snapshot.requireData.offer;
         return Center(
           child: ConstrainedBox(

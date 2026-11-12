@@ -52,8 +52,9 @@ class ApiAdminUserRepository implements AdminUserRepository {
           ]);
           final pagination = _map(body['pagination']);
           if (page >= _int(pagination['total_pages'], fallback: 1) ||
-              data.isEmpty)
+              data.isEmpty) {
             break;
+          }
         }
       }
       if (query.status == UserStatusFilter.banned) entries.clear();

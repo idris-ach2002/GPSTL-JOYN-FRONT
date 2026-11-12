@@ -46,8 +46,9 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
       if (!mounted) return;
       final c = context.read<WorkspaceController>();
       if (c.repository.isMock ||
-          ['profile', 'notifications', 'settings'].contains(widget.section))
+          ['profile', 'notifications', 'settings'].contains(widget.section)) {
         c.load(widget.section);
+      }
     });
   }
 

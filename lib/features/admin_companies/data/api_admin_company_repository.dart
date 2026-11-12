@@ -26,7 +26,7 @@ class ApiAdminCompanyRepository implements AdminCompanyRepository {
             'page': '${query.page}',
             'limit': '${query.pageSize}',
             if (query.search.trim().isNotEmpty) 'search': query.search.trim(),
-            if (status != null) 'status': status,
+            'status': ?status,
             if (query.sector != null && query.sector!.isNotEmpty)
               'sector': query.sector,
             'sort_by': query.sort.field == 'name' ? 'name' : 'created_at',
@@ -88,8 +88,9 @@ class ApiAdminCompanyRepository implements AdminCompanyRepository {
       body: {'verificationStatus': encoded},
     );
     final old = _cached[id];
-    if (old == null)
+    if (old == null) {
       throw const AdminCompanyException('Actualisez la liste des entreprises.');
+    }
     final updated = old.copyWith(status: status);
     _cached[id] = updated;
     return updated;

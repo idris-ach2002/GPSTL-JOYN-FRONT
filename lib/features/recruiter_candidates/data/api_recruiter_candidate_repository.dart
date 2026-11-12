@@ -54,8 +54,9 @@ class ApiRecruiterCandidateRepository implements RecruiterCandidateRepository {
       );
       final rows = response['content'] as List? ?? const [];
       mapped.addAll(rows.map((row) => _candidate(_map(row))));
-      if (rows.isEmpty || page >= _int(response['totalPages'], fallback: 1))
+      if (rows.isEmpty || page >= _int(response['totalPages'], fallback: 1)) {
         break;
+      }
     }
     for (final item in mapped) {
       _cache[item.id] = item;
@@ -63,25 +64,32 @@ class ApiRecruiterCandidateRepository implements RecruiterCandidateRepository {
     final filtered = mapped.where((item) {
       if (item.compatibilityScore < query.scoreMin) return false;
       if (query.location != null &&
-          !item.location.toLowerCase().contains(query.location!.toLowerCase()))
+          !item.location.toLowerCase().contains(
+            query.location!.toLowerCase(),
+          )) {
         return false;
+      }
       if (query.skills.isNotEmpty &&
           !query.skills.every(
             (skill) =>
                 item.skills.any((s) => s.toLowerCase() == skill.toLowerCase()),
-          ))
+          )) {
         return false;
+      }
       if (query.experienceMin != null &&
-          item.experienceYears < query.experienceMin!)
+          item.experienceYears < query.experienceMin!) {
         return false;
+      }
       if (query.experienceMax != null &&
-          item.experienceYears > query.experienceMax!)
+          item.experienceYears > query.experienceMax!) {
         return false;
+      }
       if (query.contractType != null &&
           !item.contractPreference.toLowerCase().contains(
             query.contractType!.toLowerCase(),
-          ))
+          )) {
         return false;
+      }
       return item.status == query.status;
     }).toList();
     final totalPages = filtered.isEmpty
@@ -117,8 +125,9 @@ class ApiRecruiterCandidateRepository implements RecruiterCandidateRepository {
     String candidateId,
   ) async {
     final cached = _cache[candidateId];
-    if (cached == null)
+    if (cached == null) {
       throw StateError('Ouvrez une candidature depuis une offre.');
+    }
     return cached;
   }
 

@@ -116,8 +116,9 @@ class CompanyRowActions extends StatelessWidget {
     final pending = company.status == CompanyStatus.pending;
 
     final editable = handler.controller.canEditCompanies;
-    if (!editable && !pending && company.status != CompanyStatus.rejected)
+    if (!editable && !pending && company.status != CompanyStatus.rejected) {
       return const SizedBox.shrink();
+    }
     final menu = PopupMenuButton<_MenuAction>(
       key: ValueKey('menu-${company.id}'),
       tooltip: 'Actions',

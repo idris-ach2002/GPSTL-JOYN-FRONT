@@ -55,8 +55,9 @@ class ApiVerificationRepository implements VerificationRepository {
           body['pagination'] as Map? ?? {},
         );
         if (page >= (pagination['total_pages'] as num? ?? 1).toInt() ||
-            data.isEmpty)
+            data.isEmpty) {
           break;
+        }
       }
       return items.where((item) => filter.matches(item.status)).toList();
     } on ApiException catch (error) {

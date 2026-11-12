@@ -115,8 +115,9 @@ class RecruiterDashboardDetails extends StatelessWidget {
   Widget build(BuildContext context) {
     final repo = context.read<WorkspaceController?>()?.repository;
     final data = context.watch<RecruiterDashboardController>().overview;
-    if (repo is! ApiRecruiterWorkspaceRepository || data == null)
+    if (repo is! ApiRecruiterWorkspaceRepository || data == null) {
       return const SizedBox.shrink();
+    }
     return Column(
       children: [
         ExpansionTile(

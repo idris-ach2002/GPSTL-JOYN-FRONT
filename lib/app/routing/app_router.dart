@@ -225,8 +225,9 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
         name: 'recruiterRegister',
         builder: (context, state) {
           final repo = context.read<RegistrationRepository?>();
-          if (repo is ApiRegistrationRepository)
+          if (repo is ApiRegistrationRepository) {
             return ConnectedRecruiterScreen(repo.api, registration: true);
+          }
           return adaptiveAuth(
             context,
             mobile: const MobileCompanyRegisterScreen(),

@@ -111,14 +111,18 @@ class ApiProfileRepository implements ProfileRepository {
 
   static String _degree(String name) {
     final lowered = name.toLowerCase();
-    if (lowered.contains('master') || lowered.contains('mastère'))
+    if (lowered.contains('master') || lowered.contains('mastère')) {
       return 'MASTERS';
-    if (lowered.contains('doctor') || lowered.contains('phd'))
+    }
+    if (lowered.contains('doctor') || lowered.contains('phd')) {
       return 'DOCTORATE';
-    if (lowered.contains('ingénieur') || lowered.contains('engineer'))
+    }
+    if (lowered.contains('ingénieur') || lowered.contains('engineer')) {
       return 'ENGINEERING';
-    if (lowered.contains('licence') || lowered.contains('bachelor'))
+    }
+    if (lowered.contains('licence') || lowered.contains('bachelor')) {
       return 'BACHELORS';
+    }
     return 'OTHER';
   }
 

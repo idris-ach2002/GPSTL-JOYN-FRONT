@@ -73,11 +73,12 @@ class _CandidateEmailState extends State<CandidateEmail> {
     } catch (_) {
       // A mail client may be unavailable on this device.
     }
-    if (mounted)
+    if (mounted) {
       studioToast(
         context,
         'Aucune application e-mail disponible. Copiez le brouillon pour votre webmail.',
       );
+    }
   }
 
   @override
@@ -102,8 +103,9 @@ class _CandidateEmailState extends State<CandidateEmail> {
             ),
           );
         }
-        if (!snapshot.hasData)
+        if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
+        }
         final data = snapshot.requireData;
         final email = '${data['email'] ?? ''}'.trim();
         final name = [
@@ -147,8 +149,9 @@ class _CandidateEmailState extends State<CandidateEmail> {
                               'À : $email\nObjet : ${subject.text}\n\n${body.text}',
                         ),
                       );
-                      if (context.mounted)
+                      if (context.mounted) {
                         studioToast(context, 'Brouillon copié.');
+                      }
                     },
                     child: const Text('Copier pour mon webmail'),
                   ),

@@ -72,8 +72,8 @@ Future<void> studioEditInterview(
   final record = {
     ...?event,
     ...value,
-    if (profileId != null) 'profileId': profileId,
-    if (applicationId != null) 'applicationId': applicationId,
+    'profileId': ?profileId,
+    'applicationId': ?applicationId,
   };
   final ok = await c.upsert('interviews', record);
   if (context.mounted) {
@@ -102,11 +102,12 @@ Future<void> studioEditInterview(
         body: {'status': 'INTERVIEW'},
       );
     } catch (_) {
-      if (context.mounted)
+      if (context.mounted) {
         studioToast(
           context,
           'Créneau enregistré. La mise à jour du statut a échoué.',
         );
+      }
     }
   }
   if (!context.mounted) return;

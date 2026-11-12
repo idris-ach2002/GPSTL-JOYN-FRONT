@@ -25,8 +25,9 @@ class ApiDashboardRepository implements DashboardRepository {
         query: {'page': '1', 'limit': '1'},
       );
       final content = (recommendations as Map)['content'] as List? ?? const [];
-      if (content.isNotEmpty)
+      if (content.isNotEmpty) {
         match = Map<String, dynamic>.from(content.first as Map);
+      }
     } catch (_) {
       // Candidate profile is still usable when no recommendation exists.
     }
