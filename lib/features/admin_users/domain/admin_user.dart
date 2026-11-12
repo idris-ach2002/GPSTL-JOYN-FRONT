@@ -12,7 +12,7 @@ enum AccountRole {
   final String apiValue;
 
   static AccountRole fromApi(String? value) => AccountRole.values.firstWhere(
-    (role) => role.apiValue == value,
+    (role) => role.apiValue == value?.toLowerCase(),
     orElse: () => candidate,
   );
 }
@@ -30,7 +30,7 @@ enum AccountStatus {
   final String apiValue;
 
   static AccountStatus fromApi(String? value) => AccountStatus.values
-      .firstWhere((status) => status.apiValue == value, orElse: () => active);
+      .firstWhere((status) => status.apiValue == value?.toLowerCase(), orElse: () => active);
 }
 
 /// Type d'entrée du journal de modération.

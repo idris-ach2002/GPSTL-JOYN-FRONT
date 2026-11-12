@@ -12,6 +12,8 @@ import '../../../app/routing/app_routes.dart';
 import '../../recruiter_offers/presentation/web/recruiter_offers_top_bar.dart';
 import 'workspace_controller.dart';
 import 'workspace_messages.dart';
+import 'candidate_email.dart';
+import '../data/recruiter_workspace_repository.dart';
 
 const workspaceNavy = Color(0xFF001E3B);
 
@@ -43,7 +45,7 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final c = context.read<WorkspaceController>();
-      if (c.repository.isMock || ['profile','notifications'].contains(widget.section)) c.load(widget.section);
+      if (c.repository.isMock || ['profile','notifications','settings'].contains(widget.section)) c.load(widget.section);
     });
   }
 
@@ -63,11 +65,6 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
       'messages' => 'Messagerie',
       _ => 'Paramètres',
     };
-    if (!controller.repository.isMock && widget.section == 'messages') {
-      return Scaffold(appBar: AppBar(title: Text(title), leading: BackButton(
-        onPressed: () => context.go(AppRoutes.recruiterDashboard))),
-        body: const Center(child: Text('Cette rubrique attend son raccordement au serveur.')));
-    }
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: compact
@@ -164,7 +161,7 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
                 content: Text(controller.error!),
                 actions: [
                   TextButton(
-                    onPressed: controller.busy || (widget.section == 'settings' && !controller.repository.isMock)
+                    onPressed: controller.busy
                         ? null
                         : () => controller.load(widget.section),
                     child: const Text('Réessayer'),
@@ -188,7 +185,7 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
                       ),
                     ),
                     TextButton.icon(
-                      onPressed: controller.busy || (widget.section == 'settings' && !controller.repository.isMock)
+                      onPressed: controller.busy
                           ? null
                           : () => controller.load(widget.section),
                       icon: const Icon(Icons.refresh),
@@ -223,20 +220,18 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
               ),
             Expanded(
               child: switch (widget.section) {
+                'messages' when controller.repository is ApiRecruiterWorkspaceRepository =>
+                    CandidateEmail(
+                      key: ValueKey(widget.candidateId),
+                      api: (controller.repository as ApiRecruiterWorkspaceRepository).api,
+                      profileId: widget.candidateId,
+                    ),
                 'messages' => WorkspaceMessages(
                   key: ValueKey(widget.candidateId),
                   candidateId: widget.candidateId,
                   candidateName: widget.candidateName,
                 ),
-                'notifications' => controller.repository.isMock ? const StudioNotifications() :
-                  ListView(padding: const EdgeInsets.all(16), children: [
-                    const ListTile(title: Text('Activité des 30 derniers jours')),
-                    if (controller.busy) const LinearProgressIndicator(),
-                    if (!controller.busy && controller.error == null && controller.notifications.isEmpty)
-                      const ListTile(title: Text('Aucune activité sur cette période.')),
-                    for (final event in controller.notifications)
-                      ListTile(title: Text('${event['title'] ?? ''}'), subtitle: Text('${event['subtitle'] ?? ''} · ${event['whenLabel'] ?? ''}')),
-                  ]),
+                'notifications' => const StudioNotifications(),
                 'profile' =>
                   controller.profile == null
                       ? const _Waiting()

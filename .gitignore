@@ -126,3 +126,7 @@ app.*.symbols
 # JS Files
 node_modules/
 .wrangler/
+
+# JOYN seed data (may contain test identities / server IDs)
+.joyn-seed-state.json
+.joyn-seed-state.json.tmp

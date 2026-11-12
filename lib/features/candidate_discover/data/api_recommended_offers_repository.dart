@@ -1,4 +1,5 @@
 import '../../../core/network/api_client.dart';
+import '../../candidate_applications/data/pending_interests_store.dart';
 import '../domain/recommended_offer.dart';
 import 'recommended_offers_repository.dart';
 
@@ -8,34 +9,70 @@ import 'recommended_offers_repository.dart';
 /// tolérant (champs absents, enveloppe `data`, alias de noms) pour ne pas
 /// casser l'écran si le backend évolue légèrement.
 class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
-  ApiRecommendedOffersRepository(this._api);
+  ApiRecommendedOffersRepository(this._api, {PendingInterestsStore? interests})
+      : interests = interests ?? PendingInterestsStore();
+
+  final PendingInterestsStore interests;
+  final Map<String, RecommendedOffer> _knownOffers = {};
 
   final ApiClient _api;
 
-  static const String basePath = '/api/v1/candidates/me/recommendations';
+  static const String basePath = '/api/v1/candidates/recommendations';
 
   @override
   Future<DiscoverFeed> fetchFeed({
     DiscoverFilters filters = const DiscoverFilters(),
   }) async {
-    final json = await _api.getJson(
-      basePath,
-      query: filters.toQueryParameters(),
+    final json = await _api.getJson(basePath, query: {
+      'page': '1', 'limit': '50',
+      if (filters.rhythm != null) 'rhythm_type': filters.rhythm,
+      if (filters.location != null) 'location': filters.location,
+    });
+    final root = _unwrap(_asMap(json));
+    final offerRows = _asList(root['content']);
+    final mapped = <RecommendedOffer>[];
+    final companies = <String, Map<String, dynamic>>{};
+    for (final row in offerRows) {
+      final envelope = _asMap(row);
+      final job = _asMap(envelope['offer']);
+      if (job.isEmpty) continue;
+      final companyId = _string(job['company_id']);
+      if (companyId.isNotEmpty && !companies.containsKey(companyId)) {
+        try {
+          companies[companyId] = _asMap(await _api.getJson('/api/v1/companies/$companyId'));
+        } catch (_) {
+          companies[companyId] = const {};
+        }
+      }
+      final merged = {...job, 'match_score': envelope['match_score'],
+        'score_breakdown': envelope['score_breakdown'],
+        'company': companies[companyId] ?? const <String,dynamic>{}};
+      final offer = mapOffer(merged);
+      _knownOffers[offer.id] = offer;
+      if (!interests.isHidden(offer.id)) mapped.add(offer);
+    }
+    return DiscoverFeed(
+      offers: mapped, filters: filters,
+      totalCompatible: _nullableInt(root['totalElements']) ?? mapped.length,
     );
-    return mapFeed(_unwrap(_asMap(json)));
   }
 
   @override
   Future<void> submitDecision(String offerId, SwipeDecision decision) async {
-    await _api.postJson(
-      '$basePath/${Uri.encodeComponent(offerId)}/decision',
-      body: {'decision': decision.name},
-    );
+    final offer = _knownOffers[offerId];
+    if (offer == null) throw StateError('Offre introuvable dans le flux.');
+    if (decision == SwipeDecision.interested) {
+      interests.interested(offerId, title: offer.title,
+        companyName: offer.company.name);
+    } else {
+      // Save and pass are visual session-local actions (no backend endpoint).
+      interests.hide(offerId);
+    }
   }
 
   @override
   Future<void> cancelDecision(String offerId) async {
-    await _api.deleteJson('$basePath/${Uri.encodeComponent(offerId)}/decision');
+    interests.undo(offerId);
   }
 
   /// Convertit le corps de `GET /recommendations` en [DiscoverFeed].
@@ -59,7 +96,7 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
   /// Convertit une offre JSON en [RecommendedOffer].
   static RecommendedOffer mapOffer(Map<String, dynamic> json) {
     final company = _asMap(json['company']);
-    final criteria = json['criteria'] ?? json['matching'] ?? json['match'];
+    final criteria = json['score_breakdown'] ?? json['criteria'] ?? json['matching'] ?? json['match'];
     return RecommendedOffer(
       id: _string(json['id']),
       title: _string(json['title']),
@@ -67,18 +104,18 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
         name: _string(company['name'] ?? json['companyName']),
         sector: _string(company['sector']),
         headcount: _nullableInt(company['headcount'] ?? company['size']),
-        city: _string(company['city']),
+        city: _string(company['city'] ?? json['location']),
         logoUrl: _nullableString(company['logoUrl']),
       ),
       compatibility: _int(
-        json['compatibility'] ?? json['compatibilityScore'] ?? json['score'],
+        json['match_score'] ?? json['compatibility'] ?? json['compatibilityScore'] ?? json['score'],
       ).clamp(0, 100),
       location: _string(json['location']),
       commuteMinutes: _nullableInt(json['commuteMinutes']),
-      rhythm: _string(json['rhythm']),
+      rhythm: _string(json['rhythm_type'] ?? json['rhythm']),
       remoteDays: _nullableInt(json['remoteDays']),
-      monthlySalary: _nullableInt(json['monthlySalary'] ?? json['salary']),
-      contractType: _string(json['contractType'] ?? json['contract']),
+      monthlySalary: _nullableInt((json['salary_period'] == 'MONTH' ? json['salary_min'] : null)),
+      contractType: _string(json['contract_type'] ?? json['contractType'] ?? json['contract']),
       description: _string(json['description']),
       skills: _asList(json['skills']).map((skill) {
         if (skill is String) return OfferSkill(name: skill, matched: false);
@@ -119,6 +156,8 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
   static const Map<String, String> _criterionLabels = {
     'skills': 'Technos',
     'education': 'Formation & niveau',
+    'experience': 'Expérience',
+    'availability': 'Disponibilité',
     'rhythm': 'Rythme',
     'commute': 'Trajet',
     'location': 'Trajet',

@@ -63,13 +63,6 @@ class _StudioSettingsState extends State<StudioSettings> {
       'Mot de passe, données et connexion',
       Color(0xFFB75D72),
     ),
-    (
-      'help',
-      Icons.help_outline,
-      'Aide et raccourcis',
-      'Bien utiliser votre espace',
-      Color(0xFF58778D),
-    ),
   ];
   StudioController? _studio;
   @override
@@ -139,7 +132,7 @@ class _StudioSettingsState extends State<StudioSettings> {
               ),
             const SizedBox(height: 14),
             for (final category in categories.where(
-              (c) => (context.read<WorkspaceController>().repository.isMock || const {'appearance','recruitment','messaging','help'}.contains(c.$1)) && '${c.$3} ${c.$4}'.toLowerCase().contains(_search),
+              (c) => '${c.$3} ${c.$4}'.toLowerCase().contains(_search),
             ))
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
@@ -220,7 +213,7 @@ class _StudioSettingsState extends State<StudioSettings> {
                     'messaging' => _messaging(studio),
                     'privacy' => _privacy(studio),
                     'account' => _account(studio),
-                    _ => _help(),
+                    _ => const SizedBox.shrink(),
                   },
                 ],
               );
@@ -592,11 +585,11 @@ class _StudioSettingsState extends State<StudioSettings> {
           SwitchListTile.adaptive(
             contentPadding: EdgeInsets.zero,
             title: const Text('Profil entreprise visible'),
-            subtitle: const Text(
-              'Autoriser les candidats à consulter votre présentation',
-            ),
+            subtitle: Text(workspace.repository.isMock
+                ? 'Autoriser les candidats à consulter votre présentation'
+                : 'La visibilité du profil est gérée par le serveur.'),
             value: workspace.settings?['profileVisible'] != false,
-            onChanged: workspace.busy
+            onChanged: !workspace.repository.isMock || workspace.busy
                 ? null
                 : (v) => workspace.saveSettings({
                     ...?workspace.settings,
@@ -638,8 +631,10 @@ class _StudioSettingsState extends State<StudioSettings> {
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.lock_reset),
             title: const Text('Réinitialiser mon mot de passe'),
-            subtitle: const Text('Recevoir un lien à l’adresse du compte'),
-            enabled: !auth.isLoading,
+            subtitle: Text(context.watch<WorkspaceController>().repository.isMock
+                ? 'Tester la demande en démonstration'
+                : 'Le serveur ne propose pas encore la récupération par e-mail.'),
+            enabled: !auth.isLoading && context.watch<WorkspaceController>().repository.isMock,
             onTap: () async {
               if (auth.user == null) return;
               final ok = await auth.sendPasswordReset(auth.user!.email);
@@ -713,44 +708,6 @@ class _StudioSettingsState extends State<StudioSettings> {
     );
   }
 
-  Widget _help() => const StudioCard(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        StudioSectionTitle('Des raccourcis pour avancer'),
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: Icon(Icons.search),
-          title: Text('Trouver une page ou une action'),
-          subtitle: Text('Ouvrez la recherche depuis l’en-tête du studio.'),
-        ),
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: Icon(Icons.bookmark_border),
-          title: Text('Retrouver vos talents favoris'),
-          subtitle: Text(
-            'Enregistrez un candidat puis retrouvez-le dans l’onglet Enregistrés.',
-          ),
-        ),
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: Icon(Icons.task_alt),
-          title: Text('Organiser votre prochaine action'),
-          subtitle: Text(
-            'Ajoutez une tâche ou un entretien dans votre centre de travail.',
-          ),
-        ),
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: Icon(Icons.info_outline),
-          title: Text('JOYN · Studio recruteur'),
-          subtitle: Text(
-            'Vos préférences d’appareil sont locales. Les données serveur dépendent de votre connexion au backend.',
-          ),
-        ),
-      ],
-    ),
-  );
   Widget _select(
     String label,
     String value,
@@ -902,7 +859,7 @@ class _NotificationPreferencesState extends State<_NotificationPreferences> {
           ),
           const SizedBox(height: 8),
           const Text(
-            'Les préférences sont transmises au serveur. La distribution des e-mails et alertes système dépend de son service de notifications.',
+            'Ces réglages ne déclenchent aucun envoi. En mode connecté, ils sont conservés pour cette session.',
           ),
           const SizedBox(height: 16),
           for (final e in const {

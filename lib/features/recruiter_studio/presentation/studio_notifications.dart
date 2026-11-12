@@ -229,7 +229,8 @@ class _StudioNotificationsState extends State<StudioNotifications> {
                 children: [
                   for (final type in {
                     'all': 'Tous les événements',
-                    'message': 'Messages',
+                    if (c.repository.isMock) 'message': 'Messages',
+                    if (!c.repository.isMock) 'interview': 'Entretiens',
                     'match': 'Matches',
                     'application': 'Candidatures',
                     'offer': 'Offres',
@@ -369,6 +370,7 @@ class _StudioNotificationsState extends State<StudioNotifications> {
     final icon = switch (n['kind']) {
       'message' => Icons.forum_outlined,
       'match' => Icons.handshake_outlined,
+      'interview' => Icons.calendar_month_outlined,
       'offer' => Icons.work_outline,
       _ => Icons.person_add_alt_outlined,
     };
@@ -429,7 +431,7 @@ class _StudioNotificationsState extends State<StudioNotifications> {
                   spacing: 10,
                   children: [
                     Text(
-                      studioDate(n['createdAt']),
+                      [studioDate(n['createdAt']), if (n['whenLabel'] != null) n['whenLabel']].where((v) => v.toString().isNotEmpty).join(' · '),
                       style: const TextStyle(fontSize: 11),
                     ),
                     TextButton(

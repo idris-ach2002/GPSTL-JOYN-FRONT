@@ -242,8 +242,8 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const _SectionTitle(
-          title: 'Choisir une entreprise *',
-          subtitle: 'Sélectionnez l’entreprise disponible dans la base pour laquelle vous souhaitez publier cette offre.',
+          title: 'Votre entreprise *',
+          subtitle: 'Les offres sont publiées uniquement pour l’entreprise liée à votre compte recruteur.',
         ),
         const SizedBox(height: 14),
         LayoutBuilder(
@@ -258,7 +258,7 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
                     selected: controller.selectedCompany?.id == company.id,
                     onTap: () => controller.selectCompany(company),
                   ),
-                _AddCompanyChoice(
+                if (!controller.linkedCompanyOnly) _AddCompanyChoice(
                   onTap: () => showCompanyPickerDrawer(context, controller),
                 ),
               ],

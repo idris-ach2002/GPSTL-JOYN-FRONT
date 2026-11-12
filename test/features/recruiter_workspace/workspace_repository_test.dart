@@ -83,6 +83,31 @@ void main() {
       expect(invalidated, true);
     },
   );
+  test('API : une activité garde son candidat, sa date et son état après actualisation', () async {
+    final activity = {
+      'kind': 'application', 'title': 'Nouvelle candidature',
+      'subtitle': 'Raphaël · Data Analyst junior',
+      'occurredAt': '2026-11-12T14:30:00Z', 'whenLabel': 'il y a 5 min',
+    };
+    final events = [activity];
+    final repo = ApiRecruiterWorkspaceRepository(ApiClient(
+      baseUrl: 'https://api.joyn.test',
+      httpClient: MockClient((_) async => http.Response.bytes(
+        utf8.encode(jsonEncode({'activities': events})), 200)),
+    ));
+    final first = (await repo.notifications()).single;
+    expect(first['body'], activity['subtitle']);
+    expect(first['createdAt'], activity['occurredAt']);
+    final id = first['id'] as String;
+    await repo.readNotification(id);
+    events.insert(0, {...activity, 'occurredAt': '2026-11-12T15:00:00Z'});
+    expect((await repo.notifications()).last['read'], true);
+    await repo.updateNotification(id, {'read': false});
+    expect((await repo.notifications()).last['read'], false);
+    await repo.deleteNotification(id);
+    expect((await repo.notifications()).single['read'], false);
+  });
+
   test('API : authentification vérifie le rôle et transmet le jeton', () async {
     late ApiAuthRepository auth;
     final api = ApiClient(

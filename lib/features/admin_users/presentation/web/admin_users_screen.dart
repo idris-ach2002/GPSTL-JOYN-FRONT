@@ -67,6 +67,7 @@ class _AdminUsersViewState extends State<_AdminUsersView>
                         title: 'Utilisateurs',
                         subtitle: 'Gérer les comptes candidats, recruteurs et administrateurs.',
                         actions: [
+                          if (controller.canManageUsers)
                           FilledButton.icon(
                             key: const ValueKey('admin-invite-admin'),
                             style: FilledButton.styleFrom(

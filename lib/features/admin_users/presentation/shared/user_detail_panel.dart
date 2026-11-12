@@ -239,8 +239,8 @@ class _UserDetailPanel extends StatelessWidget {
                   ],
                 ),
               ),
-              const Divider(),
-              Padding(
+              if (controller.canManageUsers) const Divider(),
+              if (controller.canManageUsers) Padding(
                 padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
                 child: busy
                     ? const LinearProgressIndicator()

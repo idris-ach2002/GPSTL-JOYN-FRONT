@@ -15,7 +15,10 @@ enum CompanyStatus {
   final String apiValue;
 
   static CompanyStatus fromApi(String? value) => CompanyStatus.values
-      .firstWhere((status) => status.apiValue == value, orElse: () => pending);
+      .firstWhere((status) => status.apiValue == value?.toLowerCase() ||
+      (status == CompanyStatus.approved && value?.toUpperCase() == 'VERIFIED') ||
+      (status == CompanyStatus.pending && value?.toUpperCase() == 'NOT_VERIFIED') ||
+      (status == CompanyStatus.rejected && value?.toUpperCase() == 'REJECTED'), orElse: () => pending);
 }
 
 /// Logo d'une entreprise : une image choisie localement, ou une URL.

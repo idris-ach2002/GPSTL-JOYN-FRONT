@@ -102,6 +102,7 @@ class _MobileAdminUsersViewState extends State<_MobileAdminUsersView>
                       ],
                     ),
                   ),
+                  if (controller.canManageUsers)
                   IconButton(
                     key: const ValueKey('mobile-admin-invite'),
                     tooltip: 'Ajouter un admin',

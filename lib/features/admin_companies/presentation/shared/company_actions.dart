@@ -115,6 +115,8 @@ class CompanyRowActions extends StatelessWidget {
 
     final pending = company.status == CompanyStatus.pending;
 
+    final editable = handler.controller.canEditCompanies;
+    if (!editable && !pending && company.status != CompanyStatus.rejected) return const SizedBox.shrink();
     final menu = PopupMenuButton<_MenuAction>(
       key: ValueKey('menu-${company.id}'),
       tooltip: 'Actions',
@@ -148,16 +150,16 @@ class CompanyRowActions extends StatelessWidget {
               ),
             ),
           ),
-          const PopupMenuDivider(),
+          if (editable) const PopupMenuDivider(),
         ],
-        const PopupMenuItem(
+        if (editable) const PopupMenuItem(
           value: _MenuAction.edit,
           child: ListTile(
             leading: Icon(Icons.edit_outlined),
             title: Text('Modifier'),
           ),
         ),
-        if (company.status == CompanyStatus.approved)
+        if (editable && company.status == CompanyStatus.approved)
           const PopupMenuItem(
             value: _MenuAction.suspend,
             child: ListTile(
@@ -174,8 +176,8 @@ class CompanyRowActions extends StatelessWidget {
               title: Text('Valider / réactiver'),
             ),
           ),
-        const PopupMenuDivider(),
-        const PopupMenuItem(
+        if (editable) const PopupMenuDivider(),
+        if (editable) const PopupMenuItem(
           value: _MenuAction.delete,
           child: ListTile(
             leading: Icon(

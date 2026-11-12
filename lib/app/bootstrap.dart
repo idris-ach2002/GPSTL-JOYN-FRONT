@@ -24,11 +24,14 @@ import '../features/auth/data/auth_repository.dart';
 import '../features/auth/data/fake_auth_repository.dart';
 import '../features/auth/presentation/auth_controller.dart';
 import '../features/candidate_applications/data/api_candidate_applications_repository.dart';
+import '../features/candidate_applications/data/pending_interests_store.dart';
 import '../features/candidate_applications/data/mock_candidate_applications_repository.dart';
 import '../features/candidate_discover/data/api_recommended_offers_repository.dart';
 import '../features/candidate_discover/data/mock_recommended_offers_repository.dart';
 import '../features/dashboard/data/dashboard_repository.dart';
 import '../features/dashboard/data/fake_dashboard_repository.dart';
+import '../features/dashboard/data/api_dashboard_repository.dart';
+import '../features/profile/data/api_profile_repository.dart';
 import '../features/registration/data/auth_registration_repository.dart';
 import '../features/registration/data/mock_registration_repository.dart';
 import '../features/registration/data/registration_repository.dart';
@@ -64,7 +67,9 @@ Future<void> bootstrapJoyn({bool? webOverride}) async {
   final AuthRepository authRepository = api == null
       ? FakeAuthRepository()
       : (apiAuth = ApiAuthRepository(api));
-  final DashboardRepository dashboardRepository = FakeDashboardRepository();
+  final DashboardRepository dashboardRepository = api == null
+      ? FakeDashboardRepository()
+      : ApiDashboardRepository(api);
   final RecruiterDashboardRepository recruiterDashboardRepository =
       (environment.useApi
       ? ApiRecruiterDashboardRepository(api!)
@@ -76,30 +81,13 @@ Future<void> bootstrapJoyn({bool? webOverride}) async {
       (environment.useApi
       ? ApiRecruiterCandidateRepository(api!)
       : MockRecruiterCandidateRepository());
-  final AdminCompanyRepository adminCompanyRepository = environment.useApi
-      ? ApiAdminCompanyRepository(
-          ApiClient(
-            baseUrl: environment.apiBaseUrl,
-            timeout: environment.apiTimeout,
-          ),
-        )
-      : FakeAdminCompanyRepository();
-  final AdminUserRepository adminUserRepository = environment.useApi
-      ? ApiAdminUserRepository(
-          ApiClient(
-            baseUrl: environment.apiBaseUrl,
-            timeout: environment.apiTimeout,
-          ),
-        )
-      : FakeAdminUserRepository();
-  final VerificationRepository verificationRepository = environment.useApi
-      ? ApiVerificationRepository(
-          ApiClient(
-            baseUrl: environment.apiBaseUrl,
-            timeout: environment.apiTimeout,
-          ),
-        )
-      : FakeVerificationRepository();
+  // Every protected repository must share the JWT-aware client.
+  final AdminCompanyRepository adminCompanyRepository = api == null
+      ? FakeAdminCompanyRepository() : ApiAdminCompanyRepository(api);
+  final AdminUserRepository adminUserRepository = api == null
+      ? FakeAdminUserRepository() : ApiAdminUserRepository(api);
+  final VerificationRepository verificationRepository = api == null
+      ? FakeVerificationRepository() : ApiVerificationRepository(api);
   final RegistrationRepository registrationRepository = api != null
       ? ApiRegistrationRepository(api, apiAuth!)
       : AuthRegistrationRepository(
@@ -110,6 +98,7 @@ Future<void> bootstrapJoyn({bool? webOverride}) async {
   // Démo : candidatures simulées partagées entre « Matchs » et
   // « Mes candidatures ».
   final demoApplications = MockCandidateApplicationsRepository.demo();
+  final pendingInterests = PendingInterestsStore();
 
   authController = AuthController(authRepository);
   await authController.restoreSession();
@@ -124,16 +113,17 @@ Future<void> bootstrapJoyn({bool? webOverride}) async {
           : ApiRecruiterWorkspaceRepository(api),
       authController: authController,
       dashboardRepository: dashboardRepository,
+      profileRepository: api == null ? null : ApiProfileRepository(api),
       recruiterDashboardRepository: recruiterDashboardRepository,
       registrationRepository: registrationRepository,
       recruiterOffersRepository: recruiterOffersRepository,
       recruiterCandidateRepository: recruiterCandidateRepository,
       recommendedOffersRepository: api == null
           ? MockRecommendedOffersRepository(applications: demoApplications)
-          : ApiRecommendedOffersRepository(api),
+          : ApiRecommendedOffersRepository(api, interests: pendingInterests),
       candidateApplicationsRepository: api == null
           ? demoApplications
-          : ApiCandidateApplicationsRepository(api),
+          : ApiCandidateApplicationsRepository(api, interests: pendingInterests),
       adminCompanyRepository: adminCompanyRepository,
       adminUserRepository: adminUserRepository,
       verificationRepository: verificationRepository,

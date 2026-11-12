@@ -53,6 +53,7 @@ class _AdminCompaniesView extends StatelessWidget {
                         title: 'Entreprises',
                         subtitle: 'Valider, modifier et modérer les entreprises enregistrées.',
                         actions: [
+                          if (controller.canEditCompanies)
                           FilledButton.icon(
                             key: const ValueKey('admin-add-company'),
                             style: FilledButton.styleFrom(

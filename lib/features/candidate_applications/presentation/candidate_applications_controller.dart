@@ -179,6 +179,7 @@ class CandidateApplicationsController extends ChangeNotifier {
     );
     try {
       await _repository.sendApplication(application.id);
+      await load(); // Use the persisted application ID and server status.
       return true;
     } catch (e) {
       debugPrint('Erreur pendant l’envoi de la candidature : $e');

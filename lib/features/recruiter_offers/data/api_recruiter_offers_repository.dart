@@ -10,7 +10,6 @@ import 'recruiter_offers_repository.dart';
 class ApiRecruiterOffersRepository implements RecruiterOffersRepository {
   ApiRecruiterOffersRepository(this.api);
   final ApiClient api;
-  static const companiesPath = '/api/v1/recruiters/companies';
   static const offersPath = '/api/v1/recruiters/jobs';
   int _int(Object? v) => v is num ? v.toInt() : int.parse('$v');
   double? _double(Object? v) => v == null ? null : double.parse('$v');
@@ -47,7 +46,7 @@ class ApiRecruiterOffersRepository implements RecruiterOffersRepository {
     ),
     experienceLevel: _enum(
       ExperienceLevel.values,
-      j['experience_level'] as String?,
+      (j['experience_level'] ?? 'JUNIOR') as String?,
       (v) => v.apiValue,
     ),
     description: '${j['description'] ?? ''}',
@@ -72,27 +71,47 @@ class ApiRecruiterOffersRepository implements RecruiterOffersRepository {
         : _int(j['duration_months']),
     degreeLevelRequired: j['degree_level_required'] as String?,
     publishedAt: DateTime.tryParse('${j['published_at']}'),
-    updatedAt: DateTime.parse('${j['updated_at']}'),
+    updatedAt: DateTime.tryParse('${j['updated_at']}') ?? DateTime.fromMillisecondsSinceEpoch(0),
     candidateCount: _int(j['candidate_count'] ?? 0),
   );
+  bool hasFullOffer(int id) => _offers.containsKey(id) && !_partialOffers.contains(id);
   String? _token;
   Map<int, JobOffer> _offers = {};
+  final Set<int> _partialOffers = {};
+  RecruiterCompany? _linkedCompany;
 
   Future<Map<int, JobOffer>> _session() async {
     final token = await api.tokenProvider?.call();
     if (token != _token) {
       _token = token;
       _offers = {};
+      _partialOffers.clear();
+      _linkedCompany = null;
     }
     return _offers;
   }
 
   @override
   Future<List<RecruiterCompany>> fetchCompanies() async {
-    final session = await _session();
+    await _session();
     final profile = apiObject(await api.getJson('/api/v1/recruiters/profile'));
-    return [_company({'id': session.values.firstOrNull?.companyId ?? 0,
-      'name': profile['companyName']})];
+    final name = '${profile['companyName'] ?? ''}'.trim();
+    if (name.isEmpty) return const [];
+    int companyId = _linkedCompany?.id ?? 0;
+    if (companyId == 0) {
+      try {
+        final dashboard = apiObject(await api.getJson('/api/v1/recruiters/dashboard'));
+        companyId = _int(dashboard['companyId'] ?? 0);
+      } catch (_) {
+        // The company still belongs to the user, even if KPIs are offline.
+      }
+    }
+    // One company per recruiter. Company ID is not returned by /profile;
+    // the temporary 0 is only an editor value, never sent to the backend.
+    _linkedCompany = _company({
+      'id': companyId, 'name': name,
+    });
+    return [_linkedCompany!];
   }
 
   @override
@@ -100,13 +119,49 @@ class ApiRecruiterOffersRepository implements RecruiterOffersRepository {
 
   @override
   Future<RecruiterCompany> createCompany(RecruiterCompanyDraft draft) async =>
-      throw UnsupportedError('Les offres utilisent l’entreprise du compte.');
+      throw UnsupportedError('Votre entreprise est déjà liée à votre compte.');
 
   @override
-  Future<List<JobOffer>> fetchOffers() async => (await _session()).values.toList();
+  Future<List<JobOffer>> fetchOffers() async {
+    final session = await _session();
+    // There is no full GET recruiter jobs endpoint on the current API.
+    // Dashboard topOffers is a PARTIAL list, not a complete job catalog.
+    final dashboard = apiObject(await api.getJson('/api/v1/recruiters/dashboard'));
+    final summaries = dashboard['topOffers'] as List? ?? const [];
+    for (final item in summaries) {
+      if (item is! Map) continue;
+      final row = Map<String, dynamic>.from(item);
+      final id = _int(row['id']);
+      if (session.containsKey(id)) continue;
+      final contract = '${row['contract'] ?? 'CDI'}';
+      final status = '${row['status'] ?? 'PUBLISHED'}';
+      session[id] = _offer({
+        'id': id, 'company_id': _linkedCompany?.id ?? 0,
+        'title': row['title'] ?? 'Offre',
+        'contract_type': ContractType.values.any((c) => c.apiValue == contract)
+            ? contract : 'CDI',
+        'location': row['location'] ?? '',
+        'remote_policy': 'ONSITE',
+        'experience_level': 'JUNIOR',
+        'status': JobOfferStatus.values.any((c) => c.apiValue == status)
+            ? status : 'PUBLISHED',
+        'description': '', 'skills': const <String>[],
+        'candidate_count': row['applications'] ?? 0,
+        'updated_at': null,
+      });
+      _partialOffers.add(id);
+    }
+    return session.values.toList();
+  }
 
   @override
-  Future<JobOffer?> fetchOffer(int id) async => (await _session())[id];
+  Future<JobOffer?> fetchOffer(int id) async {
+    final session = await _session();
+    if (_partialOffers.contains(id)) {
+      throw UnsupportedError('Le backend ne fournit que le résumé de cette offre : édition indisponible.');
+    }
+    return session[id];
+  }
 
   @override
   Future<JobOffer> createOffer(JobOfferDraft draft, JobOfferStatus status) async {
@@ -114,12 +169,18 @@ class ApiRecruiterOffersRepository implements RecruiterOffersRepository {
     final offer = _offer(apiObject(await api.postJson(offersPath,
         body: JobOfferApiMapper.toCreateJson(draft, status))));
     session[offer.id] = offer;
+    _linkedCompany = _linkedCompany == null ? null : _company({
+      'id': offer.companyId, 'name': _linkedCompany!.name,
+    });
     return offer;
   }
 
   @override
   Future<JobOffer> updateOffer(int id, JobOfferDraft draft) async {
     final session = await _session();
+    if (_partialOffers.contains(id)) {
+      throw UnsupportedError('Édition indisponible : la route de lecture complète manque.');
+    }
     if (session[id]?.contractType != draft.contractType) {
       throw UnsupportedError('Le changement de contrat nécessite le catalogue des contrats.');
     }
@@ -129,10 +190,13 @@ class ApiRecruiterOffersRepository implements RecruiterOffersRepository {
     body['remote_mode'] = body.remove('remote_policy');
     body['experience_level_required'] = body.remove('experience_level');
     body['salary_currency'] = body.remove('currency');
+    body.remove('contract_type');
+    body.remove('status');
     final json = apiObject(await api.patchJson(JobOfferApiMapper.jobPath(id), body: body));
     final offer = _offer({...json, 'contract_type': draft.contractType.apiValue,
-      'remote_policy': json['remote_mode'], 'experience_level': json['experience_level_required'],
-      'currency': json['salary_currency']});
+      'remote_policy': json['remote_policy'] ?? json['remote_mode'] ?? draft.remoteMode.apiValue,
+      'experience_level': json['experience_level'] ?? json['experience_level_required'] ?? draft.experienceLevel.apiValue,
+      'currency': json['currency'] ?? json['salary_currency'] ?? draft.currency});
     session[id] = offer;
     return offer;
   }

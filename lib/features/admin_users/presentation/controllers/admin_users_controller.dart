@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../../data/admin_user_repository.dart';
+import '../../data/api_admin_user_repository.dart';
 import '../../domain/admin_user.dart';
 import '../../domain/admin_user_options.dart';
 import '../../domain/user_query.dart';
@@ -32,6 +33,7 @@ class AdminUsersController extends ChangeNotifier {
   });
 
   final AdminUserRepository _repository;
+  bool get canManageUsers => _repository is! ApiAdminUserRepository;
 
   /// Identifiant de l'administrateur connecté (protection anti auto-sanction).
   final String? currentUserId;

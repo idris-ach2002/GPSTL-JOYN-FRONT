@@ -1,3 +1,4 @@
+import 'package:joyn_front/design_system/components/joyn_logo.dart';
 import '../../../recruiter_studio/presentation/studio_search.dart';
 import '../../../recruiter_studio/presentation/studio_components.dart';
 
@@ -358,6 +359,8 @@ class DistributionDonut extends StatelessWidget {
     ),
   );
 
+  double get _distributionTotal => items.fold<double>(0, (sum, item) => sum + item.value);
+
   Widget _legend() => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     mainAxisSize: MainAxisSize.min,
@@ -386,7 +389,7 @@ class DistributionDonut extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               Text(
-                '${items[i].value.round()}%',
+                '${_distributionTotal == 0 ? 0 : (100 * items[i].value / _distributionTotal).round()}%',
                 style: const TextStyle(
                   color: _navy,
                   fontSize: 10.5,
@@ -633,36 +636,8 @@ class RecruiterMobileHeaderBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Row(
     children: [
-      Container(
-        width: 34,
-        height: 34,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: StudioColors.background(context, Color(0xFFFF6538)),
-          shape: BoxShape.circle,
-        ),
-        child: Text(
-          'J',
-          style: TextStyle(
-            color: StudioColors.text(context, Colors.white),
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-      ),
-      const SizedBox(width: 8),
-      Expanded(
-        child: Text(
-          'joyn',
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            color: StudioColors.text(context, Colors.white),
-            fontSize: 22,
-            fontWeight: FontWeight.w900,
-            letterSpacing: -.8,
-          ),
-        ),
-      ),
+      const JoynLogo(onDark: true, markSize: 30),
+      const Spacer(),
       const _MobileHeaderIcon(icon: Icons.notifications_none_rounded),
       const SizedBox(width: 7),
       const _MobileHeaderIcon(icon: Icons.search_rounded),

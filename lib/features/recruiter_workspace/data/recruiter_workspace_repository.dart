@@ -84,76 +84,78 @@ class ApiRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
     return response == null ? profile() : apiObject(response);
   }
 
+  // The server stores only the recruiter's first and last names.
+  // Settings are presentation preferences for this running session only.
+  final Map<String, dynamic> _localSettings = {
+    'emailNotifications': false, 'messageNotifications': false,
+    'matchNotifications': false, 'profileVisible': true,
+  };
+  final Set<String> _readActivities = {};
+
   @override
-  Future<Map<String, dynamic>> settings() async =>
-      apiObject(await api.getJson('$root/settings'));
+  Future<Map<String, dynamic>> settings() async => Map.of(_localSettings);
   @override
   Future<Map<String, dynamic>> saveSettings(Map<String, dynamic> value) async {
-    final response = await api.patchJson('$root/settings', body: value);
-    return response == null ? settings() : apiObject(response);
+    _localSettings.addAll(value);
+    return Map.of(_localSettings);
   }
 
   @override
-  Future<List<Map<String, dynamic>>> notifications() async =>
-      (apiObject(await api.getJson('$root/dashboard',query:{'period':'30d'}))['activities'] as List)
-          .map((e) => {...Map<String,dynamic>.from(e as Map), 'read': true}).toList();
-  @override
-  Future<void> readNotification(String id) async {
-    await api.patchJson(
-      '$root/notifications/${Uri.encodeComponent(id)}',
-      body: {'read': true},
-    );
+  Future<List<Map<String, dynamic>>> notifications() async {
+    final body = apiObject(await api.getJson('$root/dashboard', query: {'period': '30d'}));
+    final activities = body['activities'] as List? ?? const [];
+    final events = <Map<String, dynamic>>[];
+    final occurrences = <String, int>{};
+    for (final row in activities.whereType<Map>()) {
+      final kind = row['kind'];
+      final key = jsonEncode([kind, row['occurredAt'], row['title'], row['subtitle']]);
+      final sequence = occurrences.update(key, (n) => n + 1, ifAbsent: () => 0);
+      final id = '$key/$sequence';
+      if (_hiddenActivities.contains(id)) continue;
+      events.add({
+        'id': id, 'title': row['title'], 'body': row['subtitle'],
+        'createdAt': row['occurredAt'], 'whenLabel': row['whenLabel'], 'kind': kind,
+        'read': _readActivities.contains(id),
+        'target': kind == 'offer' ? '/recruiter/jobs'
+            : kind == 'interview' ? '/recruiter/dashboard' : '/recruiter/candidates',
+      });
+    }
+    return events;
+  }
+  final Set<String> _hiddenActivities = {};
+
+  void clearActivityState() {
+    _readActivities.clear();
+    _hiddenActivities.clear();
   }
 
   @override
-  Future<void> updateNotification(
-    String id,
-    Map<String, dynamic> changes,
-  ) async {
-    await api.patchJson(
-      '$root/notifications/${Uri.encodeComponent(id)}',
-      body: changes,
-    );
+  Future<void> readNotification(String id) async { _readActivities.add(id); }
+  @override
+  Future<void> updateNotification(String id, Map<String, dynamic> changes) async {
+    if (changes['read'] == true) {
+      _readActivities.add(id);
+    } else if (changes['read'] == false) {
+      _readActivities.remove(id);
+    }
   }
+  @override
+  Future<void> deleteNotification(String id) async { _hiddenActivities.add(id); }
 
+  // No real-time conversations/messages exist in Spring Boot main. These
+  // screens remain accessible, with honest empty states, not fake chats.
   @override
-  Future<void> deleteNotification(String id) async {
-    await api.deleteJson('$root/notifications/${Uri.encodeComponent(id)}');
-  }
-
+  Future<List<Map<String, dynamic>>> conversations() async => const [];
   @override
-  Future<List<Map<String, dynamic>>> conversations() async =>
-      apiList(await api.getJson('/api/v1/conversations'));
+  Future<Map<String, dynamic>> startConversation(String candidateId, String name) async =>
+      throw UnsupportedError('La messagerie sera activée par l’équipe backend.');
   @override
-  Future<Map<String, dynamic>> startConversation(
-    String candidateId,
-    String name,
-  ) async => apiObject(
-    await api.postJson(
-      '/api/v1/conversations',
-      body: {'candidateId': candidateId},
-    ),
-  );
-  String _path(String id) => '/api/v1/conversations/${Uri.encodeComponent(id)}';
+  Future<List<Map<String, dynamic>>> messages(String conversationId) async => const [];
   @override
-  Future<List<Map<String, dynamic>>> messages(String conversationId) async =>
-      apiList(await api.getJson('${_path(conversationId)}/messages'));
+  Future<void> readConversation(String id) async {}
   @override
-  Future<void> readConversation(String id) async {
-    await api.patchJson('${_path(id)}/read', body: {'read': true});
-  }
-
-  @override
-  Future<Map<String, dynamic>> send(
-    String conversationId,
-    String text,
-    String clientId,
-  ) async => apiObject(
-    await api.postJson(
-      '${_path(conversationId)}/messages',
-      body: {'text': text, 'clientId': clientId},
-    ),
-  );
+  Future<Map<String, dynamic>> send(String conversationId, String text, String clientId) async =>
+      throw UnsupportedError('L’envoi de messages n’est pas disponible.');
 }
 
 /// Données de démonstration isolées par instance et conservées pendant la session.

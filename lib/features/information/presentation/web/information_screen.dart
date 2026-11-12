@@ -26,7 +26,7 @@ class InformationScreen extends StatelessWidget {
       automaticallyImplyLeading: false,
       title: const Row(
         mainAxisSize: MainAxisSize.min,
-        children: [JoynMark(size: 30), SizedBox(width: 10), Text('joyn')],
+        children: [JoynMark(size: 30)],
       ),
       actions: [
         TextButton.icon(

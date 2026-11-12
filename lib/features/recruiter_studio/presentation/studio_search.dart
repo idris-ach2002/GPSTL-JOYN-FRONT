@@ -54,6 +54,13 @@ class _StudioSearchDialogState extends State<_StudioSearchDialog> {
                 target: '/recruiter/jobs/new',
                 icon: Icons.add_circle_outline,
               ),
+              if (workspace?.repository.isMock == false)
+                (
+                  label: 'Outils par identifiant',
+                  subtitle: 'Consulter une candidature ou archiver une offre',
+                  target: '/recruiter/outils',
+                  icon: Icons.manage_search,
+                ),
               (
                 label: 'Talents',
                 subtitle: 'Profils recommandés et recherches enregistrées',

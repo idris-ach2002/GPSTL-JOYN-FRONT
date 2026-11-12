@@ -7,6 +7,8 @@ import '../../features/recruiter_workspace/presentation/workspace_controller.dar
 import '../../features/recruiter_studio/presentation/studio_components.dart';
 import '../../features/recruiter_studio/presentation/studio_controller.dart';
 import '../../features/recruiter_workspace/presentation/workspace_screen.dart';
+import '../../features/recruiter_workspace/presentation/connected_offer_summary.dart';
+import '../../features/recruiter_offers/data/api_recruiter_offers_repository.dart';
 
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/widgets.dart';
@@ -394,19 +396,20 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
       ),
 
       GoRoute(
+        path: '/recruiter/outils',
+        redirect: (context, state) => context.read<RegistrationRepository>() is ApiRegistrationRepository
+            ? null : AppRoutes.recruiterCandidates,
+        builder: (context, state) => ConnectedRecruiterScreen(
+          (context.read<RegistrationRepository>() as ApiRegistrationRepository).api,
+        ),
+      ),
+      GoRoute(
         path: '/recruiter/postulants',
-        builder: (context, state) {
-          final repo = context.read<RegistrationRepository>();
-          return repo is ApiRegistrationRepository
-              ? ConnectedRecruiterScreen(repo.api)
-              : const WebRecruiterCandidatesScreen();
-        },
+        redirect: (context, state) => AppRoutes.recruiterCandidates,
       ),
       GoRoute(
         path: AppRoutes.recruiterCandidates,
         name: 'recruiterCandidates',
-        redirect: (context, state) => context.read<RegistrationRepository?>() is ApiRegistrationRepository
-            ? '/recruiter/postulants' : null,
         builder: (context, state) => ChangeNotifierProvider(
           create: (context) => RecruiterCandidateController(
             context.read<RecruiterCandidateRepository>(),
@@ -493,6 +496,10 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
         builder: (context, state) {
           final id = int.tryParse(state.pathParameters['jobId'] ?? '');
           if (id == null) return const SizedBox.shrink();
+          final repo = context.read<RecruiterOffersRepository>();
+          if (repo is ApiRecruiterOffersRepository && !repo.hasFullOffer(id)) {
+            return ConnectedOfferSummary(key: ValueKey(id), offerId: id);
+          }
           if (useMobile(context)) {
             return ChangeNotifierProvider(
               create: (context) => OfferDetailController(
@@ -543,7 +550,8 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
             key: ValueKey(section),
             section: section,
             mobile: useMobile(context),
-            candidateId: state.uri.queryParameters['candidateId'],
+            candidateId: context.read<WorkspaceController>().repository.isMock
+                ? state.uri.queryParameters['candidateId'] : state.uri.queryParameters['profileId'],
             candidateName: state.uri.queryParameters['name'],
           ),
         ),

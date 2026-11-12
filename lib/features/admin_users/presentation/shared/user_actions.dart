@@ -106,6 +106,9 @@ class UserRowMenu extends StatelessWidget {
       );
     }
 
+    if (!handler.controller.canManageUsers) {
+      return IconButton(tooltip: 'Voir le détail', icon: const Icon(Icons.badge_outlined), onPressed: onShowDetails);
+    }
     final sanctioned =
         user.status == AccountStatus.suspended ||
         user.status == AccountStatus.banned;

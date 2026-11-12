@@ -121,7 +121,7 @@ class _ApplicationPanelState extends State<ApplicationPanel> {
                           Uri(
                             path: AppRoutes.recruiterMessages,
                             queryParameters: {
-                              'candidateId': '${item['candidateId']}',
+                              (widget.repository.isMock ? 'candidateId' : 'profileId'): '${item['candidateId']}',
                               'name': '${item['name']}',
                             },
                           ).toString(),
@@ -140,7 +140,7 @@ class _ApplicationPanelState extends State<ApplicationPanel> {
                         child: Text('Entretien'),
                       ),
                       PopupMenuItem(value: 'REJECTED', child: Text('Refuser')),
-                      if (widget.repository.isMock) PopupMenuItem(value: 'contact', child: Text('Contacter')),
+                      if (item['candidateId'] != null) PopupMenuItem(value: 'contact', child: Text('Contacter')),
                     ],
                   ),
                 ),
