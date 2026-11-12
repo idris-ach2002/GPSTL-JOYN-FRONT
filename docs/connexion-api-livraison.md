@@ -1,7 +1,7 @@
 # JOYN — livraison du raccordement Flutter / Spring Boot
 
-**Date :** 12 novembre 2026  
-**Branche de travail :** `feat/connexion-er-back` (archive Git jointe)  
+**Date :** 12 novembre 2026
+**Branche de travail :** `feat/connexion-er-back` (archive Git jointe)
 **Périmètre :** frontend exclusivement. Aucun fichier du dépôt backend n'a été modifié.
 
 ## Principe de conception
