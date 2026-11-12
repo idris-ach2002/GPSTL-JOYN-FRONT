@@ -12,6 +12,7 @@ class ApiClient {
     this.timeout = const Duration(seconds: 12),
     http.Client? httpClient,
     this.tokenProvider,
+    this.onUnauthorized,
   }) : _baseUri = Uri.parse(_normalizeBaseUrl(baseUrl)),
        _http = httpClient ?? http.Client();
 
@@ -19,6 +20,7 @@ class ApiClient {
   final Duration timeout;
   final http.Client _http;
   final AuthTokenProvider? tokenProvider;
+  final void Function()? onUnauthorized;
 
   static String _normalizeBaseUrl(String value) {
     final trimmed = value.trim();
@@ -111,6 +113,7 @@ class ApiClient {
   }
 
   Object? _decode(http.Response response) {
+    if (response.statusCode == 401) onUnauthorized?.call();
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw ApiException(
         statusCode: response.statusCode,

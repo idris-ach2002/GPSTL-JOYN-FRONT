@@ -1,9 +1,16 @@
+import '../../../recruiter_studio/presentation/studio_search.dart';
+import '../../../recruiter_studio/presentation/studio_controller.dart';
+
+import 'package:provider/provider.dart';
+
+import '../../../recruiter_workspace/presentation/workspace_controller.dart';
+import '../../../../design_system/tokens/app_colors.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/routing/app_routes.dart';
 import '../../../../design_system/components/joyn_logo.dart';
-import '../../../../design_system/tokens/app_colors.dart';
 import '../../../../design_system/tokens/app_radius.dart';
 
 class RecruiterOffersTopBar extends StatelessWidget {
@@ -15,6 +22,8 @@ class RecruiterOffersTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final studio = context.watch<StudioController?>();
+    final workspace = context.watch<WorkspaceController?>();
     final width = MediaQuery.sizeOf(context).width;
     final showLabels = width >= 880;
     return Row(
@@ -71,28 +80,66 @@ class RecruiterOffersTopBar extends StatelessWidget {
           ),
         ),
         const Spacer(),
-        for (final icon in [
-          Icons.notifications_none_rounded,
-          Icons.settings_outlined,
-          Icons.chat_bubble_outline_rounded,
-        ]) ...[_CircleButton(icon: icon), const SizedBox(width: 8)],
-        const CircleAvatar(
-          radius: 18,
-          backgroundColor: Colors.white,
-          child: Text(
-            'E',
-            style: TextStyle(
-              color: AppColors.navy,
-              fontWeight: FontWeight.w900,
+        IconButton(
+          tooltip: 'Rechercher dans le studio',
+          onPressed: () => studioOpenSearch(context),
+          icon: const Icon(Icons.search_rounded, color: Colors.white),
+        ),
+        for (final item in const [
+          (
+            Icons.notifications_none_rounded,
+            AppRoutes.recruiterNotifications,
+            'Notifications',
+          ),
+          (Icons.settings_outlined, AppRoutes.recruiterSettings, 'Paramètres'),
+          (
+            Icons.chat_bubble_outline_rounded,
+            AppRoutes.recruiterMessages,
+            'Messages',
+          ),
+          (
+            Icons.account_circle_outlined,
+            AppRoutes.recruiterProfile,
+            'Mon profil',
+          ),
+        ]) ...[
+          IconButton(
+            tooltip: item.$3,
+            onPressed: () => context.go(item.$2),
+            icon: Badge(
+              isLabelVisible:
+                  (item.$2 == AppRoutes.recruiterNotifications
+                      ? workspace?.notifications
+                                .where(
+                                  (n) =>
+                                      n['read'] != true &&
+                                      studio?.contains(
+                                            'archivedNotifications',
+                                            '${n['id']}',
+                                          ) !=
+                                          true &&
+                                      !(DateTime.tryParse(
+                                            '${studio?.object('snoozedNotifications')['${n['id']}']}',
+                                          )?.isAfter(DateTime.now()) ??
+                                          false),
+                                )
+                                .length ??
+                            0
+                      : item.$2 == AppRoutes.recruiterMessages
+                      ? workspace?.unreadMessages ?? 0
+                      : 0) >
+                  0,
+              child: Icon(item.$1, color: Colors.white, size: 20),
             ),
           ),
-        ),
+          const SizedBox(width: 2),
+        ],
       ],
     );
   }
 }
 
-enum RecruiterTopTab { dashboard, offers, candidates }
+enum RecruiterTopTab { dashboard, offers, candidates, workspace }
 
 class _Tab extends StatelessWidget {
   const _Tab({
@@ -138,21 +185,6 @@ class _Tab extends StatelessWidget {
           ],
         ),
       ),
-    ),
-  );
-}
-
-class _CircleButton extends StatelessWidget {
-  const _CircleButton({required this.icon});
-  final IconData icon;
-  @override
-  Widget build(BuildContext context) => IconButton(
-    onPressed: () {},
-    icon: Icon(icon, size: 19),
-    color: Colors.white,
-    style: IconButton.styleFrom(
-      side: BorderSide(color: Colors.white.withValues(alpha: .55)),
-      minimumSize: const Size.square(38),
     ),
   );
 }

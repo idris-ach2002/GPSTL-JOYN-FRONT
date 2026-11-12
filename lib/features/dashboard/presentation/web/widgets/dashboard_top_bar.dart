@@ -10,13 +10,21 @@ import 'package:joyn_front/core/widgets/coming_soon.dart';
 import 'package:joyn_front/core/widgets/joyn_logo.dart';
 import 'package:joyn_front/features/auth/presentation/auth_controller.dart';
 
+/// Onglet mis en avant dans la barre du haut.
+enum DashboardTab { offers, dashboard, applications }
+
 /// Barre du haut : logo, onglets, raccourcis et menu du compte.
 ///
 /// Sur petit écran, les onglets passent sous la barre.
 class DashboardTopBar extends StatelessWidget {
-  const DashboardTopBar({super.key, required this.isWide});
+  const DashboardTopBar({
+    super.key,
+    required this.isWide,
+    this.activeTab = DashboardTab.dashboard,
+  });
 
   final bool isWide;
+  final DashboardTab activeTab;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +32,10 @@ class DashboardTopBar extends StatelessWidget {
       children: [
         const JoynLogo(size: 30, wordmarkColor: Colors.white),
         const Spacer(),
-        if (isWide) ...[const _NavTabs(showLabels: true), const Spacer()],
+        if (isWide) ...[
+          _NavTabs(showLabels: true, activeTab: activeTab),
+          const Spacer(),
+        ],
         _RoundIconButton(
           icon: Icons.notifications_none_rounded,
           tooltip: 'Notifications',
@@ -56,8 +67,10 @@ class DashboardTopBar extends StatelessWidget {
         bar,
         const SizedBox(height: AppSpacing.md),
         LayoutBuilder(
-          builder: (context, constraints) =>
-              _NavTabs(showLabels: constraints.maxWidth >= 440),
+          builder: (context, constraints) => _NavTabs(
+            showLabels: constraints.maxWidth >= 440,
+            activeTab: activeTab,
+          ),
         ),
       ],
     );
@@ -66,14 +79,18 @@ class DashboardTopBar extends StatelessWidget {
 
 /// Onglets « Offres / Dashboard / Candidatures » dans une pilule translucide.
 class _NavTabs extends StatelessWidget {
-  const _NavTabs({required this.showLabels});
+  const _NavTabs({required this.showLabels, required this.activeTab});
 
   final bool showLabels;
+  final DashboardTab activeTab;
+
+  /// Va sur [route], sauf si l'onglet est déjà ouvert.
+  void _open(BuildContext context, DashboardTab tab, String route) {
+    if (tab != activeTab) context.go(route);
+  }
 
   @override
   Widget build(BuildContext context) {
-    // TODO(navigation): brancher Offres et Candidatures quand les pages
-    // existeront (routes à ajouter dans app_routes.dart / app_router.dart).
     return Container(
       padding: const EdgeInsets.all(AppSpacing.xs),
       decoration: BoxDecoration(
@@ -88,20 +105,31 @@ class _NavTabs extends StatelessWidget {
             icon: Icons.work_outline_rounded,
             label: 'Offres',
             showLabel: showLabels,
-            onTap: () => context.go(AppRoutes.recruiterJobs),
+            isActive: activeTab == DashboardTab.offers,
+            onTap: () => _open(
+              context,
+              DashboardTab.offers,
+              AppRoutes.candidateDiscover,
+            ),
           ),
           _NavTab(
             icon: Icons.grid_view_rounded,
             label: 'Dashboard',
             showLabel: showLabels,
-            isActive: true,
-            onTap: () {},
+            isActive: activeTab == DashboardTab.dashboard,
+            onTap: () =>
+                _open(context, DashboardTab.dashboard, AppRoutes.dashboard),
           ),
           _NavTab(
             icon: Icons.description_outlined,
             label: 'Candidatures',
             showLabel: showLabels,
-            onTap: () => showComingSoon(context, 'Candidatures'),
+            isActive: activeTab == DashboardTab.applications,
+            onTap: () => _open(
+              context,
+              DashboardTab.applications,
+              AppRoutes.candidateApplications,
+            ),
           ),
         ],
       ),

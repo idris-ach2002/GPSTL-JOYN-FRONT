@@ -1,3 +1,10 @@
+import '../../features/recruiter_studio/presentation/studio_planner.dart';
+import '../../features/recruiter_studio/presentation/studio_talents.dart';
+import '../../features/recruiter_workspace/presentation/workspace_controller.dart';
+import '../../features/recruiter_studio/presentation/studio_components.dart';
+import '../../features/recruiter_studio/presentation/studio_controller.dart';
+import '../../features/recruiter_workspace/presentation/workspace_screen.dart';
+
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
@@ -18,6 +25,14 @@ import '../../features/admin_companies/presentation/controllers/admin_companies_
 import '../../features/admin_companies/presentation/mobile/mobile_admin_companies_screen.dart';
 import '../../features/admin/presentation/shared/admin_forbidden_screen.dart';
 import '../../features/admin_companies/presentation/web/admin_companies_screen.dart';
+import '../../features/candidate_applications/data/candidate_applications_repository.dart';
+import '../../features/candidate_applications/presentation/candidate_applications_controller.dart';
+import '../../features/candidate_applications/presentation/mobile/mobile_candidate_applications_screen.dart';
+import '../../features/candidate_applications/presentation/web/candidate_applications_screen.dart';
+import '../../features/candidate_discover/data/recommended_offers_repository.dart';
+import '../../features/candidate_discover/presentation/controllers/discover_controller.dart';
+import '../../features/candidate_discover/presentation/mobile/mobile_discover_screen.dart';
+import '../../features/candidate_discover/presentation/web/discover_screen.dart';
 import '../../features/auth/domain/user_role.dart';
 import '../../features/auth/presentation/auth_controller.dart';
 import '../../features/auth/presentation/mobile/mobile_forgot_password_screen.dart';
@@ -238,7 +253,7 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
             return ChangeNotifierProvider(
               create: (context) => RecruiterDashboardController(
                 context.read<RecruiterDashboardRepository>(),
-              )..loadOverview(),
+              )..loadDashboard(),
               child: useMobile(context)
                   ? const MobileRecruiterDashboardScreen()
                   : const WebRecruiterDashboardScreen(),
@@ -253,6 +268,32 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
                 : const DashboardPage(),
           );
         },
+      ),
+
+      GoRoute(
+        path: AppRoutes.candidateApplications,
+        name: 'candidateApplications',
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) => CandidateApplicationsController(
+            context.read<CandidateApplicationsRepository>(),
+          )..load(),
+          child: useMobile(context)
+              ? const MobileCandidateApplicationsScreen()
+              : const WebCandidateApplicationsScreen(),
+        ),
+      ),
+
+      GoRoute(
+        path: AppRoutes.candidateDiscover,
+        name: 'candidateDiscover',
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) =>
+              DiscoverController(context.read<RecommendedOffersRepository>())
+                ..load(),
+          child: useMobile(context)
+              ? const MobileDiscoverScreen()
+              : const WebDiscoverScreen(),
+        ),
       ),
 
       GoRoute(
@@ -372,9 +413,21 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
         path: AppRoutes.recruiterJobCreate,
         name: 'recruiterJobCreate',
         builder: (context, state) => ChangeNotifierProvider(
-          create: (context) =>
-              OfferEditorController(context.read<RecruiterOffersRepository>())
-                ..load(),
+          create: (context) => OfferEditorController(
+            context.read<RecruiterOffersRepository>(),
+            defaults: context.read<StudioController>().object('offerDefaults'),
+            emptyDraft: true,
+            template:
+                context
+                        .read<StudioController>()
+                        .list('offerTemplates')
+                        .where(
+                          (v) =>
+                              v['id'] == state.uri.queryParameters['template'],
+                        )
+                        .firstOrNull?['offer']
+                    as Map<String, dynamic>?,
+          )..load(),
           child: useMobile(context)
               ? const MobileOfferEditorScreen()
               : const WebOfferEditorScreen(),
@@ -437,6 +490,54 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
             child: const WebOfferDetailScreen(),
           );
         },
+      ),
+      GoRoute(
+        path: AppRoutes.recruiterCompany,
+        redirect: (context, state) => AppRoutes.recruiterProfile,
+      ),
+      GoRoute(
+        path: AppRoutes.messages,
+        redirect: (context, state) => auth.user?.role == UserRole.company
+            ? AppRoutes.recruiterMessages
+            : AppRoutes.dashboard,
+      ),
+      for (final section in [
+        'profile',
+        'notifications',
+        'messages',
+        'settings',
+      ])
+        GoRoute(
+          path: '/recruiter/$section',
+          onExit: (context, state) async =>
+              !auth.isAuthenticated ||
+              section != 'profile' ||
+              !context.read<WorkspaceController>().profileDirty ||
+              await studioConfirm(
+                context,
+                'Quitter sans enregistrer ?',
+                'Les modifications du profil seront perdues.',
+                action: 'Quitter',
+              ),
+          builder: (context, state) => RecruiterWorkspaceScreen(
+            key: ValueKey(section),
+            section: section,
+            mobile: useMobile(context),
+            candidateId: state.uri.queryParameters['candidateId'],
+            candidateName: state.uri.queryParameters['name'],
+          ),
+        ),
+      GoRoute(
+        path: '/recruiter/planner',
+        builder: (context, state) => StudioPlanner(
+          initialTab:
+              (int.tryParse(state.uri.queryParameters['tab'] ?? '0') ?? 0)
+                  .clamp(0, 3),
+        ),
+      ),
+      GoRoute(
+        path: '/recruiter/compare',
+        builder: (context, state) => const StudioComparison(),
       ),
       for (final entry in informationPages.entries)
         GoRoute(

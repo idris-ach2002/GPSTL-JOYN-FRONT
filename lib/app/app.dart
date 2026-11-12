@@ -1,3 +1,13 @@
+import 'package:flutter/services.dart';
+
+import '../features/recruiter_studio/presentation/studio_search.dart';
+import '../features/recruiter_studio/data/studio_store.dart';
+import '../features/recruiter_studio/data/studio_repository.dart';
+import '../features/recruiter_studio/presentation/studio_controller.dart';
+import '../features/auth/domain/user_role.dart';
+import '../features/recruiter_workspace/data/recruiter_workspace_repository.dart';
+import '../features/recruiter_workspace/presentation/workspace_controller.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
@@ -11,6 +21,10 @@ import '../features/admin_verifications/data/fake_verification_repository.dart';
 import '../features/admin_verifications/data/verification_repository.dart';
 import '../features/auth/data/fake_auth_repository.dart';
 import '../features/auth/presentation/auth_controller.dart';
+import '../features/candidate_applications/data/candidate_applications_repository.dart';
+import '../features/candidate_applications/data/mock_candidate_applications_repository.dart';
+import '../features/candidate_discover/data/mock_recommended_offers_repository.dart';
+import '../features/candidate_discover/data/recommended_offers_repository.dart';
 import '../features/dashboard/data/dashboard_repository.dart';
 import '../features/dashboard/data/fake_dashboard_repository.dart';
 import '../features/profile/data/fake_profile_repository.dart';
@@ -36,6 +50,9 @@ class JoynApp extends StatefulWidget {
   const JoynApp({
     super.key,
     this.webOverride,
+    this.studioStore,
+    this.studioRepository,
+    this.workspaceRepository,
     this.authController,
     this.dashboardRepository,
     this.registrationRepository,
@@ -43,11 +60,16 @@ class JoynApp extends StatefulWidget {
     this.recruiterDashboardRepository,
     this.recruiterOffersRepository,
     this.recruiterCandidateRepository,
+    this.recommendedOffersRepository,
+    this.candidateApplicationsRepository,
     this.adminCompanyRepository,
     this.adminUserRepository,
     this.verificationRepository,
   });
 
+  final RecruiterWorkspaceRepository? workspaceRepository;
+  final StudioStore? studioStore;
+  final StudioRepository? studioRepository;
   final bool? webOverride;
   final AuthController? authController;
   final DashboardRepository? dashboardRepository;
@@ -56,6 +78,8 @@ class JoynApp extends StatefulWidget {
   final RecruiterDashboardRepository? recruiterDashboardRepository;
   final RecruiterOffersRepository? recruiterOffersRepository;
   final RecruiterCandidateRepository? recruiterCandidateRepository;
+  final RecommendedOffersRepository? recommendedOffersRepository;
+  final CandidateApplicationsRepository? candidateApplicationsRepository;
   final AdminCompanyRepository? adminCompanyRepository;
   final AdminUserRepository? adminUserRepository;
   final VerificationRepository? verificationRepository;
@@ -72,10 +96,14 @@ class _JoynAppState extends State<JoynApp> {
   late final RecruiterDashboardRepository _recruiterDashboardRepository;
   late final RecruiterOffersRepository _recruiterOffersRepository;
   late final RecruiterCandidateRepository _recruiterCandidateRepository;
+  late final RecommendedOffersRepository _recommendedOffersRepository;
+  late final CandidateApplicationsRepository _candidateApplicationsRepository;
   late final AdminCompanyRepository _adminCompanyRepository;
   late final AdminUserRepository _adminUserRepository;
   late final VerificationRepository _verificationRepository;
   late final GoRouter _router;
+  late final StudioController _studio;
+  late final WorkspaceController _workspaceController;
   late final bool _ownsAuthController;
 
   @override
@@ -113,6 +141,19 @@ class _JoynAppState extends State<JoynApp> {
     _recruiterCandidateRepository =
         widget.recruiterCandidateRepository ??
         MockRecruiterCandidateRepository(latency: Duration.zero);
+    // Un seul dépôt de candidatures simulé, partagé avec « Matchs » : une
+    // offre glissée à droite apparaît dans la colonne « Intéressé ».
+    final mockApplications = MockCandidateApplicationsRepository(
+      latency: Duration.zero,
+    );
+    _candidateApplicationsRepository =
+        widget.candidateApplicationsRepository ?? mockApplications;
+    _recommendedOffersRepository =
+        widget.recommendedOffersRepository ??
+        MockRecommendedOffersRepository(
+          latency: Duration.zero,
+          applications: mockApplications,
+        );
 
     _profileRepository =
         widget.profileRepository ??
@@ -127,11 +168,69 @@ class _JoynAppState extends State<JoynApp> {
         widget.verificationRepository ??
         FakeVerificationRepository(latency: Duration.zero);
 
+    _studio = StudioController(
+      store: widget.studioStore,
+      repository: widget.studioRepository,
+    )..restoreDevice();
+
+    _studio.bind(
+      _authController.user?.role == UserRole.company
+          ? _authController.user?.id
+          : null,
+    );
+
+    _workspaceController = WorkspaceController(
+      widget.workspaceRepository ?? MockRecruiterWorkspaceRepository(),
+    );
+    _lastUserId = _authController.user?.id;
+    _authController.addListener(_onAuthChanged);
+    _primeWorkspace();
     _router = createAppRouter(_authController, webOverride: widget.webOverride);
+  }
+
+  Future<void> _primeWorkspace() async {
+    final user = _authController.user;
+    if (user?.role != UserRole.company) return;
+    if (widget.studioStore != null && _workspaceController.repository.isMock) {
+      final repository = PersistentMockWorkspaceRepository(
+        widget.studioStore!,
+        user!.id,
+      );
+      try {
+        await repository.restore();
+      } catch (_) {
+        if (mounted) {
+          _workspaceController.error =
+              'Impossible de restaurer les données de démonstration.';
+          _workspaceController.notifyListeners();
+        }
+        return;
+      }
+      if (!mounted || _authController.user?.id != user.id) return;
+      _workspaceController.repository = repository;
+    }
+    _workspaceController.load('profile');
+    _workspaceController.load('notifications');
+    _workspaceController.load('messages');
+    _workspaceController.load('settings');
+  }
+
+  String? _lastUserId;
+  void _onAuthChanged() {
+    final id = _authController.user?.id;
+    if (id != _lastUserId) {
+      _lastUserId = id;
+      _studio.bind(_authController.user?.role == UserRole.company ? id : null);
+      _workspaceController.reset();
+      _primeWorkspace();
+    }
   }
 
   @override
   void dispose() {
+    _authController.removeListener(_onAuthChanged);
+    _workspaceController.dispose();
+    _studio.dispose();
     _router.dispose();
     if (_ownsAuthController) _authController.dispose();
     super.dispose();
@@ -141,6 +240,10 @@ class _JoynAppState extends State<JoynApp> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider<StudioController>.value(value: _studio),
+        ChangeNotifierProvider<WorkspaceController>.value(
+          value: _workspaceController,
+        ),
         ChangeNotifierProvider<AuthController>.value(value: _authController),
         Provider<DashboardRepository>.value(value: _dashboardRepository),
         Provider<RegistrationRepository>.value(value: _registrationRepository),
@@ -154,19 +257,105 @@ class _JoynAppState extends State<JoynApp> {
         Provider<RecruiterCandidateRepository>.value(
           value: _recruiterCandidateRepository,
         ),
+        Provider<RecommendedOffersRepository>.value(
+          value: _recommendedOffersRepository,
+        ),
+        Provider<CandidateApplicationsRepository>.value(
+          value: _candidateApplicationsRepository,
+        ),
         Provider<AdminCompanyRepository>.value(value: _adminCompanyRepository),
         Provider<AdminUserRepository>.value(value: _adminUserRepository),
         Provider<VerificationRepository>.value(value: _verificationRepository),
       ],
-      child: MaterialApp.router(
-        title: 'JOYN — Le match avant la candidature',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.light,
-        routerConfig: _router,
-        locale: const Locale('fr', 'FR'),
-        supportedLocales: const [Locale('fr', 'FR')],
-        localizationsDelegates: GlobalMaterialLocalizations.delegates,
+      child: ListenableBuilder(
+        // L'auth est écoutée aussi : le thème change à la connexion.
+        listenable: Listenable.merge([_studio, _authController]),
+        builder: (context, _) => MaterialApp.router(
+          title: 'JOYN — Le match avant la candidature',
+          debugShowCheckedModeBanner: false,
+          theme: RecruiterTheme.build(
+            dark: false,
+            accent: _studio.accentColor,
+            compact: _studio.compact,
+            contrast: _studio.highContrast,
+          ),
+          darkTheme: RecruiterTheme.build(
+            dark: true,
+            accent: _studio.accentColor,
+            compact: _studio.compact,
+            contrast: _studio.highContrast,
+          ),
+          themeMode: themeModeFor(
+            _authController.user?.role,
+            _studio.themeMode,
+          ),
+          themeAnimationDuration: _studio.reducedMotion
+              ? Duration.zero
+              : kThemeAnimationDuration,
+          builder: (context, child) {
+            final media = MediaQuery.of(context);
+            return MediaQuery(
+              data: media.copyWith(
+                textScaler: TextScaler.linear(
+                  media.textScaler.scale(1) * _studio.textScale,
+                ),
+                disableAnimations:
+                    media.disableAnimations || _studio.reducedMotion,
+              ),
+              child: CallbackShortcuts(
+                bindings: {
+                  const SingleActivator(
+                    LogicalKeyboardKey.keyK,
+                    control: true,
+                  ): () {
+                    if (_authController.user?.role == UserRole.company) {
+                      final searchContext = _router
+                          .routerDelegate
+                          .navigatorKey
+                          .currentState
+                          ?.overlay
+                          ?.context;
+                      if (searchContext != null) {
+                        studioOpenSearch(searchContext, router: _router);
+                      }
+                    }
+                  },
+                  const SingleActivator(
+                    LogicalKeyboardKey.keyK,
+                    meta: true,
+                  ): () {
+                    if (_authController.user?.role == UserRole.company) {
+                      final searchContext = _router
+                          .routerDelegate
+                          .navigatorKey
+                          .currentState
+                          ?.overlay
+                          ?.context;
+                      if (searchContext != null) {
+                        studioOpenSearch(searchContext, router: _router);
+                      }
+                    }
+                  },
+                },
+                child: child!,
+              ),
+            );
+          },
+          routerConfig: _router,
+          locale: const Locale('fr', 'FR'),
+          supportedLocales: const [Locale('fr', 'FR')],
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
+        ),
       ),
     );
   }
 }
+
+/// Thème appliqué à l'application.
+///
+/// Seul l'espace recruteur sait s'afficher en sombre (réglage « Thème » du
+/// studio, qui suit le système par défaut). La landing, la connexion,
+/// l'inscription et l'espace candidat ne sont conçus qu'en clair : sur un
+/// système en mode sombre, ils afficheraient du texte clair sur fond clair.
+ThemeMode themeModeFor(UserRole? role, ThemeMode recruiterPreference) =>
+    role == UserRole.company ? recruiterPreference : ThemeMode.light;

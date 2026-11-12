@@ -1,3 +1,8 @@
+import '../../../recruiter_studio/presentation/studio_dashboard.dart';
+import '../../../recruiter_studio/presentation/studio_planner.dart';
+import '../../../recruiter_studio/presentation/studio_components.dart';
+import '../../../recruiter_workspace/presentation/recruiter_greeting.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -35,7 +40,10 @@ class _MobileRecruiterDashboardScreenState
     final controller = context.watch<RecruiterDashboardController>();
     return MobileAppSurface(
       systemUiOverlayStyle: SystemUiOverlayStyle.light,
-      backgroundColor: const Color(0xFFF5F7F8),
+      backgroundColor: StudioColors.background(
+        context,
+        const Color(0xFFF5F7F8),
+      ),
       child: Column(
         children: [
           Expanded(
@@ -70,6 +78,8 @@ class _MobileRecruiterDashboardScreenState
           MobileBottomNavigation(
             selectedIndex: 0,
             onSelected: (index) {
+              if (index == 3) context.go(AppRoutes.recruiterMessages);
+              if (index == 4) context.go(AppRoutes.recruiterSettings);
               if (index == 0) return;
               if (index == 1) context.go(AppRoutes.recruiterCandidates);
               if (index == 2) context.go(AppRoutes.recruiterJobs);
@@ -95,7 +105,10 @@ class _MobileHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-    height: 310,
+    height:
+        360 +
+        (MediaQuery.textScalerOf(context).scale(1) - 1) * 420 +
+        (MediaQuery.sizeOf(context).width < 360 ? 40 : 0),
     child: Stack(
       fit: StackFit.expand,
       children: [
@@ -109,19 +122,21 @@ class _MobileHero extends StatelessWidget {
               children: [
                 const RecruiterMobileHeaderBar(),
                 const Spacer(),
-                const Text(
-                  'Bonjour Camille 👋',
+                RecruiterGreeting(
                   style: TextStyle(
-                    color: Colors.white,
+                    color: StudioColors.text(context, Colors.white),
                     fontSize: 28,
                     fontWeight: FontWeight.w900,
                     letterSpacing: -.8,
                   ),
                 ),
                 const SizedBox(height: 5),
-                const Text(
+                Text(
                   'Vos recrutements en un coup d’œil.',
-                  style: TextStyle(color: Color(0xFFE5EEF6), fontSize: 13),
+                  style: TextStyle(
+                    color: StudioColors.text(context, Color(0xFFE5EEF6)),
+                    fontSize: 13,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 DashboardPeriodSelector(
@@ -167,7 +182,9 @@ class _MobileBody extends StatelessWidget {
           children: [
             Text(
               controller.errorMessage!,
-              style: const TextStyle(color: dashboardNavy),
+              style: TextStyle(
+                color: StudioColors.text(context, dashboardNavy),
+              ),
             ),
             const SizedBox(height: 10),
             FilledButton(
@@ -186,70 +203,81 @@ class _MobileBody extends StatelessWidget {
 
     return Column(
       children: [
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-            childAspectRatio: 1.42,
-          ),
-          itemCount: dashboard.kpis.length,
-          itemBuilder: (context, index) =>
-              DashboardKpiCard(kpi: dashboard.kpis[index]),
-        ),
-        const SizedBox(height: 12),
-        DashboardCard(
-          padding: const EdgeInsets.fromLTRB(14, 16, 10, 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const DashboardSectionTitle(
-                title: 'Évolution et analyse des candidatures',
-                subtitle: 'Touchez le graphique pour inspecter les valeurs.',
-              ),
-              const SizedBox(height: 10),
-              _MobileLegend(settings: settings),
-              const SizedBox(height: 6),
-              InteractiveMultiSeriesChart(
-                points: trend,
-                height: 280,
-                settings: settings,
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-        DashboardCard(
-          padding: EdgeInsets.zero,
-          child: ExpansionTile(
-            tilePadding: const EdgeInsets.symmetric(horizontal: 14),
-            childrenPadding: const EdgeInsets.fromLTRB(14, 0, 14, 16),
-            leading: const Icon(Icons.tune_rounded, color: dashboardBlue),
-            title: const Text(
-              'Paramètres de visualisation',
-              style: TextStyle(
-                color: dashboardNavy,
-                fontSize: 13,
-                fontWeight: FontWeight.w900,
-              ),
+        const StudioDashboardToolbar(),
+        if (studioPanelVisible(context, 'actions')) const StudioOverview(),
+        if (studioPanelVisible(context, 'kpis'))
+          LayoutBuilder(
+            builder: (context, box) => Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                for (final kpi in dashboard.kpis)
+                  SizedBox(
+                    width: (box.maxWidth - 10) / 2,
+                    child: DashboardKpiCard(kpi: kpi),
+                  ),
+              ],
             ),
-            subtitle: const Text(
-              'Basique, avancé et expert',
-              style: TextStyle(color: dashboardMuted, fontSize: 10),
-            ),
-            children: [
-              AdvancedVisualizationPanel(
-                settings: settings,
-                onChanged: onSettingsChanged,
-                dataMax: dataMax,
-                compact: true,
-              ),
-            ],
           ),
-        ),
-        if (advanced != null) ...[
+        const SizedBox(height: 12),
+        if (studioPanelVisible(context, 'charts'))
+          DashboardCard(
+            padding: const EdgeInsets.fromLTRB(14, 16, 10, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const DashboardSectionTitle(
+                  title: 'Évolution et analyse des candidatures',
+                  subtitle: 'Touchez le graphique pour inspecter les valeurs.',
+                ),
+                const SizedBox(height: 10),
+                _MobileLegend(settings: settings),
+                const SizedBox(height: 6),
+                InteractiveMultiSeriesChart(
+                  points: trend,
+                  height: 280,
+                  settings: settings,
+                ),
+              ],
+            ),
+          ),
+        const SizedBox(height: 12),
+        if (studioPanelVisible(context, 'charts'))
+          DashboardCard(
+            padding: EdgeInsets.zero,
+            child: ExpansionTile(
+              tilePadding: const EdgeInsets.symmetric(horizontal: 14),
+              childrenPadding: const EdgeInsets.fromLTRB(14, 0, 14, 16),
+              leading: Icon(
+                Icons.tune_rounded,
+                color: StudioColors.text(context, dashboardBlue),
+              ),
+              title: Text(
+                'Paramètres de visualisation',
+                style: TextStyle(
+                  color: StudioColors.text(context, dashboardNavy),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              subtitle: Text(
+                'Basique, avancé et expert',
+                style: TextStyle(
+                  color: StudioColors.text(context, dashboardMuted),
+                  fontSize: 10,
+                ),
+              ),
+              children: [
+                AdvancedVisualizationPanel(
+                  settings: settings,
+                  onChanged: onSettingsChanged,
+                  dataMax: dataMax,
+                  compact: true,
+                ),
+              ],
+            ),
+          ),
+        if (advanced != null && studioPanelVisible(context, 'charts')) ...[
           const SizedBox(height: 12),
           DashboardCard(
             child: Column(
@@ -266,49 +294,51 @@ class _MobileBody extends StatelessWidget {
           ),
         ],
         const SizedBox(height: 12),
-        DashboardCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              DashboardSectionTitle(
-                title: 'Top des offres',
-                trailing: TextButton(
-                  onPressed: () => context.go(AppRoutes.recruiterJobs),
-                  child: const Text('Voir tout'),
+        if (studioPanelVisible(context, 'offers'))
+          DashboardCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DashboardSectionTitle(
+                  title: 'Top des offres',
+                  trailing: TextButton(
+                    onPressed: () => context.go(AppRoutes.recruiterJobs),
+                    child: const Text('Voir tout'),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 10),
-              PaginatedOfferCards(
-                offers: dashboard.topOffers,
-                pageSize: 2,
-                compact: true,
-                onOpen: (id) =>
-                    context.go(AppRoutes.recruiterDashboardOffer(id)),
-              ),
-            ],
+                const SizedBox(height: 10),
+                PaginatedOfferCards(
+                  offers: dashboard.topOffers,
+                  pageSize: 2,
+                  compact: true,
+                  onOpen: (id) =>
+                      context.go(AppRoutes.recruiterDashboardOffer(id)),
+                ),
+              ],
+            ),
           ),
-        ),
         const SizedBox(height: 12),
-        DashboardCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const DashboardSectionTitle(title: 'Activité récente'),
-              const SizedBox(height: 10),
-              PaginatedActivityFeed(
-                activities: dashboard.activities,
-                pageSize: 4,
-                onAction: (item) {
-                  if (item.kind == ActivityKind.offer) {
-                    context.go(AppRoutes.recruiterJobs);
-                  } else {
-                    context.go(AppRoutes.recruiterCandidates);
-                  }
-                },
-              ),
-            ],
+        if (studioPanelVisible(context, 'activity'))
+          DashboardCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const DashboardSectionTitle(title: 'Activité récente'),
+                const SizedBox(height: 10),
+                PaginatedActivityFeed(
+                  activities: dashboard.activities,
+                  pageSize: 4,
+                  onAction: (item) {
+                    if (item.kind == ActivityKind.offer) {
+                      context.go(AppRoutes.recruiterJobs);
+                    } else {
+                      context.go(AppRoutes.recruiterCandidates);
+                    }
+                  },
+                ),
+              ],
+            ),
           ),
-        ),
         const SizedBox(height: 26),
       ],
     );
@@ -354,7 +384,10 @@ class _MobileLegend extends StatelessWidget {
                 width: 7,
                 height: 7,
                 decoration: BoxDecoration(
-                  color: settings.colorFor(kind),
+                  color: StudioColors.background(
+                    context,
+                    settings.colorFor(kind),
+                  ),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -362,7 +395,7 @@ class _MobileLegend extends StatelessWidget {
               Text(
                 kind.label,
                 style: TextStyle(
-                  color: dashboardMuted,
+                  color: StudioColors.text(context, dashboardMuted),
                   fontFamily: settings.fontFamily,
                   fontSize: 9,
                 ),

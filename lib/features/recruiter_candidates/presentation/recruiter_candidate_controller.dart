@@ -1,9 +1,9 @@
-import 'package:flutter/foundation.dart';
+import '../../../core/utils/lifecycle_notifier.dart';
 
 import '../data/recruiter_candidate_repository.dart';
 import '../domain/recruiter_candidate_models.dart';
 
-class RecruiterCandidateController extends ChangeNotifier {
+class RecruiterCandidateController extends LifecycleNotifier {
   RecruiterCandidateController(this._repository);
 
   final RecruiterCandidateRepository _repository;
@@ -36,21 +36,43 @@ class RecruiterCandidateController extends ChangeNotifier {
     return ((_data!.page - 1) * _query.limit) + _currentIndex + 1;
   }
 
+  int _loadEpoch = 0;
+  Future<void> restoreView(Map<String, dynamic> q) async {
+    _query = CandidateRecommendationQuery(
+      offerId: int.tryParse('${q['offerId']}'),
+      status: CandidateRecommendationStatus.fromApi('${q['status']}'),
+      scoreMin: double.tryParse('${q['scoreMin']}') ?? 0,
+      location: q['location'] as String?,
+      availability: q['availability'] as String?,
+      experienceMin: double.tryParse('${q['experienceMin']}'),
+      experienceMax: double.tryParse('${q['experienceMax']}'),
+      skills: q['skills'] == null ? [] : '${q['skills']}'.split(','),
+      contractType: q['contractType'] as String?,
+      sort: '${q['sort'] ?? 'compatibility'}',
+    );
+    await load();
+  }
+
   Future<void> load() async {
+    final epoch = ++_loadEpoch;
     _loading = true;
     _error = null;
     notifyListeners();
     try {
-      _data = await _repository.fetchRecommendations(_query);
+      final value = await _repository.fetchRecommendations(_query);
+      if (epoch != _loadEpoch || isDisposed) return;
+      _data = value;
       _currentIndex = 0;
       if (_query.offerId == null && _data?.selectedOfferId != null) {
         _query = _query.copyWith(offerId: _data!.selectedOfferId);
       }
     } catch (error) {
-      _error = error;
+      if (epoch == _loadEpoch) _error = error;
     } finally {
-      _loading = false;
-      notifyListeners();
+      if (epoch == _loadEpoch) {
+        _loading = false;
+        notifyListeners();
+      }
     }
   }
 

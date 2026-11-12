@@ -1,9 +1,11 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
+
+import '../../../core/utils/lifecycle_notifier.dart';
 
 import '../data/recruiter_dashboard_repository.dart';
 import '../domain/recruiter_dashboard_models.dart';
 
-class RecruiterDashboardController extends ChangeNotifier {
+class RecruiterDashboardController extends LifecycleNotifier {
   RecruiterDashboardController(this._repository);
 
   final RecruiterDashboardRepository _repository;

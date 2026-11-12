@@ -1,3 +1,5 @@
+import '../../../recruiter_studio/presentation/studio_components.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -91,7 +93,7 @@ class _OfferDescriptionEditorState extends State<OfferDescriptionEditor> {
   Widget build(BuildContext context) {
     final editor = Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: StudioColors.background(context, Colors.white),
         borderRadius: BorderRadius.circular(widget.compact ? 16 : 18),
         border: Border.all(
           color: widget.errorText == null
@@ -943,7 +945,10 @@ class _GuidedSectionFieldState extends State<_GuidedSectionField> {
       duration: const Duration(milliseconds: 170),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: _focused ? const Color(0xFFFBFDFF) : const Color(0xFFF8FAFC),
+        color: StudioColors.background(
+          context,
+          _focused ? const Color(0xFFFBFDFF) : const Color(0xFFF8FAFC),
+        ),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: _focused ? const Color(0xFFB9DDFB) : AppColors.lineSoft,
@@ -965,10 +970,14 @@ class _GuidedSectionFieldState extends State<_GuidedSectionField> {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: const Color(0xFFEAF4FC),
+              color: StudioColors.background(context, const Color(0xFFEAF4FC)),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(widget.icon, size: 18, color: const Color(0xFF1976D2)),
+            child: Icon(
+              widget.icon,
+              size: 18,
+              color: StudioColors.text(context, const Color(0xFF1976D2)),
+            ),
           ),
           const SizedBox(width: 11),
           Expanded(
@@ -977,8 +986,8 @@ class _GuidedSectionFieldState extends State<_GuidedSectionField> {
               children: [
                 Text(
                   widget.title,
-                  style: const TextStyle(
-                    color: AppColors.navy,
+                  style: TextStyle(
+                    color: StudioColors.text(context, AppColors.navy),
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
                   ),
@@ -986,8 +995,8 @@ class _GuidedSectionFieldState extends State<_GuidedSectionField> {
                 const SizedBox(height: 2),
                 Text(
                   widget.helper,
-                  style: const TextStyle(
-                    color: AppColors.slate,
+                  style: TextStyle(
+                    color: StudioColors.text(context, AppColors.slate),
                     fontSize: 9.5,
                     height: 1.35,
                   ),
@@ -999,28 +1008,31 @@ class _GuidedSectionFieldState extends State<_GuidedSectionField> {
                   maxLines: widget.minLines + 4,
                   maxLength: 1180,
                   inputFormatters: [LengthLimitingTextInputFormatter(1180)],
-                  style: const TextStyle(
-                    color: AppColors.navy,
+                  style: TextStyle(
+                    color: StudioColors.text(context, AppColors.navy),
                     fontSize: 12.5,
                     height: 1.5,
                   ),
                   decoration: InputDecoration(
                     hintText: widget.hint,
                     counterText: '',
-                    hintStyle: const TextStyle(
-                      color: Color(0xFF9AABB8),
+                    hintStyle: TextStyle(
+                      color: StudioColors.text(context, Color(0xFF9AABB8)),
                       fontSize: 11.5,
                       height: 1.45,
                     ),
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor: StudioColors.background(context, Colors.white),
                     prefixIcon: widget.listMode
-                        ? const Padding(
+                        ? Padding(
                             padding: EdgeInsets.only(bottom: 44),
                             child: Icon(
                               Icons.format_list_bulleted_rounded,
                               size: 18,
-                              color: Color(0xFF6A8398),
+                              color: StudioColors.text(
+                                context,
+                                Color(0xFF6A8398),
+                              ),
                             ),
                           )
                         : null,
@@ -1030,11 +1042,15 @@ class _GuidedSectionFieldState extends State<_GuidedSectionField> {
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(11),
-                      borderSide: const BorderSide(color: Color(0xFFE2EAF0)),
+                      borderSide: BorderSide(
+                        color: StudioColors.border(context, Color(0xFFE2EAF0)),
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(11),
-                      borderSide: const BorderSide(color: Color(0xFF8CC8F5)),
+                      borderSide: BorderSide(
+                        color: StudioColors.border(context, Color(0xFF8CC8F5)),
+                      ),
                     ),
                     contentPadding: const EdgeInsets.all(12),
                   ),
@@ -1069,7 +1085,10 @@ class _ModeButton extends StatelessWidget {
       duration: const Duration(milliseconds: 160),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: selected ? const Color(0xFFEAF4FC) : Colors.transparent,
+        color: StudioColors.background(
+          context,
+          selected ? const Color(0xFFEAF4FC) : Colors.transparent,
+        ),
         borderRadius: BorderRadius.circular(9),
         border: Border.all(
           color: selected ? const Color(0xFFB9DDFB) : Colors.transparent,
@@ -1081,13 +1100,19 @@ class _ModeButton extends StatelessWidget {
           Icon(
             icon,
             size: 16,
-            color: selected ? const Color(0xFF1976D2) : AppColors.slate,
+            color: StudioColors.text(
+              context,
+              selected ? const Color(0xFF1976D2) : AppColors.slate,
+            ),
           ),
           const SizedBox(width: 6),
           Text(
             label,
             style: TextStyle(
-              color: selected ? AppColors.navy : AppColors.slateDark,
+              color: StudioColors.text(
+                context,
+                selected ? AppColors.navy : AppColors.slateDark,
+              ),
               fontSize: 10.5,
               fontWeight: FontWeight.w800,
             ),
@@ -1116,18 +1141,28 @@ class _StructureButton extends StatelessWidget {
     avatar: Icon(
       icon,
       size: 16,
-      color: emphasized ? const Color(0xFF126DC1) : AppColors.slateDark,
+      color: StudioColors.text(
+        context,
+        emphasized ? const Color(0xFF126DC1) : AppColors.slateDark,
+      ),
     ),
     label: Text(label),
     onPressed: onTap,
-    backgroundColor: emphasized
-        ? const Color(0xFFEAF4FC)
-        : const Color(0xFFF7F9FB),
+    backgroundColor: StudioColors.background(
+      context,
+      emphasized ? const Color(0xFFEAF4FC) : const Color(0xFFF7F9FB),
+    ),
     side: BorderSide(
-      color: emphasized ? const Color(0xFFB9DDFB) : AppColors.lineSoft,
+      color: StudioColors.border(
+        context,
+        emphasized ? const Color(0xFFB9DDFB) : AppColors.lineSoft,
+      ),
     ),
     labelStyle: TextStyle(
-      color: emphasized ? const Color(0xFF126DC1) : AppColors.slateDark,
+      color: StudioColors.text(
+        context,
+        emphasized ? const Color(0xFF126DC1) : AppColors.slateDark,
+      ),
       fontSize: 10.2,
       fontWeight: FontWeight.w700,
     ),

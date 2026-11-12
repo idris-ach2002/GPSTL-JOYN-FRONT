@@ -1,3 +1,5 @@
+import '../../../recruiter_studio/presentation/studio_components.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -31,7 +33,10 @@ class _WebRecruiterInsightsScreenState
     final controller = context.watch<RecruiterDashboardController>();
     final data = controller.analytics;
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7F9),
+      backgroundColor: StudioColors.background(
+        context,
+        const Color(0xFFF4F7F9),
+      ),
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
@@ -58,7 +63,7 @@ class _WebRecruiterInsightsScreenState
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                  const Expanded(
+                                  Expanded(
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -66,7 +71,10 @@ class _WebRecruiterInsightsScreenState
                                         Text(
                                           'Insights Studio',
                                           style: TextStyle(
-                                            color: Colors.white,
+                                            color: StudioColors.text(
+                                              context,
+                                              Colors.white,
+                                            ),
                                             fontSize: 34,
                                             fontWeight: FontWeight.w900,
                                             letterSpacing: -.8,
@@ -76,7 +84,10 @@ class _WebRecruiterInsightsScreenState
                                         Text(
                                           'Construisez vos analyses comme dans un outil mathématique : séries, axes, coordonnées et vues multidimensionnelles.',
                                           style: TextStyle(
-                                            color: Color(0xFFE4EDF5),
+                                            color: StudioColors.text(
+                                              context,
+                                              Color(0xFFE4EDF5),
+                                            ),
                                             fontSize: 13.5,
                                           ),
                                         ),
@@ -390,7 +401,10 @@ class _ConfigurationPanel extends StatelessWidget {
             onChanged: (value) => onSeriesChanged(kind, value ?? false),
             title: Text(
               kind.label,
-              style: const TextStyle(color: dashboardNavy, fontSize: 11),
+              style: TextStyle(
+                color: StudioColors.text(context, dashboardNavy),
+                fontSize: 11,
+              ),
             ),
             controlAffinity: ListTileControlAffinity.leading,
           ),
@@ -400,10 +414,10 @@ class _ConfigurationPanel extends StatelessWidget {
           contentPadding: EdgeInsets.zero,
           value: showPrevious,
           onChanged: onPreviousChanged,
-          title: const Text(
+          title: Text(
             'Comparer à N-1',
             style: TextStyle(
-              color: dashboardNavy,
+              color: StudioColors.text(context, dashboardNavy),
               fontSize: 11,
               fontWeight: FontWeight.w700,
             ),
@@ -413,20 +427,24 @@ class _ConfigurationPanel extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(11),
           decoration: BoxDecoration(
-            color: const Color(0xFFF4F8FC),
+            color: StudioColors.background(context, const Color(0xFFF4F8FC)),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: dashboardBorder),
           ),
-          child: const Row(
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.info_outline_rounded, size: 16, color: dashboardBlue),
+              Icon(
+                Icons.info_outline_rounded,
+                size: 16,
+                color: StudioColors.text(context, dashboardBlue),
+              ),
               SizedBox(width: 7),
               Expanded(
                 child: Text(
                   'Les coordonnées affichées correspondent aux valeurs brutes reçues du repository, sans interpolation cachée.',
                   style: TextStyle(
-                    color: dashboardMuted,
+                    color: StudioColors.text(context, dashboardMuted),
                     fontSize: 9.5,
                     height: 1.35,
                   ),
@@ -446,8 +464,8 @@ class _FieldLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
     text,
-    style: const TextStyle(
-      color: dashboardMuted,
+    style: TextStyle(
+      color: StudioColors.text(context, dashboardMuted),
       fontSize: 10,
       fontWeight: FontWeight.w800,
     ),
@@ -462,7 +480,7 @@ class _SelectBox extends StatelessWidget {
     height: 40,
     padding: const EdgeInsets.symmetric(horizontal: 11),
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: StudioColors.background(context, Colors.white),
       borderRadius: BorderRadius.circular(10),
       border: Border.all(color: dashboardBorder),
     ),
@@ -471,13 +489,16 @@ class _SelectBox extends StatelessWidget {
         Expanded(
           child: Text(
             label,
-            style: const TextStyle(color: dashboardNavy, fontSize: 10.5),
+            style: TextStyle(
+              color: StudioColors.text(context, dashboardNavy),
+              fontSize: 10.5,
+            ),
           ),
         ),
-        const Icon(
+        Icon(
           Icons.keyboard_arrow_down_rounded,
           size: 18,
-          color: dashboardMuted,
+          color: StudioColors.text(context, dashboardMuted),
         ),
       ],
     ),
@@ -495,14 +516,17 @@ class _SeriesLegend extends StatelessWidget {
         width: 8,
         height: 8,
         decoration: BoxDecoration(
-          color: dashboardSeriesColor(kind),
+          color: StudioColors.background(context, dashboardSeriesColor(kind)),
           shape: BoxShape.circle,
         ),
       ),
       const SizedBox(width: 5),
       Text(
         kind.label,
-        style: const TextStyle(color: dashboardMuted, fontSize: 10),
+        style: TextStyle(
+          color: StudioColors.text(context, dashboardMuted),
+          fontSize: 10,
+        ),
       ),
     ],
   );
@@ -516,8 +540,9 @@ class _HeatLegend extends StatelessWidget {
     height: 8,
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(999),
-      gradient: const LinearGradient(
-        colors: [Color(0xFFF1F5F8), Color(0xFF164D83)],
+      gradient: StudioColors.gradient(
+        context,
+        const LinearGradient(colors: [Color(0xFFF1F5F8), Color(0xFF164D83)]),
       ),
     ),
   );
@@ -536,7 +561,10 @@ class _ChannelBar extends StatelessWidget {
           width: 82,
           child: Text(
             channel.label,
-            style: const TextStyle(color: dashboardMuted, fontSize: 10),
+            style: TextStyle(
+              color: StudioColors.text(context, dashboardMuted),
+              fontSize: 10,
+            ),
           ),
         ),
         Expanded(
@@ -545,7 +573,10 @@ class _ChannelBar extends StatelessWidget {
             child: LinearProgressIndicator(
               value: max <= 0 ? 0 : channel.value / max,
               minHeight: 8,
-              backgroundColor: const Color(0xFFE9EFF4),
+              backgroundColor: StudioColors.background(
+                context,
+                const Color(0xFFE9EFF4),
+              ),
               color: dashboardBlue,
             ),
           ),
@@ -556,8 +587,8 @@ class _ChannelBar extends StatelessWidget {
           child: Text(
             channel.value.round().toString(),
             textAlign: TextAlign.right,
-            style: const TextStyle(
-              color: dashboardNavy,
+            style: TextStyle(
+              color: StudioColors.text(context, dashboardNavy),
               fontSize: 10,
               fontWeight: FontWeight.w900,
             ),

@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/routing/app_routes.dart';
+import '../../../../core/utils/obscure_toggle.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../design_system/components/joyn_brand_logos.dart';
 import '../../../../design_system/mobile/mobile_app_surface.dart';
 import '../../../../design_system/tokens/app_colors.dart';
 import '../auth_controller.dart';
@@ -39,11 +41,12 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> {
     FocusScope.of(context).unfocus();
     setState(() => _submitted = true);
     if (!_formKey.currentState!.validate()) return;
-    await auth.signIn(
+    final success = await auth.signIn(
       email: _email.text.trim(),
       password: _password.text,
       rememberMe: _remember,
     );
+    if (success && mounted) context.go(AppRoutes.dashboard);
   }
 
   void _soon(String provider) {
@@ -72,7 +75,8 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> {
               obscure: _obscure,
               submitted: _submitted,
               onRemember: (value) => setState(() => _remember = value),
-              onToggleObscure: () => setState(() => _obscure = !_obscure),
+              onToggleObscure: () =>
+                  toggleObscureText(() => setState(() => _obscure = !_obscure)),
               onSubmit: _submit,
               onGoogle: () => _soon('Google'),
               onLinkedIn: () => _soon('LinkedIn'),
@@ -396,12 +400,12 @@ class _LoginBody extends StatelessWidget {
                   final buttons = [
                     _SocialButton(
                       label: 'Google',
-                      icon: 'G',
+                      logo: const GoogleLogo(),
                       onPressed: onGoogle,
                     ),
                     _SocialButton(
                       label: 'LinkedIn',
-                      icon: 'in',
+                      logo: const LinkedInLogo(),
                       onPressed: onLinkedIn,
                     ),
                   ];
@@ -487,12 +491,12 @@ class _DividerLabel extends StatelessWidget {
 class _SocialButton extends StatelessWidget {
   const _SocialButton({
     required this.label,
-    required this.icon,
+    required this.logo,
     required this.onPressed,
   });
 
   final String label;
-  final String icon;
+  final Widget logo;
   final VoidCallback onPressed;
 
   @override
@@ -512,16 +516,7 @@ class _SocialButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              icon,
-              style: TextStyle(
-                color: icon == 'G'
-                    ? const Color(0xFF4285F4)
-                    : const Color(0xFF0A66C2),
-                fontSize: icon == 'G' ? 18 : 13,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
+            logo,
             const SizedBox(width: 8),
             Flexible(
               child: Text(

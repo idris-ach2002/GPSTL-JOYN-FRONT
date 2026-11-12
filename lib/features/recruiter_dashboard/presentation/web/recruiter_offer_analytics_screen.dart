@@ -1,3 +1,5 @@
+import '../../../recruiter_studio/presentation/studio_components.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -19,7 +21,10 @@ class WebRecruiterOfferAnalyticsScreen extends StatelessWidget {
     final controller = context.watch<RecruiterDashboardController>();
     final data = controller.offerAnalytics;
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7F9),
+      backgroundColor: StudioColors.background(
+        context,
+        const Color(0xFFF4F7F9),
+      ),
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
@@ -56,7 +61,10 @@ class WebRecruiterOfferAnalyticsScreen extends StatelessWidget {
                                             AppRoutes.recruiterJobs,
                                           ),
                                           style: TextButton.styleFrom(
-                                            foregroundColor: Colors.white,
+                                            foregroundColor: StudioColors.text(
+                                              context,
+                                              Colors.white,
+                                            ),
                                           ),
                                           icon: const Icon(
                                             Icons.arrow_back_rounded,
@@ -66,10 +74,13 @@ class WebRecruiterOfferAnalyticsScreen extends StatelessWidget {
                                             'Retour aux offres',
                                           ),
                                         ),
-                                        const Text(
+                                        Text(
                                           'Performance de l’offre',
                                           style: TextStyle(
-                                            color: Colors.white,
+                                            color: StudioColors.text(
+                                              context,
+                                              Colors.white,
+                                            ),
                                             fontSize: 32,
                                             fontWeight: FontWeight.w900,
                                             letterSpacing: -.7,
@@ -133,7 +144,7 @@ class WebRecruiterOfferAnalyticsScreen extends StatelessWidget {
         child: Center(
           child: Text(
             controller.errorMessage!,
-            style: const TextStyle(color: dashboardNavy),
+            style: TextStyle(color: StudioColors.text(context, dashboardNavy)),
           ),
         ),
       );
@@ -149,10 +160,16 @@ class WebRecruiterOfferAnalyticsScreen extends StatelessWidget {
                 width: 52,
                 height: 52,
                 decoration: BoxDecoration(
-                  color: dashboardBlue.withValues(alpha: .09),
+                  color: StudioColors.background(
+                    context,
+                    dashboardBlue.withValues(alpha: .09),
+                  ),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Icon(Icons.code_rounded, color: dashboardBlue),
+                child: Icon(
+                  Icons.code_rounded,
+                  color: StudioColors.text(context, dashboardBlue),
+                ),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -161,8 +178,8 @@ class WebRecruiterOfferAnalyticsScreen extends StatelessWidget {
                   children: [
                     Text(
                       data.offer.title,
-                      style: const TextStyle(
-                        color: dashboardNavy,
+                      style: TextStyle(
+                        color: StudioColors.text(context, dashboardNavy),
                         fontSize: 20,
                         fontWeight: FontWeight.w900,
                       ),
@@ -170,8 +187,8 @@ class WebRecruiterOfferAnalyticsScreen extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       '${data.offer.location} · ${data.offer.contract} · ${data.offer.status}',
-                      style: const TextStyle(
-                        color: dashboardMuted,
+                      style: TextStyle(
+                        color: StudioColors.text(context, dashboardMuted),
                         fontSize: 11,
                       ),
                     ),
@@ -285,8 +302,11 @@ class WebRecruiterOfferAnalyticsScreen extends StatelessWidget {
                               width: 82,
                               child: Text(
                                 skill.label,
-                                style: const TextStyle(
-                                  color: dashboardMuted,
+                                style: TextStyle(
+                                  color: StudioColors.text(
+                                    context,
+                                    dashboardMuted,
+                                  ),
                                   fontSize: 10,
                                 ),
                               ),
@@ -297,7 +317,10 @@ class WebRecruiterOfferAnalyticsScreen extends StatelessWidget {
                                 child: LinearProgressIndicator(
                                   value: skill.value / 100,
                                   minHeight: 8,
-                                  backgroundColor: const Color(0xFFE8EEF3),
+                                  backgroundColor: StudioColors.background(
+                                    context,
+                                    const Color(0xFFE8EEF3),
+                                  ),
                                   color: dashboardBlue,
                                 ),
                               ),
@@ -307,8 +330,11 @@ class WebRecruiterOfferAnalyticsScreen extends StatelessWidget {
                               width: 32,
                               child: Text(
                                 '${skill.value.round()}%',
-                                style: const TextStyle(
-                                  color: dashboardNavy,
+                                style: TextStyle(
+                                  color: StudioColors.text(
+                                    context,
+                                    dashboardNavy,
+                                  ),
                                   fontSize: 10,
                                   fontWeight: FontWeight.w900,
                                 ),
@@ -333,23 +359,23 @@ class WebRecruiterOfferAnalyticsScreen extends StatelessWidget {
                       ListTile(
                         dense: true,
                         contentPadding: EdgeInsets.zero,
-                        leading: const Icon(
+                        leading: Icon(
                           Icons.arrow_circle_right_outlined,
                           size: 19,
-                          color: dashboardBlue,
+                          color: StudioColors.text(context, dashboardBlue),
                         ),
                         title: Text(
                           action.title,
-                          style: const TextStyle(
-                            color: dashboardNavy,
+                          style: TextStyle(
+                            color: StudioColors.text(context, dashboardNavy),
                             fontSize: 10.5,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
                         subtitle: Text(
                           action.subtitle,
-                          style: const TextStyle(
-                            color: dashboardMuted,
+                          style: TextStyle(
+                            color: StudioColors.text(context, dashboardMuted),
                             fontSize: 9.2,
                           ),
                         ),
@@ -357,7 +383,7 @@ class WebRecruiterOfferAnalyticsScreen extends StatelessWidget {
                           Icons.chevron_right_rounded,
                           size: 18,
                         ),
-                        onTap: () {},
+                        onTap: () => context.go(AppRoutes.recruiterCandidates),
                       ),
                   ],
                 ),

@@ -1,3 +1,10 @@
+import '../../../recruiter_studio/presentation/studio_components.dart';
+
+import 'package:provider/provider.dart';
+
+import '../../../recruiter_workspace/presentation/workspace_controller.dart';
+import '../../../recruiter_workspace/presentation/application_panel.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -137,13 +144,32 @@ Future<void> showOfferCandidatesPanel(
   BuildContext context, {
   required JobOffer offer,
 }) async {
+  WorkspaceController? workspace;
+  try {
+    workspace = context.read<WorkspaceController>();
+  } on ProviderNotFoundException {
+    workspace = null;
+  }
+  if (workspace != null && !workspace.repository.isMock) {
+    final repository = workspace.repository;
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (_) => SizedBox(
+        height: MediaQuery.sizeOf(context).height * .85,
+        child: ApplicationPanel(repository: repository, jobId: offer.id),
+      ),
+    );
+    return;
+  }
   final width = MediaQuery.sizeOf(context).width;
   if (width < 760) {
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: StudioColors.background(context, Colors.transparent),
       builder: (context) => FractionallySizedBox(
         heightFactor: .88,
         child: _CandidatePanel(offer: offer, mobile: true),
@@ -162,7 +188,7 @@ Future<void> showOfferCandidatesPanel(
       alignment: Alignment.centerRight,
       child: SafeArea(
         child: Material(
-          color: Colors.transparent,
+          color: StudioColors.background(context, Colors.transparent),
           child: SizedBox(
             width: math.min(470.0, width * .38),
             height: double.infinity,
@@ -243,7 +269,7 @@ class _CandidatePanelState extends State<_CandidatePanel> {
             bottomLeft: Radius.circular(26),
           );
     return Material(
-      color: Colors.white,
+      color: StudioColors.background(context, Colors.white),
       borderRadius: radius,
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -254,7 +280,10 @@ class _CandidatePanelState extends State<_CandidatePanel> {
               width: 42,
               height: 4,
               decoration: BoxDecoration(
-                color: const Color(0xFFD6DEE5),
+                color: StudioColors.background(
+                  context,
+                  const Color(0xFFD6DEE5),
+                ),
                 borderRadius: BorderRadius.circular(99),
               ),
             ),
@@ -271,8 +300,8 @@ class _CandidatePanelState extends State<_CandidatePanel> {
                 Expanded(
                   child: Text(
                     'Candidats (${widget.offer.candidateCount})',
-                    style: const TextStyle(
-                      color: AppColors.navy,
+                    style: TextStyle(
+                      color: StudioColors.text(context, AppColors.navy),
                       fontSize: 22,
                       fontWeight: FontWeight.w900,
                       letterSpacing: -.3,
@@ -296,23 +325,27 @@ class _CandidatePanelState extends State<_CandidatePanel> {
               }),
               decoration: InputDecoration(
                 hintText: 'Rechercher un candidat (nom, compétences…)',
-                hintStyle: const TextStyle(
-                  color: AppColors.placeholder,
+                hintStyle: TextStyle(
+                  color: StudioColors.text(context, AppColors.placeholder),
                   fontSize: 12,
                 ),
                 prefixIcon: const Icon(Icons.search_rounded, size: 20),
                 suffixIcon: const Icon(Icons.tune_rounded, size: 18),
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: StudioColors.background(context, Colors.white),
                 isDense: true,
                 contentPadding: const EdgeInsets.symmetric(vertical: 14),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppColors.lineSoft),
+                  borderSide: BorderSide(
+                    color: StudioColors.border(context, AppColors.lineSoft),
+                  ),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppColors.lineSoft),
+                  borderSide: BorderSide(
+                    color: StudioColors.border(context, AppColors.lineSoft),
+                  ),
                 ),
               ),
             ),
@@ -363,10 +396,12 @@ class _CandidatePanelState extends State<_CandidatePanel> {
           const Divider(height: 1, color: Color(0xFFE8EEF2)),
           Expanded(
             child: _filtered.isEmpty
-                ? const Center(
+                ? Center(
                     child: Text(
                       'Aucun candidat pour ce filtre.',
-                      style: TextStyle(color: AppColors.slate),
+                      style: TextStyle(
+                        color: StudioColors.text(context, AppColors.slate),
+                      ),
                     ),
                   )
                 : ListView.separated(
@@ -419,7 +454,10 @@ class _StageChip extends StatelessWidget {
         duration: const Duration(milliseconds: 170),
         padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFFF0F7FF) : Colors.white,
+          color: StudioColors.background(
+            context,
+            selected ? const Color(0xFFF0F7FF) : Colors.white,
+          ),
           borderRadius: BorderRadius.circular(9),
           border: Border.all(
             color: selected ? const Color(0xFF1687F8) : AppColors.lineSoft,
@@ -428,7 +466,10 @@ class _StageChip extends StatelessWidget {
         child: Text(
           '$label  $count',
           style: TextStyle(
-            color: selected ? const Color(0xFF1475D1) : AppColors.slateDark,
+            color: StudioColors.text(
+              context,
+              selected ? const Color(0xFF1475D1) : AppColors.slateDark,
+            ),
             fontSize: 11,
             fontWeight: FontWeight.w800,
           ),
@@ -463,7 +504,10 @@ class _CandidateRowState extends State<_CandidateRow> {
           vertical: widget.dense ? 10 : 11,
         ),
         decoration: BoxDecoration(
-          color: hovered ? const Color(0xFFF8FBFD) : Colors.transparent,
+          color: StudioColors.background(
+            context,
+            hovered ? const Color(0xFFF8FBFD) : Colors.transparent,
+          ),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -472,7 +516,10 @@ class _CandidateRowState extends State<_CandidateRow> {
             CircleAvatar(
               radius: widget.dense ? 21 : 24,
               backgroundImage: AssetImage(candidate.avatarAsset),
-              backgroundColor: const Color(0xFFEAF2F8),
+              backgroundColor: StudioColors.background(
+                context,
+                const Color(0xFFEAF2F8),
+              ),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -481,8 +528,8 @@ class _CandidateRowState extends State<_CandidateRow> {
                 children: [
                   Text(
                     candidate.name,
-                    style: const TextStyle(
-                      color: AppColors.navy,
+                    style: TextStyle(
+                      color: StudioColors.text(context, AppColors.navy),
                       fontSize: 13,
                       fontWeight: FontWeight.w900,
                     ),
@@ -492,8 +539,8 @@ class _CandidateRowState extends State<_CandidateRow> {
                     'Étudiant·e · ${candidate.school}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: AppColors.slate,
+                    style: TextStyle(
+                      color: StudioColors.text(context, AppColors.slate),
                       fontSize: 10.5,
                       fontWeight: FontWeight.w600,
                     ),
@@ -510,13 +557,19 @@ class _CandidateRowState extends State<_CandidateRow> {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF1F6FA),
+                            color: StudioColors.background(
+                              context,
+                              const Color(0xFFF1F6FA),
+                            ),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
                             skill,
-                            style: const TextStyle(
-                              color: AppColors.slateDark,
+                            style: TextStyle(
+                              color: StudioColors.text(
+                                context,
+                                AppColors.slateDark,
+                              ),
                               fontSize: 9,
                               fontWeight: FontWeight.w700,
                             ),
@@ -537,7 +590,10 @@ class _CandidateRowState extends State<_CandidateRow> {
                     vertical: 5,
                   ),
                   decoration: BoxDecoration(
-                    color: candidate.stage.background,
+                    color: StudioColors.background(
+                      context,
+                      candidate.stage.background,
+                    ),
                     borderRadius: BorderRadius.circular(7),
                   ),
                   child: Row(
@@ -547,7 +603,10 @@ class _CandidateRowState extends State<_CandidateRow> {
                         width: 5,
                         height: 5,
                         decoration: BoxDecoration(
-                          color: candidate.stage.foreground,
+                          color: StudioColors.background(
+                            context,
+                            candidate.stage.foreground,
+                          ),
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -555,7 +614,10 @@ class _CandidateRowState extends State<_CandidateRow> {
                       Text(
                         candidate.stage.label,
                         style: TextStyle(
-                          color: candidate.stage.foreground,
+                          color: StudioColors.text(
+                            context,
+                            candidate.stage.foreground,
+                          ),
                           fontSize: 9.5,
                           fontWeight: FontWeight.w800,
                         ),
@@ -566,16 +628,16 @@ class _CandidateRowState extends State<_CandidateRow> {
                 const SizedBox(height: 7),
                 Text(
                   '${candidate.appliedAt.day} oct. 2026',
-                  style: const TextStyle(
-                    color: AppColors.placeholder,
+                  style: TextStyle(
+                    color: StudioColors.text(context, AppColors.placeholder),
                     fontSize: 9.5,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 3),
-                const Icon(
+                Icon(
                   Icons.more_horiz_rounded,
-                  color: AppColors.slate,
+                  color: StudioColors.text(context, AppColors.slate),
                   size: 18,
                 ),
               ],
@@ -604,9 +666,13 @@ class _PaginationBar extends StatelessWidget {
     final maxButtons = math.min(pageCount, 5);
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 10, 18, 14),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFE8EEF2))),
+      decoration: BoxDecoration(
+        color: StudioColors.background(context, Colors.white),
+        border: Border(
+          top: BorderSide(
+            color: StudioColors.border(context, Color(0xFFE8EEF2)),
+          ),
+        ),
       ),
       child: Row(
         children: [
@@ -625,7 +691,10 @@ class _PaginationBar extends StatelessWidget {
                 height: 31,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: page == index ? const Color(0xFF1687F8) : Colors.white,
+                  color: StudioColors.background(
+                    context,
+                    page == index ? const Color(0xFF1687F8) : Colors.white,
+                  ),
                   borderRadius: BorderRadius.circular(7),
                   border: Border.all(
                     color: page == index
@@ -636,7 +705,10 @@ class _PaginationBar extends StatelessWidget {
                 child: Text(
                   '${index + 1}',
                   style: TextStyle(
-                    color: page == index ? Colors.white : AppColors.navy,
+                    color: StudioColors.text(
+                      context,
+                      page == index ? Colors.white : AppColors.navy,
+                    ),
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
                   ),
@@ -655,8 +727,8 @@ class _PaginationBar extends StatelessWidget {
           const Spacer(),
           Text(
             '$total candidat${total > 1 ? 's' : ''}',
-            style: const TextStyle(
-              color: AppColors.slate,
+            style: TextStyle(
+              color: StudioColors.text(context, AppColors.slate),
               fontSize: 10.5,
               fontWeight: FontWeight.w600,
             ),
