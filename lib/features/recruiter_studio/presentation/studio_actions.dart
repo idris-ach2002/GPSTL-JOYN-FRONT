@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../recruiter_workspace/presentation/candidate_email.dart';
+import '../../recruiter_workspace/presentation/workspace_controller.dart';
+import '../../recruiter_workspace/data/recruiter_workspace_repository.dart';
 import 'studio_controller.dart';
 import 'studio_components.dart';
 
@@ -32,6 +35,8 @@ Future<void> studioEditTask(
 Future<void> studioEditInterview(
   BuildContext context, {
   Map<String, dynamic>? event,
+  String? profileId,
+  String? applicationId,
   String? candidateId,
   String? candidateName,
 }) async {
@@ -64,7 +69,13 @@ Future<void> studioEditInterview(
       )) {
     return;
   }
-  final ok = await c.upsert('interviews', value);
+  final record = {
+    ...?event,
+    ...value,
+    'profileId': ?profileId,
+    'applicationId': ?applicationId,
+  };
+  final ok = await c.upsert('interviews', record);
   if (context.mounted) {
     studioToast(
       context,
@@ -73,6 +84,54 @@ Future<void> studioEditInterview(
           : 'Impossible d’enregistrer le créneau.',
     );
   }
+  if (!ok || !context.mounted || record['profileId'] == null) return;
+  final address = record['profileId'].toString();
+  final repo = context.read<WorkspaceController>().repository;
+  if (repo is! ApiRecruiterWorkspaceRepository) return;
+  if (record['applicationId'] != null &&
+      event == null &&
+      await studioConfirm(
+        context,
+        'Passer la candidature en entretien ?',
+        'Le nouveau statut sera visible dans le suivi de la candidature.',
+        action: 'Mettre à jour',
+      )) {
+    try {
+      await repo.api.patchJson(
+        '/api/v1/applications/${record['applicationId']}/status',
+        body: {'status': 'INTERVIEW'},
+      );
+    } catch (_) {
+      if (context.mounted) {
+        studioToast(
+          context,
+          'Créneau enregistré. La mise à jour du statut a échoué.',
+        );
+      }
+    }
+  }
+  if (!context.mounted) return;
+  await showDialog<void>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: const Text('Invitation à l’entretien'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(dialogContext),
+          child: const Text('Fermer'),
+        ),
+      ],
+      content: SizedBox(
+        width: 520,
+        height: 380,
+        child: CandidateEmail(
+          api: repo.api,
+          profileId: address,
+          interview: record,
+        ),
+      ),
+    ),
+  );
 }
 
 Future<void> studioAddNote(

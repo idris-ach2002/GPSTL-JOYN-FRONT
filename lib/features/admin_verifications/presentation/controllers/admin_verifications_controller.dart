@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../../data/verification_repository.dart';
+import '../../data/api_verification_repository.dart';
 import '../../domain/company_verification.dart';
 
 enum VerificationsStatus { loading, ready, error, forbidden }
@@ -26,6 +27,7 @@ class AdminVerificationsController extends ChangeNotifier {
   });
 
   final VerificationRepository _repository;
+  bool get supportsReviewWorkflow => _repository is! ApiVerificationRepository;
 
   /// Délai de la recherche pendant la saisie (debounce).
   final Duration searchDebounce;

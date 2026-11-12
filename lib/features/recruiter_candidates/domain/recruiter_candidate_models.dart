@@ -83,6 +83,7 @@ class RecruiterCandidateRecommendation {
     required this.reciprocalMatch,
     required this.connections,
     this.avatarUrl,
+    this.profileId,
   });
 
   final String id;
@@ -90,6 +91,7 @@ class RecruiterCandidateRecommendation {
   final String lastName;
   final String jobTitle;
   final String? avatarUrl;
+  final String? profileId;
   final String location;
   final String education;
   final double experienceYears;
@@ -117,6 +119,7 @@ class RecruiterCandidateRecommendation {
     lastName: lastName,
     jobTitle: jobTitle,
     avatarUrl: avatarUrl,
+    profileId: profileId,
     location: location,
     education: education,
     experienceYears: experienceYears,

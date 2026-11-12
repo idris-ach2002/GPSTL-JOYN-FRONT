@@ -124,20 +124,7 @@ class _BrandBlock extends StatelessWidget {
   Widget build(BuildContext context) => const Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Row(
-        children: [
-          JoynMark(size: 40),
-          SizedBox(width: 14),
-          Text(
-            'joyn',
-            style: TextStyle(
-              color: AppColors.navy,
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ],
-      ),
+      JoynMark(size: 40),
       SizedBox(height: 28),
       Text(
         'Joyn a job with joy. Le matching réciproque entre étudiants et entreprises.',

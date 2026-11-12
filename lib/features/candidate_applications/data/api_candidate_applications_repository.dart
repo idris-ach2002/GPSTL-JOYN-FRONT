@@ -1,4 +1,5 @@
 import '../../../core/network/api_client.dart';
+import 'pending_interests_store.dart';
 import '../domain/candidate_application.dart';
 import 'candidate_applications_repository.dart';
 
@@ -10,7 +11,11 @@ import 'candidate_applications_repository.dart';
 /// limiter les retouches.
 class ApiCandidateApplicationsRepository
     implements CandidateApplicationsRepository {
-  ApiCandidateApplicationsRepository(this._api);
+  ApiCandidateApplicationsRepository(
+    this._api, {
+    PendingInterestsStore? interests,
+  }) : interests = interests ?? PendingInterestsStore();
+  final PendingInterestsStore interests;
 
   final ApiClient _api;
 
@@ -23,35 +28,45 @@ class ApiCandidateApplicationsRepository
   }) async {
     final json = await _api.getJson(
       _basePath,
-      query: {'page': '$page', 'size': '$pageSize', 'sort': 'appliedAt,desc'},
+      query: {
+        'page': '$page',
+        'limit': '${pageSize.clamp(1, 50)}',
+        'sort': 'created_at,desc',
+      },
     );
-    return _mapPage(_asMap(json), requestedPage: page);
+    final server = _mapPage(_asMap(json), requestedPage: page);
+    if (page != 1) return server;
+    final local = interests.items;
+    return ApplicationsPage(
+      items: [...local, ...server.items],
+      page: server.page,
+      totalPages: server.totalPages,
+      totalItems: server.totalItems + local.length,
+    );
   }
 
   @override
   Future<String> createConversation(String applicationId) async {
-    final json = await _api.postJson('$_basePath/$applicationId/conversation');
-    final body = _unwrap(_asMap(json));
-    final id = _nullableString(body['conversationId'] ?? body['id']);
-    if (id == null) {
-      throw StateError('Réponse sans identifiant de conversation.');
-    }
-    return id;
+    // The history response may reference a conversation, but Spring main
+    // does not expose an endpoint to create or send messages.
+    throw UnsupportedError('Messagerie non disponible sur ce serveur.');
   }
 
   @override
   Future<CandidateApplication> sendApplication(String applicationId) async {
-    final json = await _api.postJson('$_basePath/$applicationId/send');
-    final body = _unwrap(_asMap(json));
-    if (body.isEmpty) {
-      // Réponse 204 : le backend ne renvoie pas la candidature.
-      return CandidateApplication(
-        id: applicationId,
-        status: ApplicationStatus.sent,
-        appliedAt: DateTime.now(),
+    final offerId = interests.findOfferId(applicationId);
+    if (offerId == null) {
+      throw UnsupportedError(
+        'Seuls les intérêts locaux non envoyés peuvent être soumis.',
       );
     }
-    return _mapApplication(body);
+    final raw = await _api.postJson(
+      '/api/v1/applications',
+      body: {'jobOfferId': int.parse(offerId)},
+    );
+    interests.submitted(offerId);
+    final data = _unwrap(_asMap(raw));
+    return _mapApplication(data);
   }
 
   ApplicationsPage _mapPage(
@@ -90,7 +105,9 @@ class ApiCandidateApplicationsRepository
     return CandidateApplication(
       id: _nullableString(json['id']) ?? '',
       status: ApplicationStatus.fromApi(_nullableString(json['status'])),
-      offerId: _nullableString(json['offerId'] ?? json['jobId'] ?? offer['id']),
+      offerId: _nullableString(
+        json['jobOfferId'] ?? json['offerId'] ?? json['jobId'] ?? offer['id'],
+      ),
       companyName: _nullableString(json['companyName'] ?? company['name']),
       companyLogoUrl: _nullableString(
         json['companyLogoUrl'] ?? company['logoUrl'],
@@ -101,7 +118,7 @@ class ApiCandidateApplicationsRepository
       matchScore: _nullableInt(
         json['matchScore'] ?? json['compatibilityScore'] ?? json['score'],
       ),
-      appliedAt: _date(json['appliedAt'] ?? json['createdAt']),
+      appliedAt: _date(json['createdAt'] ?? json['appliedAt']),
       interviewAt: _date(json['interviewAt'] ?? json['interviewDate']),
       conversationId: _nullableString(json['conversationId']),
     );

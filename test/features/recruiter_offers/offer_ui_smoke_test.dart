@@ -66,7 +66,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.text('Créer une offre'), findsOneWidget);
-    expect(find.text('Choisir une entreprise *'), findsOneWidget);
+    expect(find.text('Votre entreprise *'), findsOneWidget);
     expect(find.text('Aperçu de l’offre'), findsOneWidget);
     expect(find.text('Guidé'), findsOneWidget);
     expect(find.text('Texte avancé'), findsOneWidget);

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../../data/admin_company_repository.dart';
+import '../../data/api_admin_company_repository.dart';
 import '../../data/company_logo_picker.dart';
 import '../../domain/admin_company.dart';
 import '../../domain/admin_company_options.dart';
@@ -31,6 +32,7 @@ class AdminCompaniesController extends ChangeNotifier {
   }) : logoPicker = logoPicker ?? const DeviceCompanyLogoPicker();
 
   final AdminCompanyRepository _repository;
+  bool get canEditCompanies => _repository is! ApiAdminCompanyRepository;
 
   /// Sélecteur de logo utilisé par le formulaire.
   final CompanyLogoPicker logoPicker;

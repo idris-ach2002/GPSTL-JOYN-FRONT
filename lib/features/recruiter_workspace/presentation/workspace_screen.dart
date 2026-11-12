@@ -12,6 +12,8 @@ import '../../../app/routing/app_routes.dart';
 import '../../recruiter_offers/presentation/web/recruiter_offers_top_bar.dart';
 import 'workspace_controller.dart';
 import 'workspace_messages.dart';
+import 'candidate_email.dart';
+import '../data/recruiter_workspace_repository.dart';
 
 const workspaceNavy = Color(0xFF001E3B);
 
@@ -41,7 +43,12 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
 
   void _load() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) context.read<WorkspaceController>().load(widget.section);
+      if (!mounted) return;
+      final c = context.read<WorkspaceController>();
+      if (c.repository.isMock ||
+          ['profile', 'notifications', 'settings'].contains(widget.section)) {
+        c.load(widget.section);
+      }
     });
   }
 
@@ -216,6 +223,17 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
               ),
             Expanded(
               child: switch (widget.section) {
+                'messages'
+                    when controller.repository
+                        is ApiRecruiterWorkspaceRepository =>
+                  CandidateEmail(
+                    key: ValueKey(widget.candidateId),
+                    api:
+                        (controller.repository
+                                as ApiRecruiterWorkspaceRepository)
+                            .api,
+                    profileId: widget.candidateId,
+                  ),
                 'messages' => WorkspaceMessages(
                   key: ValueKey(widget.candidateId),
                   candidateId: widget.candidateId,

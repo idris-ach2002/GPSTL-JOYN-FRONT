@@ -67,24 +67,25 @@ class _AdminUsersViewState extends State<_AdminUsersView>
                         title: 'Utilisateurs',
                         subtitle: 'Gérer les comptes candidats, recruteurs et administrateurs.',
                         actions: [
-                          FilledButton.icon(
-                            key: const ValueKey('admin-invite-admin'),
-                            style: FilledButton.styleFrom(
-                              backgroundColor: AdminShell.sidebarColor,
-                              minimumSize: const Size(0, 40),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
+                          if (controller.canManageUsers)
+                            FilledButton.icon(
+                              key: const ValueKey('admin-invite-admin'),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: AdminShell.sidebarColor,
+                                minimumSize: const Size(0, 40),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
                               ),
+                              onPressed: controller.isInviting
+                                  ? null
+                                  : () => handler.inviteAdmin(context),
+                              icon: const Icon(
+                                Icons.person_add_alt_1_outlined,
+                                size: 18,
+                              ),
+                              label: const Text('Ajouter un admin'),
                             ),
-                            onPressed: controller.isInviting
-                                ? null
-                                : () => handler.inviteAdmin(context),
-                            icon: const Icon(
-                              Icons.person_add_alt_1_outlined,
-                              size: 18,
-                            ),
-                            label: const Text('Ajouter un admin'),
-                          ),
                         ],
                       ),
                       const SizedBox(height: 20),

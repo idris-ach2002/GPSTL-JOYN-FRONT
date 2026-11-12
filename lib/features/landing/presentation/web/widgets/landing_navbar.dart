@@ -238,29 +238,9 @@ class _BrandButtonState extends State<_BrandButton> {
             overlayColor: Colors.transparent,
             splashFactory: NoSplash.splashFactory,
           ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final showWordmark = constraints.maxWidth >= 105;
-
-              return Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const JoynMark(size: 32),
-                  if (showWordmark) ...[
-                    const SizedBox(width: 10),
-                    const Text(
-                      'joyn',
-                      style: TextStyle(
-                        fontSize: 23,
-                        color: AppColors.navy,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: -.7,
-                      ),
-                    ),
-                  ],
-                ],
-              );
-            },
+          child: const FittedBox(
+            fit: BoxFit.scaleDown,
+            child: JoynMark(size: 32),
           ),
         ),
       ),

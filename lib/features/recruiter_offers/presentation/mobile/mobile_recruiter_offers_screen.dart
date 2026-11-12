@@ -309,7 +309,9 @@ class _Hero extends StatelessWidget {
               ),
               const SizedBox(height: 7),
               Text(
-                'Gérez et suivez toutes vos offres d’emploi sur Joyn.',
+                controller.sessionOnly
+                    ? 'Offres créées pendant cette session. Le serveur ne fournit pas encore l’historique.'
+                    : 'Gérez et suivez toutes vos offres d’emploi sur Joyn.',
                 style: TextStyle(
                   color: StudioColors.text(context, Color(0xFFEAF2F8)),
                   fontSize: 14.5,

@@ -117,25 +117,7 @@ class _MobileStartupScreenState extends State<MobileStartupScreen>
                           opacity: brand,
                           child: const Column(
                             children: [
-                              Text.rich(
-                                TextSpan(
-                                  text: 'joyn',
-                                  children: [
-                                    TextSpan(
-                                      text: '.',
-                                      style: TextStyle(color: AppColors.orange),
-                                    ),
-                                  ],
-                                ),
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: AppColors.navy,
-                                  fontSize: 48,
-                                  height: .95,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: -2.5,
-                                ),
-                              ),
+                              MobileBrandMark(),
                               SizedBox(height: 12),
                               Text(
                                 'Le match avant la candidature.',

@@ -1,6 +1,7 @@
 import '../../../../core/utils/lifecycle_notifier.dart';
 
 import '../../data/recruiter_offers_repository.dart';
+import '../../data/api_recruiter_offers_repository.dart';
 import '../../domain/job_offer.dart';
 import '../../domain/job_offer_draft.dart';
 import '../../domain/offer_options.dart';
@@ -73,6 +74,7 @@ class OfferEditorController extends LifecycleNotifier {
   }
 
   final RecruiterOffersRepository _repository;
+  bool get linkedCompanyOnly => _repository is ApiRecruiterOffersRepository;
   final int? offerId;
 
   List<RecruiterCompany> companies = const [];

@@ -183,7 +183,7 @@ class _MobileOfferEditorScreenState extends State<MobileOfferEditorScreen> {
     children: [
       _title(
         'Entreprise',
-        'Sélectionnez l’entreprise de la base pour laquelle vous souhaitez publier cette offre.',
+        'L’offre sera publiée pour l’entreprise liée à votre compte.',
       ),
       SizedBox(
         height: 112,
@@ -203,32 +203,33 @@ class _MobileOfferEditorScreenState extends State<MobileOfferEditorScreen> {
         ),
       ),
       const SizedBox(height: 16),
-      InkWell(
-        onTap: () => showMobileCompanyPicker(context, controller),
-        borderRadius: BorderRadius.circular(18),
-        child: Container(
-          height: 118,
-          decoration: BoxDecoration(
-            color: const Color(0xFFF8FBFD),
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: AppColors.blue.withValues(alpha: .65)),
-          ),
-          child: const Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.add_rounded, color: Color(0xFF1976D2), size: 30),
-              SizedBox(height: 8),
-              Text(
-                'Créer une entreprise',
-                style: TextStyle(
-                  color: Color(0xFF1976D2),
-                  fontWeight: FontWeight.w900,
+      if (!controller.linkedCompanyOnly)
+        InkWell(
+          onTap: () => showMobileCompanyPicker(context, controller),
+          borderRadius: BorderRadius.circular(18),
+          child: Container(
+            height: 118,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FBFD),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: AppColors.blue.withValues(alpha: .65)),
+            ),
+            child: const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.add_rounded, color: Color(0xFF1976D2), size: 30),
+                SizedBox(height: 8),
+                Text(
+                  'Créer une entreprise',
+                  style: TextStyle(
+                    color: Color(0xFF1976D2),
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
       if (controller.errors['company'] != null) ...[
         const SizedBox(height: 9),
         Text(

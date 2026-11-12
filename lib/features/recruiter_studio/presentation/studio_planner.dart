@@ -486,7 +486,10 @@ class _StudioPlannerState extends State<StudioPlanner> {
                           Uri(
                             path: AppRoutes.recruiterMessages,
                             queryParameters: {
-                              'candidateId': '${e['candidateId']}',
+                              if (e['profileId'] != null)
+                                'profileId': '${e['profileId']}'
+                              else
+                                'candidateId': '${e['candidateId']}',
                               'name': '${e['name']}',
                             },
                           ).toString(),
@@ -634,7 +637,10 @@ class _StudioPlannerState extends State<StudioPlanner> {
                           Uri(
                             path: AppRoutes.recruiterMessages,
                             queryParameters: {
-                              'candidateId': '${candidate['id']}',
+                              if (candidate['profileId'] != null)
+                                'profileId': '${candidate['profileId']}'
+                              else
+                                'candidateId': '${candidate['id']}',
                               'name': '${candidate['name']}',
                             },
                           ).toString(),

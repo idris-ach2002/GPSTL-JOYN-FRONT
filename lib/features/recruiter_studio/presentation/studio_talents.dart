@@ -13,6 +13,7 @@ Map<String, dynamic> studioCandidateSnapshot(
   RecruiterCandidateRecommendation c,
 ) => {
   'id': c.id,
+  'profileId': c.profileId,
   'name': c.fullName,
   'title': c.jobTitle,
   'location': c.location,
@@ -119,6 +120,10 @@ class CandidateStudioPanel extends StatelessWidget {
                       ? null
                       : () => studioEditInterview(
                           context,
+                          profileId: candidate.profileId,
+                          applicationId: candidate.profileId == null
+                              ? null
+                              : candidate.id,
                           candidateId: candidate.id,
                           candidateName: candidate.fullName,
                         ),
@@ -459,6 +464,10 @@ class StudioComparison extends StatelessWidget {
                                     OutlinedButton(
                                       onPressed: () => studioEditInterview(
                                         context,
+                                        profileId: v['profileId']?.toString(),
+                                        applicationId: v['profileId'] == null
+                                            ? null
+                                            : v['id']?.toString(),
                                         candidateId: '${v['id']}',
                                         candidateName: '${v['name']}',
                                       ),

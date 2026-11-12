@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 
@@ -61,6 +62,40 @@ class ApiClient {
       if (error is ApiException) rethrow;
       throw ApiException(
         message: 'Échec de la requête GET $path',
+        cause: error,
+      );
+    }
+  }
+
+  /// Uploads form fields and an optional file without forcing a JSON content type.
+  /// Used by the Spring Boot candidate registration and resume endpoints.
+  Future<Object?> sendMultipart(
+    String method,
+    String path, {
+    Map<String, String> fields = const {},
+    Uint8List? fileBytes,
+    String? fileName,
+    String fileField = 'resume',
+  }) async {
+    try {
+      final request = http.MultipartRequest(method, _uri(path));
+      request.headers.addAll(await _headers(json: false));
+      request.fields.addAll(fields);
+      if (fileBytes != null) {
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            fileField,
+            fileBytes,
+            filename: fileName ?? 'resume.pdf',
+          ),
+        );
+      }
+      final streamed = await _http.send(request).timeout(timeout);
+      return _decode(await http.Response.fromStream(streamed).timeout(timeout));
+    } catch (error) {
+      if (error is ApiException) rethrow;
+      throw ApiException(
+        message: 'Échec de l’envoi multipart $path',
         cause: error,
       );
     }

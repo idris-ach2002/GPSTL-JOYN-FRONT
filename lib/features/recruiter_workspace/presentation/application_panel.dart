@@ -107,7 +107,7 @@ class _ApplicationPanelState extends State<ApplicationPanel> {
                 ListTile(
                   title: Text('${item['name']}'),
                   subtitle: Text(
-                    '${item['education'] ?? ''}\n${item['stage'] ?? 'NEW'}',
+                    '${item['education'] ?? ''} ${item['score'] == null ? '' : '· ${item['score']} %'}\n${item['stage'] ?? 'NEW'}',
                   ),
                   isThreeLine: true,
                   trailing: PopupMenuButton<String>(
@@ -121,7 +121,10 @@ class _ApplicationPanelState extends State<ApplicationPanel> {
                           Uri(
                             path: AppRoutes.recruiterMessages,
                             queryParameters: {
-                              'candidateId': '${item['candidateId']}',
+                              (widget.repository.isMock
+                                      ? 'candidateId'
+                                      : 'profileId'):
+                                  '${item['candidateId']}',
                               'name': '${item['name']}',
                             },
                           ).toString(),
@@ -130,9 +133,9 @@ class _ApplicationPanelState extends State<ApplicationPanel> {
                         _stage(item, v);
                       }
                     },
-                    itemBuilder: (_) => const [
+                    itemBuilder: (_) => [
                       PopupMenuItem(
-                        value: 'IN_PROGRESS',
+                        value: 'IN_REVIEW',
                         child: Text('En cours'),
                       ),
                       PopupMenuItem(
@@ -140,7 +143,11 @@ class _ApplicationPanelState extends State<ApplicationPanel> {
                         child: Text('Entretien'),
                       ),
                       PopupMenuItem(value: 'REJECTED', child: Text('Refuser')),
-                      PopupMenuItem(value: 'contact', child: Text('Contacter')),
+                      if (item['candidateId'] != null)
+                        PopupMenuItem(
+                          value: 'contact',
+                          child: Text('Contacter'),
+                        ),
                     ],
                   ),
                 ),

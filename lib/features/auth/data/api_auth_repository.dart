@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../../core/network/api_client.dart';
 import '../../../core/network/api_exception.dart';
 import '../domain/app_user.dart';
@@ -23,7 +25,13 @@ class ApiAuthRepository implements AuthRepository {
   AppUser _mapUser(Object? value) {
     final data = _object(value);
     final role = '${data['role']}'.toUpperCase();
-    if (!['COMPANY', 'RECRUITER', 'STUDENT', 'CANDIDATE'].contains(role) ||
+    if (![
+          'COMPANY',
+          'RECRUITER',
+          'STUDENT',
+          'CANDIDATE',
+          'ADMIN',
+        ].contains(role) ||
         data['id'] == null ||
         data['email'] == null) {
       throw const AuthException(AuthErrorCode.unknown);
@@ -31,7 +39,9 @@ class ApiAuthRepository implements AuthRepository {
     return AppUser(
       id: '${data['id']}',
       email: '${data['email']}',
-      role: ['COMPANY', 'RECRUITER'].contains(role)
+      role: role == 'ADMIN'
+          ? UserRole.admin
+          : ['COMPANY', 'RECRUITER'].contains(role)
           ? UserRole.company
           : UserRole.student,
     );
@@ -44,7 +54,25 @@ class ApiAuthRepository implements AuthRepository {
       if (token is! String || token.isEmpty) {
         throw const AuthException(AuthErrorCode.unknown);
       }
-      final user = _mapUser(data['user']);
+      final AppUser user;
+      if (data['user'] is Map) {
+        user = _mapUser(data['user']);
+      } else {
+        final parts = token.split('.');
+        if (parts.length != 3) throw const AuthException(AuthErrorCode.unknown);
+        try {
+          final claims = jsonDecode(
+            utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))),
+          );
+          user = _mapUser({
+            'id': claims['sub'],
+            'email': body['email'],
+            'role': data['role'],
+          });
+        } on FormatException {
+          throw const AuthException(AuthErrorCode.unknown);
+        }
+      }
       accessToken = token;
       _user = user;
       return user;
@@ -59,8 +87,8 @@ class ApiAuthRepository implements AuthRepository {
     }
   }
 
-  Future<AppUser> register(Map<String, dynamic> body) =>
-      _authenticate('/api/v1/auth/register', body);
+  // Registration is handled by ApiRegistrationRepository using the two
+  // dedicated backend routes. No generic /auth/register endpoint exists.
 
   @override
   Future<AppUser> signIn({
@@ -76,30 +104,17 @@ class ApiAuthRepository implements AuthRepository {
     required String email,
     required String password,
     required UserRole role,
-  }) => _authenticate('/api/v1/auth/register', {
-    'email': email.trim(),
-    'password': password,
-    'role': role == UserRole.company ? 'COMPANY' : 'STUDENT',
-  });
+  }) async => throw const AuthException(AuthErrorCode.unknown); // Use the role-specific registration forms.
   @override
   Future<void> sendPasswordResetEmail(String email) async {
-    try {
-      await api.postJson(
-        '/api/v1/auth/forgot-password',
-        body: {'email': email.trim()},
-      );
-    } on ApiException {
-      throw const AuthException(AuthErrorCode.network);
-    }
+    // This endpoint does not exist in the Spring Boot API. Do not claim
+    // that a recovery email has been sent.
+    throw const AuthException(AuthErrorCode.unknown);
   }
 
   @override
   Future<void> signOut() async {
-    try {
-      await api.postJson('/api/v1/auth/logout');
-    } finally {
-      accessToken = null;
-      _user = null;
-    }
+    accessToken = null;
+    _user = null;
   }
 }
