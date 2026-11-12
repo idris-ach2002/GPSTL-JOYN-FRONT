@@ -44,7 +44,9 @@ class ApiRegistrationRepository implements RegistrationRepository {
       await auth.signIn(email: email, password: password);
     } on AuthException catch (error) {
       // Account was created successfully; allow sign-in from the login page.
-      throw RegistrationException('Compte créé. Connectez-vous avec vos identifiants (${error.message}).');
+      throw RegistrationException(
+        'Compte créé. Connectez-vous avec vos identifiants (${error.message}).',
+      );
     }
   }
 
@@ -57,21 +59,28 @@ class ApiRegistrationRepository implements RegistrationRepository {
     }
     final companyName = _selectedCompanyNames[draft.siret];
     if (companyName == null || companyName.isEmpty) {
-      throw const RegistrationException('Recherchez votre entreprise avant de continuer.');
+      throw const RegistrationException(
+        'Recherchez votre entreprise avant de continuer.',
+      );
     }
     try {
-      await api.postJson('/api/v1/recruiters/register', body: {
-        'email': draft.email.trim(),
-        'password': draft.password,
-        'firstName': draft.firstName.trim(),
-        'lastName': draft.lastName.trim(),
-        'companyName': companyName,
-      });
+      await api.postJson(
+        '/api/v1/recruiters/register',
+        body: {
+          'email': draft.email.trim(),
+          'password': draft.password,
+          'firstName': draft.firstName.trim(),
+          'lastName': draft.lastName.trim(),
+          'companyName': companyName,
+        },
+      );
       await _loginAfterRegistration(draft.email, draft.password);
     } on ApiException catch (error) {
-      throw RegistrationException(error.statusCode == 409
-          ? 'Ce compte recruteur existe déjà.'
-          : 'Inscription recruteur refusée (${error.statusCode ?? 'réseau'}).');
+      throw RegistrationException(
+        error.statusCode == 409
+            ? 'Ce compte recruteur existe déjà.'
+            : 'Inscription recruteur refusée (${error.statusCode ?? 'réseau'}).',
+      );
     }
   }
 
@@ -81,17 +90,23 @@ class ApiRegistrationRepository implements RegistrationRepository {
       throw const RegistrationException('Veuillez accepter les conditions.');
     }
     try {
-      await api.sendMultipart('POST', '/api/v1/candidates/register', fields: {
-        'email': draft.email.trim(),
-        'password': draft.password,
-        'firstName': draft.firstName.trim(),
-        'lastName': draft.lastName.trim(),
-      });
+      await api.sendMultipart(
+        'POST',
+        '/api/v1/candidates/register',
+        fields: {
+          'email': draft.email.trim(),
+          'password': draft.password,
+          'firstName': draft.firstName.trim(),
+          'lastName': draft.lastName.trim(),
+        },
+      );
       await _loginAfterRegistration(draft.email, draft.password);
     } on ApiException catch (error) {
-      throw RegistrationException(error.statusCode == 409
-          ? 'Cette adresse e-mail est déjà utilisée.'
-          : 'Inscription candidat refusée (${error.statusCode ?? 'réseau'}).');
+      throw RegistrationException(
+        error.statusCode == 409
+            ? 'Cette adresse e-mail est déjà utilisée.'
+            : 'Inscription candidat refusée (${error.statusCode ?? 'réseau'}).',
+      );
     }
   }
 }

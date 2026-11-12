@@ -121,7 +121,9 @@ class CandidateStudioPanel extends StatelessWidget {
                       : () => studioEditInterview(
                           context,
                           profileId: candidate.profileId,
-                          applicationId: candidate.profileId == null ? null : candidate.id,
+                          applicationId: candidate.profileId == null
+                              ? null
+                              : candidate.id,
                           candidateId: candidate.id,
                           candidateName: candidate.fullName,
                         ),
@@ -463,7 +465,9 @@ class StudioComparison extends StatelessWidget {
                                       onPressed: () => studioEditInterview(
                                         context,
                                         profileId: v['profileId']?.toString(),
-                                        applicationId: v['profileId'] == null ? null : v['id']?.toString(),
+                                        applicationId: v['profileId'] == null
+                                            ? null
+                                            : v['id']?.toString(),
                                         candidateId: '${v['id']}',
                                         candidateName: '${v['name']}',
                                       ),

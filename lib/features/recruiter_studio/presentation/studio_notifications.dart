@@ -431,7 +431,10 @@ class _StudioNotificationsState extends State<StudioNotifications> {
                   spacing: 10,
                   children: [
                     Text(
-                      [studioDate(n['createdAt']), if (n['whenLabel'] != null) n['whenLabel']].where((v) => v.toString().isNotEmpty).join(' · '),
+                      [
+                        studioDate(n['createdAt']),
+                        if (n['whenLabel'] != null) n['whenLabel'],
+                      ].where((v) => v.toString().isNotEmpty).join(' · '),
                       style: const TextStyle(fontSize: 11),
                     ),
                     TextButton(

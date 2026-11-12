@@ -175,21 +175,21 @@ class _MobileAdminCompaniesViewState extends State<_MobileAdminCompaniesView> {
             ],
           ),
           if (controller.canEditCompanies)
-          Positioned(
-            right: 16,
-            bottom: 16,
-            child: FloatingActionButton.extended(
-              key: const ValueKey('mobile-admin-add-company'),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(adminRadius),
+            Positioned(
+              right: 16,
+              bottom: 16,
+              child: FloatingActionButton.extended(
+                key: const ValueKey('mobile-admin-add-company'),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(adminRadius),
+                ),
+                backgroundColor: AppColors.navy,
+                foregroundColor: AppColors.white,
+                onPressed: () => handler.create(context),
+                icon: const Icon(Icons.add_rounded),
+                label: const Text('Ajouter'),
               ),
-              backgroundColor: AppColors.navy,
-              foregroundColor: AppColors.white,
-              onPressed: () => handler.create(context),
-              icon: const Icon(Icons.add_rounded),
-              label: const Text('Ajouter'),
             ),
-          ),
         ],
       ),
     );

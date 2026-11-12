@@ -585,9 +585,11 @@ class _StudioSettingsState extends State<StudioSettings> {
           SwitchListTile.adaptive(
             contentPadding: EdgeInsets.zero,
             title: const Text('Profil entreprise visible'),
-            subtitle: Text(workspace.repository.isMock
-                ? 'Autoriser les candidats à consulter votre présentation'
-                : 'La visibilité du profil est gérée par le serveur.'),
+            subtitle: Text(
+              workspace.repository.isMock
+                  ? 'Autoriser les candidats à consulter votre présentation'
+                  : 'La visibilité du profil est gérée par le serveur.',
+            ),
             value: workspace.settings?['profileVisible'] != false,
             onChanged: !workspace.repository.isMock || workspace.busy
                 ? null
@@ -631,10 +633,14 @@ class _StudioSettingsState extends State<StudioSettings> {
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.lock_reset),
             title: const Text('Réinitialiser mon mot de passe'),
-            subtitle: Text(context.watch<WorkspaceController>().repository.isMock
-                ? 'Tester la demande en démonstration'
-                : 'Le serveur ne propose pas encore la récupération par e-mail.'),
-            enabled: !auth.isLoading && context.watch<WorkspaceController>().repository.isMock,
+            subtitle: Text(
+              context.watch<WorkspaceController>().repository.isMock
+                  ? 'Tester la demande en démonstration'
+                  : 'Le serveur ne propose pas encore la récupération par e-mail.',
+            ),
+            enabled:
+                !auth.isLoading &&
+                context.watch<WorkspaceController>().repository.isMock,
             onTap: () async {
               if (auth.user == null) return;
               final ok = await auth.sendPasswordReset(auth.user!.email);

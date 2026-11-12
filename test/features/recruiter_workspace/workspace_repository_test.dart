@@ -85,16 +85,24 @@ void main() {
   );
   test('API : une activité garde son candidat, sa date et son état après actualisation', () async {
     final activity = {
-      'kind': 'application', 'title': 'Nouvelle candidature',
+      'kind': 'application',
+      'title': 'Nouvelle candidature',
       'subtitle': 'Raphaël · Data Analyst junior',
-      'occurredAt': '2026-11-12T14:30:00Z', 'whenLabel': 'il y a 5 min',
+      'occurredAt': '2026-11-12T14:30:00Z',
+      'whenLabel': 'il y a 5 min',
     };
     final events = [activity];
-    final repo = ApiRecruiterWorkspaceRepository(ApiClient(
-      baseUrl: 'https://api.joyn.test',
-      httpClient: MockClient((_) async => http.Response.bytes(
-        utf8.encode(jsonEncode({'activities': events})), 200)),
-    ));
+    final repo = ApiRecruiterWorkspaceRepository(
+      ApiClient(
+        baseUrl: 'https://api.joyn.test',
+        httpClient: MockClient(
+          (_) async => http.Response.bytes(
+            utf8.encode(jsonEncode({'activities': events})),
+            200,
+          ),
+        ),
+      ),
+    );
     final first = (await repo.notifications()).single;
     expect(first['body'], activity['subtitle']);
     expect(first['createdAt'], activity['occurredAt']);
@@ -116,7 +124,13 @@ void main() {
       httpClient: MockClient((q) async {
         if (q.url.path.endsWith('/login')) {
           return http.Response(
-            jsonEncode({'access_token': 'x.${base64Url.encode(utf8.encode('{"sub":"42"}'))}.y', 'role': 'RECRUITER', 'expires_in': 3600, 'token_type': 'Bearer'}),
+            jsonEncode({
+              'access_token':
+                  'x.${base64Url.encode(utf8.encode('{"sub":"42"}'))}.y',
+              'role': 'RECRUITER',
+              'expires_in': 3600,
+              'token_type': 'Bearer',
+            }),
             200,
           );
         }

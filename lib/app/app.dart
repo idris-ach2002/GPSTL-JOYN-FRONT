@@ -223,7 +223,8 @@ class _JoynAppState extends State<JoynApp> {
       _lastUserId = id;
       _studio.bind(_authController.user?.role == UserRole.company ? id : null);
       final workspaceRepository = _workspaceController.repository;
-      if (workspaceRepository is ApiRecruiterWorkspaceRepository) workspaceRepository.clearActivityState();
+      if (workspaceRepository is ApiRecruiterWorkspaceRepository)
+        workspaceRepository.clearActivityState();
       _workspaceController.reset();
       _primeWorkspace();
     }

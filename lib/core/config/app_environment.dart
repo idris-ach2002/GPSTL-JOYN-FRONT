@@ -28,7 +28,9 @@ class AppEnvironment {
     final timeoutMs = int.tryParse(rawTimeout) ?? 12000;
     return AppEnvironment(
       dataMode: mode,
-      apiBaseUrl: kIsWeb && apiBaseUrl == 'same-origin' ? Uri.base.origin : apiBaseUrl.trim(),
+      apiBaseUrl: kIsWeb && apiBaseUrl == 'same-origin'
+          ? Uri.base.origin
+          : apiBaseUrl.trim(),
       apiTimeout: Duration(milliseconds: timeoutMs.clamp(1000, 60000).toInt()),
     );
   }

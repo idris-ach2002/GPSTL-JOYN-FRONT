@@ -25,7 +25,13 @@ class ApiAuthRepository implements AuthRepository {
   AppUser _mapUser(Object? value) {
     final data = _object(value);
     final role = '${data['role']}'.toUpperCase();
-    if (!['COMPANY', 'RECRUITER', 'STUDENT', 'CANDIDATE', 'ADMIN'].contains(role) ||
+    if (![
+          'COMPANY',
+          'RECRUITER',
+          'STUDENT',
+          'CANDIDATE',
+          'ADMIN',
+        ].contains(role) ||
         data['id'] == null ||
         data['email'] == null) {
       throw const AuthException(AuthErrorCode.unknown);
@@ -36,8 +42,8 @@ class ApiAuthRepository implements AuthRepository {
       role: role == 'ADMIN'
           ? UserRole.admin
           : ['COMPANY', 'RECRUITER'].contains(role)
-              ? UserRole.company
-              : UserRole.student,
+          ? UserRole.company
+          : UserRole.student,
     );
   }
 
@@ -55,8 +61,14 @@ class ApiAuthRepository implements AuthRepository {
         final parts = token.split('.');
         if (parts.length != 3) throw const AuthException(AuthErrorCode.unknown);
         try {
-          final claims = jsonDecode(utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))));
-          user = _mapUser({'id': claims['sub'], 'email': body['email'], 'role': data['role']});
+          final claims = jsonDecode(
+            utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))),
+          );
+          user = _mapUser({
+            'id': claims['sub'],
+            'email': body['email'],
+            'role': data['role'],
+          });
         } on FormatException {
           throw const AuthException(AuthErrorCode.unknown);
         }

@@ -83,11 +83,14 @@ Future<void> bootstrapJoyn({bool? webOverride}) async {
       : MockRecruiterCandidateRepository());
   // Every protected repository must share the JWT-aware client.
   final AdminCompanyRepository adminCompanyRepository = api == null
-      ? FakeAdminCompanyRepository() : ApiAdminCompanyRepository(api);
+      ? FakeAdminCompanyRepository()
+      : ApiAdminCompanyRepository(api);
   final AdminUserRepository adminUserRepository = api == null
-      ? FakeAdminUserRepository() : ApiAdminUserRepository(api);
+      ? FakeAdminUserRepository()
+      : ApiAdminUserRepository(api);
   final VerificationRepository verificationRepository = api == null
-      ? FakeVerificationRepository() : ApiVerificationRepository(api);
+      ? FakeVerificationRepository()
+      : ApiVerificationRepository(api);
   final RegistrationRepository registrationRepository = api != null
       ? ApiRegistrationRepository(api, apiAuth!)
       : AuthRegistrationRepository(
@@ -123,7 +126,10 @@ Future<void> bootstrapJoyn({bool? webOverride}) async {
           : ApiRecommendedOffersRepository(api, interests: pendingInterests),
       candidateApplicationsRepository: api == null
           ? demoApplications
-          : ApiCandidateApplicationsRepository(api, interests: pendingInterests),
+          : ApiCandidateApplicationsRepository(
+              api,
+              interests: pendingInterests,
+            ),
       adminCompanyRepository: adminCompanyRepository,
       adminUserRepository: adminUserRepository,
       verificationRepository: verificationRepository,

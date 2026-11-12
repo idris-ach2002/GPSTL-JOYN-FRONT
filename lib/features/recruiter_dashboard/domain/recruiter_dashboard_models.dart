@@ -122,8 +122,8 @@ class DashboardPriorityAction {
 }
 
 class RecruiterDashboardData {
-  final List<Map<String,dynamic>> recentApplications;
-  final List<Map<String,dynamic>> weeklyInterests;
+  final List<Map<String, dynamic>> recentApplications;
+  final List<Map<String, dynamic>> weeklyInterests;
   const RecruiterDashboardData({
     this.recentApplications = const [],
     this.weeklyInterests = const [],

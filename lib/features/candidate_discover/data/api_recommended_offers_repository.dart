@@ -10,7 +10,7 @@ import 'recommended_offers_repository.dart';
 /// casser l'écran si le backend évolue légèrement.
 class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
   ApiRecommendedOffersRepository(this._api, {PendingInterestsStore? interests})
-      : interests = interests ?? PendingInterestsStore();
+    : interests = interests ?? PendingInterestsStore();
 
   final PendingInterestsStore interests;
   final Map<String, RecommendedOffer> _knownOffers = {};
@@ -23,11 +23,15 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
   Future<DiscoverFeed> fetchFeed({
     DiscoverFilters filters = const DiscoverFilters(),
   }) async {
-    final json = await _api.getJson(basePath, query: {
-      'page': '1', 'limit': '50',
-      if (filters.rhythm != null) 'rhythm_type': filters.rhythm,
-      if (filters.location != null) 'location': filters.location,
-    });
+    final json = await _api.getJson(
+      basePath,
+      query: {
+        'page': '1',
+        'limit': '50',
+        if (filters.rhythm != null) 'rhythm_type': filters.rhythm,
+        if (filters.location != null) 'location': filters.location,
+      },
+    );
     final root = _unwrap(_asMap(json));
     final offerRows = _asList(root['content']);
     final mapped = <RecommendedOffer>[];
@@ -39,20 +43,26 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
       final companyId = _string(job['company_id']);
       if (companyId.isNotEmpty && !companies.containsKey(companyId)) {
         try {
-          companies[companyId] = _asMap(await _api.getJson('/api/v1/companies/$companyId'));
+          companies[companyId] = _asMap(
+            await _api.getJson('/api/v1/companies/$companyId'),
+          );
         } catch (_) {
           companies[companyId] = const {};
         }
       }
-      final merged = {...job, 'match_score': envelope['match_score'],
+      final merged = {
+        ...job,
+        'match_score': envelope['match_score'],
         'score_breakdown': envelope['score_breakdown'],
-        'company': companies[companyId] ?? const <String,dynamic>{}};
+        'company': companies[companyId] ?? const <String, dynamic>{},
+      };
       final offer = mapOffer(merged);
       _knownOffers[offer.id] = offer;
       if (!interests.isHidden(offer.id)) mapped.add(offer);
     }
     return DiscoverFeed(
-      offers: mapped, filters: filters,
+      offers: mapped,
+      filters: filters,
       totalCompatible: _nullableInt(root['totalElements']) ?? mapped.length,
     );
   }
@@ -62,8 +72,11 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
     final offer = _knownOffers[offerId];
     if (offer == null) throw StateError('Offre introuvable dans le flux.');
     if (decision == SwipeDecision.interested) {
-      interests.interested(offerId, title: offer.title,
-        companyName: offer.company.name);
+      interests.interested(
+        offerId,
+        title: offer.title,
+        companyName: offer.company.name,
+      );
     } else {
       // Save and pass are visual session-local actions (no backend endpoint).
       interests.hide(offerId);
@@ -96,7 +109,11 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
   /// Convertit une offre JSON en [RecommendedOffer].
   static RecommendedOffer mapOffer(Map<String, dynamic> json) {
     final company = _asMap(json['company']);
-    final criteria = json['score_breakdown'] ?? json['criteria'] ?? json['matching'] ?? json['match'];
+    final criteria =
+        json['score_breakdown'] ??
+        json['criteria'] ??
+        json['matching'] ??
+        json['match'];
     return RecommendedOffer(
       id: _string(json['id']),
       title: _string(json['title']),
@@ -108,14 +125,21 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
         logoUrl: _nullableString(company['logoUrl']),
       ),
       compatibility: _int(
-        json['match_score'] ?? json['compatibility'] ?? json['compatibilityScore'] ?? json['score'],
+        json['match_score'] ??
+            json['compatibility'] ??
+            json['compatibilityScore'] ??
+            json['score'],
       ).clamp(0, 100),
       location: _string(json['location']),
       commuteMinutes: _nullableInt(json['commuteMinutes']),
       rhythm: _string(json['rhythm_type'] ?? json['rhythm']),
       remoteDays: _nullableInt(json['remoteDays']),
-      monthlySalary: _nullableInt((json['salary_period'] == 'MONTH' ? json['salary_min'] : null)),
-      contractType: _string(json['contract_type'] ?? json['contractType'] ?? json['contract']),
+      monthlySalary: _nullableInt(
+        (json['salary_period'] == 'MONTH' ? json['salary_min'] : null),
+      ),
+      contractType: _string(
+        json['contract_type'] ?? json['contractType'] ?? json['contract'],
+      ),
       description: _string(json['description']),
       skills: _asList(json['skills']).map((skill) {
         if (skill is String) return OfferSkill(name: skill, matched: false);

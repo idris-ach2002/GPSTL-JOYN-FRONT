@@ -564,7 +564,10 @@ Future<void> showCandidateProfileDialog(
                   Uri(
                     path: AppRoutes.recruiterMessages,
                     queryParameters: {
-                      if (candidate.profileId != null) 'profileId': candidate.profileId! else 'candidateId': candidate.id,
+                      if (candidate.profileId != null)
+                        'profileId': candidate.profileId!
+                      else
+                        'candidateId': candidate.id,
                       'name': candidate.fullName,
                     },
                   ).toString(),
@@ -647,7 +650,10 @@ class ReciprocalMatchDialog extends StatelessWidget {
             Uri(
               path: AppRoutes.recruiterMessages,
               queryParameters: {
-                if (candidate.profileId != null) 'profileId': candidate.profileId! else 'candidateId': candidate.id,
+                if (candidate.profileId != null)
+                  'profileId': candidate.profileId!
+                else
+                  'candidateId': candidate.id,
                 'name': candidate.fullName,
               },
             ).toString(),

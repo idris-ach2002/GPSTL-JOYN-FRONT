@@ -45,7 +45,9 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final c = context.read<WorkspaceController>();
-      if (c.repository.isMock || ['profile','notifications','settings'].contains(widget.section)) c.load(widget.section);
+      if (c.repository.isMock ||
+          ['profile', 'notifications', 'settings'].contains(widget.section))
+        c.load(widget.section);
     });
   }
 
@@ -220,12 +222,17 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
               ),
             Expanded(
               child: switch (widget.section) {
-                'messages' when controller.repository is ApiRecruiterWorkspaceRepository =>
-                    CandidateEmail(
-                      key: ValueKey(widget.candidateId),
-                      api: (controller.repository as ApiRecruiterWorkspaceRepository).api,
-                      profileId: widget.candidateId,
-                    ),
+                'messages'
+                    when controller.repository
+                        is ApiRecruiterWorkspaceRepository =>
+                  CandidateEmail(
+                    key: ValueKey(widget.candidateId),
+                    api:
+                        (controller.repository
+                                as ApiRecruiterWorkspaceRepository)
+                            .api,
+                    profileId: widget.candidateId,
+                  ),
                 'messages' => WorkspaceMessages(
                   key: ValueKey(widget.candidateId),
                   candidateId: widget.candidateId,

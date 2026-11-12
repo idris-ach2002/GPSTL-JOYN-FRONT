@@ -238,7 +238,10 @@ class _BrandButtonState extends State<_BrandButton> {
             overlayColor: Colors.transparent,
             splashFactory: NoSplash.splashFactory,
           ),
-          child: const FittedBox(fit: BoxFit.scaleDown, child: JoynMark(size: 32)),
+          child: const FittedBox(
+            fit: BoxFit.scaleDown,
+            child: JoynMark(size: 32),
+          ),
         ),
       ),
     );

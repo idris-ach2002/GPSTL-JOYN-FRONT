@@ -29,8 +29,11 @@ enum AccountStatus {
   final String label;
   final String apiValue;
 
-  static AccountStatus fromApi(String? value) => AccountStatus.values
-      .firstWhere((status) => status.apiValue == value?.toLowerCase(), orElse: () => active);
+  static AccountStatus fromApi(String? value) =>
+      AccountStatus.values.firstWhere(
+        (status) => status.apiValue == value?.toLowerCase(),
+        orElse: () => active,
+      );
 }
 
 /// Type d'entrée du journal de modération.

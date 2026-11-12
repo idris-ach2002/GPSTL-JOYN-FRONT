@@ -279,7 +279,9 @@ class VerificationDetail extends StatelessWidget {
         if (item.status.isOpen && !controller.supportsReviewWorkflow)
           const Padding(
             padding: EdgeInsets.all(16),
-            child: Text('Ouvrez Entreprises pour valider ou rejeter cette entreprise.'),
+            child: Text(
+              'Ouvrez Entreprises pour valider ou rejeter cette entreprise.',
+            ),
           ),
         if (item.status.isOpen && controller.supportsReviewWorkflow) ...[
           const Divider(height: 1),

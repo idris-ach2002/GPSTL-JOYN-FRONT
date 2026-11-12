@@ -82,16 +82,22 @@ class ApiClient {
       request.headers.addAll(await _headers(json: false));
       request.fields.addAll(fields);
       if (fileBytes != null) {
-        request.files.add(http.MultipartFile.fromBytes(
-          fileField, fileBytes,
-          filename: fileName ?? 'resume.pdf',
-        ));
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            fileField,
+            fileBytes,
+            filename: fileName ?? 'resume.pdf',
+          ),
+        );
       }
       final streamed = await _http.send(request).timeout(timeout);
       return _decode(await http.Response.fromStream(streamed).timeout(timeout));
     } catch (error) {
       if (error is ApiException) rethrow;
-      throw ApiException(message: 'Échec de l’envoi multipart $path', cause: error);
+      throw ApiException(
+        message: 'Échec de l’envoi multipart $path',
+        cause: error,
+      );
     }
   }
 

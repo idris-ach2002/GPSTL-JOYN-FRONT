@@ -258,9 +258,10 @@ class _WebOfferEditorScreenState extends State<WebOfferEditorScreen> {
                     selected: controller.selectedCompany?.id == company.id,
                     onTap: () => controller.selectCompany(company),
                   ),
-                if (!controller.linkedCompanyOnly) _AddCompanyChoice(
-                  onTap: () => showCompanyPickerDrawer(context, controller),
-                ),
+                if (!controller.linkedCompanyOnly)
+                  _AddCompanyChoice(
+                    onTap: () => showCompanyPickerDrawer(context, controller),
+                  ),
               ],
             );
           },

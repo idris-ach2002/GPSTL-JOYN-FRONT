@@ -55,8 +55,14 @@ abstract final class _DashboardApiMapper {
     DashboardPeriod period,
   ) {
     return RecruiterDashboardData(
-      weeklyInterests: [for (final row in _list(json['weeklyInterests'])) Map<String,dynamic>.from(_object(row))],
-      recentApplications: [for (final row in _list(json['recentApplications'])) Map<String,dynamic>.from(_object(row))],
+      weeklyInterests: [
+        for (final row in _list(json['weeklyInterests']))
+          Map<String, dynamic>.from(_object(row)),
+      ],
+      recentApplications: [
+        for (final row in _list(json['recentApplications']))
+          Map<String, dynamic>.from(_object(row)),
+      ],
       period: period,
       kpis: _list(json['kpis']).map(_kpi).toList(),
       trend: _list(json['trend']).map(_trend).toList(),

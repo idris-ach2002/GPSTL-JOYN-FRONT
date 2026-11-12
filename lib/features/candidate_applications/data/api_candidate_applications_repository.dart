@@ -11,8 +11,10 @@ import 'candidate_applications_repository.dart';
 /// limiter les retouches.
 class ApiCandidateApplicationsRepository
     implements CandidateApplicationsRepository {
-  ApiCandidateApplicationsRepository(this._api, {PendingInterestsStore? interests})
-      : interests = interests ?? PendingInterestsStore();
+  ApiCandidateApplicationsRepository(
+    this._api, {
+    PendingInterestsStore? interests,
+  }) : interests = interests ?? PendingInterestsStore();
   final PendingInterestsStore interests;
 
   final ApiClient _api;
@@ -26,14 +28,20 @@ class ApiCandidateApplicationsRepository
   }) async {
     final json = await _api.getJson(
       _basePath,
-      query: {'page': '$page', 'limit': '${pageSize.clamp(1, 50)}', 'sort': 'created_at,desc'},
+      query: {
+        'page': '$page',
+        'limit': '${pageSize.clamp(1, 50)}',
+        'sort': 'created_at,desc',
+      },
     );
     final server = _mapPage(_asMap(json), requestedPage: page);
     if (page != 1) return server;
     final local = interests.items;
     return ApplicationsPage(
-      items: [...local, ...server.items], page: server.page,
-      totalPages: server.totalPages, totalItems: server.totalItems + local.length,
+      items: [...local, ...server.items],
+      page: server.page,
+      totalPages: server.totalPages,
+      totalItems: server.totalItems + local.length,
     );
   }
 
@@ -48,11 +56,14 @@ class ApiCandidateApplicationsRepository
   Future<CandidateApplication> sendApplication(String applicationId) async {
     final offerId = interests.findOfferId(applicationId);
     if (offerId == null) {
-      throw UnsupportedError('Seuls les intérêts locaux non envoyés peuvent être soumis.');
+      throw UnsupportedError(
+        'Seuls les intérêts locaux non envoyés peuvent être soumis.',
+      );
     }
-    final raw = await _api.postJson('/api/v1/applications', body: {
-      'jobOfferId': int.parse(offerId),
-    });
+    final raw = await _api.postJson(
+      '/api/v1/applications',
+      body: {'jobOfferId': int.parse(offerId)},
+    );
     interests.submitted(offerId);
     final data = _unwrap(_asMap(raw));
     return _mapApplication(data);
@@ -94,7 +105,9 @@ class ApiCandidateApplicationsRepository
     return CandidateApplication(
       id: _nullableString(json['id']) ?? '',
       status: ApplicationStatus.fromApi(_nullableString(json['status'])),
-      offerId: _nullableString(json['jobOfferId'] ?? json['offerId'] ?? json['jobId'] ?? offer['id']),
+      offerId: _nullableString(
+        json['jobOfferId'] ?? json['offerId'] ?? json['jobId'] ?? offer['id'],
+      ),
       companyName: _nullableString(json['companyName'] ?? company['name']),
       companyLogoUrl: _nullableString(
         json['companyLogoUrl'] ?? company['logoUrl'],

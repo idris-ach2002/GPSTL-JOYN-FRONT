@@ -225,12 +225,13 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
         name: 'recruiterRegister',
         builder: (context, state) {
           final repo = context.read<RegistrationRepository?>();
-          if (repo is ApiRegistrationRepository) return ConnectedRecruiterScreen(repo.api, registration: true);
+          if (repo is ApiRegistrationRepository)
+            return ConnectedRecruiterScreen(repo.api, registration: true);
           return adaptiveAuth(
-          context,
-          mobile: const MobileCompanyRegisterScreen(),
-          web: const CompanyRegisterScreen(),
-        );
+            context,
+            mobile: const MobileCompanyRegisterScreen(),
+            web: const CompanyRegisterScreen(),
+          );
         },
       ),
       ShellRoute(
@@ -364,13 +365,13 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
         name: 'recruiterDashboard',
         builder: (context, state) {
           return ChangeNotifierProvider(
-          create: (context) => RecruiterDashboardController(
-            context.read<RecruiterDashboardRepository>(),
-          )..loadDashboard(),
-          child: useMobile(context)
-              ? const MobileRecruiterDashboardScreen()
-              : const WebRecruiterDashboardScreen(),
-        );
+            create: (context) => RecruiterDashboardController(
+              context.read<RecruiterDashboardRepository>(),
+            )..loadDashboard(),
+            child: useMobile(context)
+                ? const MobileRecruiterDashboardScreen()
+                : const WebRecruiterDashboardScreen(),
+          );
         },
       ),
       GoRoute(
@@ -397,10 +398,13 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
 
       GoRoute(
         path: '/recruiter/outils',
-        redirect: (context, state) => context.read<RegistrationRepository>() is ApiRegistrationRepository
-            ? null : AppRoutes.recruiterCandidates,
+        redirect: (context, state) =>
+            context.read<RegistrationRepository>() is ApiRegistrationRepository
+            ? null
+            : AppRoutes.recruiterCandidates,
         builder: (context, state) => ConnectedRecruiterScreen(
-          (context.read<RegistrationRepository>() as ApiRegistrationRepository).api,
+          (context.read<RegistrationRepository>() as ApiRegistrationRepository)
+              .api,
         ),
       ),
       GoRoute(
@@ -551,7 +555,8 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
             section: section,
             mobile: useMobile(context),
             candidateId: context.read<WorkspaceController>().repository.isMock
-                ? state.uri.queryParameters['candidateId'] : state.uri.queryParameters['profileId'],
+                ? state.uri.queryParameters['candidateId']
+                : state.uri.queryParameters['profileId'],
             candidateName: state.uri.queryParameters['name'],
           ),
         ),

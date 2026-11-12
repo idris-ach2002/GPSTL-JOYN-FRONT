@@ -1,4 +1,5 @@
 import 'package:provider/provider.dart';
+
 import '../../../recruiter_workspace/presentation/workspace_controller.dart';
 import '../../../recruiter_studio/presentation/studio_components.dart';
 
@@ -355,7 +356,10 @@ class _OfferCompactLayout extends StatelessWidget {
           _PerformanceChip(value: performance),
           _MiniInfoChip(
             icon: Icons.visibility_outlined,
-            label: context.read<WorkspaceController?>()?.repository.isMock == false ? 'Vues non mesurées' : '${offer.views} vues',
+            label:
+                context.read<WorkspaceController?>()?.repository.isMock == false
+                ? 'Vues non mesurées'
+                : '${offer.views} vues',
           ),
           if (offer.lastActivity != null)
             _MiniInfoChip(

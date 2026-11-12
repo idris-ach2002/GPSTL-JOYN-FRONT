@@ -1,4 +1,5 @@
 import 'package:joyn_front/design_system/components/joyn_logo.dart';
+
 import '../../../recruiter_studio/presentation/studio_search.dart';
 import '../../../recruiter_studio/presentation/studio_components.dart';
 
@@ -359,7 +360,8 @@ class DistributionDonut extends StatelessWidget {
     ),
   );
 
-  double get _distributionTotal => items.fold<double>(0, (sum, item) => sum + item.value);
+  double get _distributionTotal =>
+      items.fold<double>(0, (sum, item) => sum + item.value);
 
   Widget _legend() => Column(
     crossAxisAlignment: CrossAxisAlignment.start,

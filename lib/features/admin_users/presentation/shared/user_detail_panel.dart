@@ -240,47 +240,48 @@ class _UserDetailPanel extends StatelessWidget {
                 ),
               ),
               if (controller.canManageUsers) const Divider(),
-              if (controller.canManageUsers) Padding(
-                padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
-                child: busy
-                    ? const LinearProgressIndicator()
-                    : Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          if (sanctioned)
-                            FilledButton.icon(
-                              style: FilledButton.styleFrom(
-                                backgroundColor: AppColors.successDeep,
+              if (controller.canManageUsers)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
+                  child: busy
+                      ? const LinearProgressIndicator()
+                      : Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            if (sanctioned)
+                              FilledButton.icon(
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: AppColors.successDeep,
+                                ),
+                                onPressed: () =>
+                                    handler.reactivate(context, user),
+                                icon: const Icon(Icons.restart_alt_rounded),
+                                label: const Text('Réactiver'),
                               ),
-                              onPressed: () =>
-                                  handler.reactivate(context, user),
-                              icon: const Icon(Icons.restart_alt_rounded),
-                              label: const Text('Réactiver'),
-                            ),
-                          if (user.status != AccountStatus.suspended)
+                            if (user.status != AccountStatus.suspended)
+                              OutlinedButton(
+                                onPressed: isSelf
+                                    ? null
+                                    : () => handler.suspend(context, user),
+                                child: const Text('Suspendre'),
+                              ),
+                            if (user.status != AccountStatus.banned)
+                              OutlinedButton(
+                                onPressed: isSelf
+                                    ? null
+                                    : () => handler.ban(context, user),
+                                child: const Text('Bannir'),
+                              ),
                             OutlinedButton(
                               onPressed: isSelf
                                   ? null
-                                  : () => handler.suspend(context, user),
-                              child: const Text('Suspendre'),
+                                  : () => handler.changeRole(context, user),
+                              child: const Text('Modifier le rôle'),
                             ),
-                          if (user.status != AccountStatus.banned)
-                            OutlinedButton(
-                              onPressed: isSelf
-                                  ? null
-                                  : () => handler.ban(context, user),
-                              child: const Text('Bannir'),
-                            ),
-                          OutlinedButton(
-                            onPressed: isSelf
-                                ? null
-                                : () => handler.changeRole(context, user),
-                            child: const Text('Modifier le rôle'),
-                          ),
-                        ],
-                      ),
-              ),
+                          ],
+                        ),
+                ),
             ],
           ),
         );

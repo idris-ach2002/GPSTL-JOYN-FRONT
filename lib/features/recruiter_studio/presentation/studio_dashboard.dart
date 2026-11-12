@@ -1,6 +1,7 @@
 import '../../recruiter_workspace/data/recruiter_workspace_repository.dart';
 import '../../recruiter_workspace/presentation/workspace_controller.dart';
 import '../../recruiter_workspace/presentation/application_panel.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -108,31 +109,59 @@ class StudioDashboardToolbar extends StatelessWidget {
   }
 }
 
-
 class RecruiterDashboardDetails extends StatelessWidget {
   const RecruiterDashboardDetails({super.key});
   @override
   Widget build(BuildContext context) {
     final repo = context.read<WorkspaceController?>()?.repository;
     final data = context.watch<RecruiterDashboardController>().overview;
-    if (repo is! ApiRecruiterWorkspaceRepository || data == null) return const SizedBox.shrink();
-    return Column(children: [
-      ExpansionTile(title: const Text('Intérêts reçus par semaine'), children: [
-        for (final week in data.weeklyInterests)
-          ListTile(title: Text('${week['weekStart']}'), trailing: Text('${week['value']}')),
-      ]),
-      ExpansionTile(title: const Text('Candidatures récentes'), children: [
-        if(data.recentApplications.isEmpty) const ListTile(title: Text('Aucune candidature sur la période.')),
-        for (final row in data.recentApplications)
-          ListTile(title: Text('${row['firstName'] ?? ''} ${row['lastName'] ?? ''}'),
-            subtitle: Text('${row['jobTitle']} · ${row['statusLabel']}')),
-      ]),
-      ExpansionTile(title: const Text('Postulants par offre'), children: [
-        for (final offer in data.topOffers)
-          ListTile(title:Text(offer.title), trailing:const Icon(Icons.chevron_right),
-            onTap:()=>showModalBottomSheet<void>(context:context,isScrollControlled:true,
-              builder:(_)=>FractionallySizedBox(heightFactor:.85,child:ApplicationPanel(repository:repo,jobId:offer.id)))),
-      ]),
-    ]);
+    if (repo is! ApiRecruiterWorkspaceRepository || data == null)
+      return const SizedBox.shrink();
+    return Column(
+      children: [
+        ExpansionTile(
+          title: const Text('Intérêts reçus par semaine'),
+          children: [
+            for (final week in data.weeklyInterests)
+              ListTile(
+                title: Text('${week['weekStart']}'),
+                trailing: Text('${week['value']}'),
+              ),
+          ],
+        ),
+        ExpansionTile(
+          title: const Text('Candidatures récentes'),
+          children: [
+            if (data.recentApplications.isEmpty)
+              const ListTile(title: Text('Aucune candidature sur la période.')),
+            for (final row in data.recentApplications)
+              ListTile(
+                title: Text(
+                  '${row['firstName'] ?? ''} ${row['lastName'] ?? ''}',
+                ),
+                subtitle: Text('${row['jobTitle']} · ${row['statusLabel']}'),
+              ),
+          ],
+        ),
+        ExpansionTile(
+          title: const Text('Postulants par offre'),
+          children: [
+            for (final offer in data.topOffers)
+              ListTile(
+                title: Text(offer.title),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => showModalBottomSheet<void>(
+                  context: context,
+                  isScrollControlled: true,
+                  builder: (_) => FractionallySizedBox(
+                    heightFactor: .85,
+                    child: ApplicationPanel(repository: repo, jobId: offer.id),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
   }
 }

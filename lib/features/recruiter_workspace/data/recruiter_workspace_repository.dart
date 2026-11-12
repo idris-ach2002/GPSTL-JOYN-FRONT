@@ -52,18 +52,30 @@ class ApiRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
   Future<List<Map<String, dynamic>>> applications(int jobId) async {
     final items = <Map<String, dynamic>>[];
     for (var page = 1; ; page++) {
-      final result = apiObject(await api.getJson('$root/jobs/$jobId/recommendations',
-          query: {'page': '$page', 'limit': '50'}));
+      final result = apiObject(
+        await api.getJson(
+          '$root/jobs/$jobId/recommendations',
+          query: {'page': '$page', 'limit': '50'},
+        ),
+      );
       for (final row in result['content'] as List) {
         final candidate = row['candidate'] as Map;
-        items.add({'id': row['application_id'], 'candidateId': candidate['id'],
-          'name': [candidate['first_name'], candidate['last_name']].whereType<String>().join(' '),
-          'stage': row['application_status'], 'score': row['match_score'],
-          'education': candidate['headline']});
+        items.add({
+          'id': row['application_id'],
+          'candidateId': candidate['id'],
+          'name': [
+            candidate['first_name'],
+            candidate['last_name'],
+          ].whereType<String>().join(' '),
+          'stage': row['application_status'],
+          'score': row['match_score'],
+          'education': candidate['headline'],
+        });
       }
       if (result['hasNext'] != true) return items;
     }
   }
+
   @override
   Future<void> updateApplication(int jobId, String id, String stage) async {
     await api.patchJson(
@@ -80,15 +92,23 @@ class ApiRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
       apiObject(await api.getJson('$root/profile'));
   @override
   Future<Map<String, dynamic>> saveProfile(Map<String, dynamic> value) async {
-    final response = await api.patchJson('$root/profile', body: {for (final key in ['firstName', 'lastName']) if (value.containsKey(key)) key: value[key]});
+    final response = await api.patchJson(
+      '$root/profile',
+      body: {
+        for (final key in ['firstName', 'lastName'])
+          if (value.containsKey(key)) key: value[key],
+      },
+    );
     return response == null ? profile() : apiObject(response);
   }
 
   // The server stores only the recruiter's first and last names.
   // Settings are presentation preferences for this running session only.
   final Map<String, dynamic> _localSettings = {
-    'emailNotifications': false, 'messageNotifications': false,
-    'matchNotifications': false, 'profileVisible': true,
+    'emailNotifications': false,
+    'messageNotifications': false,
+    'matchNotifications': false,
+    'profileVisible': true,
   };
   final Set<String> _readActivities = {};
 
@@ -102,26 +122,41 @@ class ApiRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
 
   @override
   Future<List<Map<String, dynamic>>> notifications() async {
-    final body = apiObject(await api.getJson('$root/dashboard', query: {'period': '30d'}));
+    final body = apiObject(
+      await api.getJson('$root/dashboard', query: {'period': '30d'}),
+    );
     final activities = body['activities'] as List? ?? const [];
     final events = <Map<String, dynamic>>[];
     final occurrences = <String, int>{};
     for (final row in activities.whereType<Map>()) {
       final kind = row['kind'];
-      final key = jsonEncode([kind, row['occurredAt'], row['title'], row['subtitle']]);
+      final key = jsonEncode([
+        kind,
+        row['occurredAt'],
+        row['title'],
+        row['subtitle'],
+      ]);
       final sequence = occurrences.update(key, (n) => n + 1, ifAbsent: () => 0);
       final id = '$key/$sequence';
       if (_hiddenActivities.contains(id)) continue;
       events.add({
-        'id': id, 'title': row['title'], 'body': row['subtitle'],
-        'createdAt': row['occurredAt'], 'whenLabel': row['whenLabel'], 'kind': kind,
+        'id': id,
+        'title': row['title'],
+        'body': row['subtitle'],
+        'createdAt': row['occurredAt'],
+        'whenLabel': row['whenLabel'],
+        'kind': kind,
         'read': _readActivities.contains(id),
-        'target': kind == 'offer' ? '/recruiter/jobs'
-            : kind == 'interview' ? '/recruiter/dashboard' : '/recruiter/candidates',
+        'target': kind == 'offer'
+            ? '/recruiter/jobs'
+            : kind == 'interview'
+            ? '/recruiter/dashboard'
+            : '/recruiter/candidates',
       });
     }
     return events;
   }
+
   final Set<String> _hiddenActivities = {};
 
   void clearActivityState() {
@@ -130,31 +165,49 @@ class ApiRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
   }
 
   @override
-  Future<void> readNotification(String id) async { _readActivities.add(id); }
+  Future<void> readNotification(String id) async {
+    _readActivities.add(id);
+  }
+
   @override
-  Future<void> updateNotification(String id, Map<String, dynamic> changes) async {
+  Future<void> updateNotification(
+    String id,
+    Map<String, dynamic> changes,
+  ) async {
     if (changes['read'] == true) {
       _readActivities.add(id);
     } else if (changes['read'] == false) {
       _readActivities.remove(id);
     }
   }
+
   @override
-  Future<void> deleteNotification(String id) async { _hiddenActivities.add(id); }
+  Future<void> deleteNotification(String id) async {
+    _hiddenActivities.add(id);
+  }
 
   // No real-time conversations/messages exist in Spring Boot main. These
   // screens remain accessible, with honest empty states, not fake chats.
   @override
   Future<List<Map<String, dynamic>>> conversations() async => const [];
   @override
-  Future<Map<String, dynamic>> startConversation(String candidateId, String name) async =>
-      throw UnsupportedError('La messagerie sera activée par l’équipe backend.');
+  Future<Map<String, dynamic>> startConversation(
+    String candidateId,
+    String name,
+  ) async => throw UnsupportedError(
+    'La messagerie sera activée par l’équipe backend.',
+  );
   @override
-  Future<List<Map<String, dynamic>>> messages(String conversationId) async => const [];
+  Future<List<Map<String, dynamic>>> messages(String conversationId) async =>
+      const [];
   @override
   Future<void> readConversation(String id) async {}
   @override
-  Future<Map<String, dynamic>> send(String conversationId, String text, String clientId) async =>
+  Future<Map<String, dynamic>> send(
+    String conversationId,
+    String text,
+    String clientId,
+  ) async =>
       throw UnsupportedError('L’envoi de messages n’est pas disponible.');
 }
 
