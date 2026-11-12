@@ -13,6 +13,12 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../features/admin_companies/data/admin_company_repository.dart';
+import '../features/admin_companies/data/fake_admin_company_repository.dart';
+import '../features/admin_users/data/admin_user_repository.dart';
+import '../features/admin_users/data/fake_admin_user_repository.dart';
+import '../features/admin_verifications/data/fake_verification_repository.dart';
+import '../features/admin_verifications/data/verification_repository.dart';
 import '../features/auth/data/fake_auth_repository.dart';
 import '../features/auth/presentation/auth_controller.dart';
 import '../features/candidate_applications/data/candidate_applications_repository.dart';
@@ -56,6 +62,9 @@ class JoynApp extends StatefulWidget {
     this.recruiterCandidateRepository,
     this.recommendedOffersRepository,
     this.candidateApplicationsRepository,
+    this.adminCompanyRepository,
+    this.adminUserRepository,
+    this.verificationRepository,
   });
 
   final RecruiterWorkspaceRepository? workspaceRepository;
@@ -71,6 +80,9 @@ class JoynApp extends StatefulWidget {
   final RecruiterCandidateRepository? recruiterCandidateRepository;
   final RecommendedOffersRepository? recommendedOffersRepository;
   final CandidateApplicationsRepository? candidateApplicationsRepository;
+  final AdminCompanyRepository? adminCompanyRepository;
+  final AdminUserRepository? adminUserRepository;
+  final VerificationRepository? verificationRepository;
 
   @override
   State<JoynApp> createState() => _JoynAppState();
@@ -86,6 +98,9 @@ class _JoynAppState extends State<JoynApp> {
   late final RecruiterCandidateRepository _recruiterCandidateRepository;
   late final RecommendedOffersRepository _recommendedOffersRepository;
   late final CandidateApplicationsRepository _candidateApplicationsRepository;
+  late final AdminCompanyRepository _adminCompanyRepository;
+  late final AdminUserRepository _adminUserRepository;
+  late final VerificationRepository _verificationRepository;
   late final GoRouter _router;
   late final StudioController _studio;
   late final WorkspaceController _workspaceController;
@@ -143,6 +158,15 @@ class _JoynAppState extends State<JoynApp> {
     _profileRepository =
         widget.profileRepository ??
         FakeProfileRepository(latency: Duration.zero);
+    _adminCompanyRepository =
+        widget.adminCompanyRepository ??
+        FakeAdminCompanyRepository(latency: Duration.zero);
+    _adminUserRepository =
+        widget.adminUserRepository ??
+        FakeAdminUserRepository(latency: Duration.zero);
+    _verificationRepository =
+        widget.verificationRepository ??
+        FakeVerificationRepository(latency: Duration.zero);
 
     _studio = StudioController(
       store: widget.studioStore,
@@ -239,6 +263,9 @@ class _JoynAppState extends State<JoynApp> {
         Provider<CandidateApplicationsRepository>.value(
           value: _candidateApplicationsRepository,
         ),
+        Provider<AdminCompanyRepository>.value(value: _adminCompanyRepository),
+        Provider<AdminUserRepository>.value(value: _adminUserRepository),
+        Provider<VerificationRepository>.value(value: _verificationRepository),
       ],
       child: ListenableBuilder(
         // L'auth est écoutée aussi : le thème change à la connexion.

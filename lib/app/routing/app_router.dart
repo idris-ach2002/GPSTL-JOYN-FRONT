@@ -5,17 +5,26 @@ import '../../features/recruiter_studio/presentation/studio_components.dart';
 import '../../features/recruiter_studio/presentation/studio_controller.dart';
 import '../../features/recruiter_workspace/presentation/workspace_screen.dart';
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../design_system/mobile/mobile_entry_transition.dart';
-import '../../features/auth/domain/user_role.dart';
-import '../../features/auth/presentation/auth_controller.dart';
-import '../../features/auth/presentation/mobile/mobile_forgot_password_screen.dart';
-import '../../features/auth/presentation/mobile/mobile_login_screen.dart';
-import '../../features/auth/presentation/web/forgot_password_page.dart';
-import '../../features/auth/presentation/web/login_page.dart';
+import '../../features/admin_companies/data/admin_company_repository.dart';
+import '../../features/admin_users/data/admin_user_repository.dart';
+import '../../features/admin_verifications/data/verification_repository.dart';
+import '../../features/admin_verifications/presentation/controllers/admin_verifications_controller.dart';
+import '../../features/admin_verifications/presentation/mobile/mobile_admin_verifications_screen.dart';
+import '../../features/admin_verifications/presentation/web/admin_verifications_screen.dart';
+import '../../features/admin_users/domain/user_query.dart';
+import '../../features/admin_users/presentation/controllers/admin_users_controller.dart';
+import '../../features/admin_users/presentation/mobile/mobile_admin_users_screen.dart';
+import '../../features/admin_users/presentation/web/admin_users_screen.dart';
+import '../../features/admin_companies/presentation/controllers/admin_companies_controller.dart';
+import '../../features/admin_companies/presentation/mobile/mobile_admin_companies_screen.dart';
+import '../../features/admin/presentation/shared/admin_forbidden_screen.dart';
+import '../../features/admin_companies/presentation/web/admin_companies_screen.dart';
 import '../../features/candidate_applications/data/candidate_applications_repository.dart';
 import '../../features/candidate_applications/presentation/candidate_applications_controller.dart';
 import '../../features/candidate_applications/presentation/mobile/mobile_candidate_applications_screen.dart';
@@ -24,6 +33,12 @@ import '../../features/candidate_discover/data/recommended_offers_repository.dar
 import '../../features/candidate_discover/presentation/controllers/discover_controller.dart';
 import '../../features/candidate_discover/presentation/mobile/mobile_discover_screen.dart';
 import '../../features/candidate_discover/presentation/web/discover_screen.dart';
+import '../../features/auth/domain/user_role.dart';
+import '../../features/auth/presentation/auth_controller.dart';
+import '../../features/auth/presentation/mobile/mobile_forgot_password_screen.dart';
+import '../../features/auth/presentation/mobile/mobile_login_screen.dart';
+import '../../features/auth/presentation/web/forgot_password_page.dart';
+import '../../features/auth/presentation/web/login_page.dart';
 import '../../features/dashboard/data/dashboard_repository.dart';
 import '../../features/dashboard/presentation/dashboard_controller.dart';
 import '../../features/dashboard/presentation/mobile/mobile_dashboard_screen.dart';
@@ -71,6 +86,10 @@ import '../../features/startup/presentation/mobile/mobile_startup_screen.dart';
 import '../experience/experience_target.dart';
 import 'app_routes.dart';
 
+/// Accès à l'espace admin sans connexion, pour le développement local.
+const bool _adminPreview =
+    kDebugMode && bool.fromEnvironment('JOYN_ADMIN_PREVIEW');
+
 GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
   bool useMobile(BuildContext context) {
     return ExperienceResolver.resolve(
@@ -102,6 +121,15 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
           isRegistration ||
           isInformationPage;
 
+      final isAdminArea =
+          location == AppRoutes.admin ||
+          location.startsWith('${AppRoutes.admin}/');
+
+      // Aperçu de développement : l'espace admin s'ouvre sans connexion,
+      // uniquement en debug ET lancé avec --dart-define=JOYN_ADMIN_PREVIEW=true.
+      // Jamais actif dans la version déployée (release).
+      if (_adminPreview && isAdminArea) return null;
+
       if (!auth.isAuthenticated && !isPublic) return AppRoutes.login;
 
       final isRecruiterArea =
@@ -111,6 +139,21 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
           isRecruiterArea &&
           auth.user?.role != UserRole.company) {
         return AppRoutes.dashboard;
+      }
+
+      // Espace d'administration : réservé au rôle admin (RBAC). Les autres
+      // comptes connectés voient une page 403 ; les visiteurs non connectés
+      // ont déjà été renvoyés vers la connexion.
+      final isAdmin = auth.user?.role == UserRole.admin;
+      if (auth.isAuthenticated && isAdminArea && !isAdmin) {
+        return AppRoutes.forbidden;
+      }
+
+      // Un admin arrive directement sur son espace.
+      if (isAdmin &&
+          (location == AppRoutes.dashboard ||
+              AppRoutes.authEntryRoutes.contains(location))) {
+        return AppRoutes.adminCompanies;
       }
 
       if (auth.isAuthenticated &&
@@ -251,6 +294,60 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
               ? const MobileDiscoverScreen()
               : const WebDiscoverScreen(),
         ),
+      ),
+
+      GoRoute(
+        path: AppRoutes.admin,
+        redirect: (context, state) => AppRoutes.adminCompanies,
+      ),
+      GoRoute(
+        path: AppRoutes.adminCompanies,
+        name: 'adminCompanies',
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) =>
+              AdminCompaniesController(context.read<AdminCompanyRepository>())
+                ..load(),
+          child: useMobile(context)
+              ? const MobileAdminCompaniesScreen()
+              : const AdminCompaniesScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.adminUsers,
+        name: 'adminUsers',
+        builder: (context, state) {
+          // Pagination, recherche et filtres viennent de l'URL : ils sont
+          // conservés au rafraîchissement et dans les liens partagés.
+          final urlQuery = UserQuery.fromQueryParameters(
+            state.uri.queryParameters,
+          );
+          return ChangeNotifierProvider(
+            create: (context) => AdminUsersController(
+              context.read<AdminUserRepository>(),
+              currentUserId: auth.user?.id,
+            ),
+            child: useMobile(context)
+                ? MobileAdminUsersScreen(urlQuery: urlQuery)
+                : AdminUsersScreen(urlQuery: urlQuery),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.adminVerifications,
+        name: 'adminVerifications',
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) => AdminVerificationsController(
+            context.read<VerificationRepository>(),
+          )..load(),
+          child: useMobile(context)
+              ? const MobileAdminVerificationsScreen()
+              : const AdminVerificationsScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.forbidden,
+        name: 'forbidden',
+        builder: (context, state) => const AdminForbiddenScreen(),
       ),
 
       GoRoute(
