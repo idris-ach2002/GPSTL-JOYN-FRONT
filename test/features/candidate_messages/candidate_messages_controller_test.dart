@@ -14,6 +14,42 @@ class _FlakyMessaging extends MockMessagingRepository {
 
   bool failSend = false;
 
+  /// Simule le recruteur qui ouvre la conversation : le back renvoie alors
+  /// `readAt` sur les messages du candidat.
+  bool recruiterRead = false;
+
+  @override
+  Future<MessagePage> fetchMessages(
+    String conversationId, {
+    String? before,
+    int limit = 30,
+  }) async {
+    final page = await super.fetchMessages(
+      conversationId,
+      before: before,
+      limit: limit,
+    );
+    if (!recruiterRead) return page;
+    return MessagePage(
+      messages: [
+        for (final m in page.messages)
+          m.fromMe && m.readAt == null
+              ? ChatMessage(
+                  id: m.id,
+                  text: m.text,
+                  fromMe: true,
+                  createdAt: m.createdAt,
+                  senderName: m.senderName,
+                  readAt: now,
+                  clientId: m.clientId,
+                )
+              : m,
+      ],
+      nextCursor: page.nextCursor,
+      hasMore: page.hasMore,
+    );
+  }
+
   @override
   Future<ChatMessage> send(
     String conversationId,
@@ -88,6 +124,20 @@ void main() {
 
     expect(controller.messages.last.delivery, MessageDelivery.sent);
     expect(controller.threads.first.preview, 'Parfait, à jeudi !');
+  });
+
+  // Régression : seuls les nouveaux messages étaient ajoutés au
+  // rafraîchissement, l'accusé « Lu » n'apparaissait donc jamais.
+  test('le rafraîchissement affiche l’accusé « Lu » du recruteur', () async {
+    await controller.load(select: 'app-seed-4');
+    await controller.send('Parfait, à jeudi !');
+    expect(controller.messages.last.readAt, isNull);
+
+    messaging.recruiterRead = true;
+    await controller.refresh();
+
+    expect(controller.messages.last.text, 'Parfait, à jeudi !');
+    expect(controller.messages.last.readAt, isNotNull);
   });
 
   test('un envoi raté reste visible et peut être renvoyé', () async {

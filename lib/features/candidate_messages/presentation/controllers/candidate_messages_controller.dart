@@ -325,12 +325,18 @@ class CandidateMessagesController extends ChangeNotifier {
         );
         final known = {for (final m in _messages) m.id};
         final fresh = page.messages.where((m) => !known.contains(m.id));
-        if (fresh.isNotEmpty) {
-          _messages = [
-            ..._messages.where((m) => m.delivery == MessageDelivery.sent),
-            ...fresh,
-            ...pending,
-          ];
+        // Les messages déjà affichés sont remplacés par la version du back :
+        // c'est ainsi que l'accusé « Lu » (readAt) apparaît sans recharger.
+        final server = {for (final m in page.messages) m.id: m};
+        final sent = _messages
+            .where((m) => m.delivery == MessageDelivery.sent)
+            .toList();
+        final updated = [for (final m in sent) server[m.id] ?? m];
+        final readChanged = updated.indexed.any(
+          (e) => e.$2.readAt != sent[e.$1].readAt,
+        );
+        if (fresh.isNotEmpty || readChanged) {
+          _messages = [...updated, ...fresh, ...pending];
           if (thread.unread > 0 || fresh.any((m) => !m.fromMe)) {
             _replaceThread(thread.withUnread(0));
             unawaited(
