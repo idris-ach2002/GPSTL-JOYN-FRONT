@@ -24,6 +24,13 @@ import '../features/auth/presentation/auth_controller.dart';
 import '../features/candidate_applications/data/candidate_applications_repository.dart';
 import '../features/candidate_applications/data/mock_candidate_applications_repository.dart';
 import '../features/candidate_discover/data/mock_recommended_offers_repository.dart';
+import '../features/candidate_settings/data/candidate_settings_repository.dart';
+import '../features/candidate_settings/data/mock_candidate_settings_repository.dart';
+import '../features/messaging/data/messaging_repository.dart';
+import '../features/messaging/data/mock_messaging_repository.dart';
+import '../features/notifications/data/mock_notifications_repository.dart';
+import '../features/notifications/data/notifications_repository.dart';
+import '../features/notifications/presentation/notifications_controller.dart';
 import '../features/candidate_discover/data/recommended_offers_repository.dart';
 import '../features/dashboard/data/dashboard_repository.dart';
 import '../features/dashboard/data/fake_dashboard_repository.dart';
@@ -62,6 +69,9 @@ class JoynApp extends StatefulWidget {
     this.recruiterCandidateRepository,
     this.recommendedOffersRepository,
     this.candidateApplicationsRepository,
+    this.messagingRepository,
+    this.notificationsRepository,
+    this.candidateSettingsRepository,
     this.adminCompanyRepository,
     this.adminUserRepository,
     this.verificationRepository,
@@ -80,6 +90,9 @@ class JoynApp extends StatefulWidget {
   final RecruiterCandidateRepository? recruiterCandidateRepository;
   final RecommendedOffersRepository? recommendedOffersRepository;
   final CandidateApplicationsRepository? candidateApplicationsRepository;
+  final MessagingRepository? messagingRepository;
+  final NotificationsRepository? notificationsRepository;
+  final CandidateSettingsRepository? candidateSettingsRepository;
   final AdminCompanyRepository? adminCompanyRepository;
   final AdminUserRepository? adminUserRepository;
   final VerificationRepository? verificationRepository;
@@ -98,6 +111,9 @@ class _JoynAppState extends State<JoynApp> {
   late final RecruiterCandidateRepository _recruiterCandidateRepository;
   late final RecommendedOffersRepository _recommendedOffersRepository;
   late final CandidateApplicationsRepository _candidateApplicationsRepository;
+  late final MessagingRepository _messagingRepository;
+  late final CandidateSettingsRepository _candidateSettingsRepository;
+  late final NotificationsController _notifications;
   late final AdminCompanyRepository _adminCompanyRepository;
   late final AdminUserRepository _adminUserRepository;
   late final VerificationRepository _verificationRepository;
@@ -154,6 +170,25 @@ class _JoynAppState extends State<JoynApp> {
           latency: Duration.zero,
           applications: mockApplications,
         );
+    _messagingRepository =
+        widget.messagingRepository ??
+        MockMessagingRepository(
+          latency: Duration.zero,
+          applications: mockApplications,
+          seed: false,
+        );
+    _candidateSettingsRepository =
+        widget.candidateSettingsRepository ??
+        MockCandidateSettingsRepository(latency: Duration.zero);
+    _notifications = NotificationsController(
+      widget.notificationsRepository ??
+          MockNotificationsRepository(latency: Duration.zero, items: []),
+      messaging: _messagingRepository,
+      // Pas de minuterie dans les tests qui n'injectent rien.
+      pollInterval: widget.notificationsRepository == null
+          ? null
+          : const Duration(seconds: 60),
+    );
 
     _profileRepository =
         widget.profileRepository ??
@@ -185,6 +220,7 @@ class _JoynAppState extends State<JoynApp> {
     _lastUserId = _authController.user?.id;
     _authController.addListener(_onAuthChanged);
     _primeWorkspace();
+    _syncNotifications();
     _router = createAppRouter(_authController, webOverride: widget.webOverride);
   }
 
@@ -228,12 +264,22 @@ class _JoynAppState extends State<JoynApp> {
       }
       _workspaceController.reset();
       _primeWorkspace();
+      _syncNotifications();
     }
+  }
+
+  /// Notifications et compteurs de l'espace candidat : actifs seulement
+  /// quand un candidat est connecté (le recruteur a les siens).
+  void _syncNotifications() {
+    final user = _authController.user;
+    _notifications.stop();
+    if (user != null && user.role == UserRole.student) _notifications.start();
   }
 
   @override
   void dispose() {
     _authController.removeListener(_onAuthChanged);
+    _notifications.dispose();
     _workspaceController.dispose();
     _studio.dispose();
     _router.dispose();
@@ -267,6 +313,13 @@ class _JoynAppState extends State<JoynApp> {
         ),
         Provider<CandidateApplicationsRepository>.value(
           value: _candidateApplicationsRepository,
+        ),
+        Provider<MessagingRepository>.value(value: _messagingRepository),
+        Provider<CandidateSettingsRepository>.value(
+          value: _candidateSettingsRepository,
+        ),
+        ChangeNotifierProvider<NotificationsController>.value(
+          value: _notifications,
         ),
         Provider<AdminCompanyRepository>.value(value: _adminCompanyRepository),
         Provider<AdminUserRepository>.value(value: _adminUserRepository),

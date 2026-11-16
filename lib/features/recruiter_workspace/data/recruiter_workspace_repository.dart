@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import '../../recruiter_studio/data/studio_store.dart';
 import '../../../core/network/api_client.dart';
+import '../../messaging/data/api_messaging_repository.dart';
+import '../../messaging/domain/conversation.dart';
 
 /// Contrat v1 : les routes et la normalisation sont isolées de l'interface.
 abstract interface class RecruiterWorkspaceRepository {
@@ -186,29 +188,76 @@ class ApiRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
     _hiddenActivities.add(id);
   }
 
-  // No real-time conversations/messages exist in Spring Boot main. These
-  // screens remain accessible, with honest empty states, not fake chats.
+  // Messagerie : routes `/api/v1/conversations` du back (tag « Messaging »),
+  // partagées avec l'espace candidat via [ApiMessagingRepository]. Les écrans
+  // recruteur attendent des maps : on convertit ici.
+  late final ApiMessagingRepository _messaging = ApiMessagingRepository(api);
+
   @override
-  Future<List<Map<String, dynamic>>> conversations() async => const [];
+  Future<List<Map<String, dynamic>>> conversations() async {
+    final list = await _messaging.fetchConversations();
+    return list.items.map(_conversationMap).toList();
+  }
+
   @override
   Future<Map<String, dynamic>> startConversation(
     String candidateId,
     String name,
-  ) async => throw UnsupportedError(
-    'La messagerie sera activée par l’équipe backend.',
-  );
+  ) async {
+    // Le back accepte `{candidateId, jobId}` côté recruteur et prend alors la
+    // dernière candidature de ce candidat sur les offres de l'entreprise.
+    // TODO(backend): confirmer que `jobId` peut être omis ; sinon, faire
+    // passer l'offre (ou l'id de candidature) depuis les écrans appelants.
+    final json = await api.postJson(
+      ApiMessagingRepository.basePath,
+      body: {'candidateId': int.tryParse(candidateId) ?? candidateId},
+    );
+    final map = _conversationMap(
+      ApiMessagingRepository.mapConversation(apiObject(json)),
+    );
+    if ('${map['name']}'.isEmpty) map['name'] = name;
+    return map;
+  }
+
   @override
-  Future<List<Map<String, dynamic>>> messages(String conversationId) async =>
-      const [];
+  Future<List<Map<String, dynamic>>> messages(String conversationId) async {
+    final page = await _messaging.fetchMessages(conversationId, limit: 100);
+    return page.messages.map(_messageMap).toList();
+  }
+
   @override
-  Future<void> readConversation(String id) async {}
+  Future<void> readConversation(String id) => _messaging.markRead(id);
+
   @override
   Future<Map<String, dynamic>> send(
     String conversationId,
     String text,
     String clientId,
-  ) async =>
-      throw UnsupportedError('L’envoi de messages n’est pas disponible.');
+  ) async => _messageMap(
+    await _messaging.send(conversationId, text, clientId: clientId),
+  );
+
+  static Map<String, dynamic> _conversationMap(Conversation c) => {
+    'id': c.id,
+    'candidateId': c.candidateId,
+    'applicationId': c.applicationId,
+    'name': c.candidateName,
+    'jobTitle': c.offerTitle,
+    'offerTitle': c.offerTitle,
+    'unread': c.unread,
+    'lastMessage': c.lastMessage,
+    'lastMessageAt': c.lastMessageAt?.toUtc().toIso8601String(),
+  };
+
+  static Map<String, dynamic> _messageMap(ChatMessage m) => {
+    'id': m.id,
+    'clientId': m.clientId,
+    'text': m.text,
+    'fromMe': m.fromMe,
+    'senderName': m.senderName,
+    'createdAt': m.createdAt.toUtc().toIso8601String(),
+    'readAt': m.readAt?.toUtc().toIso8601String(),
+  };
 }
 
 /// Données de démonstration isolées par instance et conservées pendant la session.

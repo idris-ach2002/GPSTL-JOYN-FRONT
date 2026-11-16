@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../core/widgets/coming_soon.dart';
+import '../../../../app/routing/app_routes.dart';
 import '../../domain/candidate_application.dart';
 import '../candidate_applications_controller.dart';
 
@@ -11,16 +12,20 @@ Future<void> openApplicationConversation(
   BuildContext context,
   CandidateApplication application,
 ) async {
+  // La page « Messages » retrouve le fil à partir de la candidature : elle
+  // ouvre la conversation existante, ou propose de la démarrer (entretien).
+  if (application.hasConversation || application.canStartConversation) {
+    context.go(AppRoutes.candidateConversation(application.id));
+    return;
+  }
+
   final controller = context.read<CandidateApplicationsController>();
   final outcome = await controller.openConversation(application);
   if (!context.mounted) return;
 
   switch (outcome) {
     case ConversationReady():
-      // TODO(messagerie): remplacer par
-      // `context.go(AppRoutes.conversation(outcome.conversationId))` quand la
-      // page de messagerie existera.
-      showComingSoon(context, 'Messagerie');
+      context.go(AppRoutes.candidateConversation(application.id));
     case ConversationUnavailable():
       _showMessage(context, switch (application.status) {
         ApplicationStatus.rejected => 'Cette candidature est close.',
