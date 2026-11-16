@@ -72,6 +72,11 @@ class ApiRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
           'stage': row['application_status'],
           'score': row['match_score'],
           'education': candidate['headline'],
+          'location': candidate['location'],
+          'bio': candidate['bio'],
+          'skills': candidate['skills'],
+          'experience': candidate['years_of_experience'],
+          'appliedAt': row['applied_at'],
         });
       }
       if (result['hasNext'] != true) return items;
@@ -112,8 +117,6 @@ class ApiRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
     'matchNotifications': false,
     'profileVisible': true,
   };
-  final Set<String> _readActivities = {};
-
   @override
   Future<Map<String, dynamic>> settings() async => Map.of(_localSettings);
   @override
@@ -124,51 +127,102 @@ class ApiRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
 
   @override
   Future<List<Map<String, dynamic>>> notifications() async {
-    final body = apiObject(
-      await api.getJson('$root/dashboard', query: {'period': '30d'}),
-    );
-    final activities = body['activities'] as List? ?? const [];
-    final events = <Map<String, dynamic>>[];
-    final occurrences = <String, int>{};
-    for (final row in activities.whereType<Map>()) {
-      final kind = row['kind'];
-      final key = jsonEncode([
-        kind,
-        row['occurredAt'],
-        row['title'],
-        row['subtitle'],
-      ]);
-      final sequence = occurrences.update(key, (n) => n + 1, ifAbsent: () => 0);
-      final id = '$key/$sequence';
-      if (_hiddenActivities.contains(id)) continue;
-      events.add({
-        'id': id,
-        'title': row['title'],
-        'body': row['subtitle'],
-        'createdAt': row['occurredAt'],
-        'whenLabel': row['whenLabel'],
-        'kind': kind,
-        'read': _readActivities.contains(id),
-        'target': kind == 'offer'
-            ? '/recruiter/jobs'
-            : kind == 'interview'
-            ? '/recruiter/dashboard'
-            : '/recruiter/candidates',
-      });
+    final result = <Map<String, dynamic>>[];
+    final seen = <String>{};
+    for (var page = 1; ; page++) {
+      final body = apiObject(
+        await api.getJson(
+          '/api/v1/notifications',
+          query: {'page': '$page', 'limit': '50'},
+        ),
+      );
+      final rows = body['notifications'];
+      if (rows is! List) {
+        throw const FormatException('Notifications attendues.');
+      }
+      for (final row in rows.cast<Map>()) {
+        final id = '${row['id']}';
+        if (!seen.add(id)) continue;
+        final type = '${row['type']}';
+        result.add({
+          'id': id,
+          'title': row['title'],
+          'body': row['message'],
+          'createdAt': row['createdAt'],
+          'read': row['isRead'] == true,
+          'kind': switch (type) {
+            'NEW_MESSAGE' => 'message',
+            'NEW_APPLICATION' || 'APPLICATION_UPDATE' => 'application',
+            'NEW_MATCH' || 'RECOMMENDATION' => 'match',
+            'INTERVIEW' => 'interview',
+            'NEW_OFFER' => 'offer',
+            _ => 'system',
+          },
+          'target': notificationTarget('${row['link'] ?? ''}', type),
+        });
+      }
+      if (rows.isEmpty || page >= (body['totalPages'] as num? ?? 1)) break;
     }
-    return events;
+    // Older seeded applications predate server notifications. Show their real
+    // dashboard history separately, without inventing an unread notification.
+    if (result.isEmpty) {
+      try {
+        final dashboard = apiObject(
+          await api.getJson('$root/dashboard', query: {'period': '30d'}),
+        );
+        for (final row
+            in (dashboard['activities'] as List? ?? const [])
+                .whereType<Map>()) {
+          final identity = jsonEncode([
+            row['kind'],
+            row['occurredAt'],
+            row['title'],
+            row['subtitle'],
+          ]);
+          result.add({
+            'id': 'activity:$identity',
+            'title': row['title'],
+            'body': row['subtitle'],
+            'createdAt': row['occurredAt'],
+            'kind': row['kind'],
+            'read': true,
+            'source': 'Historique du dashboard · 30 derniers jours',
+            'target': row['kind'] == 'offer'
+                ? '/recruiter/jobs'
+                : '/recruiter/candidates',
+          });
+        }
+      } catch (_) {
+        // Notifications loaded successfully; optional history is unavailable.
+      }
+    }
+    return result;
   }
 
-  final Set<String> _hiddenActivities = {};
+  // Only translate the backend's known relative links, never arbitrary URLs.
+  static String notificationTarget(String link, String type) {
+    final conversation = RegExp(r'^/conversations/(\d+)$').firstMatch(link);
+    if (conversation != null) {
+      return '/recruiter/messages?conversationId=${conversation[1]}';
+    }
+    final job = RegExp(r'^/recruiters/jobs/(\d+)/recommendations$')
+        .firstMatch(link);
+    if (job != null) return '/recruiter/jobs/${job[1]}';
+    return type == 'NEW_MESSAGE'
+        ? '/recruiter/messages'
+        : '/recruiter/candidates';
+  }
 
   void clearActivityState() {
-    _readActivities.clear();
-    _hiddenActivities.clear();
+    _localSettings.updateAll((key, value) => key == 'profileVisible');
   }
 
   @override
   Future<void> readNotification(String id) async {
-    _readActivities.add(id);
+    if (id.startsWith('activity:')) return;
+    await api.patchJson(
+      '/api/v1/notifications/${Uri.encodeComponent(id)}/read',
+    );
   }
 
   @override
@@ -177,16 +231,35 @@ class ApiRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
     Map<String, dynamic> changes,
   ) async {
     if (changes['read'] == true) {
-      _readActivities.add(id);
+      await readNotification(id);
     } else if (changes['read'] == false) {
-      _readActivities.remove(id);
+      throw UnsupportedError(
+        'Le serveur ne permet pas de marquer comme non lue.',
+      );
     }
   }
 
   @override
   Future<void> deleteNotification(String id) async {
-    _hiddenActivities.add(id);
+    await api.deleteJson('/api/v1/notifications/${Uri.encodeComponent(id)}');
   }
+
+  Future<Map<String, dynamic>> openApplication(String id) async =>
+      _conversationMap(await _messaging.openForApplication(id));
+
+  Future<Map<String, dynamic>> conversation(String id) async =>
+      _conversationMap(
+        ApiMessagingRepository.mapConversation(
+          apiObject(
+            await api.getJson(
+              '/api/v1/conversations/${Uri.encodeComponent(id)}',
+            ),
+          ),
+        ),
+      );
+
+  Future<MessagePage> messagePage(String id, {String? before}) =>
+      _messaging.fetchMessages(id, before: before, limit: 100);
 
   // Messagerie : routes `/api/v1/conversations` du back (tag « Messaging »),
   // partagées avec l'espace candidat via [ApiMessagingRepository]. Les écrans
@@ -206,8 +279,6 @@ class ApiRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
   ) async {
     // Le back accepte `{candidateId, jobId}` côté recruteur et prend alors la
     // dernière candidature de ce candidat sur les offres de l'entreprise.
-    // TODO(backend): confirmer que `jobId` peut être omis ; sinon, faire
-    // passer l'offre (ou l'id de candidature) depuis les écrans appelants.
     final json = await api.postJson(
       ApiMessagingRepository.basePath,
       body: {'candidateId': int.tryParse(candidateId) ?? candidateId},
@@ -222,7 +293,7 @@ class ApiRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
   @override
   Future<List<Map<String, dynamic>>> messages(String conversationId) async {
     final page = await _messaging.fetchMessages(conversationId, limit: 100);
-    return page.messages.map(_messageMap).toList();
+    return page.messages.map(messageMap).toList();
   }
 
   @override
@@ -233,7 +304,7 @@ class ApiRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
     String conversationId,
     String text,
     String clientId,
-  ) async => _messageMap(
+  ) async => messageMap(
     await _messaging.send(conversationId, text, clientId: clientId),
   );
 
@@ -249,7 +320,7 @@ class ApiRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
     'lastMessageAt': c.lastMessageAt?.toUtc().toIso8601String(),
   };
 
-  static Map<String, dynamic> _messageMap(ChatMessage m) => {
+  static Map<String, dynamic> messageMap(ChatMessage m) => {
     'id': m.id,
     'clientId': m.clientId,
     'text': m.text,

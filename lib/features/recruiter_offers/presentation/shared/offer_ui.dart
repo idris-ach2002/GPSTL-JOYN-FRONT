@@ -765,7 +765,7 @@ String salaryLabel(JobOffer offer) {
 }
 
 String dateLabel(DateTime? date) {
-  if (date == null) return '—';
+  if (date == null || date.millisecondsSinceEpoch == 0) return '—';
   const months = [
     'janv.',
     'févr.',
@@ -784,7 +784,7 @@ String dateLabel(DateTime? date) {
 }
 
 String monthYearLabel(DateTime? date) {
-  if (date == null) return '—';
+  if (date == null || date.millisecondsSinceEpoch == 0) return '—';
   const months = [
     'Janvier',
     'Février',

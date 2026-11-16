@@ -569,6 +569,8 @@ Future<void> showCandidateProfileDialog(
                       else
                         'candidateId': candidate.id,
                       'name': candidate.fullName,
+                      if (candidate.profileId != null)
+                        'applicationId': candidate.id,
                     },
                   ).toString(),
                 );
@@ -655,6 +657,7 @@ class ReciprocalMatchDialog extends StatelessWidget {
                 else
                   'candidateId': candidate.id,
                 'name': candidate.fullName,
+                if (candidate.profileId != null) 'applicationId': candidate.id,
               },
             ).toString(),
           );

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../recruiter_workspace/presentation/candidate_email.dart';
+import 'package:go_router/go_router.dart';
+
 import '../../recruiter_workspace/presentation/workspace_controller.dart';
 import '../../recruiter_workspace/data/recruiter_workspace_repository.dart';
 import 'studio_controller.dart';
@@ -84,54 +85,61 @@ Future<void> studioEditInterview(
           : 'Impossible d’enregistrer le créneau.',
     );
   }
-  if (!ok || !context.mounted || record['profileId'] == null) return;
-  final address = record['profileId'].toString();
+  if (!ok || !context.mounted) return;
   final repo = context.read<WorkspaceController>().repository;
   if (repo is! ApiRecruiterWorkspaceRepository) return;
-  if (record['applicationId'] != null &&
+  final appId = record['applicationId']?.toString();
+  final profile = record['profileId']?.toString();
+  if (appId == null && profile == null) return;
+  if (appId != null &&
       event == null &&
       await studioConfirm(
         context,
         'Passer la candidature en entretien ?',
-        'Le nouveau statut sera visible dans le suivi de la candidature.',
+        'Le statut sera visible par le candidat. Le créneau reste dans votre agenda personnel.',
         action: 'Mettre à jour',
       )) {
     try {
-      await repo.api.patchJson(
-        '/api/v1/applications/${record['applicationId']}/status',
-        body: {'status': 'INTERVIEW'},
-      );
+      await repo.updateApplication(0, appId, 'INTERVIEW');
     } catch (_) {
       if (context.mounted) {
         studioToast(
           context,
-          'Créneau enregistré. La mise à jour du statut a échoué.',
+          'Créneau enregistré localement. Le statut n’a pas pu être mis à jour.',
         );
       }
     }
   }
   if (!context.mounted) return;
-  await showDialog<void>(
-    context: context,
-    builder: (dialogContext) => AlertDialog(
-      title: const Text('Invitation à l’entretien'),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(dialogContext),
-          child: const Text('Fermer'),
-        ),
-      ],
-      content: SizedBox(
-        width: 520,
-        height: 380,
-        child: CandidateEmail(
-          api: repo.api,
-          profileId: address,
-          interview: record,
-        ),
-      ),
-    ),
-  );
+  final date = DateTime.parse('${record['start']}').toLocal();
+  final draft =
+      'Bonjour ${record['name']},\n\n'
+      'Je vous propose un entretien : ${record['title']}.\n'
+      'Date : ${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year} '
+      'à ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')} '
+      '(${date.timeZoneName}, UTC${date.timeZoneOffset.isNegative ? '' : '+'}${date.timeZoneOffset.inMinutes / 60}).\n'
+      'Durée : ${record['duration']} minutes.\n'
+      'Lieu ou lien : ${record['location']?.toString().isNotEmpty == true ? record['location'] : 'à convenir'}.\n\n'
+      'Pouvez-vous confirmer votre disponibilité dans cette conversation ?';
+  if (await studioConfirm(
+        context,
+        'Préparer le message JOYN ?',
+        'La proposition sera placée dans le brouillon de la conversation. Relisez-la puis appuyez sur Envoyer.',
+        action: 'Ouvrir la conversation',
+      ) &&
+      context.mounted) {
+    context.go(
+      Uri(
+        path: '/recruiter/messages',
+        queryParameters: {
+          'applicationId': ?appId,
+          'profileId': ?profile,
+          'name': '${record['name']}',
+        },
+      ).toString(),
+      extra: draft,
+    );
+  }
 }
 
 Future<void> studioAddNote(

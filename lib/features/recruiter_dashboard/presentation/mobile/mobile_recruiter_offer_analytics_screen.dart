@@ -1,3 +1,5 @@
+import '../../../recruiter_workspace/presentation/application_panel.dart';
+import '../../../recruiter_workspace/presentation/workspace_controller.dart';
 import '../../../recruiter_studio/presentation/studio_components.dart';
 
 import 'package:flutter/material.dart';
@@ -137,14 +139,28 @@ class MobileRecruiterOfferAnalyticsScreen extends StatelessWidget {
                                     ),
                                     const SizedBox(height: 10),
                                     TextButton.icon(
-                                      onPressed: () => context.go(
-                                        AppRoutes.recruiterJobDetail(offerId),
-                                      ),
-                                      icon: const Icon(
-                                        Icons.open_in_new_rounded,
-                                        size: 15,
-                                      ),
-                                      label: const Text('Voir l’offre'),
+                                      onPressed: () =>
+                                          showModalBottomSheet<void>(
+                                            context: context,
+                                            isScrollControlled: true,
+                                            useSafeArea: true,
+                                            builder: (_) => SizedBox(
+                                              height:
+                                                  MediaQuery.sizeOf(context)
+                                                      .height *
+                                                  .85,
+                                              child: ApplicationPanel(
+                                                repository: context
+                                                    .read<WorkspaceController>()
+                                                    .repository,
+                                                jobId: offerId,
+                                                onChanged: () => controller
+                                                    .loadOffer(offerId),
+                                              ),
+                                            ),
+                                          ),
+                                      icon: const Icon(Icons.people_outline),
+                                      label: const Text('Voir les candidats'),
                                     ),
                                   ],
                                 ),
@@ -165,6 +181,22 @@ class MobileRecruiterOfferAnalyticsScreen extends StatelessWidget {
                                     DashboardKpiCard(kpi: data.kpis[index]),
                               ),
                               const SizedBox(height: 10),
+                              DashboardCard(
+                                child: SizedBox(
+                                  height: 640,
+                                  child: ApplicationPanel(
+                                    key: ValueKey(data),
+                                    repository: context
+                                        .read<WorkspaceController>()
+                                        .repository,
+                                    jobId: offerId,
+                                    embedded: true,
+                                    onChanged: () =>
+                                        controller.loadOffer(offerId),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
                               DashboardCard(
                                 padding: const EdgeInsets.fromLTRB(
                                   14,

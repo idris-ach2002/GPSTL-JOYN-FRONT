@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 
 import '../features/recruiter_studio/presentation/studio_search.dart';
@@ -247,11 +249,11 @@ class _JoynAppState extends State<JoynApp> {
     }
     _workspaceController.load('profile');
     _workspaceController.load('notifications');
-    if (!_workspaceController.repository.isMock) return;
     _workspaceController.load('messages');
     _workspaceController.load('settings');
   }
 
+  Timer? _workspacePoll;
   String? _lastUserId;
   void _onAuthChanged() {
     final id = _authController.user?.id;
@@ -272,6 +274,18 @@ class _JoynAppState extends State<JoynApp> {
   /// quand un candidat est connecté (le recruteur a les siens).
   void _syncNotifications() {
     final user = _authController.user;
+    _workspacePoll?.cancel();
+    _workspacePoll = null;
+    if (user?.role == UserRole.company &&
+        !_workspaceController.repository.isMock) {
+      _workspacePoll = Timer.periodic(const Duration(seconds: 30), (_) {
+        final lifecycle = WidgetsBinding.instance.lifecycleState;
+        if (mounted &&
+            (lifecycle == null || lifecycle == AppLifecycleState.resumed)) {
+          _workspaceController.refreshActivity();
+        }
+      });
+    }
     _notifications.stop();
     if (user != null && user.role == UserRole.student) _notifications.start();
   }
@@ -279,6 +293,7 @@ class _JoynAppState extends State<JoynApp> {
   @override
   void dispose() {
     _authController.removeListener(_onAuthChanged);
+    _workspacePoll?.cancel();
     _notifications.dispose();
     _workspaceController.dispose();
     _studio.dispose();

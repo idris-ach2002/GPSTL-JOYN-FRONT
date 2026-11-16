@@ -533,6 +533,12 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
       GoRoute(
         path: '/recruiter/jobs/:jobId',
         name: 'recruiterJobDetail',
+        redirect: (context, state) {
+          final id = int.tryParse(state.pathParameters['jobId'] ?? '');
+          return id == null
+              ? AppRoutes.recruiterJobs
+              : AppRoutes.recruiterDashboardOffer(id);
+        },
         builder: (context, state) {
           final id = int.tryParse(state.pathParameters['jobId'] ?? '');
           if (id == null) return const SizedBox.shrink();
@@ -594,6 +600,9 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
                 ? state.uri.queryParameters['candidateId']
                 : state.uri.queryParameters['profileId'],
             candidateName: state.uri.queryParameters['name'],
+            applicationId: state.uri.queryParameters['applicationId'],
+            conversationId: state.uri.queryParameters['conversationId'],
+            initialDraft: state.extra is String ? state.extra as String : null,
           ),
         ),
       GoRoute(

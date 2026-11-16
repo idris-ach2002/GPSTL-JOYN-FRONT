@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:joyn_front/features/candidate_applications/data/mock_candidate_applications_repository.dart';
 import 'package:joyn_front/features/candidate_messages/presentation/controllers/candidate_messages_controller.dart';
@@ -13,6 +15,7 @@ class _FlakyMessaging extends MockMessagingRepository {
     : super(latency: Duration.zero, applications: apps, clock: () => now);
 
   bool failSend = false;
+  Completer<MessagePage>? nextFetch;
 
   /// Simule le recruteur qui ouvre la conversation : le back renvoie alors
   /// `readAt` sur les messages du candidat.
@@ -24,6 +27,11 @@ class _FlakyMessaging extends MockMessagingRepository {
     String? before,
     int limit = 30,
   }) async {
+    final delayed = nextFetch;
+    if (delayed != null) {
+      nextFetch = null;
+      return delayed.future;
+    }
     final page = await super.fetchMessages(
       conversationId,
       before: before,
@@ -113,6 +121,34 @@ void main() {
       expect(list.totalUnread, 0);
     },
   );
+
+  test('une actualisation tardive ne remplit pas un autre fil', () async {
+    await controller.load(select: 'app-seed-4');
+    final response = Completer<MessagePage>();
+    messaging.nextFetch = response;
+    final refresh = controller.refresh();
+    await Future<void>.delayed(Duration.zero);
+    final other = controller.threads.firstWhere(
+      (t) => t.state == ThreadState.locked,
+    );
+    await controller.select(other.id);
+    response.complete(
+      MessagePage(
+        messages: [
+          ChatMessage(
+            id: 'late',
+            text: 'Message de l’ancien fil',
+            fromMe: false,
+            createdAt: now,
+          ),
+        ],
+      ),
+    );
+    await refresh;
+    expect(controller.selected?.id, other.id);
+    expect(controller.messages, isEmpty);
+    expect(controller.loadingMessages, false);
+  });
 
   test('envoyer affiche le message tout de suite puis le confirme', () async {
     await controller.load(select: 'app-seed-4');

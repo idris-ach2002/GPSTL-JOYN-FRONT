@@ -83,6 +83,9 @@ class CandidateMessagesController extends ChangeNotifier {
   Timer? _timer;
   bool _disposed = false;
   int _clientSeq = 0;
+  int _selectionEpoch = 0;
+  bool _refreshing = false;
+  int _sending = 0;
 
   MessagesStatus _status = MessagesStatus.loading;
   MessagesStatus get status => _status;
@@ -165,9 +168,11 @@ class CandidateMessagesController extends ChangeNotifier {
         )
         .firstOrNull;
     if (thread == null) return;
+    _selectionEpoch++;
     _selectedId = thread.id;
     _messages = const [];
     _hasOlder = false;
+    _loadingMessages = false;
     _cursor = null;
     _notify();
     if (thread.state == ThreadState.open) await _openMessages(thread);
@@ -175,35 +180,44 @@ class CandidateMessagesController extends ChangeNotifier {
 
   /// Revient à la liste (Mobile).
   void unselect() {
+    _selectionEpoch++;
     _selectedId = null;
+    _loadingMessages = false;
     _messages = const [];
     _notify();
   }
 
   Future<void> _openMessages(MessageThread thread) async {
+    final epoch = _selectionEpoch;
     final conversationId = thread.conversation!.id;
     _loadingMessages = true;
     _notify();
     try {
       final page = await _messaging.fetchMessages(conversationId);
-      if (_selectedId != thread.id) return;
+      if (_disposed || epoch != _selectionEpoch || _selectedId != thread.id) {
+        return;
+      }
       _messages = page.messages;
       _hasOlder = page.hasMore;
       _cursor = page.nextCursor;
       if (thread.unread > 0) {
+        await _messaging.markRead(conversationId);
+        if (_disposed || epoch != _selectionEpoch) return;
         _replaceThread(thread.withUnread(0));
-        unawaited(_messaging.markRead(conversationId).catchError((_) {}));
       }
     } catch (_) {
-      notice = 'Impossible de charger cette conversation.';
+      if (!_disposed && epoch == _selectionEpoch) {
+        notice = 'Impossible de charger cette conversation.';
+      }
     } finally {
-      _loadingMessages = false;
+      if (epoch == _selectionEpoch) _loadingMessages = false;
       _notify();
     }
   }
 
   /// Charge les messages plus anciens du fil sélectionné.
   Future<void> loadOlder() async {
+    final epoch = _selectionEpoch;
     final conversation = selected?.conversation;
     if (conversation == null || !_hasOlder || _loadingMessages) return;
     _loadingMessages = true;
@@ -213,13 +227,16 @@ class CandidateMessagesController extends ChangeNotifier {
         conversation.id,
         before: _cursor,
       );
+      if (_disposed || epoch != _selectionEpoch) return;
       _messages = [...page.messages, ..._messages];
       _hasOlder = page.hasMore;
       _cursor = page.nextCursor;
     } catch (_) {
-      notice = 'Impossible de charger les messages précédents.';
+      if (!_disposed && epoch == _selectionEpoch) {
+        notice = 'Impossible de charger les messages précédents.';
+      }
     } finally {
-      _loadingMessages = false;
+      if (epoch == _selectionEpoch) _loadingMessages = false;
       _notify();
     }
   }
@@ -228,16 +245,20 @@ class CandidateMessagesController extends ChangeNotifier {
   Future<void> start(MessageThread thread) async {
     final application = thread.application;
     if (application == null || _busy) return;
+    final epoch = _selectionEpoch;
     _busy = true;
     _notify();
     try {
       final conversation = await _messaging.openForApplication(application.id);
+      if (_disposed) return;
       final opened = _fromConversation(conversation, application);
       _threads = [
         opened,
         for (final t in _threads)
           if (t.id != thread.id) t,
       ];
+      if (epoch != _selectionEpoch) return;
+      _selectionEpoch++;
       _selectedId = opened.id;
       _messages = const [];
       await _openMessages(opened);
@@ -282,13 +303,15 @@ class CandidateMessagesController extends ChangeNotifier {
   }
 
   Future<void> _deliver(MessageThread thread, ChatMessage pending) async {
+    _sending++;
     try {
       final saved = await _messaging.send(
         thread.conversation!.id,
         pending.text,
         clientId: pending.clientId!,
       );
-      _swap(pending.clientId, saved);
+      if (_disposed) return;
+      if (_selectedId == thread.id) _swap(pending.clientId, saved);
       _replaceThread(
         MessageThread(
           id: thread.id,
@@ -303,23 +326,37 @@ class CandidateMessagesController extends ChangeNotifier {
         moveToTop: true,
       );
     } catch (_) {
-      _swap(
-        pending.clientId,
-        pending.copyWith(delivery: MessageDelivery.failed),
-      );
-      notice = 'Le message n’a pas pu être envoyé.';
+      if (_selectedId == thread.id) {
+        _swap(
+          pending.clientId,
+          pending.copyWith(delivery: MessageDelivery.failed),
+        );
+      }
+      notice = 'Envoi non confirmé. Vérifie le fil avant de renvoyer : un doublon est possible.';
+    } finally {
+      _sending--;
     }
     _notify();
   }
 
   /// Rafraîchit la liste et le fil ouvert sans écran de chargement.
   Future<void> refresh() async {
-    if (_status != MessagesStatus.ready || _busy) return;
+    if (_status != MessagesStatus.ready ||
+        _busy ||
+        _refreshing ||
+        _sending > 0 ||
+        _disposed) {
+      return;
+    }
+    _refreshing = true;
+    final epoch = _selectionEpoch;
     try {
       await _reloadThreads();
+      if (_disposed || epoch != _selectionEpoch) return;
       final thread = selected;
       if (thread?.state == ThreadState.open && !_loadingMessages) {
         final page = await _messaging.fetchMessages(thread!.conversation!.id);
+        if (_disposed || epoch != _selectionEpoch || _sending > 0) return;
         final pending = _messages.where(
           (m) => m.delivery != MessageDelivery.sent,
         );
@@ -337,17 +374,18 @@ class CandidateMessagesController extends ChangeNotifier {
         );
         if (fresh.isNotEmpty || readChanged) {
           _messages = [...updated, ...fresh, ...pending];
-          if (thread.unread > 0 || fresh.any((m) => !m.fromMe)) {
-            _replaceThread(thread.withUnread(0));
-            unawaited(
-              _messaging.markRead(thread.conversation!.id).catchError((_) {}),
-            );
-          }
+        }
+        if (thread.unread > 0 || fresh.any((m) => !m.fromMe)) {
+          await _messaging.markRead(thread.conversation!.id);
+          if (_disposed || epoch != _selectionEpoch) return;
+          _replaceThread(thread.withUnread(0));
         }
       }
       _notify();
     } catch (_) {
-      // Rafraîchissement silencieux : on réessaiera au prochain passage.
+      // Keep the last confirmed state while offline.
+    } finally {
+      _refreshing = false;
     }
   }
 
@@ -401,23 +439,23 @@ class CandidateMessagesController extends ChangeNotifier {
           return (y.at ?? DateTime(0)).compareTo(x.at ?? DateTime(0));
         });
 
-    // On garde l'état « lu » local du fil ouvert.
-    final current = _selectedId;
-    _threads = [
-      for (final t in open)
-        t.id == current && selected != null && selected!.unread == 0
-            ? t.withUnread(0)
-            : t,
-      ...pending,
-    ];
+    if (!_disposed) _threads = [...open, ...pending];
   }
 
   Future<List<CandidateApplication>> _loadApplications() async {
     final repository = applicationsRepository;
     if (repository == null) return const [];
     try {
-      final page = await repository.fetchApplications(pageSize: 50);
-      return page.items;
+      final items = <CandidateApplication>[];
+      for (var number = 1; ; number++) {
+        final page = await repository.fetchApplications(
+          page: number,
+          pageSize: 50,
+        );
+        items.addAll(page.items);
+        if (!page.hasMore || page.items.isEmpty) break;
+      }
+      return items;
     } catch (_) {
       // Sans candidatures, la messagerie reste utilisable.
       return const [];
@@ -479,6 +517,7 @@ class CandidateMessagesController extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    _selectionEpoch++;
     _timer?.cancel();
     super.dispose();
   }

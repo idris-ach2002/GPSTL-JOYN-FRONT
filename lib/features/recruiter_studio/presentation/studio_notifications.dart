@@ -23,7 +23,11 @@ class _StudioNotificationsState extends State<StudioNotifications> {
   void initState() {
     super.initState();
     _clock = Timer.periodic(const Duration(minutes: 1), (_) {
-      if (mounted) setState(() {});
+      if (mounted) {
+        setState(() {});
+        final c = context.read<WorkspaceController>();
+        if (!c.busy) c.load('notifications');
+      }
     });
   }
 
@@ -229,7 +233,7 @@ class _StudioNotificationsState extends State<StudioNotifications> {
                 children: [
                   for (final type in {
                     'all': 'Tous les événements',
-                    if (c.repository.isMock) 'message': 'Messages',
+                    'message': 'Messages',
                     if (!c.repository.isMock) 'interview': 'Entretiens',
                     'match': 'Matches',
                     'application': 'Candidatures',
@@ -432,6 +436,7 @@ class _StudioNotificationsState extends State<StudioNotifications> {
                   children: [
                     Text(
                       [
+                        if (n['source'] != null) '${n['source']}',
                         studioDate(n['createdAt']),
                         if (n['whenLabel'] != null) n['whenLabel'],
                       ].where((v) => v.toString().isNotEmpty).join(' · '),
@@ -444,13 +449,19 @@ class _StudioNotificationsState extends State<StudioNotifications> {
                               final ok = await c.readNotification(id);
                               if (!context.mounted || !ok) return;
                               final target = '${n['target']}';
-                              if ({
-                                AppRoutes.recruiterMessages,
-                                AppRoutes.recruiterCandidates,
-                                AppRoutes.recruiterJobs,
-                                AppRoutes.recruiterProfile,
-                                AppRoutes.recruiterDashboard,
-                              }.contains(target)) {
+                              final uri = Uri.tryParse(target);
+                              if (uri != null &&
+                                  !uri.hasScheme &&
+                                  !uri.hasAuthority &&
+                                  ({
+                                        AppRoutes.recruiterMessages,
+                                        AppRoutes.recruiterCandidates,
+                                        AppRoutes.recruiterJobs,
+                                        AppRoutes.recruiterProfile,
+                                        AppRoutes.recruiterDashboard,
+                                      }.contains(uri.path) ||
+                                      RegExp(r'^/recruiter/jobs/\d+$')
+                                          .hasMatch(uri.path))) {
                                 context.go(target);
                               }
                             },
@@ -496,12 +507,13 @@ class _StudioNotificationsState extends State<StudioNotifications> {
               }
             },
             itemBuilder: (_) => [
-              PopupMenuItem(
-                value: 'read',
-                child: Text(
-                  unread ? 'Marquer comme lue' : 'Marquer comme non lue',
+              if (unread || c.repository.isMock)
+                PopupMenuItem(
+                  value: 'read',
+                  child: Text(
+                    unread ? 'Marquer comme lue' : 'Marquer comme non lue',
+                  ),
                 ),
-              ),
               PopupMenuItem(
                 value: 'pin',
                 child: Text(
@@ -523,10 +535,11 @@ class _StudioNotificationsState extends State<StudioNotifications> {
                 ),
               ),
               const PopupMenuDivider(),
-              const PopupMenuItem(
-                value: 'delete',
-                child: Text('Supprimer définitivement'),
-              ),
+              if (!id.startsWith('activity:'))
+                const PopupMenuItem(
+                  value: 'delete',
+                  child: Text('Supprimer définitivement'),
+                ),
             ],
           ),
         ],
