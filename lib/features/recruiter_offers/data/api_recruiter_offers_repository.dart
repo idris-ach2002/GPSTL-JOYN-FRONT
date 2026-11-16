@@ -75,6 +75,7 @@ class ApiRecruiterOffersRepository implements RecruiterOffersRepository {
         DateTime.tryParse('${j['updated_at']}') ??
         DateTime.fromMillisecondsSinceEpoch(0),
     candidateCount: _int(j['candidate_count'] ?? 0),
+    isSummary: j['is_summary'] == true,
   );
   bool hasFullOffer(int id) =>
       _offers.containsKey(id) && !_partialOffers.contains(id);
@@ -137,12 +138,13 @@ class ApiRecruiterOffersRepository implements RecruiterOffersRepository {
       if (item is! Map) continue;
       final row = Map<String, dynamic>.from(item);
       final id = _int(row['id']);
-      if (session.containsKey(id)) continue;
+      if (session.containsKey(id) && !_partialOffers.contains(id)) continue;
       final contract = '${row['contract'] ?? 'CDI'}';
       final status = '${row['status'] ?? 'PUBLISHED'}';
       session[id] = _offer({
         'id': id,
-        'company_id': _linkedCompany?.id ?? 0,
+        'company_id': dashboard['companyId'] ?? _linkedCompany?.id ?? 0,
+        'is_summary': true,
         'title': row['title'] ?? 'Offre',
         'contract_type': ContractType.values.any((c) => c.apiValue == contract)
             ? contract
@@ -161,6 +163,31 @@ class ApiRecruiterOffersRepository implements RecruiterOffersRepository {
       _partialOffers.add(id);
     }
     return session.values.toList();
+  }
+
+  /// Only existing GET contracts. Never issue an empty PATCH to read a job.
+  Future<Map<String, dynamic>> fetchOfferContext(int id) async {
+    await _session();
+    final dashboard = apiObject(
+      await api.getJson('/api/v1/recruiters/dashboard'),
+    );
+    final companyId = _int(dashboard['companyId'] ?? 0);
+    if (companyId <= 0) return {};
+    final company = apiObject(
+      await api.getJson(
+        '/api/v1/companies/$companyId',
+        query: {'include_jobs': 'true'},
+      ),
+    );
+    final jobs = company['jobs'] as List? ?? const [];
+    final job = jobs
+        .whereType<Map>()
+        .where((row) => '${row['id']}' == '$id')
+        .firstOrNull;
+    return {
+      'company': company,
+      if (job != null) 'job': Map<String, dynamic>.from(job),
+    };
   }
 
   @override

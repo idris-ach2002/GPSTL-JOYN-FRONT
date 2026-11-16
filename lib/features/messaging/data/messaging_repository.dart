@@ -23,7 +23,8 @@ abstract interface class MessagingRepository {
     int limit = 30,
   });
 
-  /// Envoie un message ; [clientId] évite les doublons en cas de nouvel essai.
+  /// Envoie un message ; [clientId] corrèle la réponse avec le brouillon.
+  /// Le serveur ne garantit pas la déduplication des nouvelles tentatives.
   Future<ChatMessage> send(
     String conversationId,
     String text, {

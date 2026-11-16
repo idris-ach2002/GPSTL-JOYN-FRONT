@@ -82,7 +82,9 @@ class MobileRecruiterOffersScreen extends StatelessWidget {
                                       offer.companyId,
                                     ),
                                     onTap: () => context.go(
-                                      AppRoutes.recruiterJobDetail(offer.id),
+                                      AppRoutes.recruiterDashboardOffer(
+                                        offer.id,
+                                      ),
                                     ),
                                     onEdit: () => context.go(
                                       AppRoutes.recruiterJobEdit(offer.id),
@@ -310,7 +312,7 @@ class _Hero extends StatelessWidget {
               const SizedBox(height: 7),
               Text(
                 controller.sessionOnly
-                    ? 'Offres créées pendant cette session. Le serveur ne fournit pas encore l’historique.'
+                    ? 'Retrouvez vos offres et consultez leurs candidatures et performances.'
                     : 'Gérez et suivez toutes vos offres d’emploi sur Joyn.',
                 style: TextStyle(
                   color: StudioColors.text(context, Color(0xFFEAF2F8)),
@@ -827,7 +829,9 @@ class _MobileOfferCard extends StatelessWidget {
                       icon: Icons.work_outline_rounded,
                     ),
                     OfferMetaChip(
-                      label: offer.remoteMode.label,
+                      label: offer.isSummary
+                          ? 'Organisation non précisée'
+                          : offer.remoteMode.label,
                       icon: Icons.laptop_mac_rounded,
                     ),
                   ],
@@ -865,7 +869,7 @@ class _MobileOfferCard extends StatelessWidget {
                       runSpacing: 5,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        if (offer.candidateCount > 0) ...[
+                        if (offer.candidateCount > 0 && !offer.isSummary) ...[
                           OfferCandidateAvatars(
                             count: offer.candidateCount,
                             size: 27,

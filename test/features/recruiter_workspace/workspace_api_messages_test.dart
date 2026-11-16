@@ -19,85 +19,115 @@ import 'package:provider/provider.dart';
 /// d'e-mail (« Choisir un postulant à contacter ») au lieu des conversations
 /// renvoyées par `GET /api/v1/conversations`.
 void main() {
-  testWidgets('en mode API, le recruteur voit les conversations du back', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(1440, 900);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+  for (final fromApplication in [false, true]) {
+    testWidgets('messagerie API, depuis candidature=$fromApplication', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1440, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
 
-    final api = ApiClient(
-      baseUrl: 'https://api.joyn.test',
-      httpClient: MockClient((request) async {
-        if (request.url.path == '/api/v1/conversations') {
-          return http.Response(
-            jsonEncode({
-              'data': [
-                {
+      final api = ApiClient(
+        baseUrl: 'https://api.joyn.test',
+        httpClient: MockClient((request) async {
+          if (request.method == 'POST') {
+            expect(jsonDecode(request.body), {'application_id': 310});
+            return http.Response.bytes(
+              utf8.encode(
+                jsonEncode({
                   'id': 1,
                   'applicationId': 310,
-                  'jobOfferId': 139,
-                  'offerTitle': 'Data Analyst junior',
-                  'companyName': 'Cap Numérique',
                   'candidateId': 235,
                   'candidateName': 'Raphaël Michel',
-                  'lastMessage': 'Quelles sont les disponibilités ?',
-                  'lastMessageAt': '2026-11-16T09:02:39Z',
-                  'unread': 1,
-                },
-              ],
-              'totalUnread': 1,
-            }),
+                  'offerTitle': 'Data Analyst junior',
+                }),
+              ),
+              201,
+            );
+          }
+          if (request.url.path.endsWith('/messages')) {
+            return http.Response('{"data":[],"hasMore":false}', 200);
+          }
+          if (request.url.path == '/api/v1/conversations') {
+            return http.Response(
+              jsonEncode({
+                'data': [
+                  {
+                    'id': 1,
+                    'applicationId': 310,
+                    'jobOfferId': 139,
+                    'offerTitle': 'Data Analyst junior',
+                    'companyName': 'Cap Numérique',
+                    'candidateId': 235,
+                    'candidateName': 'Raphaël Michel',
+                    'lastMessage': 'Quelles sont les disponibilités ?',
+                    'lastMessageAt': '2026-11-16T09:02:39Z',
+                    'unread': 1,
+                  },
+                ],
+                'totalUnread': 1,
+              }),
+              200,
+              headers: {'content-type': 'application/json; charset=utf-8'},
+            );
+          }
+          return http.Response(
+            '{}',
             200,
-            headers: {'content-type': 'application/json; charset=utf-8'},
+            headers: {'content-type': 'application/json'},
           );
-        }
-        return http.Response(
-          '{}',
-          200,
-          headers: {'content-type': 'application/json'},
-        );
-      }),
-    );
+        }),
+      );
 
-    final auth = AuthController(FakeAuthRepository(latency: Duration.zero));
-    await tester.runAsync(
-      () => auth.signIn(email: 'recruteur@joyn.fr', password: 'Joyn2026'),
-    );
-    final studio = StudioController();
-    await studio.bind('demo-company');
-    final c = WorkspaceController(ApiRecruiterWorkspaceRepository(api));
-    final router = GoRouter(
-      routes: [
-        GoRoute(
-          path: '/',
-          builder: (_, _) =>
-              const RecruiterWorkspaceScreen(section: 'messages'),
-        ),
-      ],
-    );
-
-    await tester.pumpWidget(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider.value(value: studio),
-          ChangeNotifierProvider.value(value: c),
-          ChangeNotifierProvider.value(value: auth),
+      final auth = AuthController(FakeAuthRepository(latency: Duration.zero));
+      await tester.runAsync(
+        () => auth.signIn(email: 'recruteur@joyn.fr', password: 'Joyn2026'),
+      );
+      final studio = StudioController();
+      await studio.bind('demo-company');
+      final c = WorkspaceController(ApiRecruiterWorkspaceRepository(api));
+      final router = GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (_, _) => RecruiterWorkspaceScreen(
+              section: 'messages',
+              candidateId: fromApplication ? '235' : null,
+              applicationId: fromApplication ? '310' : null,
+              initialDraft: fromApplication ? 'Proposition entretien' : null,
+            ),
+          ),
         ],
-        child: MaterialApp.router(theme: AppTheme.light, routerConfig: router),
-      ),
-    );
-    await tester.pumpAndSettle();
+      );
 
-    expect(find.text('Choisir un postulant à contacter'), findsNothing);
-    expect(find.text('Raphaël Michel'), findsWidgets);
-    expect(tester.takeException(), isNull);
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider.value(value: studio),
+            ChangeNotifierProvider.value(value: c),
+            ChangeNotifierProvider.value(value: auth),
+          ],
+          child: MaterialApp.router(
+            theme: AppTheme.light,
+            routerConfig: router,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
 
-    await tester.pumpWidget(const SizedBox());
-    router.dispose();
-    c.dispose();
-    auth.dispose();
-    studio.dispose();
-  });
+      expect(find.text('Choisir un postulant à contacter'), findsNothing);
+      expect(find.text('Raphaël Michel'), findsWidgets);
+      expect(tester.takeException(), isNull);
+      if (fromApplication) {
+        expect(find.text('Proposition entretien'), findsOneWidget);
+      }
+
+      await tester.pumpWidget(const SizedBox());
+      router.dispose();
+      c.dispose();
+      auth.dispose();
+      studio.dispose();
+    });
+  }
 }

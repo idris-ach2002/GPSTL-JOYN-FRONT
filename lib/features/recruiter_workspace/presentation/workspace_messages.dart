@@ -10,11 +10,21 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'workspace_controller.dart';
+import '../data/recruiter_workspace_repository.dart';
+import '../../../core/network/api_exception.dart';
 
 class WorkspaceMessages extends StatefulWidget {
-  const WorkspaceMessages({super.key, this.candidateId, this.candidateName});
+  const WorkspaceMessages({
+    super.key,
+    this.candidateId,
+    this.candidateName,
+    this.applicationId,
+    this.conversationId,
+    this.initialDraft,
+  });
   final String? candidateId;
   final String? candidateName;
+  final String? applicationId, conversationId, initialDraft;
   @override
   State<WorkspaceMessages> createState() => _WorkspaceMessagesState();
 }
@@ -45,6 +55,9 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
   bool _active = true;
   int _request = 0;
   Timer? _timer;
+  String? _olderCursor;
+  bool _hasOlder = false;
+  bool _loadingOlder = false;
   final Map<String, String> _retryIds = {};
   @override
   void initState() {
@@ -53,29 +66,43 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
       final c = context.read<WorkspaceController>();
-      if (widget.candidateId != null) {
+      final repo = c.repository;
+      if (widget.candidateId != null ||
+          widget.applicationId != null ||
+          widget.conversationId != null) {
         try {
-          final conversation = await c.repository.startConversation(
-            widget.candidateId!,
-            widget.candidateName ?? 'Candidat',
-          );
-          if (mounted) {
-            await _open(conversation);
-            await c.load('messages');
-          }
-        } catch (_) {
-          if (mounted) {
-            setState(
-              () => _error = 'Impossible de démarrer cette conversation.',
+          final Map<String, dynamic> conversation;
+          if (repo is ApiRecruiterWorkspaceRepository &&
+              widget.conversationId != null) {
+            conversation = await repo.conversation(widget.conversationId!);
+          } else if (repo is ApiRecruiterWorkspaceRepository &&
+              widget.applicationId != null) {
+            conversation = await repo.openApplication(widget.applicationId!);
+          } else {
+            conversation = await repo.startConversation(
+              widget.candidateId!,
+              widget.candidateName ?? 'Candidat',
             );
           }
+          if (!mounted) return;
+          await _open(conversation);
+          if (!mounted) return;
+          if (widget.initialDraft != null) {
+            setState(() => _text.text = widget.initialDraft!);
+            _persistDraft();
+          }
+          await c.load('messages');
+        } catch (error) {
+          if (mounted) setState(() => _error = _failure(error));
         }
       }
+      if (!mounted) return;
       _timer = Timer.periodic(const Duration(seconds: 10), (_) {
         if (mounted &&
             _active &&
             !_loading &&
             !_sending &&
+            !_loadingOlder &&
             !c.repository.isMock) {
           _refresh();
         }
@@ -86,6 +113,7 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     _active = state == AppLifecycleState.resumed;
+    if (_active && !_loading && !_sending) _refresh();
   }
 
   @override
@@ -108,6 +136,8 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
     setState(() {
       _selected = conversation;
       _messages = [];
+      _olderCursor = null;
+      _hasOlder = false;
       _text.text =
           _drafts['${conversation['id']}'] ??
           '${_studio?.object('drafts')['${conversation['id']}'] ?? ''}';
@@ -133,11 +163,30 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
         !_scroll.hasClients ||
         _scroll.position.maxScrollExtent - _scroll.offset < 100;
     try {
-      final items = await c.repository.messages('${selected['id']}');
-      await c.repository.readConversation('${selected['id']}');
+      final repo = c.repository;
+      final List<Map<String, dynamic>> items;
+      if (repo is ApiRecruiterWorkspaceRepository) {
+        final page = await repo.messagePage('${selected['id']}');
+        if (!mounted || ticket != _request) return;
+        items = page.messages
+            .map(ApiRecruiterWorkspaceRepository.messageMap)
+            .toList();
+        if (_messages.isEmpty) {
+          _olderCursor = page.nextCursor;
+          _hasOlder = page.hasMore;
+        }
+      } else {
+        items = await repo.messages('${selected['id']}');
+      }
+      if (!mounted || ticket != _request) return;
+      await repo.readConversation('${selected['id']}');
       if (!mounted || ticket != _request) return;
       setState(() {
-        _messages = items;
+        final merged = {
+          for (final m in [..._messages, ...items]) '${m['id']}': m,
+        };
+        _messages = merged.values.toList()
+          ..sort((a, b) => '${a['createdAt']}'.compareTo('${b['createdAt']}'));
         selected['unread'] = 0;
       });
       await c.load('messages');
@@ -155,6 +204,57 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
     }
   }
 
+  static String _failure(Object error) => error is ApiException
+      ? switch (error.statusCode) {
+          403 => 'Cette conversation ne vous est pas accessible.',
+          404 => 'Conversation ou candidature introuvable. Vérifiez aussi le déploiement de la messagerie.',
+          409 => 'Cette candidature est retirée : la conversation ne peut pas être ouverte.',
+          _ => 'Connexion impossible. Réessayez ; aucun message fictif ne sera affiché.',
+        }
+      : 'Impossible d’ouvrir cette conversation. Réessayez depuis la candidature.';
+
+  Future<void> _loadOlder() async {
+    final repo = context.read<WorkspaceController>().repository;
+    if (repo is! ApiRecruiterWorkspaceRepository ||
+        !_hasOlder ||
+        _loadingOlder ||
+        _loading ||
+        _sending) {
+      return;
+    }
+    final selected = _selected;
+    final ticket = _request;
+    if (selected == null) return;
+    setState(() => _loadingOlder = true);
+    try {
+      final page = await repo.messagePage(
+        '${selected['id']}',
+        before: _olderCursor,
+      );
+      if (!mounted || ticket != _request) return;
+      setState(() {
+        final items = page.messages.map(
+          ApiRecruiterWorkspaceRepository.messageMap,
+        );
+        final merged = {
+          for (final m in [...items, ..._messages]) '${m['id']}': m,
+        };
+        _messages = merged.values.toList()
+          ..sort((a, b) => '${a['createdAt']}'.compareTo('${b['createdAt']}'));
+        _olderCursor = page.nextCursor;
+        _hasOlder = page.hasMore;
+      });
+    } catch (_) {
+      if (mounted && ticket == _request) {
+        setState(
+          () => _error = 'Impossible de charger les messages précédents.',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _loadingOlder = false);
+    }
+  }
+
   void _bottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && _scroll.hasClients) {
@@ -169,9 +269,14 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
 
   Future<void> _send() async {
     final text = _composedText;
-    if (_selected == null || text.isEmpty || _sending || text.length > 4000) {
+    if (_selected == null ||
+        text.isEmpty ||
+        _sending ||
+        _loading ||
+        text.length > 4000) {
       return;
     }
+    _request++;
     final selected = _selected!;
     final conversationId = '${selected['id']}';
     final key = '$conversationId\u0000$text';
@@ -199,7 +304,7 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
     } catch (_) {
       if (mounted) {
         setState(
-          () => _error = 'Envoi non confirmé. Votre texte est conservé. Réessayez avec le bouton Envoyer.',
+          () => _error = 'Envoi non confirmé. Votre texte est conservé. Actualisez et vérifiez le fil avant de renvoyer : un doublon est possible.',
         );
       }
     } finally {
@@ -476,6 +581,11 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
                                     context,
                                     candidateId: candidate,
                                     candidateName: name,
+                                    profileId: c.repository.isMock
+                                        ? null
+                                        : candidate,
+                                    applicationId: _selected!['applicationId']
+                                        ?.toString(),
                                   );
                                 case 'refresh':
                                   await _refresh();
@@ -540,6 +650,15 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
                       ),
                     ),
                   if (_loading) const LinearProgressIndicator(minHeight: 2),
+                  if (_hasOlder)
+                    TextButton(
+                      onPressed: _loadingOlder || _loading || _sending
+                          ? null
+                          : _loadOlder,
+                      child: Text(
+                        _loadingOlder ? 'Chargement…' : 'Messages précédents',
+                      ),
+                    ),
                   Expanded(
                     child: visibleMessages.isEmpty && !_loading
                         ? StudioEmpty(
@@ -638,7 +757,7 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
                                               Text(
                                                 date == null
                                                     ? ''
-                                                    : '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}${mine ? ' · Envoyé' : ''}',
+                                                    : '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}${mine ? (m['readAt'] == null ? ' · Envoyé' : ' · Lu') : ''}',
                                                 style: TextStyle(
                                                   fontSize: 10,
                                                   color: mine
@@ -823,26 +942,43 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
                   ),
                 ],
               );
-        return Padding(
-          padding: EdgeInsets.all(narrow ? 0 : 20),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(narrow ? 0 : 24),
-            child: Material(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              child: narrow
-                  ? (_selected == null ? list : chat)
-                  : Row(
-                      children: [
-                        SizedBox(
-                          width: 340,
-                          child: Material(color: colors.surface, child: list),
-                        ),
-                        VerticalDivider(width: 1, color: colors.outlineVariant),
-                        Expanded(child: chat),
-                      ],
-                    ),
+        return Column(
+          children: [
+            if (_selected == null && _error != null)
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Text(_error!, style: TextStyle(color: colors.error)),
+              ),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.all(narrow ? 0 : 20),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(narrow ? 0 : 24),
+                  child: Material(
+                    color: Theme.of(context).scaffoldBackgroundColor,
+                    child: narrow
+                        ? (_selected == null ? list : chat)
+                        : Row(
+                            children: [
+                              SizedBox(
+                                width: 340,
+                                child: Material(
+                                  color: colors.surface,
+                                  child: list,
+                                ),
+                              ),
+                              VerticalDivider(
+                                width: 1,
+                                color: colors.outlineVariant,
+                              ),
+                              Expanded(child: chat),
+                            ],
+                          ),
+                  ),
+                ),
+              ),
             ),
-          ),
+          ],
         );
       },
     );

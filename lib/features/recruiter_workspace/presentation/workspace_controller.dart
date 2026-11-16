@@ -89,6 +89,31 @@ class WorkspaceController extends ChangeNotifier {
         if (generation == _generation) conversations = value;
     }
   });
+  bool _refreshingActivity = false;
+
+  /// Silent badge refresh. Explicit page loads retain their visible errors.
+  Future<void> refreshActivity() async {
+    if (_disposed || busy || _refreshingActivity || repository.isMock) return;
+    final generation = _generation;
+    final source = repository;
+    _refreshingActivity = true;
+    try {
+      final values = await Future.wait([
+        source.notifications(),
+        source.conversations(),
+      ]);
+      if (!_disposed && generation == _generation) {
+        notifications = values[0];
+        conversations = values[1];
+        notifyListeners();
+      }
+    } catch (_) {
+      // Preserve confirmed data during a transient network failure.
+    } finally {
+      _refreshingActivity = false;
+    }
+  }
+
   Future<bool> saveProfile(Map<String, dynamic> value) => run(() async {
     final generation = _generation;
     final saved = await repository.saveProfile(value);

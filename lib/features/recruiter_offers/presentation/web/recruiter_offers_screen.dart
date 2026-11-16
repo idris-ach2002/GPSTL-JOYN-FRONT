@@ -121,7 +121,7 @@ class _WebRecruiterOffersScreenState extends State<WebRecruiterOffersScreen> {
                                     SizedBox(height: 8),
                                     Text(
                                       controller.sessionOnly
-                                          ? 'Offres créées pendant cette session. Le serveur ne fournit pas encore l’historique.'
+                                          ? 'Retrouvez vos offres et consultez leurs candidatures et performances.'
                                           : 'Gérez, modifiez et suivez toutes vos offres d’emploi sur Joyn.',
                                       style: TextStyle(
                                         color: StudioColors.text(
@@ -212,7 +212,7 @@ class _WebRecruiterOffersScreenState extends State<WebRecruiterOffersScreen> {
 
     Widget buildCard(JobOffer offer, {required bool grid}) {
       final company = controller.companyFor(offer.companyId);
-      void onTap() => context.go(AppRoutes.recruiterJobDetail(offer.id));
+      void onTap() => context.go(AppRoutes.recruiterDashboardOffer(offer.id));
       void onEdit() => context.go(AppRoutes.recruiterJobEdit(offer.id));
       Future<void> onClose() => _confirmClose(context, controller, offer);
       Future<void> onDelete() => _confirmDelete(context, controller, offer);
@@ -1016,7 +1016,9 @@ class _OfferGridCardState extends State<_OfferGridCard> {
                         icon: Icons.work_outline_rounded,
                       ),
                       OfferMetaChip(
-                        label: offer.remoteMode.label,
+                        label: offer.isSummary
+                            ? 'Organisation non précisée'
+                            : offer.remoteMode.label,
                         icon: Icons.laptop_mac_rounded,
                       ),
                     ],
@@ -1048,7 +1050,7 @@ class _OfferGridCardState extends State<_OfferGridCard> {
                   const SizedBox(height: 11),
                   Row(
                     children: [
-                      if (offer.candidateCount > 0) ...[
+                      if (offer.candidateCount > 0 && !offer.isSummary) ...[
                         OfferCandidateAvatars(
                           count: offer.candidateCount,
                           size: 27,
@@ -1077,7 +1079,9 @@ class _OfferGridCardState extends State<_OfferGridCard> {
                       Expanded(
                         child: Text(
                           offer.publishedAt == null
-                              ? 'Modifiée le ${dateLabel(offer.updatedAt)}'
+                              ? (offer.updatedAt.millisecondsSinceEpoch == 0
+                                    ? 'Date non disponible'
+                                    : 'Modifiée le ${dateLabel(offer.updatedAt)}')
                               : 'Publiée le ${dateLabel(offer.publishedAt)}',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -1291,7 +1295,9 @@ class _OfferRowState extends State<_OfferRow> {
                           icon: Icons.location_on_outlined,
                         ),
                         OfferMetaChip(
-                          label: offer.remoteMode.label,
+                          label: offer.isSummary
+                              ? 'Organisation non précisée'
+                              : offer.remoteMode.label,
                           icon: Icons.laptop_mac_rounded,
                         ),
                       ],
@@ -1316,7 +1322,7 @@ class _OfferRowState extends State<_OfferRow> {
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: _metrics(offer),
               ),
-              if (offer.candidateCount > 0) ...[
+              if (offer.candidateCount > 0 && !offer.isSummary) ...[
                 const SizedBox(height: 10),
                 OfferCandidateAvatars(
                   count: offer.candidateCount,
@@ -1422,7 +1428,9 @@ class _OfferRowState extends State<_OfferRow> {
             icon: Icons.location_on_outlined,
           ),
           OfferMetaChip(
-            label: offer.remoteMode.label,
+            label: offer.isSummary
+                ? 'Organisation non précisée'
+                : offer.remoteMode.label,
             icon: Icons.laptop_mac_rounded,
           ),
         ],
@@ -1442,7 +1450,7 @@ class _OfferRowState extends State<_OfferRow> {
         runSpacing: 9,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          if (offer.candidateCount > 0)
+          if (offer.candidateCount > 0 && !offer.isSummary)
             OfferCandidateAvatars(
               count: offer.candidateCount,
               size: 27,
@@ -1477,7 +1485,9 @@ class _OfferRowState extends State<_OfferRow> {
     _OfferMetric(
       icon: Icons.calendar_today_outlined,
       label: offer.publishedAt == null
-          ? 'Modifiée le ${dateLabel(offer.updatedAt)}'
+          ? (offer.updatedAt.millisecondsSinceEpoch == 0
+                ? 'Date non disponible'
+                : 'Modifiée le ${dateLabel(offer.updatedAt)}')
           : 'Publiée le ${dateLabel(offer.publishedAt)}',
     ),
   ];

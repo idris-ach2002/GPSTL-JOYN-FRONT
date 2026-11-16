@@ -12,8 +12,6 @@ import '../../../app/routing/app_routes.dart';
 import '../../recruiter_offers/presentation/web/recruiter_offers_top_bar.dart';
 import 'workspace_controller.dart';
 import 'workspace_messages.dart';
-import 'candidate_email.dart';
-import '../data/recruiter_workspace_repository.dart';
 
 const workspaceNavy = Color(0xFF001E3B);
 
@@ -23,11 +21,15 @@ class RecruiterWorkspaceScreen extends StatefulWidget {
     required this.section,
     this.candidateId,
     this.candidateName,
+    this.applicationId,
+    this.conversationId,
+    this.initialDraft,
     this.mobile = false,
   });
   final String section;
   final String? candidateId;
   final String? candidateName;
+  final String? applicationId, conversationId, initialDraft;
   final bool mobile;
   @override
   State<RecruiterWorkspaceScreen> createState() =>
@@ -228,26 +230,15 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
               ),
             Expanded(
               child: switch (widget.section) {
-                // Contacter un talent depuis son profil, hors candidature :
-                // le back n'ouvre une conversation qu'à partir d'une
-                // candidature en entretien, on garde donc le brouillon d'e-mail.
-                // La boîte de réception, elle, utilise la vraie messagerie.
-                'messages'
-                    when widget.candidateId != null &&
-                        controller.repository
-                            is ApiRecruiterWorkspaceRepository =>
-                  CandidateEmail(
-                    key: ValueKey(widget.candidateId),
-                    api:
-                        (controller.repository
-                                as ApiRecruiterWorkspaceRepository)
-                            .api,
-                    profileId: widget.candidateId,
-                  ),
                 'messages' => WorkspaceMessages(
-                  key: ValueKey(widget.candidateId),
+                  key: ValueKey(
+                    '${widget.candidateId}/${widget.applicationId}/${widget.conversationId}/${widget.initialDraft}',
+                  ),
                   candidateId: widget.candidateId,
                   candidateName: widget.candidateName,
+                  applicationId: widget.applicationId,
+                  conversationId: widget.conversationId,
+                  initialDraft: widget.initialDraft,
                 ),
                 'notifications' => const StudioNotifications(),
                 'profile' =>

@@ -83,6 +83,7 @@ class JobOffer {
     this.degreeLevelRequired,
     this.publishedAt,
     this.candidateCount = 0,
+    this.isSummary = false,
   });
 
   final int id;
@@ -106,6 +107,7 @@ class JobOffer {
   final DateTime? publishedAt;
   final DateTime updatedAt;
   final int candidateCount;
+  final bool isSummary;
 
   JobOffer copyWith({
     int? companyId,
@@ -150,5 +152,6 @@ class JobOffer {
     publishedAt: publishedAt ?? this.publishedAt,
     updatedAt: updatedAt ?? this.updatedAt,
     candidateCount: candidateCount ?? this.candidateCount,
+    isSummary: isSummary,
   );
 }
