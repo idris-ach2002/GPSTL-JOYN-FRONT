@@ -28,11 +28,42 @@ class AppEnvironment {
     final timeoutMs = int.tryParse(rawTimeout) ?? 12000;
     return AppEnvironment(
       dataMode: mode,
-      apiBaseUrl: kIsWeb && apiBaseUrl == 'same-origin'
-          ? Uri.base.origin
-          : apiBaseUrl.trim(),
+      apiBaseUrl: resolveApiBaseUrl(
+        apiBaseUrl,
+        mode: mode,
+        isWeb: kIsWeb,
+        page: Uri.base,
+      ),
       apiTimeout: Duration(milliseconds: timeoutMs.clamp(1000, 60000).toInt()),
     );
+  }
+
+  /// Hôtes servis par le Worker Cloudflare (`deploy/api-worker.mjs`), qui
+  /// relaie `/api/v1/*` vers le back.
+  static const String cloudflareWorkerSuffix = '.workers.dev';
+
+  /// Calcule l'URL du back.
+  ///
+  /// - `same-origin` : le site lui-même (relais du Worker).
+  /// - Rien de fourni, mode `auto`, page servie par le Worker Cloudflare :
+  ///   on utilise aussi le relais. Ainsi le site en ligne parle au vrai back
+  ///   même si la commande de build Cloudflare oublie les `--dart-define`.
+  ///   En local (`localhost`), rien ne change : mode démo par défaut.
+  static String resolveApiBaseUrl(
+    String raw, {
+    required AppDataMode mode,
+    required bool isWeb,
+    required Uri page,
+  }) {
+    final value = raw.trim();
+    if (isWeb && value == 'same-origin') return page.origin;
+    if (value.isEmpty &&
+        isWeb &&
+        mode == AppDataMode.auto &&
+        page.host.endsWith(cloudflareWorkerSuffix)) {
+      return page.origin;
+    }
+    return value;
   }
 
   final AppDataMode dataMode;

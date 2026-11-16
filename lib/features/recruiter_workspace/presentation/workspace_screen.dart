@@ -46,7 +46,12 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
       if (!mounted) return;
       final c = context.read<WorkspaceController>();
       if (c.repository.isMock ||
-          ['profile', 'notifications', 'settings'].contains(widget.section)) {
+          [
+            'profile',
+            'notifications',
+            'settings',
+            'messages',
+          ].contains(widget.section)) {
         c.load(widget.section);
       }
     });
@@ -223,9 +228,14 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
               ),
             Expanded(
               child: switch (widget.section) {
+                // Contacter un talent depuis son profil, hors candidature :
+                // le back n'ouvre une conversation qu'à partir d'une
+                // candidature en entretien, on garde donc le brouillon d'e-mail.
+                // La boîte de réception, elle, utilise la vraie messagerie.
                 'messages'
-                    when controller.repository
-                        is ApiRecruiterWorkspaceRepository =>
+                    when widget.candidateId != null &&
+                        controller.repository
+                            is ApiRecruiterWorkspaceRepository =>
                   CandidateEmail(
                     key: ValueKey(widget.candidateId),
                     api:
