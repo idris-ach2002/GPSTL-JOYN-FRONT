@@ -17,6 +17,12 @@ abstract final class AppRoutes {
   static const String candidateProfile = '/candidate/profile';
   static const String candidateProfileEdit = '/candidate/profile/edit';
   static const String candidateApplications = '/candidate/applications';
+  static const String candidateMessages = '/candidate/messages';
+  static const String candidateSettings = '/candidate/settings';
+
+  /// Messagerie candidat ouverte sur une conversation (ou une candidature).
+  static String candidateConversation(String id) =>
+      '$candidateMessages?conversation=${Uri.encodeQueryComponent(id)}';
   static const String candidateOnboarding = '/candidate/onboarding';
   static const String candidateCvImport = '/candidate/onboarding/cv';
 

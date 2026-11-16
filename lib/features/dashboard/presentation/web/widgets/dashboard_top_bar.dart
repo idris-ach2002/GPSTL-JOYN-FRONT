@@ -9,9 +9,21 @@ import 'package:joyn_front/core/utils/placeholders.dart';
 import 'package:joyn_front/core/widgets/coming_soon.dart';
 import 'package:joyn_front/core/widgets/joyn_logo.dart';
 import 'package:joyn_front/features/auth/presentation/auth_controller.dart';
+import 'package:joyn_front/features/notifications/presentation/notifications_controller.dart';
+import 'package:joyn_front/features/notifications/presentation/shared/notifications_panel.dart';
 
-/// Onglet mis en avant dans la barre du haut.
-enum DashboardTab { offers, dashboard, applications }
+/// Onglet (ou raccourci) mis en avant dans la barre du haut.
+enum DashboardTab { offers, dashboard, applications, messages, settings }
+
+/// Compteurs de non-lus, si le contrôleur est fourni (absent de certains
+/// tests de widgets isolés).
+NotificationsController? _inbox(BuildContext context) {
+  try {
+    return context.watch<NotificationsController>();
+  } on ProviderNotFoundException {
+    return null;
+  }
+}
 
 /// Barre du haut : logo, onglets, raccourcis et menu du compte.
 ///
@@ -28,6 +40,7 @@ class DashboardTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final inbox = _inbox(context);
     final bar = Row(
       children: [
         const JoynLogo(size: 30, wordmarkColor: Colors.white),
@@ -39,22 +52,26 @@ class DashboardTopBar extends StatelessWidget {
         _RoundIconButton(
           icon: Icons.notifications_none_rounded,
           tooltip: 'Notifications',
-          onPressed: () => showComingSoon(context, 'Notifications'),
+          badge: inbox?.unreadCount ?? 0,
+          onPressed: () => inbox == null
+              ? showComingSoon(context, 'Notifications')
+              : showNotificationsPanel(context, asSheet: !isWide),
         ),
-        if (isWide) ...[
-          const SizedBox(width: AppSpacing.sm),
-          _RoundIconButton(
-            icon: Icons.settings_outlined,
-            tooltip: 'Paramètres',
-            onPressed: () => showComingSoon(context, 'Paramètres'),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          _RoundIconButton(
-            icon: Icons.chat_bubble_outline_rounded,
-            tooltip: 'Messages',
-            onPressed: () => showComingSoon(context, 'Messages'),
-          ),
-        ],
+        const SizedBox(width: AppSpacing.sm),
+        _RoundIconButton(
+          icon: Icons.settings_outlined,
+          tooltip: 'Paramètres',
+          active: activeTab == DashboardTab.settings,
+          onPressed: () => context.go(AppRoutes.candidateSettings),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        _RoundIconButton(
+          icon: Icons.chat_bubble_outline_rounded,
+          tooltip: 'Messages',
+          badge: inbox?.unreadMessages ?? 0,
+          active: activeTab == DashboardTab.messages,
+          onPressed: () => context.go(AppRoutes.candidateMessages),
+        ),
         const SizedBox(width: AppSpacing.sm),
         _AccountMenu(showName: isWide),
       ],
@@ -196,21 +213,37 @@ class _RoundIconButton extends StatelessWidget {
     required this.icon,
     required this.tooltip,
     required this.onPressed,
+    this.badge = 0,
+    this.active = false,
   });
 
   final IconData icon;
   final String tooltip;
   final VoidCallback onPressed;
 
+  /// Nombre affiché en pastille (masquée à 0).
+  final int badge;
+
+  /// Page en cours : fond orange, comme sur la maquette.
+  final bool active;
+
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      tooltip: tooltip,
+      tooltip: badge > 0 ? '$tooltip ($badge non lus)' : tooltip,
       onPressed: onPressed,
-      icon: Icon(icon, size: 20),
+      icon: Badge(
+        isLabelVisible: badge > 0,
+        backgroundColor: AppColors.coral,
+        label: Text(badge > 9 ? '9+' : '$badge'),
+        child: Icon(icon, size: 20),
+      ),
       color: Colors.white,
       style: IconButton.styleFrom(
-        side: BorderSide(color: Colors.white.withValues(alpha: 0.6)),
+        backgroundColor: active ? AppColors.coral : Colors.transparent,
+        side: BorderSide(
+          color: active ? AppColors.coral : Colors.white.withValues(alpha: 0.6),
+        ),
         minimumSize: const Size.square(40),
       ),
     );

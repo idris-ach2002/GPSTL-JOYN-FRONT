@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../app/navigation/candidate_mobile_navigation.dart';
 import '../../../../app/routing/app_routes.dart';
 import '../../../../core/feedback/coming_soon.dart';
 import '../../../../design_system/mobile/mobile_app_surface.dart';
-import '../../../../design_system/mobile/mobile_bottom_navigation.dart';
+import '../../../notifications/presentation/notifications_controller.dart';
+import '../../../notifications/presentation/shared/notifications_panel.dart';
 import '../../../../design_system/theme/joyn_material_theme.dart';
 import '../../../../design_system/tokens/app_colors.dart';
 import '../../../../design_system/tokens/app_fonts.dart';
@@ -50,17 +52,6 @@ class _MobileDiscoverScreenState extends State<MobileDiscoverScreen>
     );
   }
 
-  void _onNavSelected(int index) {
-    switch (index) {
-      case 1:
-        context.go(AppRoutes.dashboard);
-      case 2:
-        context.go(AppRoutes.candidateApplications);
-      case 3:
-        context.go(AppRoutes.candidateProfile);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<DiscoverController>();
@@ -85,18 +76,11 @@ class _MobileDiscoverScreenState extends State<MobileDiscoverScreen>
                 ),
               ),
             ),
-            MobileBottomNavigation(
-              selectedIndex: 0,
-              onSelected: _onNavSelected,
-              items: const [
-                MobileNavItem(icon: Icons.style_rounded, label: 'Matchs'),
-                MobileNavItem(icon: Icons.grid_view_rounded, label: 'Accueil'),
-                MobileNavItem(
-                  icon: Icons.article_rounded,
-                  label: 'Candidatures',
-                ),
-                MobileNavItem(icon: Icons.person_rounded, label: 'Profil'),
-              ],
+            CandidateMobileNavigation(
+              current: CandidateMobileTab.matches,
+              unreadMessages: context.select<NotificationsController, int>(
+                (c) => c.unreadMessages,
+              ),
             ),
           ],
         ),
@@ -184,26 +168,32 @@ class _Header extends StatelessWidget {
   const _Header();
 
   @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      const MobileBrandMark(compact: true),
-      const Spacer(),
-      IconButton.filledTonal(
-        tooltip: 'Notifications',
-        onPressed: () => showComingSoon(context, 'Les notifications'),
-        icon: const Badge(
-          smallSize: 8,
-          backgroundColor: AppColors.orange,
-          child: Icon(Icons.notifications_none_rounded),
+  Widget build(BuildContext context) {
+    final unread = context.select<NotificationsController, int>(
+      (c) => c.unreadCount,
+    );
+    return Row(
+      children: [
+        const MobileBrandMark(compact: true),
+        const Spacer(),
+        IconButton.filledTonal(
+          tooltip: 'Notifications',
+          onPressed: () => showNotificationsPanel(context, asSheet: true),
+          icon: Badge(
+            isLabelVisible: unread > 0,
+            backgroundColor: AppColors.orange,
+            label: Text(unread > 9 ? '9+' : '$unread'),
+            child: const Icon(Icons.notifications_none_rounded),
+          ),
         ),
-      ),
-      IconButton.filledTonal(
-        tooltip: 'Messages',
-        onPressed: () => showComingSoon(context, 'La messagerie'),
-        icon: const Icon(Icons.chat_bubble_outline_rounded),
-      ),
-    ],
-  );
+        IconButton.filledTonal(
+          tooltip: 'Paramètres',
+          onPressed: () => context.go(AppRoutes.candidateSettings),
+          icon: const Icon(Icons.settings_outlined),
+        ),
+      ],
+    );
+  }
 }
 
 class _Heading extends StatelessWidget {

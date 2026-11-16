@@ -94,10 +94,23 @@ void main() {
     ]);
   });
 
-  test('aucune route inventée pour créer une conversation', () async {
+  // La route existe désormais dans le Swagger du back (tag « Messaging »).
+  test('crée la conversation via POST /api/v1/conversations', () async {
     final repo = ApiCandidateApplicationsRepository(
-      ApiClient(baseUrl: 'https://api.joyn.test'),
+      ApiClient(
+        baseUrl: 'https://api.joyn.test',
+        httpClient: MockClient((request) async {
+          expect(request.method, 'POST');
+          expect(request.url.path, '/api/v1/conversations');
+          expect(jsonDecode(request.body), {'application_id': 1});
+          return http.Response(
+            jsonEncode({'id': 12, 'applicationId': 1}),
+            201,
+            headers: {'content-type': 'application/json'},
+          );
+        }),
+      ),
     );
-    expect(() => repo.createConversation('1'), throwsUnsupportedError);
+    expect(await repo.createConversation('1'), '12');
   });
 }

@@ -1,4 +1,5 @@
 import '../../../core/network/api_client.dart';
+import '../../messaging/data/api_messaging_repository.dart';
 import 'pending_interests_store.dart';
 import '../domain/candidate_application.dart';
 import 'candidate_applications_repository.dart';
@@ -47,9 +48,19 @@ class ApiCandidateApplicationsRepository
 
   @override
   Future<String> createConversation(String applicationId) async {
-    // The history response may reference a conversation, but Spring main
-    // does not expose an endpoint to create or send messages.
-    throw UnsupportedError('Messagerie non disponible sur ce serveur.');
+    // `POST /api/v1/conversations` : 201 si créée, 200 si elle existait.
+    // Le back refuse (403) avant le stade entretien.
+    final json = await _api.postJson(
+      ApiMessagingRepository.basePath,
+      body: {'application_id': int.tryParse(applicationId) ?? applicationId},
+    );
+    final conversation = ApiMessagingRepository.mapConversation(
+      _unwrap(_asMap(json)),
+    );
+    if (conversation.id.isEmpty) {
+      throw StateError('Réponse sans identifiant de conversation.');
+    }
+    return conversation.id;
   }
 
   @override

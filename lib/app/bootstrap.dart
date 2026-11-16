@@ -28,6 +28,12 @@ import '../features/candidate_applications/data/pending_interests_store.dart';
 import '../features/candidate_applications/data/mock_candidate_applications_repository.dart';
 import '../features/candidate_discover/data/api_recommended_offers_repository.dart';
 import '../features/candidate_discover/data/mock_recommended_offers_repository.dart';
+import '../features/candidate_settings/data/api_candidate_settings_repository.dart';
+import '../features/candidate_settings/data/mock_candidate_settings_repository.dart';
+import '../features/messaging/data/api_messaging_repository.dart';
+import '../features/messaging/data/mock_messaging_repository.dart';
+import '../features/notifications/data/api_notifications_repository.dart';
+import '../features/notifications/data/mock_notifications_repository.dart';
 import '../features/dashboard/data/dashboard_repository.dart';
 import '../features/dashboard/data/fake_dashboard_repository.dart';
 import '../features/dashboard/data/api_dashboard_repository.dart';
@@ -130,6 +136,15 @@ Future<void> bootstrapJoyn({bool? webOverride}) async {
               api,
               interests: pendingInterests,
             ),
+      messagingRepository: api == null
+          ? MockMessagingRepository(applications: demoApplications)
+          : ApiMessagingRepository(api),
+      notificationsRepository: api == null
+          ? MockNotificationsRepository()
+          : ApiNotificationsRepository(api),
+      candidateSettingsRepository: api == null
+          ? MockCandidateSettingsRepository()
+          : ApiCandidateSettingsRepository(api),
       adminCompanyRepository: adminCompanyRepository,
       adminUserRepository: adminUserRepository,
       verificationRepository: verificationRepository,

@@ -88,6 +88,14 @@ import '../../features/recruiter_offers/presentation/web/offer_editor_screen.dar
 import '../../features/recruiter_offers/presentation/web/recruiter_offers_screen.dart';
 import '../../features/recruiter_offers/presentation/web/web_offer_detail_screen.dart';
 import '../../features/startup/presentation/mobile/mobile_startup_screen.dart';
+import '../../features/candidate_messages/presentation/controllers/candidate_messages_controller.dart';
+import '../../features/candidate_messages/presentation/mobile/mobile_candidate_messages_screen.dart';
+import '../../features/candidate_messages/presentation/web/candidate_messages_screen.dart';
+import '../../features/candidate_settings/data/candidate_settings_repository.dart';
+import '../../features/candidate_settings/presentation/candidate_settings_controller.dart';
+import '../../features/candidate_settings/presentation/mobile/mobile_candidate_settings_screen.dart';
+import '../../features/candidate_settings/presentation/web/candidate_settings_screen.dart';
+import '../../features/messaging/data/messaging_repository.dart';
 import '../experience/experience_target.dart';
 import 'app_routes.dart';
 
@@ -279,6 +287,33 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
                 : const DashboardPage(),
           );
         },
+      ),
+
+      GoRoute(
+        path: AppRoutes.candidateMessages,
+        name: 'candidateMessages',
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) => CandidateMessagesController(
+            context.read<MessagingRepository>(),
+            applicationsRepository: context
+                .read<CandidateApplicationsRepository>(),
+          )..load(select: state.uri.queryParameters['conversation']),
+          child: useMobile(context)
+              ? const MobileCandidateMessagesScreen()
+              : const WebCandidateMessagesScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.candidateSettings,
+        name: 'candidateSettings',
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (context) => CandidateSettingsController(
+            context.read<CandidateSettingsRepository>(),
+          )..load(),
+          child: useMobile(context)
+              ? const MobileCandidateSettingsScreen()
+              : const WebCandidateSettingsScreen(),
+        ),
       ),
 
       GoRoute(
@@ -531,7 +566,7 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
         path: AppRoutes.messages,
         redirect: (context, state) => auth.user?.role == UserRole.company
             ? AppRoutes.recruiterMessages
-            : AppRoutes.dashboard,
+            : AppRoutes.candidateMessages,
       ),
       for (final section in [
         'profile',
