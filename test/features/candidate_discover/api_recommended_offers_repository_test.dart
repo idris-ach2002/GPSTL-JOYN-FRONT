@@ -12,6 +12,9 @@ void main() {
       final calls = <String>[];
       final client = MockClient((request) async {
         calls.add(request.url.path);
+        if (request.url.path.endsWith('/candidates/profile')) {
+          return http.Response('{"skills":["Figma"]}', 200);
+        }
         if (request.url.path.endsWith('/companies/12')) {
           return http.Response(
             '{"id":12,"name":"Maison Solutions","sector":"Design"}',
@@ -20,6 +23,8 @@ void main() {
         }
         expect(request.url.path, '/api/v1/candidates/recommendations');
         expect(request.url.queryParameters['location'], 'Paris');
+        expect(request.url.queryParameters['contract_type'], 'INTERNSHIP');
+        expect(request.url.queryParameters['remote'], 'HYBRID');
         return http.Response('''{
         "content":[{"offer":{"id":27,"company_id":12,"title":"Designer UX",
            "contract_type":"INTERNSHIP","location":"Paris","salary_period":"MONTH",
@@ -31,20 +36,27 @@ void main() {
         ApiClient(baseUrl: 'https://api.joyn.test', httpClient: client),
       );
       final feed = await repo.fetchFeed(
-        filters: const DiscoverFilters(location: 'Paris'),
+        filters: const DiscoverFilters(
+          location: 'Paris',
+          contractType: 'INTERNSHIP',
+          remote: 'HYBRID',
+        ),
       );
       expect(feed.offers.single.company.name, 'Maison Solutions');
       expect(feed.offers.single.compatibility, 92);
       expect(feed.offers.single.monthlySalary, 1450);
       expect(calls, [
         '/api/v1/candidates/recommendations',
+        '/api/v1/candidates/profile',
         '/api/v1/companies/12',
       ]);
       await repo.submitDecision('27', SwipeDecision.interested);
       expect(repo.interests.items.single.offerId, '27');
       await repo.cancelDecision('27');
       expect(repo.interests.items, isEmpty);
-      expect(calls.length, 2); // Swipe local = no invented backend route.
+      expect(feed.offers.single.skills.first.matched, isTrue);
+      expect(feed.offers.single.skills.last.matched, isFalse);
+      expect(calls.length, 3); // Swipe local = no invented backend route.
     },
   );
 

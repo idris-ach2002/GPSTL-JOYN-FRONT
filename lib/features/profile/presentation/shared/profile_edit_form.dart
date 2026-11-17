@@ -270,6 +270,7 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
                   TextField(
                     key: const ValueKey('profile-email'),
                     controller: _email,
+                    readOnly: _form.isConnected,
                     onChanged: _form.setEmail,
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
@@ -302,7 +303,7 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
               decoration: const InputDecoration(
                 alignLabelWithHint: true,
                 labelText: 'Quelques mots sur toi',
-                helperText: 'Astuce : dis ce que tu sais faire, ce que tu cherches et pourquoi l’alternance. 3 ou 4 phrases suffisent.',
+                helperText: 'Astuce : dis ce que tu sais faire, ce que tu cherches et ce que tu recherches. 3 ou 4 phrases suffisent.',
               ),
             ),
           ),
@@ -686,26 +687,28 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
                     'Sinon, seules les entreprises avec qui tu matches te voient.',
                   ),
                 ),
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  value: draft.visibility.hiddenFromCurrentEmployer,
-                  onChanged: _form.setHiddenFromCurrentEmployer,
-                  title: const Text(
-                    'Masquer mon profil à mon entreprise actuelle',
+                if (!_form.isConnected)
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    value: draft.visibility.hiddenFromCurrentEmployer,
+                    onChanged: _form.setHiddenFromCurrentEmployer,
+                    title: const Text(
+                      'Masquer mon profil à mon entreprise actuelle',
+                    ),
+                    subtitle: const Text('Pour chercher en toute discrétion.'),
                   ),
-                  subtitle: const Text('Pour chercher en toute discrétion.'),
-                ),
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  value: draft.visibility.openToReplacement,
-                  onChanged: _form.setOpenToReplacement,
-                  title: const Text(
-                    'Ouvert·e aux propositions « Remplace-moi »',
+                if (!_form.isConnected)
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    value: draft.visibility.openToReplacement,
+                    onChanged: _form.setOpenToReplacement,
+                    title: const Text(
+                      'Ouvert·e aux propositions « Remplace-moi »',
+                    ),
+                    subtitle: const Text(
+                      'Les alternant·e·s peuvent te recommander pour leur poste.',
+                    ),
                   ),
-                  subtitle: const Text(
-                    'Les alternant·e·s peuvent te recommander pour leur poste.',
-                  ),
-                ),
               ],
             ),
           ),

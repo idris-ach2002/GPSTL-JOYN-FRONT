@@ -46,6 +46,7 @@ class DeviceProfileFilePicker implements ProfileFilePicker {
     if (file == null) return null;
     return ProfileCv(
       fileName: file.name,
+      bytes: await file.readAsBytes(),
       updatedLabel: 'Mis à jour à l’instant',
     );
   }

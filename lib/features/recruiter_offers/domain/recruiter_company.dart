@@ -12,8 +12,10 @@ class RecruiterCompany {
     required this.city,
     this.website,
     this.description = '',
+    this.logoUrl,
   });
 
+  final String? logoUrl;
   final int id;
   final String name;
   final String siret;

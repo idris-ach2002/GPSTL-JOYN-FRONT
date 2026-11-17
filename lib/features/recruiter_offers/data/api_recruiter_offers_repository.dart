@@ -21,10 +21,11 @@ class ApiRecruiterOffersRepository implements RecruiterOffersRepository {
   RecruiterCompany _company(Map<String, dynamic> j) => RecruiterCompany(
     id: _int(j['id']),
     name: '${j['name'] ?? ''}',
+    logoUrl: (j['logoUrl'] ?? j['logo_url'])?.toString(),
     siret: '${j['siret'] ?? ''}',
     activity: '${j['activity'] ?? ''}',
     sector: '${j['sector'] ?? ''}',
-    sizeRange: '${j['sizeRange'] ?? j['size_range'] ?? ''}',
+    sizeRange: '${j['companySize'] ?? j['sizeRange'] ?? j['size_range'] ?? ''}',
     city: '${j['city'] ?? ''}',
     website: j['website'] as String?,
     description: '${j['description'] ?? ''}',
@@ -114,7 +115,20 @@ class ApiRecruiterOffersRepository implements RecruiterOffersRepository {
     }
     // One company per recruiter. Company ID is not returned by /profile;
     // the temporary 0 is only an editor value, never sent to the backend.
-    _linkedCompany = _company({'id': companyId, 'name': name});
+    Map<String, dynamic> detail = {'id': companyId, 'name': name};
+    if (companyId > 0) {
+      try {
+        detail = apiObject(
+          await api.getJson(
+            '/api/v1/companies/$companyId',
+            query: {'include_jobs': 'false'},
+          ),
+        );
+      } catch (_) {
+        /* Identity from the authenticated profile remains usable. */
+      }
+    }
+    _linkedCompany = _company(detail);
     return [_linkedCompany!];
   }
 

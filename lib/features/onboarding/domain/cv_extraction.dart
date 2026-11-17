@@ -3,8 +3,9 @@ import 'package:flutter/foundation.dart';
 /// Fichier de CV choisi par l'étudiant·e.
 @immutable
 class PickedCv {
-  const PickedCv({required this.name, required this.sizeInBytes});
+  const PickedCv({required this.name, required this.sizeInBytes, this.bytes});
 
+  final Uint8List? bytes;
   final String name;
   final int sizeInBytes;
 

@@ -32,7 +32,15 @@ class AdminCompaniesController extends ChangeNotifier {
   }) : logoPicker = logoPicker ?? const DeviceCompanyLogoPicker();
 
   final AdminCompanyRepository _repository;
-  bool get canEditCompanies => _repository is! ApiAdminCompanyRepository;
+  bool get canEditCompanies => true;
+  bool get canCreateCompanies => _repository is! ApiAdminCompanyRepository;
+  bool get connected => _repository is ApiAdminCompanyRepository;
+  Future<AdminCompany> companyForEdit(AdminCompany company) async {
+    final repo = _repository;
+    return repo is ApiAdminCompanyRepository
+        ? repo.fetchCompany(company.id)
+        : company;
+  }
 
   /// Sélecteur de logo utilisé par le formulaire.
   final CompanyLogoPicker logoPicker;

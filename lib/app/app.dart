@@ -1,3 +1,7 @@
+import '../features/onboarding/data/cv_repository.dart';
+import '../features/onboarding/data/device_cv_repository.dart';
+import '../features/onboarding/data/profile_repository.dart' as onboarding;
+
 import 'dart:async';
 
 import 'package:flutter/services.dart';
@@ -66,6 +70,8 @@ class JoynApp extends StatefulWidget {
     this.dashboardRepository,
     this.registrationRepository,
     this.profileRepository,
+    this.cvRepository,
+    this.onboardingRepository,
     this.recruiterDashboardRepository,
     this.recruiterOffersRepository,
     this.recruiterCandidateRepository,
@@ -87,6 +93,8 @@ class JoynApp extends StatefulWidget {
   final DashboardRepository? dashboardRepository;
   final RegistrationRepository? registrationRepository;
   final ProfileRepository? profileRepository;
+  final CvRepository? cvRepository;
+  final onboarding.ProfileRepository? onboardingRepository;
   final RecruiterDashboardRepository? recruiterDashboardRepository;
   final RecruiterOffersRepository? recruiterOffersRepository;
   final RecruiterCandidateRepository? recruiterCandidateRepository;
@@ -314,6 +322,13 @@ class _JoynAppState extends State<JoynApp> {
         Provider<DashboardRepository>.value(value: _dashboardRepository),
         Provider<RegistrationRepository>.value(value: _registrationRepository),
         Provider<ProfileRepository>.value(value: _profileRepository),
+        Provider<CvRepository>.value(
+          value: widget.cvRepository ?? DeviceCvRepository(),
+        ),
+        Provider<onboarding.ProfileRepository>.value(
+          value:
+              widget.onboardingRepository ?? onboarding.MockProfileRepository(),
+        ),
         Provider<RecruiterDashboardRepository>.value(
           value: _recruiterDashboardRepository,
         ),

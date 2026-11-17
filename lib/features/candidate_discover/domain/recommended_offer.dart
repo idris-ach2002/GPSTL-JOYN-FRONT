@@ -130,10 +130,17 @@ enum SwipeDecision {
 
 /// Préférences qui filtrent les recommandations (pastilles en haut de page).
 class DiscoverFilters {
-  const DiscoverFilters({this.rhythm, this.location});
+  const DiscoverFilters({
+    this.rhythm,
+    this.location,
+    this.contractType,
+    this.remote,
+  });
 
   final String? rhythm;
   final String? location;
+  final String? contractType;
+  final String? remote;
 
   Map<String, String?> toQueryParameters() => {
     'rhythm': rhythm,

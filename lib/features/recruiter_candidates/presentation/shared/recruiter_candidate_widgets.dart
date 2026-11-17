@@ -284,7 +284,7 @@ class CandidateDeckCard extends StatelessWidget {
         Text(
           candidate.summary,
           style: TextStyle(
-            color: StudioColors.text(context, Color(0xFF43586B)),
+            color: StudioColors.text(context, const Color(0xFF43586B)),
             fontSize: 13,
             height: 1.5,
           ),
@@ -576,7 +576,7 @@ Future<void> showCandidateProfileDialog(
                 );
               },
               icon: const Icon(Icons.chat_bubble_outline),
-              label: const Text('Contacter ce candidat'),
+              label: const Text('Envoyer un message'),
             ),
             const SizedBox(height: 16),
             CandidateStudioPanel(candidate: candidate),
@@ -595,7 +595,7 @@ Future<void> showCandidateProfileDialog(
             Text(
               candidate.summary,
               style: TextStyle(
-                color: StudioColors.text(context, Color(0xFF43586B)),
+                color: StudioColors.text(context, const Color(0xFF43586B)),
                 height: 1.5,
               ),
             ),
@@ -663,7 +663,7 @@ class ReciprocalMatchDialog extends StatelessWidget {
           );
         },
         icon: const Icon(Icons.chat_bubble_outline_rounded),
-        label: const Text('Contacter'),
+        label: const Text('Envoyer un message'),
       ),
     ],
   );
@@ -838,7 +838,7 @@ class _InfoPill extends StatelessWidget {
     child: Text(
       text,
       style: TextStyle(
-        color: StudioColors.text(context, Color(0xFF53697C)),
+        color: StudioColors.text(context, const Color(0xFF53697C)),
         fontSize: 10.5,
         fontWeight: FontWeight.w600,
       ),
@@ -915,7 +915,7 @@ class _ReasonLine extends StatelessWidget {
           child: Text(
             text,
             style: TextStyle(
-              color: StudioColors.text(context, Color(0xFF53697C)),
+              color: StudioColors.text(context, const Color(0xFF53697C)),
               fontSize: 11.5,
               height: 1.35,
             ),

@@ -28,12 +28,24 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
       query: {
         'page': '1',
         'limit': '50',
+        'contract_type': filters.contractType,
+        'remote': filters.remote,
         if (filters.rhythm != null) 'rhythm_type': filters.rhythm,
         if (filters.location != null) 'location': filters.location,
       },
     );
     final root = _unwrap(_asMap(json));
     final offerRows = _asList(root['content']);
+    Set<String>? profileSkills;
+    try {
+      final profile = _asMap(await _api.getJson('/api/v1/candidates/profile'));
+      profileSkills = _asList(profile['skills'])
+          .whereType<String>()
+          .map((s) => s.trim().toLowerCase())
+          .toSet();
+    } catch (_) {
+      // The feed remains usable; no acquired skills are claimed without the profile.
+    }
     final mapped = <RecommendedOffer>[];
     final companies = <String, Map<String, dynamic>>{};
     for (final row in offerRows) {
@@ -52,6 +64,15 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
       }
       final merged = {
         ...job,
+        'skills': [
+          for (final skill in _asList(job['skills']))
+            {
+              'name': '$skill',
+              'matched':
+                  profileSkills?.contains('$skill'.trim().toLowerCase()) ==
+                  true,
+            },
+        ],
         'match_score': envelope['match_score'],
         'score_breakdown': envelope['score_breakdown'],
         'company': companies[companyId] ?? const <String, dynamic>{},
@@ -122,7 +143,7 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
         sector: _string(company['sector']),
         headcount: _nullableInt(company['headcount'] ?? company['size']),
         city: _string(company['city'] ?? json['location']),
-        logoUrl: _nullableString(company['logoUrl']),
+        logoUrl: _nullableString(company['logoUrl'] ?? company['logo_url']),
       ),
       compatibility: _int(
         json['match_score'] ??

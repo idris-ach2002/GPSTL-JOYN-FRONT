@@ -37,11 +37,13 @@ Future<CompanyDraft?> showCompanyFormDialog(
   BuildContext context, {
   required CompanyLogoPicker logoPicker,
   AdminCompany? initial,
+  bool connected = false,
 }) {
   return _showAdaptiveDialog<CompanyDraft>(
     context,
     (context, fullscreen) => _CompanyFormDialog(
       initial: initial,
+      connected: connected,
       logoPicker: logoPicker,
       fullscreen: fullscreen,
     ),
@@ -51,11 +53,13 @@ Future<CompanyDraft?> showCompanyFormDialog(
 class _CompanyFormDialog extends StatefulWidget {
   const _CompanyFormDialog({
     required this.initial,
+    this.connected = false,
     required this.logoPicker,
     required this.fullscreen,
   });
 
   final AdminCompany? initial;
+  final bool connected;
   final CompanyLogoPicker logoPicker;
   final bool fullscreen;
 
@@ -184,9 +188,12 @@ class _CompanyFormDialogState extends State<_CompanyFormDialog> {
           TextFormField(
             key: const ValueKey('company-form-siret'),
             controller: _siret,
+            readOnly: widget.connected,
             keyboardType: TextInputType.number,
             inputFormatters: const [_SiretFormatter()],
-            validator: (value) => CompanyValidators.siretError(value ?? ''),
+            validator: (value) => widget.connected
+                ? null
+                : CompanyValidators.siretError(value ?? ''),
             decoration: const InputDecoration(
               labelText: 'Numéro SIRET',
               hintText: '123 456 789 00012',
@@ -221,9 +228,11 @@ class _CompanyFormDialogState extends State<_CompanyFormDialog> {
           TextFormField(
             key: const ValueKey('company-form-city'),
             controller: _city,
+            readOnly: widget.connected,
             textCapitalization: TextCapitalization.words,
-            validator: (value) =>
-                CompanyValidators.requiredError(value ?? '', 'la ville'),
+            validator: (value) => widget.connected
+                ? null
+                : CompanyValidators.requiredError(value ?? '', 'la ville'),
             decoration: const InputDecoration(labelText: 'Ville'),
           ),
           const SizedBox(height: 14),

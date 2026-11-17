@@ -1,3 +1,4 @@
+import '../../../auth/presentation/auth_controller.dart';
 import '../../../recruiter_studio/presentation/studio_search.dart';
 import '../../../recruiter_studio/presentation/studio_controller.dart';
 
@@ -80,6 +81,11 @@ class RecruiterOffersTopBar extends StatelessWidget {
           ),
         ),
         const Spacer(),
+        IconButton(
+          tooltip: 'Se déconnecter',
+          onPressed: () => context.read<AuthController>().signOut(),
+          icon: const Icon(Icons.logout, color: Colors.white),
+        ),
         IconButton(
           tooltip: 'Rechercher dans le studio',
           onPressed: () => studioOpenSearch(context),

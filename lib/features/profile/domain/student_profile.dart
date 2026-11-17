@@ -100,21 +100,23 @@ class ProfileLinks {
 /// Photo de profil choisie par l'étudiant·e.
 @immutable
 class ProfilePhoto {
-  const ProfilePhoto({required this.bytes, required this.fileName});
+  const ProfilePhoto({required this.bytes, required this.fileName, this.url});
 
   /// Contenu de l'image (JPG, PNG ou WebP).
   final Uint8List bytes;
+  final String? url;
   final String fileName;
 }
 
 @immutable
 class ProfileCv {
-  const ProfileCv({required this.fileName, this.updatedLabel = ''});
+  const ProfileCv({required this.fileName, this.updatedLabel = '', this.bytes});
 
   final String fileName;
 
   /// Date déjà mise en forme : « Mis à jour il y a 3 jours ».
   final String updatedLabel;
+  final Uint8List? bytes;
 }
 
 @immutable

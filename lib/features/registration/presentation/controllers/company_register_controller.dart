@@ -218,7 +218,16 @@ class CompanyRegisterController extends ChangeNotifier {
     _company = null;
     _notify();
 
-    final result = await _repository.findCompanyBySiret(Siret.digitsOf(_siret));
+    CompanyInfo? result;
+    try {
+      result = await _repository.findCompanyBySiret(Siret.digitsOf(_siret));
+    } catch (_) {
+      if (requestId != _lookupId || _disposed) return;
+      _lookupStatus = SiretLookupStatus.idle;
+      _submitError = 'Recherche indisponible. Réessayez dans un instant.';
+      _notify();
+      return;
+    }
     if (requestId != _lookupId) return;
 
     _company = result;

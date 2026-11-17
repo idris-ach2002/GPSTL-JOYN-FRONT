@@ -1,10 +1,11 @@
+import '../shared/discover_tools.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/navigation/candidate_mobile_navigation.dart';
 import '../../../../app/routing/app_routes.dart';
-import '../../../../core/feedback/coming_soon.dart';
 import '../../../../design_system/mobile/mobile_app_surface.dart';
 import '../../../notifications/presentation/notifications_controller.dart';
 import '../../../notifications/presentation/shared/notifications_panel.dart';
@@ -144,7 +145,7 @@ class _MobileDiscoverScreenState extends State<MobileDiscoverScreen>
             MatchBreakdownCard(
               offer: current,
               framed: false,
-              onSkillGap: () => showComingSoon(context, 'Le Skill Gap'),
+              onSkillGap: () => showSkillGap(context, current),
             ),
           ),
           icon: const Icon(Icons.insights_rounded, size: 18),
@@ -229,7 +230,7 @@ class _Heading extends StatelessWidget {
             fontSize: 13,
           ),
         ),
-        if (filters.rhythm != null || filters.location != null) ...[
+        ...[
           const SizedBox(height: 10),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -248,7 +249,7 @@ class _Heading extends StatelessWidget {
                   avatar: const Icon(Icons.tune_rounded, size: 16),
                   label: const Text('Filtres'),
                   visualDensity: VisualDensity.compact,
-                  onPressed: () => showComingSoon(context, 'Les filtres'),
+                  onPressed: () => showDiscoverFilters(context, controller),
                 ),
               ],
             ),

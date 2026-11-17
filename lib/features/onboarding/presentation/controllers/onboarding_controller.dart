@@ -49,7 +49,9 @@ class OnboardingController extends ChangeNotifier {
   String _desiredSalary = '';
 
   bool _prefilledFromCv = false;
+  CvExtraction? _importedCv;
   bool _isSaving = false;
+  String? saveError;
   bool _disposed = false;
 
   // ---------------------------------------------------------------------------
@@ -156,6 +158,7 @@ class OnboardingController extends ChangeNotifier {
   ///
   /// Les champs déjà remplis à la main ne sont pas écrasés.
   void applyCv(CvExtraction cv) => _update(() {
+    _importedCv = cv;
     if (cv.educations.isNotEmpty) {
       final latest = cv.educations.first;
       if (_degreeTitle.trim().isEmpty) _degreeTitle = latest.title;
@@ -175,10 +178,14 @@ class OnboardingController extends ChangeNotifier {
   Future<bool> finish() async {
     if (_isSaving) return false;
     _isSaving = true;
+    saveError = null;
     _notify();
     try {
       await _repository.saveProfile(toDraft());
       return true;
+    } catch (_) {
+      saveError = 'Impossible d’enregistrer le profil. Vérifiez votre connexion et réessayez.';
+      return false;
     } finally {
       _isSaving = false;
       _notify();
@@ -190,6 +197,7 @@ class OnboardingController extends ChangeNotifier {
       _desiredSalary.replaceAll(RegExp(r'[^0-9]'), ''),
     );
     return StudentProfileDraft(
+      cv: _importedCv,
       searchKind: _searchKind,
       degreeTitle: _degreeTitle.trim(),
       school: _school.trim(),

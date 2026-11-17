@@ -1,3 +1,4 @@
+import '../../../../core/widgets/remote_logo.dart';
 import '../../../recruiter_studio/presentation/studio_components.dart';
 
 import 'dart:math' as math;
@@ -33,13 +34,16 @@ class CompanyAvatar extends StatelessWidget {
       borderRadius: BorderRadius.circular(size * .28),
       boxShadow: AppShadows.card,
     ),
-    child: Text(
-      company.initial,
-      style: TextStyle(
-        color: StudioColors.text(context, Colors.white),
-        fontFamily: AppFonts.display,
-        fontSize: size * .42,
-        fontWeight: FontWeight.w800,
+    child: RemoteLogo(
+      url: company.logoUrl,
+      fallback: Text(
+        company.initial,
+        style: TextStyle(
+          color: StudioColors.text(context, Colors.white),
+          fontFamily: AppFonts.display,
+          fontSize: size * .42,
+          fontWeight: FontWeight.w800,
+        ),
       ),
     ),
   );
@@ -71,14 +75,17 @@ class CompanyMiniLogo extends StatelessWidget {
         ),
       ],
     ),
-    child: Text(
-      company.initial,
-      style: TextStyle(
-        color: StudioColors.text(context, Colors.white),
-        fontFamily: AppFonts.display,
-        fontSize: size * .42,
-        height: 1,
-        fontWeight: FontWeight.w900,
+    child: RemoteLogo(
+      url: company.logoUrl,
+      fallback: Text(
+        company.initial,
+        style: TextStyle(
+          color: StudioColors.text(context, Colors.white),
+          fontFamily: AppFonts.display,
+          fontSize: size * .42,
+          height: 1,
+          fontWeight: FontWeight.w900,
+        ),
       ),
     ),
   );
@@ -185,7 +192,7 @@ class _OfferMetaChipState extends State<OfferMetaChip> {
           Text(
             widget.label,
             style: TextStyle(
-              color: StudioColors.text(context, Color(0xFF1674CF)),
+              color: StudioColors.text(context, const Color(0xFF1674CF)),
               fontSize: 12.5,
               height: 1,
               fontWeight: FontWeight.w800,
@@ -211,7 +218,7 @@ class OfferSkillTag extends StatelessWidget {
     child: Text(
       label,
       style: TextStyle(
-        color: StudioColors.text(context, Color(0xFF1769C2)),
+        color: StudioColors.text(context, const Color(0xFF1769C2)),
         fontSize: 11.5,
         height: 1,
         fontWeight: FontWeight.w800,
@@ -262,7 +269,7 @@ class OfferCardSurface extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: StudioColors.gradient(
                   context,
-                  LinearGradient(
+                  const LinearGradient(
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                     colors: [
@@ -286,7 +293,7 @@ class OfferCardSurface extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: StudioColors.gradient(
                   context,
-                  RadialGradient(
+                  const RadialGradient(
                     center: Alignment(1.05, -1.0),
                     radius: 1.18,
                     colors: [
@@ -308,7 +315,7 @@ class OfferCardSurface extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: StudioColors.gradient(
                   context,
-                  RadialGradient(
+                  const RadialGradient(
                     center: Alignment(1.1, 1.25),
                     radius: 1.0,
                     colors: [
@@ -336,11 +343,17 @@ class OfferCardSurface extends StatelessWidget {
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(
-                    color: StudioColors.border(context, Color(0xFFF0F4F7)),
+                    color: StudioColors.border(
+                      context,
+                      const Color(0xFFF0F4F7),
+                    ),
                     width: .8,
                   ),
                   bottom: BorderSide(
-                    color: StudioColors.border(context, Color(0xFFE4EBF1)),
+                    color: StudioColors.border(
+                      context,
+                      const Color(0xFFE4EBF1),
+                    ),
                     width: .8,
                   ),
                 ),
@@ -933,7 +946,7 @@ class OfferPreviewCard extends StatelessWidget {
                       .toList(),
                 ),
                 const SizedBox(height: 18),
-                Text('Description du poste', style: _sectionStyle),
+                const Text('Description du poste', style: _sectionStyle),
                 const SizedBox(height: 8),
                 OfferRichText(
                   value: offer.description,
@@ -945,7 +958,7 @@ class OfferPreviewCard extends StatelessWidget {
                 ),
                 if (offer.contractType.isWorkStudy && !compact) ...[
                   const SizedBox(height: 16),
-                  Text('Informations clés', style: _sectionStyle),
+                  const Text('Informations clés', style: _sectionStyle),
                   const SizedBox(height: 8),
                   _InfoLine(
                     icon: Icons.school_outlined,
@@ -1282,7 +1295,10 @@ class OfferRichText extends StatelessWidget {
                   height: 5,
                   margin: const EdgeInsets.only(top: 7, right: 9),
                   decoration: BoxDecoration(
-                    color: StudioColors.background(context, Color(0xFF1976D2)),
+                    color: StudioColors.background(
+                      context,
+                      const Color(0xFF1976D2),
+                    ),
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -1335,10 +1351,10 @@ class OfferRichText extends StatelessWidget {
             margin: const EdgeInsets.symmetric(vertical: 4),
             padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
             decoration: BoxDecoration(
-              color: StudioColors.background(context, Color(0xFFF4F1FF)),
+              color: StudioColors.background(context, const Color(0xFFF4F1FF)),
               border: Border(
                 left: BorderSide(
-                  color: StudioColors.border(context, Color(0xFF6956E8)),
+                  color: StudioColors.border(context, const Color(0xFF6956E8)),
                   width: 3,
                 ),
               ),
@@ -1410,7 +1426,7 @@ class _InlineMarkup extends StatelessWidget {
           TextSpan(
             text: token.substring(1, labelEnd),
             style: TextStyle(
-              color: StudioColors.text(context, Color(0xFF1976D2)),
+              color: StudioColors.text(context, const Color(0xFF1976D2)),
               decoration: TextDecoration.underline,
               fontWeight: FontWeight.w700,
             ),

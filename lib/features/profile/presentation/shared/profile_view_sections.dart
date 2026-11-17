@@ -237,7 +237,9 @@ class ProfileAvatar extends StatelessWidget {
         child: CircleAvatar(
           radius: radius,
           backgroundColor: AppColors.skyMist,
-          backgroundImage: MemoryImage(photo.bytes),
+          backgroundImage: photo.url == null
+              ? MemoryImage(photo.bytes)
+              : NetworkImage(photo.url!) as ImageProvider,
         ),
       );
     }

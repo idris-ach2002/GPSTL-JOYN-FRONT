@@ -23,7 +23,13 @@ class RhythmOption {
 class OnboardingOptions {
   OnboardingOptions._();
 
-  static const searchKinds = ['Une alternance', 'Un stage'];
+  static const searchKinds = [
+    'Une alternance',
+    'Un stage',
+    'Un CDI',
+    'Un CDD',
+    'Une mission freelance',
+  ];
 
   static const levels = ['Bac+2', 'Bac+3', 'Bac+4', 'Bac+5', 'Doctorat'];
 

@@ -190,7 +190,7 @@ class _Intro extends StatelessWidget {
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 580),
             child: Text(
-              "Étudiant·e en recherche d'alternance ou entreprise qui recrute : chaque profil a son espace.",
+              "Candidat·e en recherche d’emploi ou entreprise qui recrute : chaque profil a son espace.",
               textAlign: TextAlign.center,
               style: textTheme.bodyLarge?.copyWith(
                 fontSize: density.subtitleSize,
@@ -228,7 +228,7 @@ class _ChoiceCards extends StatelessWidget {
       tagIcon: Icons.school_outlined,
       tint: AppColors.skyTint,
       tintForeground: AppColors.navy,
-      title: 'Je cherche une alternance',
+      title: 'Je cherche un emploi ou un stage',
       description: 'Swipe des offres compatibles avec ta formation, ton rythme et tes technos.',
       benefits: const [
         'Gratuit, pour toujours',

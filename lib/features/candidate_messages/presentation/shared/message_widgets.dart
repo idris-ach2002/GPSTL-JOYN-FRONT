@@ -101,7 +101,7 @@ class CompanyBadge extends StatelessWidget {
                 width: 11,
                 height: 11,
                 decoration: BoxDecoration(
-                  color: AppColors.orange,
+                  color: AppColors.navy,
                   shape: BoxShape.circle,
                   border: Border.all(color: AppColors.white, width: 2),
                 ),
@@ -471,7 +471,7 @@ class _ConversationFooterState extends State<ConversationFooter> {
               tooltip: 'Envoyer',
               onPressed: _submit,
               style: IconButton.styleFrom(
-                backgroundColor: AppColors.orange,
+                backgroundColor: AppColors.navy,
                 foregroundColor: AppColors.white,
                 minimumSize: const Size.square(48),
               ),

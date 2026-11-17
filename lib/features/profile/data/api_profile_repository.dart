@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../../../core/network/api_client.dart';
 import '../../../core/network/api_exception.dart';
 import '../domain/student_profile.dart';
@@ -10,11 +12,15 @@ class ApiProfileRepository implements ProfileRepository {
   ApiProfileRepository(this.api);
   final ApiClient api;
   bool _serverHasCv = false;
+  String? _photoUrl;
+  StudentProfile? _lastProfile;
 
   @override
   Future<StudentProfile> fetchProfile() async {
     try {
-      return _map(await api.getJson('/api/v1/candidates/profile'));
+      return _lastProfile = _map(
+        await api.getJson('/api/v1/candidates/profile'),
+      );
     } on ApiException catch (error) {
       throw ProfileException(
         'Profil indisponible (${error.statusCode ?? 'réseau'}).',
@@ -24,19 +30,21 @@ class ApiProfileRepository implements ProfileRepository {
 
   @override
   Future<StudentProfile> saveProfile(StudentProfile profile) async {
-    if ((profile.cv != null && profile.cv!.fileName != 'CV enregistré') ||
-        (_serverHasCv && profile.cv == null)) {
+    if (_serverHasCv && profile.cv == null) {
       throw const ProfileException(
-        'Le dépôt ou la suppression de CV nécessite la route spécialisée du serveur et ne peut pas être enregistré par le formulaire actuel.',
+        'La suppression du CV n’est pas disponible. Vous pouvez le remplacer.',
       );
     }
     if (profile.projects.isNotEmpty ||
-        profile.photo != null ||
         profile.recommendations.isNotEmpty ||
         profile.visibility.hiddenFromCurrentEmployer) {
       throw const ProfileException(
         'Certaines sections (projets, photo, recommandations, masquage employeur) ne sont pas enregistrables via cette API.',
       );
+    }
+    if (profile.cv?.bytes != null &&
+        !profile.cv!.fileName.toLowerCase().endsWith('.pdf')) {
+      throw const ProfileException('Le serveur accepte uniquement les CV PDF.');
     }
     for (final experience in profile.experiences) {
       if (experience.period.trim().isNotEmpty &&
@@ -93,18 +101,46 @@ class ApiProfileRepository implements ProfileRepository {
           },
       ],
     };
+    // A photo/name edit must not rewrite degrees or dates that this form does not model.
+    if (identical(profile.educations, _lastProfile?.educations)) {
+      payload.remove('educations');
+    }
+    if (identical(profile.experiences, _lastProfile?.experiences)) {
+      payload.remove('experiences');
+    }
+    if (identical(profile.skills, _lastProfile?.skills)) {
+      payload.remove('skills');
+    }
     // Avoid null fields that Spring treats as explicit clears/invalid values.
     (payload['alternance'] as Map).removeWhere(
       (key, value) => value == null || value == '',
     );
     if ((payload['alternance'] as Map).isEmpty) payload.remove('alternance');
     try {
-      return _map(
-        await api.patchJson('/api/v1/candidates/profile', body: payload),
-      );
+      await api.patchJson('/api/v1/candidates/profile', body: payload);
+      if (profile.photo != null && profile.photo!.url == null) {
+        await api.sendMultipart(
+          'PUT',
+          '/api/v1/users/profile-picture',
+          fileField: 'file',
+          fileBytes: profile.photo!.bytes,
+          fileName: profile.photo!.fileName,
+        );
+      } else if (profile.photo == null && _photoUrl != null) {
+        await api.deleteJson('/api/v1/users/profile-picture');
+      }
+      if (profile.cv?.bytes != null) {
+        await api.sendMultipart(
+          'PUT',
+          '/api/v1/candidates/profile/resume',
+          fileBytes: profile.cv!.bytes,
+          fileName: profile.cv!.fileName,
+        );
+      }
+      return await fetchProfile();
     } on ApiException catch (error) {
       throw ProfileException(
-        'Le profil n’a pas été enregistré (${error.statusCode ?? 'réseau'}).',
+        'Enregistrement incomplet ou refusé (${error.statusCode ?? 'réseau'}). Actualisez le profil pour vérifier les champs enregistrés avant de réessayer.',
       );
     }
   }
@@ -149,6 +185,7 @@ class ApiProfileRepository implements ProfileRepository {
   StudentProfile _map(Object? raw) {
     final j = Map<String, dynamic>.from(raw as Map);
     _serverHasCv = j['cv_url'] != null;
+    _photoUrl = (j['profile_picture_url'] ?? j['photo_url'])?.toString();
     final links = _object(j['links']);
     final alt = _object(j['alternance']);
     final visibility = _object(j['visibility']);
@@ -156,6 +193,13 @@ class ApiProfileRepository implements ProfileRepository {
     final experience = j['experiences'] as List? ?? const [];
     final skills = j['skills'] as List? ?? const [];
     return StudentProfile(
+      photo: _photoUrl == null
+          ? null
+          : ProfilePhoto(
+              bytes: Uint8List(0),
+              fileName: 'Photo enregistrée',
+              url: _photoUrl,
+            ),
       firstName: '${j['first_name'] ?? ''}',
       lastName: '${j['last_name'] ?? ''}',
       email: '${j['email'] ?? ''}',

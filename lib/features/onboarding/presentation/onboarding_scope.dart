@@ -1,4 +1,9 @@
-import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
+
+import '../data/cv_repository.dart';
+import '../data/profile_repository.dart';
+
+import 'package:flutter/material.dart';
 
 import 'controllers/cv_import_controller.dart';
 import 'controllers/onboarding_controller.dart';
@@ -33,8 +38,16 @@ class OnboardingScope extends StatefulWidget {
 }
 
 class _OnboardingScopeState extends State<OnboardingScope> {
-  final _onboarding = OnboardingController();
-  final _cvImport = CvImportController();
+  late final OnboardingController _onboarding;
+  late final CvImportController _cvImport;
+  @override
+  void initState() {
+    super.initState();
+    _onboarding = OnboardingController(
+      repository: context.read<ProfileRepository?>(),
+    );
+    _cvImport = CvImportController(repository: context.read<CvRepository?>());
+  }
 
   @override
   void dispose() {
@@ -47,7 +60,28 @@ class _OnboardingScopeState extends State<OnboardingScope> {
   Widget build(BuildContext context) {
     return _OnboardingInherited(
       notifier: _onboarding,
-      child: _CvImportInherited(notifier: _cvImport, child: widget.child),
+      child: _CvImportInherited(
+        notifier: _cvImport,
+        child: AnimatedBuilder(
+          animation: _onboarding,
+          builder: (context, _) => Column(
+            children: [
+              if (_onboarding.saveError != null)
+                Material(
+                  color: Theme.of(context).colorScheme.errorContainer,
+                  child: SafeArea(
+                    bottom: false,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Text(_onboarding.saveError!),
+                    ),
+                  ),
+                ),
+              Expanded(child: widget.child),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

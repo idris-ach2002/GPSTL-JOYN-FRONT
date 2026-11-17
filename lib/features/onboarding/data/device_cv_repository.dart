@@ -45,7 +45,11 @@ class DeviceCvRepository implements CvRepository {
     }
 
     final size = file.lengthSync() ?? await file.length() ?? 0;
-    final picked = PickedCv(name: name, sizeInBytes: size);
+    final picked = PickedCv(
+      name: name,
+      sizeInBytes: size,
+      bytes: await file.readAsBytes(),
+    );
     if (size > maxSizeInBytes) {
       throw CvImportException(
         'Ton fichier fait ${picked.readableSize} : la limite est de 5 Mo.',

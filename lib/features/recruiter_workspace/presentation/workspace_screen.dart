@@ -1,3 +1,4 @@
+import '../../auth/presentation/auth_controller.dart';
 import '../../recruiter_studio/presentation/studio_components.dart';
 import '../../recruiter_studio/presentation/studio_controller.dart';
 import '../../recruiter_studio/presentation/studio_profile.dart';
@@ -93,6 +94,11 @@ class _RecruiterWorkspaceScreenState extends State<RecruiterWorkspaceScreen> {
                 },
               ),
               actions: [
+                IconButton(
+                  tooltip: 'Se déconnecter',
+                  onPressed: () => context.read<AuthController>().signOut(),
+                  icon: const Icon(Icons.logout),
+                ),
                 IconButton(
                   tooltip: 'Mon profil',
                   onPressed: () => context.go(AppRoutes.recruiterProfile),

@@ -107,7 +107,7 @@ class _CompanyRegisterScreenState extends State<CompanyRegisterScreen> {
                   ),
                   const SizedBox(height: 16),
                   RegistrationFooterLink(
-                    prompt: 'Vous cherchez une alternance ?',
+                    prompt: 'Vous cherchez un emploi ?',
                     linkLabel: 'Créer un compte étudiant',
                     onTap: () => context.go(AppRoutes.candidateRegister),
                   ),

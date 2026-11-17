@@ -1,3 +1,5 @@
+import 'cv_extraction.dart';
+
 import 'package:flutter/foundation.dart';
 
 import 'onboarding_options.dart';
@@ -7,6 +9,7 @@ import 'onboarding_options.dart';
 class StudentProfileDraft {
   const StudentProfileDraft({
     required this.searchKind,
+    this.cv,
     required this.degreeTitle,
     required this.school,
     required this.level,
@@ -23,6 +26,7 @@ class StudentProfileDraft {
     required this.desiredMonthlySalary,
   });
 
+  final CvExtraction? cv;
   final String searchKind;
   final String degreeTitle;
   final String school;

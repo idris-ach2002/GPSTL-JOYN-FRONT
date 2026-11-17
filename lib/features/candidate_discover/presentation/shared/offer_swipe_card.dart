@@ -1,3 +1,5 @@
+import '../../../../core/widgets/remote_logo.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../../../design_system/components/joyn_score_ring.dart';
@@ -136,13 +138,16 @@ class _Header extends StatelessWidget {
             color: AppColors.navy,
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Text(
-            offer.company.initial,
-            style: TextStyle(
-              fontFamily: AppFonts.display,
-              color: AppColors.white,
-              fontSize: logo * 0.42,
-              fontWeight: FontWeight.w700,
+          child: RemoteLogo(
+            url: offer.company.logoUrl,
+            fallback: Text(
+              offer.company.initial,
+              style: TextStyle(
+                fontFamily: AppFonts.display,
+                color: AppColors.white,
+                fontSize: logo * 0.42,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
         ),
@@ -253,17 +258,18 @@ class OfferSkillChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final matched = skill.matched;
-    final color = matched ? AppColors.navy : AppColors.errorDeep;
+    const color = AppColors.navy;
     return Semantics(
-      label: '${skill.name}, ${matched ? 'acquise' : 'à acquérir'}',
+      label:
+          '${skill.name}, ${matched ? 'présente dans votre profil' : 'recherchée pour cette offre'}',
       excludeSemantics: true,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: matched ? AppColors.skyMist : AppColors.errorTint,
+          color: AppColors.skyMist,
           borderRadius: BorderRadius.circular(6),
           border: matched
               ? null
-              : Border.all(color: AppColors.error.withValues(alpha: 0.35)),
+              : Border.all(color: AppColors.navy.withValues(alpha: 0.12)),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -271,14 +277,14 @@ class OfferSkillChip extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                matched ? Icons.check_rounded : Icons.close_rounded,
+                matched ? Icons.check_rounded : Icons.code_rounded,
                 size: 13,
                 color: color,
               ),
               const SizedBox(width: 4),
               Text(
                 skill.name,
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: AppFonts.body,
                   color: color,
                   fontSize: 12,

@@ -25,10 +25,23 @@ class CompanyActionsHandler {
 
   Future<void> edit(BuildContext context, AdminCompany company) async {
     final messenger = ScaffoldMessenger.of(context);
+    AdminCompany detail;
+    try {
+      detail = await controller.companyForEdit(company);
+    } catch (_) {
+      showAdminToastWith(
+        messenger,
+        'Impossible de charger l’entreprise. Réessayez.',
+        error: true,
+      );
+      return;
+    }
+    if (!context.mounted) return;
     final draft = await showCompanyFormDialog(
       context,
       logoPicker: controller.logoPicker,
-      initial: company,
+      initial: detail,
+      connected: controller.connected,
     );
     if (draft == null) return;
     _toast(messenger, await controller.update(company.id, draft));
@@ -162,7 +175,9 @@ class CompanyRowActions extends StatelessWidget {
               title: Text('Modifier'),
             ),
           ),
-        if (editable && company.status == CompanyStatus.approved)
+        if (!handler.controller.connected &&
+            editable &&
+            company.status == CompanyStatus.approved)
           const PopupMenuItem(
             value: _MenuAction.suspend,
             child: ListTile(

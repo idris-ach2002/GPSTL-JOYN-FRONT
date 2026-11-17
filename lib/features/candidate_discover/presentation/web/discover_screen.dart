@@ -1,8 +1,9 @@
+import '../shared/discover_tools.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../core/feedback/coming_soon.dart';
 import '../../../../design_system/theme/joyn_material_theme.dart';
 import '../../../../design_system/tokens/app_colors.dart';
 import '../../../../design_system/tokens/app_fonts.dart';
@@ -196,7 +197,7 @@ class _WebDiscoverScreenState extends State<WebDiscoverScreen>
       width: _panelWidth,
       child: MatchBreakdownCard(
         offer: current,
-        onSkillGap: () => showComingSoon(context, 'Le Skill Gap'),
+        onSkillGap: () => showSkillGap(context, current),
       ),
     );
 
@@ -260,7 +261,7 @@ class _Heading extends StatelessWidget {
         if (filters.rhythm != null) _FilterPill(label: filters.rhythm!),
         if (filters.location != null) _FilterPill(label: filters.location!),
         FilledButton.icon(
-          onPressed: () => showComingSoon(context, 'Les filtres'),
+          onPressed: () => showDiscoverFilters(context, controller),
           style: FilledButton.styleFrom(
             backgroundColor: AppColors.white,
             foregroundColor: AppColors.navy,

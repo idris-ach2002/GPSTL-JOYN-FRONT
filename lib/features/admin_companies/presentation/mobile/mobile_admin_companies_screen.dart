@@ -174,7 +174,7 @@ class _MobileAdminCompaniesViewState extends State<_MobileAdminCompaniesView> {
               const SliverToBoxAdapter(child: SizedBox(height: 96)),
             ],
           ),
-          if (controller.canEditCompanies)
+          if (controller.canCreateCompanies)
             Positioned(
               right: 16,
               bottom: 16,
