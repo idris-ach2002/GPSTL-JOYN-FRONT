@@ -1,8 +1,12 @@
+import '../../../candidate_workspace/presentation/candidate_workspace_dialog.dart';
+import '../../../../core/network/api_client.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../app/navigation/candidate_account_menu.dart';
 import '../../../../app/routing/app_routes.dart';
 import '../../../../design_system/mobile/mobile_app_surface.dart';
 import '../../../../design_system/theme/joyn_material_theme.dart';
@@ -64,6 +68,18 @@ class _MobileProfileScreenState extends State<MobileProfileScreen> {
             return CustomScrollView(
               slivers: [
                 SliverToBoxAdapter(child: _header(context, profile)),
+                if (context.read<ApiClient?>() != null)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: OutlinedButton.icon(
+                        onPressed: () =>
+                            showCandidateWorkspace(context, initialTab: 4),
+                        icon: const Icon(Icons.folder_open_outlined),
+                        label: const Text('Portfolio et versions de CV'),
+                      ),
+                    ),
+                  ),
                 ...switch (_controller.status) {
                   ProfileLoadStatus.loading => [
                     const SliverFillRemaining(
@@ -136,6 +152,9 @@ class _MobileProfileScreenState extends State<MobileProfileScreen> {
                       color: AppColors.white,
                     ),
                   ),
+                ),
+                const CandidateAccountMenu(
+                  icon: Icon(Icons.person_outline, color: Colors.white),
                 ),
               ],
             ),

@@ -19,7 +19,10 @@ enum ApplicationStatus {
     return switch (value?.trim().toUpperCase()) {
       'INTERESTED' || 'LIKED' => ApplicationStatus.interested,
       'INTERVIEW' || 'INTERVIEW_SCHEDULED' => ApplicationStatus.interview,
-      'REJECTED' || 'REFUSED' || 'DECLINED' => ApplicationStatus.rejected,
+      'REJECTED' ||
+      'REFUSED' ||
+      'DECLINED' ||
+      'WITHDRAWN' => ApplicationStatus.rejected,
       _ => ApplicationStatus.sent,
     };
   }
@@ -41,10 +44,26 @@ class CandidateApplication {
     this.appliedAt,
     this.interviewAt,
     this.conversationId,
+    this.backendStatus,
   });
 
   final String id;
   final ApplicationStatus status;
+
+  /// Exact server status, without losing precision in the four-column board.
+  final String? backendStatus;
+
+  String get statusLabel => switch (backendStatus?.toUpperCase()) {
+    'PENDING' => 'Envoyée · en attente',
+    'VIEWED' => 'Consultée par le recruteur',
+    'MATCHED' => 'Profil correspondant',
+    'IN_REVIEW' => 'En cours d’étude',
+    'INTERVIEW' => 'Entretien',
+    'ACCEPTED' => 'Candidature acceptée',
+    'REJECTED' => 'Candidature refusée',
+    'WITHDRAWN' => 'Candidature retirée',
+    _ => status.label,
+  };
   final String? offerId;
   final String? companyName;
   final String? companyLogoUrl;
@@ -84,6 +103,7 @@ class CandidateApplication {
       appliedAt: appliedAt ?? this.appliedAt,
       interviewAt: interviewAt,
       conversationId: conversationId ?? this.conversationId,
+      backendStatus: backendStatus,
     );
   }
 }

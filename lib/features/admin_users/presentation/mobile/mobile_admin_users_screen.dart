@@ -117,6 +117,7 @@ class _MobileAdminUsersViewState extends State<_MobileAdminUsersView>
                 selection: controller,
                 export: controller.exportRows,
                 reload: controller.load,
+                visibleIds: [for (final item in controller.users) item.id],
               ),
             ),
           ),

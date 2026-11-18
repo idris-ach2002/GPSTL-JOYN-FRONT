@@ -129,17 +129,20 @@ class OfferEditorController extends LifecycleNotifier {
     isLoading = true;
     notifyListeners();
     try {
-      companies = await _repository.fetchCompanies();
       if (offerId != null) {
+        // Load the full offer before its company: /recruiters/profile does not
+        // expose company_id, while GET /recruiters/jobs/{id} does.
         editingOffer = await _repository.fetchOffer(offerId!);
+        companies = await _repository.fetchCompanies();
         final offer = editingOffer;
         if (offer == null) {
           submitError = 'Cette offre est introuvable.';
         } else {
           _hydrate(offer);
         }
-      } else if (companies.isNotEmpty) {
-        selectedCompany = companies.first;
+      } else {
+        companies = await _repository.fetchCompanies();
+        if (companies.isNotEmpty) selectedCompany = companies.first;
       }
     } catch (_) {
       submitError = 'Impossible de charger les données pour le moment.';

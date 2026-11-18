@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../app/navigation/candidate_entrance.dart';
+
 import '../../../../design_system/tokens/app_colors.dart';
 import '../../../../design_system/tokens/app_fonts.dart';
 import '../../../messaging/domain/conversation.dart';
@@ -700,7 +702,10 @@ class ConversationPane extends StatelessWidget {
         header,
         const Divider(height: 1, color: AppColors.lineSoft),
         Expanded(
-          child: ColoredBox(color: AppColors.surfaceSubtle, child: body),
+          child: ColoredBox(
+            color: AppColors.surfaceSubtle,
+            child: CandidateEntrance(key: ValueKey(thread.id), child: body),
+          ),
         ),
         const Divider(height: 1, color: AppColors.lineSoft),
         Padding(

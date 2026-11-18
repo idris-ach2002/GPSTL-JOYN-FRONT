@@ -66,6 +66,7 @@ final sample = [
   CandidateApplication(
     id: 's1',
     status: ApplicationStatus.sent,
+    backendStatus: 'PENDING',
     appliedAt: DateTime(2026, 10, 12),
   ),
 ];
@@ -106,7 +107,7 @@ void main() {
     expect(find.text('84 %'), findsOneWidget);
     expect(find.text('Envoyer ma candidature'), findsOneWidget);
     expect(find.text('Entretien · 15/10/2026'), findsOneWidget);
-    expect(find.text('En attente de l’entreprise'), findsOneWidget);
+    expect(find.text('Envoyée · en attente'), findsOneWidget);
     // Candidature sans données : tirets à la place des valeurs.
     expect(find.text('—'), findsWidgets);
     expect(tester.takeException(), isNull);

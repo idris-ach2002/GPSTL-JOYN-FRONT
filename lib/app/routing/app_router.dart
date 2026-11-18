@@ -1,3 +1,4 @@
+import '../navigation/candidate_entrance.dart';
 import '../../features/dashboard/presentation/student_dashboard.dart';
 import '../../features/registration/data/api_registration_repository.dart';
 import '../../features/registration/data/registration_repository.dart';
@@ -8,8 +9,6 @@ import '../../features/recruiter_workspace/presentation/workspace_controller.dar
 import '../../features/recruiter_studio/presentation/studio_components.dart';
 import '../../features/recruiter_studio/presentation/studio_controller.dart';
 import '../../features/recruiter_workspace/presentation/workspace_screen.dart';
-import '../../features/recruiter_workspace/presentation/connected_offer_summary.dart';
-import '../../features/recruiter_offers/data/api_recruiter_offers_repository.dart';
 
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/widgets.dart';
@@ -271,7 +270,9 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
                   : const WebRecruiterDashboardScreen(),
             );
           }
-          return StudentDashboard(mobile: useMobile(context));
+          return CandidateEntrance(
+            child: StudentDashboard(mobile: useMobile(context)),
+          );
         },
       ),
 
@@ -285,9 +286,11 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
             applicationsRepository: context
                 .read<CandidateApplicationsRepository>(),
           )..load(select: state.uri.queryParameters['conversation']),
-          child: useMobile(context)
-              ? const MobileCandidateMessagesScreen()
-              : const WebCandidateMessagesScreen(),
+          child: CandidateEntrance(
+            child: useMobile(context)
+                ? const MobileCandidateMessagesScreen()
+                : const WebCandidateMessagesScreen(),
+          ),
         ),
       ),
       GoRoute(
@@ -297,9 +300,11 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
           create: (context) => CandidateSettingsController(
             context.read<CandidateSettingsRepository>(),
           )..load(),
-          child: useMobile(context)
-              ? const MobileCandidateSettingsScreen()
-              : const WebCandidateSettingsScreen(),
+          child: CandidateEntrance(
+            child: useMobile(context)
+                ? const MobileCandidateSettingsScreen()
+                : const WebCandidateSettingsScreen(),
+          ),
         ),
       ),
 
@@ -310,9 +315,11 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
           create: (context) => CandidateApplicationsController(
             context.read<CandidateApplicationsRepository>(),
           )..load(),
-          child: useMobile(context)
-              ? const MobileCandidateApplicationsScreen()
-              : const WebCandidateApplicationsScreen(),
+          child: CandidateEntrance(
+            child: useMobile(context)
+                ? const MobileCandidateApplicationsScreen()
+                : const WebCandidateApplicationsScreen(),
+          ),
         ),
       ),
 
@@ -323,9 +330,11 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
           create: (context) =>
               DiscoverController(context.read<RecommendedOffersRepository>())
                 ..load(),
-          child: useMobile(context)
-              ? const MobileDiscoverScreen()
-              : const WebDiscoverScreen(),
+          child: CandidateEntrance(
+            child: useMobile(context)
+                ? const MobileDiscoverScreen()
+                : const WebDiscoverScreen(),
+          ),
         ),
       ),
 
@@ -486,17 +495,21 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
       GoRoute(
         path: AppRoutes.candidateProfile,
         name: 'candidateProfile',
-        builder: (context, state) => useMobile(context)
-            ? const MobileProfileScreen()
-            : const ProfileScreen(),
+        builder: (context, state) => CandidateEntrance(
+          child: useMobile(context)
+              ? const MobileProfileScreen()
+              : const ProfileScreen(),
+        ),
         routes: [
           // Chemin relatif : /candidate/profile/edit (= candidateProfileEdit).
           GoRoute(
             path: 'edit',
             name: 'candidateProfileEdit',
-            builder: (context, state) => useMobile(context)
-                ? const MobileProfileEditScreen()
-                : const ProfileEditScreen(),
+            builder: (context, state) => CandidateEntrance(
+              child: useMobile(context)
+                  ? const MobileProfileEditScreen()
+                  : const ProfileEditScreen(),
+            ),
           ),
         ],
       ),
@@ -520,19 +533,9 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
       GoRoute(
         path: '/recruiter/jobs/:jobId',
         name: 'recruiterJobDetail',
-        redirect: (context, state) {
-          final id = int.tryParse(state.pathParameters['jobId'] ?? '');
-          return id == null
-              ? AppRoutes.recruiterJobs
-              : AppRoutes.recruiterDashboardOffer(id);
-        },
         builder: (context, state) {
           final id = int.tryParse(state.pathParameters['jobId'] ?? '');
           if (id == null) return const SizedBox.shrink();
-          final repo = context.read<RecruiterOffersRepository>();
-          if (repo is ApiRecruiterOffersRepository && !repo.hasFullOffer(id)) {
-            return ConnectedOfferSummary(key: ValueKey(id), offerId: id);
-          }
           if (useMobile(context)) {
             return ChangeNotifierProvider(
               create: (context) => OfferDetailController(

@@ -1,3 +1,5 @@
+import '../../../candidate_workspace/presentation/candidate_workspace_dialog.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -124,6 +126,12 @@ class _Title extends StatelessWidget {
               ),
             ],
           ),
+        ),
+        OutlinedButton.icon(
+          style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
+          onPressed: () => showCandidateWorkspace(context, initialTab: 3),
+          icon: const Icon(Icons.edit_note_outlined),
+          label: const Text('Notes et rappels'),
         ),
         IconButton(
           tooltip: 'Actualiser',

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../app/navigation/candidate_entrance.dart';
 import '../../../../app/routing/app_routes.dart';
 import '../../../../design_system/theme/joyn_material_theme.dart';
 import '../../../../design_system/tokens/app_colors.dart';
@@ -73,7 +74,11 @@ Future<void> showNotificationsPanel(
           elevation: 8,
           borderRadius: BorderRadius.circular(20),
           clipBehavior: Clip.antiAlias,
-          child: SizedBox(width: 520, height: 655, child: panel(ctx)),
+          child: SizedBox(
+            width: 520,
+            height: 655,
+            child: CandidateEntrance(child: panel(ctx)),
+          ),
         ),
       ),
     ),
@@ -248,49 +253,54 @@ class _NotificationsPanelState extends State<NotificationsPanel> {
             child: Text(controller.error!),
           ),
         Expanded(
-          child: controller.loading && items.isEmpty
-              ? const Center(child: CircularProgressIndicator())
-              : items.isEmpty
-              ? const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Text('Aucune notification à afficher.'),
-                  ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 14),
-                  itemCount: items.length,
-                  itemBuilder: (context, i) {
-                    final item = items[i];
-                    final header = group(item.createdAt);
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        if (i == 0 || group(items[i - 1].createdAt) != header)
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(8, 10, 8, 4),
-                            child: Text(
-                              header,
-                              style: Theme.of(context).textTheme.labelLarge,
+          child: CandidateEntrance(
+            key: ValueKey((_kind, _unreadOnly)),
+            child: controller.loading && items.isEmpty
+                ? const Center(child: CircularProgressIndicator())
+                : items.isEmpty
+                ? const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Text('Aucune notification à afficher.'),
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 14),
+                    itemCount: items.length,
+                    itemBuilder: (context, i) {
+                      final item = items[i];
+                      final header = group(item.createdAt);
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (i == 0 || group(items[i - 1].createdAt) != header)
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(8, 10, 8, 4),
+                              child: Text(
+                                header,
+                                style: Theme.of(context).textTheme.labelLarge,
+                              ),
+                            ),
+                          Card(
+                            color: item.isRead
+                                ? colors.surface
+                                : colors.primaryContainer.withValues(
+                                    alpha: .36,
+                                  ),
+                            child: NotificationTile(
+                              notification: item,
+                              onTap: () => widget.onOpen(item),
+                              onDelete: () => controller.delete(item),
+                              onToggleRead: () => item.isRead
+                                  ? controller.markUnread(item)
+                                  : controller.markRead(item),
                             ),
                           ),
-                        Card(
-                          color: item.isRead
-                              ? colors.surface
-                              : colors.primaryContainer.withValues(alpha: .36),
-                          child: NotificationTile(
-                            notification: item,
-                            onTap: () => widget.onOpen(item),
-                            onDelete: () => controller.delete(item),
-                            onToggleRead: () => item.isRead
-                                ? controller.markUnread(item)
-                                : controller.markRead(item),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
+                        ],
+                      );
+                    },
+                  ),
+          ),
         ),
       ],
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import 'package:joyn_front/app/navigation/candidate_account_menu.dart';
 import 'package:joyn_front/app/routing/app_routes.dart';
 import 'package:joyn_front/core/theme/app_colors.dart';
 import 'package:joyn_front/core/theme/app_dimens.dart';
@@ -74,14 +75,6 @@ class DashboardTopBar extends StatelessWidget {
         ),
         const SizedBox(width: AppSpacing.sm),
         _AccountMenu(showName: isWide),
-        _RoundIconButton(
-          icon: Icons.logout_rounded,
-          tooltip: 'Se déconnecter',
-          onPressed: () async {
-            await context.read<AuthController>().signOut();
-            if (context.mounted) context.go(AppRoutes.login);
-          },
-        ),
       ],
     );
 
@@ -270,19 +263,7 @@ class _AccountMenu extends StatelessWidget {
     // TODO(backend): afficher le vrai nom quand AppUser en contiendra un.
     final name = Placeholders.text(user?.email.split('@').first);
 
-    return PopupMenuButton<void>(
-      tooltip: 'Mon profil',
-      position: PopupMenuPosition.under,
-      itemBuilder: (context) => [
-        PopupMenuItem(
-          onTap: () => context.go(AppRoutes.candidateProfile),
-          child: const Text('Voir mon profil'),
-        ),
-        PopupMenuItem(
-          onTap: () => context.go(AppRoutes.candidateProfileEdit),
-          child: const Text('Modifier mon profil'),
-        ),
-      ],
+    return CandidateAccountMenu(
       child: Container(
         padding: const EdgeInsets.fromLTRB(4, 4, 10, 4),
         decoration: BoxDecoration(

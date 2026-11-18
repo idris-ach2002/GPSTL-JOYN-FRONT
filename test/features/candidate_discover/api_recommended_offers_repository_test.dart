@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -11,7 +13,25 @@ void main() {
     () async {
       final calls = <String>[];
       final client = MockClient((request) async {
-        calls.add(request.url.path);
+        calls.add('${request.method} ${request.url.path}');
+        if (request.url.path == '/api/v1/candidates/workspace') {
+          expect(request.method, 'GET');
+          return http.Response('{"bookmarks":[]}', 200);
+        }
+        if (request.url.path == '/api/v1/candidates/workspace/offers/27') {
+          if (request.method == 'PUT') {
+            expect(jsonDecode(request.body), {
+              'state': 'INTERESTED',
+              'collection_name': 'À postuler',
+            });
+            return http.Response(
+              '{"job_offer_id":27,"state":"INTERESTED"}',
+              200,
+            );
+          }
+          expect(request.method, 'DELETE');
+          return http.Response('', 204);
+        }
         if (request.url.path.endsWith('/candidates/profile')) {
           return http.Response('{"skills":["Figma"]}', 200);
         }
@@ -46,9 +66,10 @@ void main() {
       expect(feed.offers.single.compatibility, 92);
       expect(feed.offers.single.monthlySalary, 1450);
       expect(calls, [
-        '/api/v1/candidates/recommendations',
-        '/api/v1/candidates/profile',
-        '/api/v1/companies/12',
+        'GET /api/v1/candidates/workspace',
+        'GET /api/v1/candidates/recommendations',
+        'GET /api/v1/candidates/profile',
+        'GET /api/v1/companies/12',
       ]);
       await repo.submitDecision('27', SwipeDecision.interested);
       expect(repo.interests.items.single.offerId, '27');
@@ -56,7 +77,14 @@ void main() {
       expect(repo.interests.items, isEmpty);
       expect(feed.offers.single.skills.first.matched, isTrue);
       expect(feed.offers.single.skills.last.matched, isFalse);
-      expect(calls.length, 3); // Swipe local = no invented backend route.
+      expect(calls, [
+        'GET /api/v1/candidates/workspace',
+        'GET /api/v1/candidates/recommendations',
+        'GET /api/v1/candidates/profile',
+        'GET /api/v1/companies/12',
+        'PUT /api/v1/candidates/workspace/offers/27',
+        'DELETE /api/v1/candidates/workspace/offers/27',
+      ]); // Swipe enregistré et annulé via les routes réelles.
     },
   );
 

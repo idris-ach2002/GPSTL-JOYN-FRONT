@@ -298,10 +298,16 @@ class _TableArea extends StatelessWidget {
           constraints: BoxConstraints(minWidth: constraints.maxWidth),
           child: AdminTableTheme(
             child: DataTable(
-              showCheckboxColumn: true,
-              sortColumnIndex: sort.byName ? 0 : 4,
+              sortColumnIndex: sort.byName ? 1 : 5,
               sortAscending: sort.ascending,
+              columnSpacing: 26,
               columns: [
+                DataColumn(
+                  label: AdminSelectionCheckbox(
+                    selection: controller,
+                    visibleIds: [for (final item in users) item.id],
+                  ),
+                ),
                 DataColumn(
                   label: const Text('UTILISATEUR'),
                   onSort: (_, ascending) => controller.setSort(
@@ -325,9 +331,15 @@ class _TableArea extends StatelessWidget {
                   DataRow(
                     key: ValueKey(user.id),
                     selected: controller.selected(user.id),
-                    onSelectChanged: (value) =>
-                        controller.select(user.id, value == true),
                     cells: [
+                      DataCell(
+                        Checkbox(
+                          semanticLabel: 'Sélectionner ${user.fullName}',
+                          value: controller.selected(user.id),
+                          onChanged: (value) =>
+                              controller.select(user.id, value == true),
+                        ),
+                      ),
                       DataCell(
                         Row(
                           mainAxisSize: MainAxisSize.min,

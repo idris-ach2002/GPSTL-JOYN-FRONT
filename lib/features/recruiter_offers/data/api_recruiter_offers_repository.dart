@@ -1,4 +1,5 @@
 import '../../../core/network/api_client.dart';
+import '../../../core/network/api_exception.dart';
 
 import '../../recruiter_workspace/data/recruiter_workspace_repository.dart';
 import '../domain/job_offer.dart';
@@ -142,39 +143,23 @@ class ApiRecruiterOffersRepository implements RecruiterOffersRepository {
   @override
   Future<List<JobOffer>> fetchOffers() async {
     final session = await _session();
-    // There is no full GET recruiter jobs endpoint on the current API.
-    // Dashboard topOffers is a PARTIAL list, not a complete job catalog.
-    final dashboard = apiObject(
-      await api.getJson('/api/v1/recruiters/dashboard'),
-    );
-    final summaries = dashboard['topOffers'] as List? ?? const [];
-    for (final item in summaries) {
-      if (item is! Map) continue;
-      final row = Map<String, dynamic>.from(item);
-      final id = _int(row['id']);
-      if (session.containsKey(id) && !_partialOffers.contains(id)) continue;
-      final contract = '${row['contract'] ?? 'CDI'}';
-      final status = '${row['status'] ?? 'PUBLISHED'}';
-      session[id] = _offer({
-        'id': id,
-        'company_id': dashboard['companyId'] ?? _linkedCompany?.id ?? 0,
-        'is_summary': true,
-        'title': row['title'] ?? 'Offre',
-        'contract_type': ContractType.values.any((c) => c.apiValue == contract)
-            ? contract
-            : 'CDI',
-        'location': row['location'] ?? '',
-        'remote_policy': 'ONSITE',
-        'experience_level': 'JUNIOR',
-        'status': JobOfferStatus.values.any((c) => c.apiValue == status)
-            ? status
-            : 'PUBLISHED',
-        'description': '',
-        'skills': const <String>[],
-        'candidate_count': row['applications'] ?? 0,
-        'updated_at': null,
-      });
-      _partialOffers.add(id);
+    var page = 1;
+    while (true) {
+      final response = apiObject(
+        await api.getJson(offersPath, query: {'page': '$page', 'limit': '100'}),
+      );
+      for (final record in response['content'] as List? ?? const []) {
+        final wrapper = apiObject(record);
+        final payload = apiObject(wrapper['offer']);
+        final offer = _offer({
+          ...payload,
+          'candidate_count': wrapper['candidate_count'] ?? 0,
+        });
+        session[offer.id] = offer;
+        _partialOffers.remove(offer.id);
+      }
+      if (response['hasNext'] != true) break;
+      page++;
     }
     return session.values.toList();
   }
@@ -207,12 +192,24 @@ class ApiRecruiterOffersRepository implements RecruiterOffersRepository {
   @override
   Future<JobOffer?> fetchOffer(int id) async {
     final session = await _session();
-    if (_partialOffers.contains(id)) {
-      throw UnsupportedError(
-        'Le backend ne fournit que le résumé de cette offre : édition indisponible.',
-      );
+    try {
+      final wrapper = apiObject(await api.getJson('$offersPath/$id'));
+      final payload = apiObject(wrapper['offer']);
+      final offer = _offer({
+        ...payload,
+        'candidate_count': wrapper['candidate_count'] ?? 0,
+      });
+      session[id] = offer;
+      _partialOffers.remove(id);
+      final company = apiObject(wrapper['company']);
+      if (company['id'] != null && company['name'] != null) {
+        _linkedCompany = _company(company);
+      }
+      return offer;
+    } on ApiException catch (error) {
+      if (error.statusCode == 404) return null;
+      rethrow;
     }
-    return session[id];
   }
 
   @override
@@ -239,24 +236,36 @@ class ApiRecruiterOffersRepository implements RecruiterOffersRepository {
   @override
   Future<JobOffer> updateOffer(int id, JobOfferDraft draft) async {
     final session = await _session();
-    if (_partialOffers.contains(id)) {
-      throw UnsupportedError(
-        'Édition indisponible : la route de lecture complète manque.',
-      );
-    }
-    if (session[id]?.contractType != draft.contractType) {
-      throw UnsupportedError(
-        'Le changement de contrat nécessite le catalogue des contrats.',
-      );
-    }
+    final current = await fetchOffer(id);
+    if (current == null) throw StateError('Offre introuvable.');
     final body = JobOfferApiMapper.toCreateJson(draft, JobOfferStatus.draft)
       ..remove('status')
       ..remove('contract_type');
     body['remote_mode'] = body.remove('remote_policy');
     body['experience_level_required'] = body.remove('experience_level');
     body['salary_currency'] = body.remove('currency');
-    body.remove('contract_type');
-    body.remove('status');
+    if (!draft.contractType.isWorkStudy) {
+      // Removing the work-study contract also removes its obsolete fields.
+      body.addAll({
+        'rhythm_type': null,
+        'start_date': null,
+        'duration_months': null,
+        'degree_level_required': null,
+      });
+    }
+    // PATCH uses the real contract_type_id foreign key, unlike POST.
+    if (current.contractType != draft.contractType) {
+      final rows =
+          await api.getJson('$offersPath/contract-types') as List? ?? const [];
+      final matching = rows
+          .map(apiObject)
+          .where((row) => '${row['code']}' == draft.contractType.apiValue)
+          .firstOrNull;
+      if (matching == null) {
+        throw StateError('Type de contrat introuvable dans la base.');
+      }
+      body['contract_type_id'] = _int(matching['id']);
+    }
     final json = apiObject(
       await api.patchJson(JobOfferApiMapper.jobPath(id), body: body),
     );
@@ -272,21 +281,30 @@ class ApiRecruiterOffersRepository implements RecruiterOffersRepository {
           json['experience_level_required'] ??
           draft.experienceLevel.apiValue,
       'currency': json['currency'] ?? json['salary_currency'] ?? draft.currency,
+      'candidate_count': current.candidateCount,
     });
     session[id] = offer;
+    _partialOffers.remove(id);
     return offer;
   }
 
   @override
   Future<void> closeOffer(int id, {String? reason}) async {
     final session = await _session();
-    await api.deleteJson(
+    // Closing keeps the listing and its application history; DELETE soft-deletes.
+    await api.patchJson(
       JobOfferApiMapper.jobPath(id),
-      body: reason == null ? null : {'reason': reason},
+      body: {'status': JobOfferStatus.closed.apiValue},
     );
-    session.remove(id);
+    final updated = session[id];
+    if (updated != null)
+      session[id] = updated.copyWith(status: JobOfferStatus.closed);
   }
 
   @override
-  Future<void> deleteOffer(int id) => closeOffer(id);
+  Future<void> deleteOffer(int id) async {
+    final session = await _session();
+    await api.deleteJson(JobOfferApiMapper.jobPath(id));
+    session.remove(id);
+  }
 }

@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/network/api_client.dart';
 import '../../../profile/data/profile_repository.dart';
 import '../../../profile/domain/student_profile.dart';
 import '../../domain/candidate_application.dart';
@@ -20,6 +21,7 @@ Future<bool?> showCoverLetterDialog(
     application: application,
     controller: controller,
     profiles: context.read<ProfileRepository?>(),
+    api: context.read<ApiClient?>(),
   ),
 );
 
@@ -30,11 +32,13 @@ class _CoverLetterDialog extends StatefulWidget {
     required this.application,
     required this.controller,
     required this.profiles,
+    required this.api,
   });
 
   final CandidateApplication application;
   final CandidateApplicationsController controller;
   final ProfileRepository? profiles;
+  final ApiClient? api;
 
   @override
   State<_CoverLetterDialog> createState() => _CoverLetterDialogState();
@@ -47,8 +51,57 @@ class _CoverLetterDialogState extends State<_CoverLetterDialog> {
   String? _fileName;
   String? _error;
   bool _busy = false;
+  bool _savingDraft = false;
 
   String get _job => widget.application.jobTitle ?? 'ce poste';
+
+  int? get _offerId => int.tryParse(widget.application.offerId ?? '');
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDraft();
+  }
+
+  Future<void> _loadDraft() async {
+    final api = widget.api;
+    final id = _offerId;
+    if (api == null || id == null) return;
+    try {
+      final body = await api.getJson('/api/v1/candidates/workspace/drafts/$id');
+      if (!mounted || body is! Map) return;
+      final message = '${body['cover_message'] ?? ''}';
+      if (message.isEmpty) return;
+      setState(() {
+        _mode = _LetterMode.general;
+        _letter.text = message;
+      });
+    } catch (_) {
+      // No draft is required to send a new application.
+    }
+  }
+
+  Future<void> _saveDraft() async {
+    final api = widget.api;
+    final id = _offerId;
+    if (api == null || id == null) return;
+    setState(() {
+      _savingDraft = true;
+      _error = null;
+    });
+    try {
+      await api.putJson(
+        '/api/v1/candidates/workspace/drafts/$id',
+        body: {'cover_message': _letter.text},
+      );
+      if (mounted) setState(() => _error = 'Brouillon enregistré.');
+    } catch (_) {
+      if (mounted)
+        setState(() => _error = 'Impossible d’enregistrer le brouillon.');
+    } finally {
+      if (mounted) setState(() => _savingDraft = false);
+    }
+  }
 
   @override
   void dispose() {
@@ -159,6 +212,16 @@ class _CoverLetterDialogState extends State<_CoverLetterDialog> {
     );
     if (!mounted) return;
     if (sent) {
+      if (widget.api != null && _offerId != null) {
+        try {
+          await widget.api!.deleteJson(
+            '/api/v1/candidates/workspace/drafts/$_offerId',
+          );
+        } catch (_) {
+          /* The application has already been submitted. */
+        }
+      }
+      if (!mounted) return;
       Navigator.pop(context, true);
     } else {
       setState(() {
@@ -238,6 +301,14 @@ class _CoverLetterDialogState extends State<_CoverLetterDialog> {
         ),
       ),
       actions: [
+        if (widget.api != null &&
+            _offerId != null &&
+            (_mode == _LetterMode.general || _mode == _LetterMode.personalized))
+          TextButton.icon(
+            onPressed: _busy || _savingDraft ? null : _saveDraft,
+            icon: const Icon(Icons.save_outlined),
+            label: const Text('Enregistrer brouillon'),
+          ),
         TextButton(
           onPressed: _busy ? null : () => Navigator.pop(context),
           child: const Text('Annuler'),

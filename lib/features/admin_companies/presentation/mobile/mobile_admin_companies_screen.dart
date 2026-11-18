@@ -119,6 +119,9 @@ class _MobileAdminCompaniesViewState extends State<_MobileAdminCompaniesView> {
                     selection: controller,
                     export: controller.exportRows,
                     reload: controller.load,
+                    visibleIds: [
+                      for (final item in controller.companies) item.id,
+                    ],
                   ),
                 ),
               ),

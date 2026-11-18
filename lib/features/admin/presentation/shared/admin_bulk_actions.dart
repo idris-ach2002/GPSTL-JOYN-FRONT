@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/network/api_client.dart';
@@ -17,6 +18,14 @@ mixin AdminSelection on ChangeNotifier {
     if (changed) notifyListeners();
   }
 
+  void selectVisible(Iterable<String> ids) {
+    final before = _selected.length;
+    _selected.addAll(
+      ids.where((id) => !_selected.contains(id)).take(100 - before).toList(),
+    );
+    if (_selected.length != before) notifyListeners();
+  }
+
   void clearSelection() {
     if (_selected.isEmpty) return;
     _selected.clear();
@@ -31,12 +40,14 @@ class AdminBulkActions extends StatelessWidget {
     required this.selection,
     required this.export,
     required this.reload,
+    this.visibleIds,
   });
 
   final String kind;
   final AdminSelection selection;
   final Future<List<List<Object?>>> Function() export;
   final Future<void> Function() reload;
+  final List<String>? visibleIds;
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +55,10 @@ class AdminBulkActions extends StatelessWidget {
     return Wrap(
       spacing: 8,
       runSpacing: 6,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
+        if (visibleIds case final ids?)
+          AdminSelectionCheckbox(selection: selection, visibleIds: ids),
         OutlinedButton.icon(
           onPressed: () async {
             try {
@@ -87,12 +101,39 @@ class AdminBulkActions extends StatelessWidget {
           icon: const Icon(Icons.delete_outline),
           label: Text('Supprimer la sélection ($count)'),
         ),
-        if (count > 0)
-          TextButton(
-            onPressed: selection.clearSelection,
-            child: const Text('Désélectionner tout'),
-          ),
       ],
+    );
+  }
+}
+
+class AdminSelectionCheckbox extends StatelessWidget {
+  const AdminSelectionCheckbox({
+    super.key,
+    required this.selection,
+    required this.visibleIds,
+  });
+
+  final AdminSelection selection;
+  final List<String> visibleIds;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasSelection = selection.selectedIds.isNotEmpty;
+    final allVisibleSelected =
+        visibleIds.isNotEmpty && visibleIds.every(selection.selected);
+    return Tooltip(
+      message: hasSelection
+          ? 'Effacer la sélection sur toutes les pages'
+          : 'Sélectionner les lignes affichées',
+      child: Checkbox(
+        tristate: true,
+        value: hasSelection ? (allVisibleSelected ? true : null) : false,
+        onChanged: hasSelection
+            ? (_) => selection.clearSelection()
+            : visibleIds.isEmpty
+            ? null
+            : (_) => selection.selectVisible(visibleIds),
+      ),
     );
   }
 }
@@ -169,7 +210,7 @@ class _RemovalDialogState extends State<_RemovalDialog> {
         setState(
           () => _error = switch (ex.statusCode) {
             403 => 'Mot de passe ou code invalide. Vérifiez aussi que le code n’a pas déjà servi.',
-            412 => 'Configurez le second facteur de ce compte administrateur.',
+            412 => 'La double authentification doit être configurée pour ce compte avant de supprimer des éléments.',
             429 => 'Trop de tentatives. Réessayez dans une minute.',
             404 || 409 => 'La sélection a changé. Actualisez la liste.',
             _ => 'La suppression n’a pas pu aboutir. Réessayez.',
@@ -212,19 +253,23 @@ class _RemovalDialogState extends State<_RemovalDialog> {
                   obscureText: true,
                   onChanged: (_) => setState(() {}),
                   decoration: const InputDecoration(
-                    labelText: 'Mot de passe actuel',
+                    labelText: 'Mot de passe JOYN',
                   ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Ouvrez votre application d’authentification et utilisez le code affiché pour votre compte administrateur JOYN. Si ce compte n’y figure pas, demandez sa configuration à la personne qui gère le serveur JOYN.',
                 ),
                 const SizedBox(height: 10),
                 TextField(
                   controller: _code,
                   enabled: !_saving,
                   maxLength: 6,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   keyboardType: TextInputType.number,
                   onChanged: (_) => setState(() {}),
                   decoration: const InputDecoration(
-                    labelText:
-                        'Code à 6 chiffres de l’application d’authentification',
+                    labelText: 'Code temporaire à 6 chiffres',
                   ),
                 ),
                 TextField(

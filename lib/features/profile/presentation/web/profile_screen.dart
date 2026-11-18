@@ -1,3 +1,6 @@
+import '../../../candidate_workspace/presentation/candidate_workspace_dialog.dart';
+import '../../../../core/network/api_client.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -83,6 +86,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 initials: profile.initials,
                                 photo: profile.photo,
                               ),
+                              if (context.read<ApiClient?>() != null)
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: OutlinedButton.icon(
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: Colors.white,
+                                    ),
+                                    onPressed: () => showCandidateWorkspace(
+                                      context,
+                                      initialTab: 4,
+                                    ),
+                                    icon: const Icon(
+                                      Icons.folder_open_outlined,
+                                    ),
+                                    label: const Text(
+                                      'Portfolio et versions de CV',
+                                    ),
+                                  ),
+                                ),
                               const SizedBox(height: 28),
                               switch (_controller.status) {
                                 ProfileLoadStatus.loading => const SizedBox(

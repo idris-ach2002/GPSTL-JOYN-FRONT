@@ -1,7 +1,7 @@
 import '../domain/candidate_application.dart';
 
-/// Local-only pending interests: the backend has no LIKE/SAVE endpoint.
-/// It is NOT a server-backed swipe history. Applying sends POST /applications.
+/// Session cache of the candidate's server-backed bookmarks and pending interests.
+/// The API repositories refresh it at login and after each decision.
 class PendingInterestsStore {
   final Map<String, CandidateApplication> _pending = {};
   final Set<String> _hidden = {};
@@ -10,6 +10,24 @@ class PendingInterestsStore {
   void clear() {
     _pending.clear();
     _hidden.clear();
+  }
+
+  void restore(List<dynamic> bookmarks) {
+    clear();
+    for (final value in bookmarks) {
+      if (value is! Map) continue;
+      final id = '${value['job_offer_id'] ?? ''}';
+      if (id.isEmpty) continue;
+      final state = '${value['state'] ?? ''}';
+      _hidden.add(id);
+      if (state == 'INTERESTED') {
+        interested(
+          id,
+          title: '${value['title'] ?? 'Offre'}',
+          companyName: '${value['company_name'] ?? ''}',
+        );
+      }
+    }
   }
 
   bool isHidden(String id) => _hidden.contains(id);

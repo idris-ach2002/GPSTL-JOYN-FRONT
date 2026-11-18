@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import 'package:joyn_front/app/navigation/candidate_account_menu.dart';
 import 'package:joyn_front/app/routing/app_routes.dart';
 import 'package:joyn_front/core/feedback/coming_soon.dart';
 import 'package:joyn_front/design_system/components/joyn_logo.dart';
 import 'package:joyn_front/design_system/tokens/app_colors.dart';
-import 'package:joyn_front/features/auth/presentation/auth_controller.dart';
+import 'package:joyn_front/features/notifications/presentation/notifications_controller.dart';
+import 'package:joyn_front/features/notifications/presentation/shared/notifications_panel.dart';
 import 'package:joyn_front/features/profile/domain/student_profile.dart';
 import 'package:joyn_front/features/profile/presentation/shared/profile_view_sections.dart';
 
@@ -27,6 +29,7 @@ class ProfileNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
+    final inbox = context.watch<NotificationsController?>();
     final showTabs = width >= 760;
     final tabLabels = width >= 1040;
 
@@ -50,36 +53,30 @@ class ProfileNavBar extends StatelessWidget {
         ),
         _CircleAction(
           tooltip: 'Notifications',
-          icon: const Badge(
+          icon: Badge(
+            isLabelVisible: (inbox?.unreadCount ?? 0) > 0,
             smallSize: 8,
             backgroundColor: AppColors.orange,
-            child: Icon(Icons.notifications_none_rounded),
+            child: const Icon(Icons.notifications_none_rounded),
           ),
-          onPressed: () => showComingSoon(context, 'Les notifications'),
+          onPressed: () => inbox == null
+              ? showComingSoon(context, 'Les notifications')
+              : showNotificationsPanel(context, asSheet: width < 700),
         ),
         const SizedBox(width: 10),
         _CircleAction(
           tooltip: 'Paramètres',
           icon: const Icon(Icons.settings_outlined),
-          onPressed: () => showComingSoon(context, 'Les paramètres'),
+          onPressed: () => context.go(AppRoutes.candidateSettings),
         ),
         const SizedBox(width: 10),
         _CircleAction(
           tooltip: 'Messages',
           icon: const Icon(Icons.chat_bubble_outline_rounded),
-          onPressed: () => showComingSoon(context, 'La messagerie'),
+          onPressed: () => context.go(AppRoutes.candidateMessages),
         ),
         const SizedBox(width: 12),
         _AccountMenu(firstName: firstName, initials: initials, photo: photo),
-        IconButton(
-          color: Colors.white,
-          tooltip: 'Se déconnecter',
-          icon: const Icon(Icons.logout),
-          onPressed: () async {
-            await context.read<AuthController>().signOut();
-            if (context.mounted) context.go(AppRoutes.login);
-          },
-        ),
       ],
     );
   }
@@ -172,8 +169,6 @@ class _CircleAction extends StatelessWidget {
   }
 }
 
-enum _AccountAction { view, edit }
-
 class _AccountMenu extends StatelessWidget {
   const _AccountMenu({
     required this.firstName,
@@ -189,33 +184,7 @@ class _AccountMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    return PopupMenuButton<_AccountAction>(
-      tooltip: 'Mon profil',
-      position: PopupMenuPosition.under,
-      onSelected: (action) {
-        switch (action) {
-          case _AccountAction.view:
-            context.go(AppRoutes.candidateProfile);
-          case _AccountAction.edit:
-            context.go(AppRoutes.candidateProfileEdit);
-        }
-      },
-      itemBuilder: (context) => const [
-        PopupMenuItem(
-          value: _AccountAction.view,
-          child: ListTile(
-            leading: Icon(Icons.person_outline),
-            title: Text('Voir mon profil'),
-          ),
-        ),
-        PopupMenuItem(
-          value: _AccountAction.edit,
-          child: ListTile(
-            leading: Icon(Icons.edit_outlined),
-            title: Text('Modifier mon profil'),
-          ),
-        ),
-      ],
+    return CandidateAccountMenu(
       child: Container(
         padding: const EdgeInsets.fromLTRB(6, 6, 12, 6),
         decoration: BoxDecoration(

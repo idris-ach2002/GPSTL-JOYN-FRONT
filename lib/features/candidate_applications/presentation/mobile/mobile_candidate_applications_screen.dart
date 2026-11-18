@@ -1,4 +1,9 @@
+import '../../../candidate_workspace/presentation/candidate_workspace_dialog.dart';
+
 import 'package:flutter/material.dart';
+
+import '../../../../app/navigation/candidate_entrance.dart';
+
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -53,6 +58,11 @@ class _MobileCandidateApplicationsScreenState
                 letterSpacing: -0.8,
               ),
             ),
+            TextButton.icon(
+              onPressed: () => showCandidateWorkspace(context, initialTab: 3),
+              icon: const Icon(Icons.edit_note_outlined),
+              label: const Text('Notes et rappels'),
+            ),
             const SizedBox(height: AppSpacing.xs),
             Text(
               ApplicationFormatters.summary(
@@ -82,14 +92,19 @@ class _MobileCandidateApplicationsScreenState
                 ),
               )
             else if (visible.isEmpty)
-              const _Message(text: 'Aucune candidature pour le moment.')
+              const CandidateEntrance(
+                child: _Message(text: 'Aucune candidature pour le moment.'),
+              )
             else
               for (final application in visible) ...[
-                ApplicationCard(
-                  application: application,
-                  now: controller.now,
-                  isBusy: controller.openingId == application.id,
-                  onTap: () => openApplicationOffer(context, application),
+                CandidateEntrance(
+                  key: ValueKey((_filter, application.id)),
+                  child: ApplicationCard(
+                    application: application,
+                    now: controller.now,
+                    isBusy: controller.openingId == application.id,
+                    onTap: () => openApplicationOffer(context, application),
+                  ),
                 ),
                 const SizedBox(height: 12),
               ],

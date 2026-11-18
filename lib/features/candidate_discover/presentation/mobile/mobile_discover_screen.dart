@@ -1,3 +1,4 @@
+import '../../../candidate_workspace/presentation/candidate_workspace_dialog.dart';
 import '../shared/discover_tools.dart';
 
 import 'package:flutter/material.dart';
@@ -69,7 +70,15 @@ class _MobileDiscoverScreenState extends State<MobileDiscoverScreen>
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const _Header(),
-                    const SizedBox(height: 18),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton.icon(
+                        onPressed: () => showCandidateWorkspace(context),
+                        icon: const Icon(Icons.search),
+                        label: const Text('Recherche et favoris'),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
                     _Heading(controller: controller),
                     const SizedBox(height: 14),
                     Expanded(child: _body(controller)),

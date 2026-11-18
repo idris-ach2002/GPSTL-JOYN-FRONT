@@ -168,8 +168,8 @@ class _Footer extends StatelessWidget {
       ApplicationStatus.interested => _InterestedActions(
         application: application,
       ),
-      ApplicationStatus.sent => const _StatusStrip(
-        label: 'En attente de l’entreprise',
+      ApplicationStatus.sent => _StatusStrip(
+        label: application.statusLabel,
         background: AppColors.skySoft,
         foreground: AppColors.info,
       ),
@@ -180,8 +180,8 @@ class _Footer extends StatelessWidget {
         background: AppColors.successSoft,
         foreground: AppColors.success,
       ),
-      ApplicationStatus.rejected => const _StatusStrip(
-        label: 'Candidature refusée',
+      ApplicationStatus.rejected => _StatusStrip(
+        label: application.statusLabel,
         background: AppColors.surfaceMuted,
         foreground: AppColors.textMuted,
       ),

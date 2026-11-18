@@ -1,3 +1,4 @@
+import '../../../candidate_workspace/presentation/candidate_workspace_dialog.dart';
 import '../shared/discover_tools.dart';
 
 import 'package:flutter/material.dart';
@@ -109,7 +110,22 @@ class _WebDiscoverScreenState extends State<WebDiscoverScreen>
                               isWide: width >= 900,
                               activeTab: DashboardTab.offers,
                             ),
-                            const SizedBox(height: 40),
+                            const SizedBox(height: 28),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: OutlinedButton.icon(
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.white,
+                                ),
+                                onPressed: () =>
+                                    showCandidateWorkspace(context),
+                                icon: const Icon(Icons.search),
+                                label: const Text(
+                                  'Recherche classique et favoris',
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
                             _Heading(controller: controller),
                             const SizedBox(height: 40),
                             _body(controller, sidePanel),

@@ -23,6 +23,11 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
   Future<DiscoverFeed> fetchFeed({
     DiscoverFilters filters = const DiscoverFilters(),
   }) async {
+    // Restore the authenticated candidate's persisted decisions first.
+    final workspace = _asMap(
+      await _api.getJson('/api/v1/candidates/workspace'),
+    );
+    interests.restore(_asList(workspace['bookmarks']));
     final json = await _api.getJson(
       basePath,
       query: {
@@ -92,6 +97,19 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
   Future<void> submitDecision(String offerId, SwipeDecision decision) async {
     final offer = _knownOffers[offerId];
     if (offer == null) throw StateError('Offre introuvable dans le flux.');
+    await _api.putJson(
+      '/api/v1/candidates/workspace/offers/$offerId',
+      body: {
+        'state': switch (decision) {
+          SwipeDecision.interested => 'INTERESTED',
+          SwipeDecision.save => 'SAVED',
+          SwipeDecision.skip => 'HIDDEN',
+        },
+        'collection_name': decision == SwipeDecision.save
+            ? 'Plus tard'
+            : 'À postuler',
+      },
+    );
     if (decision == SwipeDecision.interested) {
       interests.interested(
         offerId,
@@ -99,13 +117,13 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
         companyName: offer.company.name,
       );
     } else {
-      // Save and pass are visual session-local actions (no backend endpoint).
       interests.hide(offerId);
     }
   }
 
   @override
   Future<void> cancelDecision(String offerId) async {
+    await _api.deleteJson('/api/v1/candidates/workspace/offers/$offerId');
     interests.undo(offerId);
   }
 

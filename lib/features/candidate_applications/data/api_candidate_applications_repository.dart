@@ -39,7 +39,14 @@ class ApiCandidateApplicationsRepository
     );
     final server = _mapPage(_asMap(json), requestedPage: page);
     if (page != 1) return server;
-    final local = interests.items;
+    final workspace = _asMap(
+      await _api.getJson('/api/v1/candidates/workspace'),
+    );
+    interests.restore(_asList(workspace['bookmarks']));
+    final submittedOfferIds = server.items.map((a) => a.offerId).toSet();
+    final local = interests.items
+        .where((a) => !submittedOfferIds.contains(a.offerId))
+        .toList();
     return ApplicationsPage(
       items: [...local, ...server.items],
       page: server.page,
@@ -95,6 +102,13 @@ class ApiCandidateApplicationsRepository
             fileField: 'coverPdf',
             fileName: coverPdfName,
           );
+    // Submission is authoritative; remove the temporary interest from storage.
+    try {
+      await _api.deleteJson('/api/v1/candidates/workspace/offers/$offerId');
+    } catch (_) {
+      // The application has already been submitted successfully. The list
+      // filters duplicates using server application IDs on the next load.
+    }
     interests.submitted(offerId);
     final data = _unwrap(_asMap(raw));
     return _mapApplication(data);
@@ -136,6 +150,7 @@ class ApiCandidateApplicationsRepository
     return CandidateApplication(
       id: _nullableString(json['id']) ?? '',
       status: ApplicationStatus.fromApi(_nullableString(json['status'])),
+      backendStatus: _nullableString(json['status']),
       offerId: _nullableString(
         json['jobOfferId'] ?? json['offerId'] ?? json['jobId'] ?? offer['id'],
       ),
