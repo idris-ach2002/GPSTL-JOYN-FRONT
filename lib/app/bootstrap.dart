@@ -1,3 +1,6 @@
+import '../features/onboarding/data/api_cv_repository.dart';
+import '../features/onboarding/data/api_onboarding_repository.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../features/recruiter_studio/data/studio_store.dart';
@@ -114,6 +117,7 @@ Future<void> bootstrapJoyn({bool? webOverride}) async {
 
   runApp(
     JoynApp(
+      api: api,
       webOverride: webOverride,
       studioStore: deviceStore,
       studioRepository: LocalStudioRepository(deviceStore),
@@ -123,6 +127,8 @@ Future<void> bootstrapJoyn({bool? webOverride}) async {
       authController: authController,
       dashboardRepository: dashboardRepository,
       profileRepository: api == null ? null : ApiProfileRepository(api),
+      cvRepository: api == null ? null : ApiCvRepository(api),
+      onboardingRepository: api == null ? null : ApiOnboardingRepository(api),
       recruiterDashboardRepository: recruiterDashboardRepository,
       registrationRepository: registrationRepository,
       recruiterOffersRepository: recruiterOffersRepository,

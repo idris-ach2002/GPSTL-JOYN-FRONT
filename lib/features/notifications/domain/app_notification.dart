@@ -45,14 +45,14 @@ class AppNotification {
   final bool isRead;
   final DateTime createdAt;
 
-  AppNotification markRead() => AppNotification(
+  AppNotification markRead([bool read = true]) => AppNotification(
     id: id,
     kind: kind,
     title: title,
     createdAt: createdAt,
     message: message,
     link: link,
-    isRead: true,
+    isRead: read,
   );
 }
 

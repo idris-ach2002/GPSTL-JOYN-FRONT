@@ -38,7 +38,8 @@ void main() {
     // Le compte admin est le plus ancien : on le cherche par son e-mail.
     await _open(tester, 'admin@joyn.fr', '/admin/users?q=admin@joyn.fr');
     expect(find.byType(AdminUsersScreen), findsOneWidget);
-    expect(find.text('Équipe Joyn (vous)'), findsOneWidget);
+    expect(find.text('Équipe Joyn (vous)'), findsNothing);
+    expect(find.text('Exporter en CSV'), findsOneWidget);
   });
 
   testWidgets('les filtres de l’URL sont repris au chargement', (tester) async {

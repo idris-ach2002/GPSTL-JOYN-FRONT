@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/network/api_client.dart';
+import '../../recruiter_workspace/presentation/candidate_dossier.dart';
 import '../../recruiter_candidates/domain/recruiter_candidate_models.dart';
 import '../../recruiter_candidates/presentation/recruiter_candidate_controller.dart';
 import '../../recruiter_offers/presentation/web/recruiter_offers_top_bar.dart';
@@ -329,6 +331,7 @@ class StudioComparison extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.watch<StudioController>();
+    final api = context.read<ApiClient?>();
     final values = c.list('comparison');
     final narrow = MediaQuery.sizeOf(context).width < 800;
     const rows = {
@@ -414,6 +417,19 @@ class StudioComparison extends StatelessWidget {
                                           ),
                                         ),
                                       ),
+                                      if (api != null && v['profileId'] != null)
+                                        IconButton(
+                                          tooltip: 'Voir le dossier complet',
+                                          onPressed: () => showCandidateDossier(
+                                            context,
+                                            api,
+                                            '${v['id']}',
+                                          ),
+                                          icon: const Icon(
+                                            Icons.folder_open,
+                                            size: 18,
+                                          ),
+                                        ),
                                       IconButton(
                                         tooltip: 'Retirer de la comparaison',
                                         onPressed: c.saving

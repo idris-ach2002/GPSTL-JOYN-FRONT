@@ -100,21 +100,23 @@ class ProfileLinks {
 /// Photo de profil choisie par l'étudiant·e.
 @immutable
 class ProfilePhoto {
-  const ProfilePhoto({required this.bytes, required this.fileName});
+  const ProfilePhoto({required this.bytes, required this.fileName, this.url});
 
   /// Contenu de l'image (JPG, PNG ou WebP).
   final Uint8List bytes;
+  final String? url;
   final String fileName;
 }
 
 @immutable
 class ProfileCv {
-  const ProfileCv({required this.fileName, this.updatedLabel = ''});
+  const ProfileCv({required this.fileName, this.updatedLabel = '', this.bytes});
 
   final String fileName;
 
   /// Date déjà mise en forme : « Mis à jour il y a 3 jours ».
   final String updatedLabel;
+  final Uint8List? bytes;
 }
 
 @immutable
@@ -204,6 +206,8 @@ class StudentProfile {
     this.headline = '',
     this.city = '',
     this.email = '',
+    this.phone = '',
+    this.address = '',
     this.bio = '',
     this.educations = const [],
     this.experiences = const [],
@@ -229,6 +233,8 @@ class StudentProfile {
   final String headline;
   final String city;
   final String email;
+  final String phone;
+  final String address;
 
   /// Présentation libre (400 caractères max).
   final String bio;
@@ -271,6 +277,8 @@ class StudentProfile {
     String? headline,
     String? city,
     String? email,
+    String? phone,
+    String? address,
     String? bio,
     List<ProfileEducation>? educations,
     List<ProfileExperience>? experiences,
@@ -289,6 +297,8 @@ class StudentProfile {
       headline: headline ?? this.headline,
       city: city ?? this.city,
       email: email ?? this.email,
+      phone: phone ?? this.phone,
+      address: address ?? this.address,
       bio: bio ?? this.bio,
       educations: educations ?? this.educations,
       experiences: experiences ?? this.experiences,

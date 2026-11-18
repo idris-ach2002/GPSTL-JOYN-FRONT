@@ -1,3 +1,5 @@
+import '../../../admin/presentation/shared/admin_bulk_actions.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -51,22 +53,22 @@ class _AdminCompaniesView extends StatelessWidget {
                     children: [
                       AdminPageHeader(
                         title: 'Entreprises',
-                        subtitle: 'Valider, modifier et modérer les entreprises enregistrées.',
+                        subtitle:
+                            'Modifier et modérer les entreprises enregistrées.',
                         actions: [
-                          if (controller.canEditCompanies)
-                            FilledButton.icon(
-                              key: const ValueKey('admin-add-company'),
-                              style: FilledButton.styleFrom(
-                                backgroundColor: AdminShell.sidebarColor,
-                                minimumSize: const Size(0, 40),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                ),
+                          FilledButton.icon(
+                            key: const ValueKey('admin-add-company'),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: AdminShell.sidebarColor,
+                              minimumSize: const Size(0, 40),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
                               ),
-                              onPressed: () => handler.create(context),
-                              icon: const Icon(Icons.add_rounded, size: 18),
-                              label: const Text('Ajouter une entreprise'),
                             ),
+                            onPressed: () => handler.create(context),
+                            icon: const Icon(Icons.add_rounded, size: 18),
+                            label: const Text('Ajouter une entreprise'),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 20),
@@ -74,6 +76,15 @@ class _AdminCompaniesView extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(12, 10, 12, 0),
+                              child: AdminBulkActions(
+                                kind: 'companies',
+                                selection: controller,
+                                export: controller.exportRows,
+                                reload: controller.load,
+                              ),
+                            ),
                             Padding(
                               padding: const EdgeInsets.all(12),
                               child: _Toolbar(controller: controller),
@@ -279,9 +290,16 @@ class _TableArea extends StatelessWidget {
           constraints: BoxConstraints(minWidth: constraints.maxWidth),
           child: AdminTableTheme(
             child: DataTable(
-              sortColumnIndex: sort.byName ? 0 : 3,
+              sortColumnIndex: sort.byName ? 1 : 4,
               sortAscending: sort.ascending,
+              columnSpacing: 26,
               columns: [
+                DataColumn(
+                  label: AdminSelectionCheckbox(
+                    selection: controller,
+                    visibleIds: [for (final item in companies) item.id],
+                  ),
+                ),
                 DataColumn(
                   label: const Text('ENTREPRISE'),
                   onSort: (_, ascending) => controller.setSort(
@@ -302,7 +320,17 @@ class _TableArea extends StatelessWidget {
               rows: [
                 for (final company in companies)
                   DataRow(
+                    key: ValueKey(company.id),
+                    selected: controller.selected(company.id),
                     cells: [
+                      DataCell(
+                        Checkbox(
+                          semanticLabel: 'Sélectionner ${company.name}',
+                          value: controller.selected(company.id),
+                          onChanged: (value) =>
+                              controller.select(company.id, value == true),
+                        ),
+                      ),
                       DataCell(
                         Row(
                           mainAxisSize: MainAxisSize.min,

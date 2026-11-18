@@ -49,7 +49,11 @@ void main() {
     final app = await setup(tester, '/recruiter/dashboard');
     await tester.tap(find.byTooltip('Personnaliser le dashboard'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Mes prochaines actions'));
+    await tester.tap(
+      find.byWidgetPredicate(
+        (widget) => widget is CheckedPopupMenuItem && widget.value == 'actions',
+      ),
+    );
     await tester.pumpAndSettle();
     expect(find.text('Votre prochaine bonne décision.'), findsNothing);
     await tester.tap(find.text('Tout afficher'));

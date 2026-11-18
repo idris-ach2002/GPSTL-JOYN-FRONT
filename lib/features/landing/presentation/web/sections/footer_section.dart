@@ -97,7 +97,7 @@ class FooterSection extends StatelessWidget {
                   style: TextStyle(color: AppColors.blueGreyDark, fontSize: 12),
                 );
                 const signature = Text(
-                  'Fait pour les alternants, par des alternants.',
+                  'Des talents, des rencontres, des opportunités.',
                   style: TextStyle(color: AppColors.blueGreyDark, fontSize: 12),
                 );
                 if (constraints.maxWidth < 700) {

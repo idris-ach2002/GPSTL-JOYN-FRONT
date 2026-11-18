@@ -10,6 +10,8 @@ class RecommendedOffer {
     required this.compatibility,
     this.location = '',
     this.commuteMinutes,
+    this.distanceKm,
+    this.remotePolicy,
     this.rhythm = '',
     this.remoteDays,
     this.monthlySalary,
@@ -34,6 +36,8 @@ class RecommendedOffer {
 
   /// Temps de trajet estimé depuis le domicile du candidat.
   final int? commuteMinutes;
+  final double? distanceKm;
+  final String? remotePolicy;
 
   /// Rythme d'alternance (ex. « 3 sem / 1 sem »).
   final String rhythm;
@@ -130,10 +134,17 @@ enum SwipeDecision {
 
 /// Préférences qui filtrent les recommandations (pastilles en haut de page).
 class DiscoverFilters {
-  const DiscoverFilters({this.rhythm, this.location});
+  const DiscoverFilters({
+    this.rhythm,
+    this.location,
+    this.contractType,
+    this.remote,
+  });
 
   final String? rhythm;
   final String? location;
+  final String? contractType;
+  final String? remote;
 
   Map<String, String?> toQueryParameters() => {
     'rhythm': rhythm,

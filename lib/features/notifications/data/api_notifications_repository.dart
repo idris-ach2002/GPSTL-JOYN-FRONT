@@ -18,21 +18,31 @@ class ApiNotificationsRepository implements NotificationsRepository {
 
   @override
   Future<NotificationPage> fetch({int limit = 30}) async {
-    final json = await _api.getJson(
-      basePath,
-      query: {'page': '1', 'limit': '${limit.clamp(1, 50)}'},
-    );
-    final root = _asMap(json);
-    final body = root['data'] is Map<String, dynamic>
-        ? root['data'] as Map<String, dynamic>
-        : root;
-    final items = body['notifications'] ?? body['items'] ?? body['content'];
-    return NotificationPage(
-      items: (items is List ? items : const [])
-          .map((e) => map(_asMap(e)))
-          .toList(),
-      unreadCount: _int(body['unreadCount'] ?? body['unread_count']),
-    );
+    final all = <AppNotification>[];
+    var unread = 0;
+    for (var page = 1; ; page++) {
+      final root = _asMap(
+        await _api.getJson(
+          basePath,
+          query: {'page': '$page', 'limit': '${limit.clamp(1, 50)}'},
+        ),
+      );
+      final body = root['data'] is Map<String, dynamic>
+          ? root['data'] as Map<String, dynamic>
+          : root;
+      final items = body['notifications'] ?? body['items'] ?? body['content'];
+      all.addAll((items is List ? items : const []).map((e) => map(_asMap(e))));
+      unread = _int(body['unreadCount'] ?? body['unread_count']);
+      if (page >= _int(body['totalPages']) || items is! List || items.isEmpty) {
+        break;
+      }
+    }
+    return NotificationPage(items: all, unreadCount: unread);
+  }
+
+  @override
+  Future<void> markUnread(String id) async {
+    await _api.patchJson('$basePath/$id/unread');
   }
 
   @override

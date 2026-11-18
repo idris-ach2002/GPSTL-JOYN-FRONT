@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -11,7 +13,28 @@ void main() {
     () async {
       final calls = <String>[];
       final client = MockClient((request) async {
-        calls.add(request.url.path);
+        calls.add('${request.method} ${request.url.path}');
+        if (request.url.path == '/api/v1/candidates/workspace') {
+          expect(request.method, 'GET');
+          return http.Response('{"bookmarks":[]}', 200);
+        }
+        if (request.url.path == '/api/v1/candidates/workspace/offers/27') {
+          if (request.method == 'PUT') {
+            expect(jsonDecode(request.body), {
+              'state': 'INTERESTED',
+              'collection_name': 'À postuler',
+            });
+            return http.Response(
+              '{"job_offer_id":27,"state":"INTERESTED"}',
+              200,
+            );
+          }
+          expect(request.method, 'DELETE');
+          return http.Response('', 204);
+        }
+        if (request.url.path.endsWith('/candidates/profile')) {
+          return http.Response('{"skills":["Figma"]}', 200);
+        }
         if (request.url.path.endsWith('/companies/12')) {
           return http.Response(
             '{"id":12,"name":"Maison Solutions","sector":"Design"}',
@@ -20,6 +43,8 @@ void main() {
         }
         expect(request.url.path, '/api/v1/candidates/recommendations');
         expect(request.url.queryParameters['location'], 'Paris');
+        expect(request.url.queryParameters['contract_type'], 'INTERNSHIP');
+        expect(request.url.queryParameters['remote'], 'HYBRID');
         return http.Response('''{
         "content":[{"offer":{"id":27,"company_id":12,"title":"Designer UX",
            "contract_type":"INTERNSHIP","location":"Paris","salary_period":"MONTH",
@@ -31,20 +56,35 @@ void main() {
         ApiClient(baseUrl: 'https://api.joyn.test', httpClient: client),
       );
       final feed = await repo.fetchFeed(
-        filters: const DiscoverFilters(location: 'Paris'),
+        filters: const DiscoverFilters(
+          location: 'Paris',
+          contractType: 'INTERNSHIP',
+          remote: 'HYBRID',
+        ),
       );
       expect(feed.offers.single.company.name, 'Maison Solutions');
       expect(feed.offers.single.compatibility, 92);
       expect(feed.offers.single.monthlySalary, 1450);
       expect(calls, [
-        '/api/v1/candidates/recommendations',
-        '/api/v1/companies/12',
+        'GET /api/v1/candidates/workspace',
+        'GET /api/v1/candidates/recommendations',
+        'GET /api/v1/candidates/profile',
+        'GET /api/v1/companies/12',
       ]);
       await repo.submitDecision('27', SwipeDecision.interested);
       expect(repo.interests.items.single.offerId, '27');
       await repo.cancelDecision('27');
       expect(repo.interests.items, isEmpty);
-      expect(calls.length, 2); // Swipe local = no invented backend route.
+      expect(feed.offers.single.skills.first.matched, isTrue);
+      expect(feed.offers.single.skills.last.matched, isFalse);
+      expect(calls, [
+        'GET /api/v1/candidates/workspace',
+        'GET /api/v1/candidates/recommendations',
+        'GET /api/v1/candidates/profile',
+        'GET /api/v1/companies/12',
+        'PUT /api/v1/candidates/workspace/offers/27',
+        'DELETE /api/v1/candidates/workspace/offers/27',
+      ]); // Swipe enregistré et annulé via les routes réelles.
     },
   );
 
@@ -55,10 +95,10 @@ void main() {
       'companyName': 'Mobilis',
       'score': 140,
       'skills': ['SQL'],
-      'matching': {'skills': 80, 'location': 50},
+      'matching': {'skills': 80, 'location': 50, 'distance_km': 194.86},
     });
     expect(offer.compatibility, 100);
     expect(offer.skills.single.name, 'SQL');
-    expect(offer.criteria.map((c) => c.label), ['Technos', 'Trajet']);
+    expect(offer.criteria.map((c) => c.label), ['Compétences', 'Trajet']);
   });
 }

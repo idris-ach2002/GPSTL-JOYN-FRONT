@@ -82,7 +82,7 @@ class ProfileLivePreview extends StatelessWidget {
                       ),
                       const SizedBox(height: 3),
                       const Text(
-                        "Étudiant·e · en recherche d'alternance",
+                        "Candidat·e · en recherche d’opportunités",
                         style: TextStyle(fontSize: 13, color: AppColors.slate),
                       ),
                     ],

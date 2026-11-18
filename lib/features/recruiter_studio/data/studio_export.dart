@@ -3,7 +3,7 @@ import 'dart:convert';
 String studioCsv(List<List<Object?>> rows) =>
     '\uFEFF${rows.map((row) => row.map((v) {
       var text = '${v ?? ''}';
-      if (RegExp(r'^[=+@\-\t\r]').hasMatch(text)) text = "'$text";
+      if (RegExp(r'^[\s\uFEFF]*[=+@-]|^[\t\r\n]').hasMatch(text)) text = "'$text";
       return '"${text.replaceAll('"', '""')}"';
     }).join(';')).join('\r\n')}';
 String studioCalendar(List<Map<String, dynamic>> events, {DateTime? stamp}) {

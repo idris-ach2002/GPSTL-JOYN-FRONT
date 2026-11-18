@@ -45,6 +45,10 @@ class DiscoverController extends ChangeNotifier {
 
   DiscoverFilters _filters = const DiscoverFilters();
   DiscoverFilters get filters => _filters;
+  Future<void> applyFilters(DiscoverFilters value) async {
+    _filters = value;
+    await load();
+  }
 
   int _totalCompatible = 0;
 
@@ -63,19 +67,23 @@ class DiscoverController extends ChangeNotifier {
       _history.where((e) => e.decision == SwipeDecision.save).length;
 
   bool _disposed = false;
+  int _loadVersion = 0;
 
   Future<void> load() async {
+    final version = ++_loadVersion;
     _status = DiscoverStatus.loading;
     _errorMessage = null;
     _notify();
     try {
       final feed = await _repository.fetchFeed(filters: _filters);
+      if (_disposed || version != _loadVersion) return;
       _offers = [...feed.offers];
       _filters = feed.filters;
       _totalCompatible = feed.totalCompatible;
       _history.clear();
       _status = DiscoverStatus.ready;
     } catch (_) {
+      if (_disposed || version != _loadVersion) return;
       _errorMessage = 'Impossible de charger vos offres recommandées.';
       _status = DiscoverStatus.error;
     }

@@ -1,3 +1,5 @@
+import '../../../../core/network/api_client.dart';
+import '../../../recruiter_workspace/presentation/candidate_dossier.dart';
 import '../../../recruiter_studio/presentation/studio_talents.dart';
 import '../../../recruiter_studio/presentation/studio_components.dart';
 
@@ -6,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/routing/app_routes.dart';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../design_system/tokens/app_colors.dart';
 import '../../domain/recruiter_candidate_models.dart';
@@ -284,7 +287,7 @@ class CandidateDeckCard extends StatelessWidget {
         Text(
           candidate.summary,
           style: TextStyle(
-            color: StudioColors.text(context, Color(0xFF43586B)),
+            color: StudioColors.text(context, const Color(0xFF43586B)),
             fontSize: 13,
             height: 1.5,
           ),
@@ -576,9 +579,19 @@ Future<void> showCandidateProfileDialog(
                 );
               },
               icon: const Icon(Icons.chat_bubble_outline),
-              label: const Text('Contacter ce candidat'),
+              label: const Text('Envoyer un message'),
             ),
             const SizedBox(height: 16),
+            if ((candidate.profileId, context.read<ApiClient?>()) case (
+              final String _,
+              final ApiClient api,
+            ))
+              OutlinedButton.icon(
+                onPressed: () =>
+                    showCandidateDossier(context, api, candidate.id),
+                icon: const Icon(Icons.folder_open),
+                label: const Text('Voir le dossier complet'),
+              ),
             CandidateStudioPanel(candidate: candidate),
             const SizedBox(height: 16),
             CandidateMatchPanel(candidate: candidate),
@@ -595,7 +608,7 @@ Future<void> showCandidateProfileDialog(
             Text(
               candidate.summary,
               style: TextStyle(
-                color: StudioColors.text(context, Color(0xFF43586B)),
+                color: StudioColors.text(context, const Color(0xFF43586B)),
                 height: 1.5,
               ),
             ),
@@ -663,7 +676,7 @@ class ReciprocalMatchDialog extends StatelessWidget {
           );
         },
         icon: const Icon(Icons.chat_bubble_outline_rounded),
-        label: const Text('Contacter'),
+        label: const Text('Envoyer un message'),
       ),
     ],
   );
@@ -838,7 +851,7 @@ class _InfoPill extends StatelessWidget {
     child: Text(
       text,
       style: TextStyle(
-        color: StudioColors.text(context, Color(0xFF53697C)),
+        color: StudioColors.text(context, const Color(0xFF53697C)),
         fontSize: 10.5,
         fontWeight: FontWeight.w600,
       ),
@@ -915,7 +928,7 @@ class _ReasonLine extends StatelessWidget {
           child: Text(
             text,
             style: TextStyle(
-              color: StudioColors.text(context, Color(0xFF53697C)),
+              color: StudioColors.text(context, const Color(0xFF53697C)),
               fontSize: 11.5,
               height: 1.35,
             ),

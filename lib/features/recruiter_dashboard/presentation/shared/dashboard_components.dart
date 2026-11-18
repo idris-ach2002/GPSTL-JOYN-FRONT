@@ -1,3 +1,7 @@
+import 'package:provider/provider.dart';
+
+import '../../../auth/presentation/auth_controller.dart';
+
 import 'package:joyn_front/design_system/components/joyn_logo.dart';
 
 import '../../../recruiter_studio/presentation/studio_search.dart';
@@ -640,6 +644,11 @@ class RecruiterMobileHeaderBar extends StatelessWidget {
     children: [
       const JoynLogo(onDark: true, markSize: 30),
       const Spacer(),
+      IconButton(
+        tooltip: 'Se déconnecter',
+        onPressed: () => context.read<AuthController>().signOut(),
+        icon: const Icon(Icons.logout, color: Colors.white),
+      ),
       const _MobileHeaderIcon(icon: Icons.notifications_none_rounded),
       const SizedBox(width: 7),
       const _MobileHeaderIcon(icon: Icons.search_rounded),
@@ -651,7 +660,7 @@ class RecruiterMobileHeaderBar extends StatelessWidget {
           backgroundColor: StudioColors.background(context, Colors.white),
           child: Icon(
             Icons.person_outline,
-            color: StudioColors.text(context, Color(0xFF001E3B)),
+            color: StudioColors.text(context, const Color(0xFF001E3B)),
             size: 20,
           ),
         ),

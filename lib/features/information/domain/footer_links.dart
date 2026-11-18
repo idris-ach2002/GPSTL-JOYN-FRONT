@@ -12,7 +12,7 @@ const footerLinks = <String, Map<String, String>>{
     'Tarifs': '/tarifs',
   },
   'Ressources': {
-    'Guide de l’alternance': '/guide-alternance',
+    'Guide de la recherche d’emploi': '/guide-alternance',
     'Questions fréquentes': '/questions-frequentes',
     'Centre d’aide': '/contact',
   },

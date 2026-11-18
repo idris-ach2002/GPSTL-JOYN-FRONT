@@ -6,6 +6,7 @@ abstract interface class NotificationsRepository {
   Future<NotificationPage> fetch({int limit = 30});
 
   Future<void> markRead(String id);
+  Future<void> markUnread(String id);
 
   Future<void> markAllRead();
 

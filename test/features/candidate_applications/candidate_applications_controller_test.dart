@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:joyn_front/features/candidate_applications/data/candidate_applications_repository.dart';
@@ -49,8 +51,12 @@ class _FailingRepository implements CandidateApplicationsRepository {
       throw Exception('hors ligne');
 
   @override
-  Future<CandidateApplication> sendApplication(String applicationId) =>
-      throw Exception('hors ligne');
+  Future<CandidateApplication> sendApplication(
+    String applicationId, {
+    String? coverMessage,
+    Uint8List? coverPdf,
+    String? coverPdfName,
+  }) => throw Exception('hors ligne');
 }
 
 void main() {

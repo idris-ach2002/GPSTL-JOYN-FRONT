@@ -23,17 +23,34 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
   Future<DiscoverFeed> fetchFeed({
     DiscoverFilters filters = const DiscoverFilters(),
   }) async {
+    // Restore the authenticated candidate's persisted decisions first.
+    final workspace = _asMap(
+      await _api.getJson('/api/v1/candidates/workspace'),
+    );
+    interests.restore(_asList(workspace['bookmarks']));
     final json = await _api.getJson(
       basePath,
       query: {
         'page': '1',
         'limit': '50',
+        'contract_type': filters.contractType,
+        'remote': filters.remote,
         if (filters.rhythm != null) 'rhythm_type': filters.rhythm,
         if (filters.location != null) 'location': filters.location,
       },
     );
     final root = _unwrap(_asMap(json));
     final offerRows = _asList(root['content']);
+    Set<String>? profileSkills;
+    try {
+      final profile = _asMap(await _api.getJson('/api/v1/candidates/profile'));
+      profileSkills = _asList(profile['skills'])
+          .whereType<String>()
+          .map((s) => s.trim().toLowerCase())
+          .toSet();
+    } catch (_) {
+      // The feed remains usable; no acquired skills are claimed without the profile.
+    }
     final mapped = <RecommendedOffer>[];
     final companies = <String, Map<String, dynamic>>{};
     for (final row in offerRows) {
@@ -52,6 +69,15 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
       }
       final merged = {
         ...job,
+        'skills': [
+          for (final skill in _asList(job['skills']))
+            {
+              'name': '$skill',
+              'matched':
+                  profileSkills?.contains('$skill'.trim().toLowerCase()) ==
+                  true,
+            },
+        ],
         'match_score': envelope['match_score'],
         'score_breakdown': envelope['score_breakdown'],
         'company': companies[companyId] ?? const <String, dynamic>{},
@@ -71,6 +97,19 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
   Future<void> submitDecision(String offerId, SwipeDecision decision) async {
     final offer = _knownOffers[offerId];
     if (offer == null) throw StateError('Offre introuvable dans le flux.');
+    await _api.putJson(
+      '/api/v1/candidates/workspace/offers/$offerId',
+      body: {
+        'state': switch (decision) {
+          SwipeDecision.interested => 'INTERESTED',
+          SwipeDecision.save => 'SAVED',
+          SwipeDecision.skip => 'HIDDEN',
+        },
+        'collection_name': decision == SwipeDecision.save
+            ? 'Plus tard'
+            : 'À postuler',
+      },
+    );
     if (decision == SwipeDecision.interested) {
       interests.interested(
         offerId,
@@ -78,13 +117,13 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
         companyName: offer.company.name,
       );
     } else {
-      // Save and pass are visual session-local actions (no backend endpoint).
       interests.hide(offerId);
     }
   }
 
   @override
   Future<void> cancelDecision(String offerId) async {
+    await _api.deleteJson('/api/v1/candidates/workspace/offers/$offerId');
     interests.undo(offerId);
   }
 
@@ -122,7 +161,7 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
         sector: _string(company['sector']),
         headcount: _nullableInt(company['headcount'] ?? company['size']),
         city: _string(company['city'] ?? json['location']),
-        logoUrl: _nullableString(company['logoUrl']),
+        logoUrl: _nullableString(company['logoUrl'] ?? company['logo_url']),
       ),
       compatibility: _int(
         json['match_score'] ??
@@ -132,6 +171,8 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
       ).clamp(0, 100),
       location: _string(json['location']),
       commuteMinutes: _nullableInt(json['commuteMinutes']),
+      distanceKm: double.tryParse('${_asMap(criteria)['distance_km'] ?? ''}'),
+      remotePolicy: _nullableString(json['remote_policy']),
       rhythm: _string(json['rhythm_type'] ?? json['rhythm']),
       remoteDays: _nullableInt(json['remoteDays']),
       monthlySalary: _nullableInt(
@@ -170,15 +211,16 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
     final map = _asMap(value);
     return [
       for (final entry in map.entries)
-        MatchCriterion(
-          label: _criterionLabels[entry.key] ?? entry.key,
-          score: _int(entry.value).clamp(0, 100),
-        ),
+        if (_criterionLabels.containsKey(entry.key) && entry.value != null)
+          MatchCriterion(
+            label: _criterionLabels[entry.key] ?? entry.key,
+            score: _int(entry.value).clamp(0, 100),
+          ),
     ];
   }
 
   static const Map<String, String> _criterionLabels = {
-    'skills': 'Technos',
+    'skills': 'Compétences',
     'education': 'Formation & niveau',
     'experience': 'Expérience',
     'availability': 'Disponibilité',

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -56,42 +57,115 @@ void main() {
     },
   );
 
-  test('Intéressé reste local, puis POST réel de candidature', () async {
-    final interests = PendingInterestsStore();
-    interests.interested(
-      '27',
-      title: 'UX designer',
-      companyName: 'Maison Solutions',
-    );
-    final calls = <String>[];
-    final client = MockClient((request) async {
-      calls.add('${request.method} ${request.url.path}');
-      if (request.method == 'POST') {
-        expect(jsonDecode(request.body), {'jobOfferId': 27});
-        return http.Response(
-          '{"id":99,"jobOfferId":27,"status":"PENDING"}',
-          201,
-          headers: {'content-type': 'application/json'},
-        );
-      }
-      return http.Response(
-        '{"content":[],"page":1,"totalPages":1,"totalElements":0}',
-        200,
-        headers: {'content-type': 'application/json'},
+  test(
+    'Intéressé restauré depuis le backend, puis POST réel de candidature',
+    () async {
+      final interests = PendingInterestsStore();
+      interests.interested(
+        '27',
+        title: 'UX designer',
+        companyName: 'Maison Solutions',
       );
-    });
-    final repo = ApiCandidateApplicationsRepository(
-      ApiClient(baseUrl: 'https://api.joyn.test', httpClient: client),
+      final calls = <String>[];
+      final client = MockClient((request) async {
+        calls.add('${request.method} ${request.url.path}');
+        if (request.url.path == '/api/v1/candidates/applications') {
+          expect(request.method, 'GET');
+          return http.Response(
+            '{"content":[],"page":1,"totalPages":1,"totalElements":0}',
+            200,
+            headers: {'content-type': 'application/json'},
+          );
+        }
+        if (request.url.path == '/api/v1/candidates/workspace') {
+          expect(request.method, 'GET');
+          return http.Response(
+            '{"bookmarks":[{"job_offer_id":27,"state":"INTERESTED",'
+            '"title":"UX designer","company_name":"Maison Solutions"}]}',
+            200,
+            headers: {'content-type': 'application/json'},
+          );
+        }
+        if (request.url.path == '/api/v1/applications') {
+          expect(request.method, 'POST');
+          expect(jsonDecode(request.body), {'jobOfferId': 27});
+          return http.Response(
+            '{"id":99,"jobOfferId":27,"status":"PENDING"}',
+            201,
+            headers: {'content-type': 'application/json'},
+          );
+        }
+        expect(request.url.path, '/api/v1/candidates/workspace/offers/27');
+        expect(request.method, 'DELETE');
+        return http.Response('', 204);
+      });
+      final repo = ApiCandidateApplicationsRepository(
+        ApiClient(baseUrl: 'https://api.joyn.test', httpClient: client),
+        interests: interests,
+      );
+      final before = await repo.fetchApplications();
+      expect(before.items.single.status, ApplicationStatus.interested);
+      await repo.sendApplication(before.items.single.id);
+      expect(interests.items, isEmpty);
+      expect(calls, [
+        'GET /api/v1/candidates/applications',
+        'GET /api/v1/candidates/workspace',
+        'POST /api/v1/applications',
+        'DELETE /api/v1/candidates/workspace/offers/27',
+      ]);
+    },
+  );
+
+  test('transmet une lettre éditée ou un PDF avec la candidature', () async {
+    final interests = PendingInterestsStore();
+    for (final id in ['11', '12']) {
+      interests.interested(id, title: 'Offre $id', companyName: 'JOYN');
+    }
+    final repository = ApiCandidateApplicationsRepository(
+      ApiClient(
+        baseUrl: 'https://api.joyn.test',
+        httpClient: MockClient((request) async {
+          if (request.method == 'DELETE') {
+            expect(
+              request.url.path,
+              startsWith('/api/v1/candidates/workspace/offers/'),
+            );
+            return http.Response('', 204);
+          }
+          expect(request.method, 'POST');
+          expect(request.url.path, '/api/v1/applications');
+          if (request.headers['content-type']!.startsWith('application/json')) {
+            expect(jsonDecode(request.body), {
+              'jobOfferId': 11,
+              'coverMessage': 'Lettre adaptée',
+            });
+          } else {
+            expect(
+              request.headers['content-type'],
+              startsWith('multipart/form-data;'),
+            );
+            expect(request.body, contains('name="jobOfferId"'));
+            expect(
+              request.body,
+              contains('name="coverPdf"; filename="lettre.pdf"'),
+            );
+            expect(request.body, contains('%PDF'));
+          }
+          return http.Response('{"id":99,"status":"PENDING"}', 201);
+        }),
+      ),
       interests: interests,
     );
-    final before = await repo.fetchApplications();
-    expect(before.items.single.status, ApplicationStatus.interested);
-    await repo.sendApplication(before.items.single.id);
+    await repository.sendApplication(
+      'local-interest-11',
+      coverMessage: 'Lettre adaptée',
+    );
+    await repository.sendApplication(
+      'local-interest-12',
+      coverPdf: Uint8List.fromList('%PDF'.codeUnits),
+      coverPdfName: 'lettre.pdf',
+    );
     expect(interests.items, isEmpty);
-    expect(calls, [
-      'GET /api/v1/candidates/applications',
-      'POST /api/v1/applications',
-    ]);
   });
 
   // La route existe désormais dans le Swagger du back (tag « Messaging »).

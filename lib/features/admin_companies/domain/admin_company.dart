@@ -96,6 +96,7 @@ class AdminCompany {
     String? address,
     String? website,
     CompanyLogo? logo,
+    bool clearLogo = false,
     CompanyStatus? status,
     String? statusReason,
   }) {
@@ -107,7 +108,7 @@ class AdminCompany {
       city: city ?? this.city,
       address: address ?? this.address,
       website: website ?? this.website,
-      logo: logo ?? this.logo,
+      logo: clearLogo ? null : logo ?? this.logo,
       createdAt: createdAt,
       status: status ?? this.status,
       recruiterName: recruiterName,

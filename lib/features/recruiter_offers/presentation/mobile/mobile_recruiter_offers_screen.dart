@@ -82,9 +82,7 @@ class MobileRecruiterOffersScreen extends StatelessWidget {
                                       offer.companyId,
                                     ),
                                     onTap: () => context.go(
-                                      AppRoutes.recruiterDashboardOffer(
-                                        offer.id,
-                                      ),
+                                      AppRoutes.recruiterJobDetail(offer.id),
                                     ),
                                     onEdit: () => context.go(
                                       AppRoutes.recruiterJobEdit(offer.id),

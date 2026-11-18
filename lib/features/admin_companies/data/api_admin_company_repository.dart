@@ -101,16 +101,98 @@ class ApiAdminCompanyRepository implements AdminCompanyRepository {
       throw const AdminCompanyException(
         'Création d’entreprise non disponible dans cette API.',
       );
+  Future<AdminCompany> fetchCompany(String id) async {
+    final old = _cached[id];
+    if (old == null) throw const AdminCompanyException('Actualisez la liste.');
+    final j = _map(
+      await api.getJson(
+        '/api/v1/companies/$id',
+        query: {'include_jobs': 'false'},
+      ),
+    );
+    final detail = old.copyWith(
+      name: j['name']?.toString(),
+      address: j['address']?.toString(),
+      website: j['website']?.toString(),
+      sector: j['sector']?.toString(),
+      logo: j['logoUrl'] == null ? null : CompanyLogo(url: '${j['logoUrl']}'),
+      clearLogo: j['logoUrl'] == null,
+    );
+    _cached[id] = detail;
+    return detail;
+  }
+
   @override
-  Future<AdminCompany> updateCompany(String id, CompanyDraft draft) async =>
-      throw const AdminCompanyException(
-        'Modification d’entreprise non disponible dans cette API.',
+  Future<AdminCompany> updateCompany(String id, CompanyDraft draft) async {
+    try {
+      final old = _cached[id];
+      if (old == null) {
+        throw const AdminCompanyException(
+          'Actualisez les entreprises avant de modifier.',
+        );
+      }
+      if (draft.siret != old.siret || draft.city != old.city) {
+        throw const AdminCompanyException(
+          'Le SIRET et la ville ne sont pas modifiables ici. Utilisez le champ adresse.',
+        );
+      }
+      await api.patchJson(
+        '/api/v1/companies/$id',
+        body: {
+          'name': draft.name,
+          'sector': draft.sector,
+          'website': draft.website,
+          'address': draft.address,
+        },
       );
+      if (draft.logo?.bytes != null) {
+        await api.sendMultipart(
+          'PUT',
+          '/api/v1/companies/$id/logo',
+          fileField: 'file',
+          fileBytes: draft.logo!.bytes,
+          fileName: draft.logo!.fileName,
+        );
+      } else if (draft.logo == null && old.logo != null) {
+        await api.deleteJson('/api/v1/companies/$id/logo');
+      }
+      final detail = _map(
+        await api.getJson(
+          '/api/v1/companies/$id',
+          query: {'include_jobs': 'false'},
+        ),
+      );
+      final updated = old.copyWith(
+        name: draft.name,
+        sector: draft.sector,
+        website: draft.website,
+        address: draft.address,
+        logo: detail['logoUrl'] == null
+            ? null
+            : CompanyLogo(url: '${detail['logoUrl']}'),
+        clearLogo: detail['logoUrl'] == null,
+      );
+      _cached[id] = updated;
+      return updated;
+    } on ApiException catch (e) {
+      throw AdminCompanyException(
+        'Modification incomplète ou refusée (${e.statusCode ?? 'réseau'}). Actualisez avant de réessayer.',
+      );
+    }
+  }
+
   @override
-  Future<void> deleteCompany(String id) async =>
-      throw const AdminCompanyException(
-        'Suppression d’entreprise non disponible dans cette API.',
+  Future<void> deleteCompany(String id) async {
+    try {
+      await api.deleteJson('/api/v1/companies/$id');
+      _cached.remove(id);
+    } on ApiException catch (e) {
+      throw AdminCompanyException(
+        'Suppression refusée (${e.statusCode ?? 'réseau'}).',
+        statusCode: e.statusCode,
       );
+    }
+  }
 
   Map<String, dynamic> _map(Object? v) =>
       v is Map ? Map<String, dynamic>.from(v) : <String, dynamic>{};

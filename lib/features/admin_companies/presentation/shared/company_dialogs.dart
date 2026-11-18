@@ -37,11 +37,13 @@ Future<CompanyDraft?> showCompanyFormDialog(
   BuildContext context, {
   required CompanyLogoPicker logoPicker,
   AdminCompany? initial,
+  bool connected = false,
 }) {
   return _showAdaptiveDialog<CompanyDraft>(
     context,
     (context, fullscreen) => _CompanyFormDialog(
       initial: initial,
+      connected: connected,
       logoPicker: logoPicker,
       fullscreen: fullscreen,
     ),
@@ -51,11 +53,13 @@ Future<CompanyDraft?> showCompanyFormDialog(
 class _CompanyFormDialog extends StatefulWidget {
   const _CompanyFormDialog({
     required this.initial,
+    this.connected = false,
     required this.logoPicker,
     required this.fullscreen,
   });
 
   final AdminCompany? initial;
+  final bool connected;
   final CompanyLogoPicker logoPicker;
   final bool fullscreen;
 
@@ -74,7 +78,6 @@ class _CompanyFormDialogState extends State<_CompanyFormDialog> {
   late final _website = TextEditingController(text: widget.initial?.website);
   late String? _sector = widget.initial?.sector;
   late CompanyLogo? _logo = widget.initial?.logo;
-  CompanyStatus _initialStatus = CompanyStatus.pending;
   String? _logoError;
 
   bool get _editing => widget.initial != null;
@@ -112,14 +115,12 @@ class _CompanyFormDialogState extends State<_CompanyFormDialog> {
         address: _address.text.trim(),
         website: CompanyValidators.normalizeWebsite(_website.text),
         logo: _logo,
-        initialStatus: _initialStatus,
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
     final title = _editing ? "Modifier l'entreprise" : 'Ajouter une entreprise';
     final name = _name.text.trim();
 
@@ -184,9 +185,12 @@ class _CompanyFormDialogState extends State<_CompanyFormDialog> {
           TextFormField(
             key: const ValueKey('company-form-siret'),
             controller: _siret,
+            readOnly: widget.connected,
             keyboardType: TextInputType.number,
             inputFormatters: const [_SiretFormatter()],
-            validator: (value) => CompanyValidators.siretError(value ?? ''),
+            validator: (value) => widget.connected
+                ? null
+                : CompanyValidators.siretError(value ?? ''),
             decoration: const InputDecoration(
               labelText: 'Numéro SIRET',
               hintText: '123 456 789 00012',
@@ -221,9 +225,11 @@ class _CompanyFormDialogState extends State<_CompanyFormDialog> {
           TextFormField(
             key: const ValueKey('company-form-city'),
             controller: _city,
+            readOnly: widget.connected,
             textCapitalization: TextCapitalization.words,
-            validator: (value) =>
-                CompanyValidators.requiredError(value ?? '', 'la ville'),
+            validator: (value) => widget.connected
+                ? null
+                : CompanyValidators.requiredError(value ?? '', 'la ville'),
             decoration: const InputDecoration(labelText: 'Ville'),
           ),
           const SizedBox(height: 14),
@@ -238,17 +244,6 @@ class _CompanyFormDialogState extends State<_CompanyFormDialog> {
               prefixIcon: Icon(Icons.language_rounded, size: 20),
             ),
           ),
-          if (!_editing) ...[
-            const SizedBox(height: 18),
-            Text('Statut initial', style: textTheme.titleSmall),
-            const SizedBox(height: 8),
-            JoynChipGroup<CompanyStatus>.single(
-              options: const [CompanyStatus.pending, CompanyStatus.approved],
-              selected: _initialStatus,
-              labelOf: (status) => status.label,
-              onSelected: (status) => setState(() => _initialStatus = status),
-            ),
-          ],
         ],
       ),
     );

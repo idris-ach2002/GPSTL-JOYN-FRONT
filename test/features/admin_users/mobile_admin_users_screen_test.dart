@@ -41,7 +41,24 @@ void main() {
     );
     expect(find.text('Utilisateurs'), findsOneWidget);
     expect(rows, findsWidgets);
-    expect(find.byTooltip('Ajouter un admin'), findsOneWidget);
+    expect(find.byTooltip('Ajouter un admin'), findsNothing);
+    expect(find.text('Exporter en CSV'), findsOneWidget);
+    expect(find.text('Désélectionner tout'), findsNothing);
+
+    await tester.tap(find.byTooltip('Sélectionner les lignes affichées'));
+    await _settle(tester);
+    expect(
+      controller.selectedIds,
+      containsAll(controller.users.map((user) => user.id)),
+    );
+    controller.select('from-another-page', true);
+    await _settle(tester);
+    await tester.tap(
+      find.byTooltip('Effacer la sélection sur toutes les pages'),
+    );
+    await _settle(tester);
+    expect(controller.selectedIds, isEmpty);
+
     expect(tester.takeException(), isNull);
 
     // Ouvrir le détail du premier compte.

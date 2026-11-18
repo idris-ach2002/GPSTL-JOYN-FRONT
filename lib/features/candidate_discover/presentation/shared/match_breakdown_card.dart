@@ -26,7 +26,9 @@ class MatchBreakdownCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Pourquoi ${offer.compatibility} % ?',
+          offer.criteria.isEmpty
+              ? 'Adéquation à l’offre'
+              : 'Adéquation estimée · ${offer.compatibility} %',
           style: const TextStyle(
             fontFamily: AppFonts.display,
             color: AppColors.textPrimary,
@@ -34,10 +36,22 @@ class MatchBreakdownCard extends StatelessWidget {
             fontWeight: FontWeight.w700,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
+        if (offer.remotePolicy == 'REMOTE')
+          const Text('Télétravail complet')
+        else if (offer.distanceKm != null)
+          Text('${offer.distanceKm!.round()} km à vol d’oiseau'),
+        if (offer.criteria.isNotEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: Text(
+              'Pondération du score · compétences 65, expérience 15, formation 10, disponibilité 10. Les critères manquants sont exclus.',
+              style: TextStyle(fontSize: 11),
+            ),
+          ),
         if (offer.criteria.isEmpty)
           const Text(
-            'Le détail du score sera bientôt disponible.',
+            'Les critères renseignés sont insuffisants pour calculer un score.',
             style: TextStyle(fontFamily: AppFonts.body, color: AppColors.slate),
           ),
         for (final criterion in offer.criteria)
@@ -45,19 +59,20 @@ class MatchBreakdownCard extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 14),
             child: _CriterionBar(criterion: criterion),
           ),
-        TextButton(
-          onPressed: onSkillGap,
-          style: TextButton.styleFrom(
-            padding: EdgeInsets.zero,
-            foregroundColor: AppColors.navy,
-            textStyle: const TextStyle(
-              fontFamily: AppFonts.body,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
+        if (onSkillGap != null)
+          TextButton(
+            onPressed: onSkillGap,
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.zero,
+              foregroundColor: AppColors.navy,
+              textStyle: const TextStyle(
+                fontFamily: AppFonts.body,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
             ),
+            child: const Text('Voir mon Skill Gap →'),
           ),
-          child: const Text('Voir mon Skill Gap →'),
-        ),
       ],
     );
 

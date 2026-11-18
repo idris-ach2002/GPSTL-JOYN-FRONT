@@ -1,3 +1,5 @@
+import 'candidate_dossier.dart';
+
 import 'package:flutter/services.dart';
 
 import '../../recruiter_studio/presentation/studio_controller.dart';
@@ -362,7 +364,11 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
                           ),
                         ),
                       ),
-                      Badge(label: Text('${c.conversations.length}')),
+                      Badge(
+                        backgroundColor: const Color(0xFF235A8A),
+                        textColor: Colors.white,
+                        label: Text('${c.conversations.length}'),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 14),
@@ -425,11 +431,13 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
                             borderRadius: BorderRadius.circular(14),
                           ),
                           selected: _selected?['id'] == item['id'],
-                          selectedTileColor: colors.primary.withValues(
+                          selectedColor: colors.onSurface,
+                          selectedTileColor: colors.onSurface.withValues(
                             alpha: .12,
                           ),
                           leading: CircleAvatar(
-                            backgroundColor: colors.primary.withValues(
+                            foregroundColor: colors.onSurface,
+                            backgroundColor: colors.onSurface.withValues(
                               alpha: .14,
                             ),
                             child: Text(
@@ -452,7 +460,11 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
                             overflow: TextOverflow.ellipsis,
                           ),
                           trailing: (item['unread'] as num? ?? 0) > 0
-                              ? Badge(label: Text('${item['unread']}'))
+                              ? Badge(
+                                  backgroundColor: const Color(0xFF235A8A),
+                                  textColor: Colors.white,
+                                  label: Text('${item['unread']}'),
+                                )
                               : studio.contains(
                                   'pinnedConversations',
                                   '${item['id']}',
@@ -504,7 +516,8 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
                             ),
                           CircleAvatar(
                             radius: 20,
-                            backgroundColor: colors.primary.withValues(
+                            foregroundColor: colors.onSurface,
+                            backgroundColor: colors.onSurface.withValues(
                               alpha: .15,
                             ),
                             child: Text(
@@ -576,6 +589,18 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
                                     candidateId: candidate,
                                     candidateName: name,
                                   );
+                                case 'dossier':
+                                  final repository = c.repository;
+                                  final appId = _selected?['applicationId'];
+                                  if (repository
+                                          is ApiRecruiterWorkspaceRepository &&
+                                      appId != null) {
+                                    await showCandidateDossier(
+                                      context,
+                                      repository.api,
+                                      '$appId',
+                                    );
+                                  }
                                 case 'interview':
                                   await studioEditInterview(
                                     context,
@@ -587,6 +612,7 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
                                     applicationId: _selected!['applicationId']
                                         ?.toString(),
                                   );
+                                  if (mounted) await _refresh();
                                 case 'refresh':
                                   await _refresh();
                               }
@@ -612,6 +638,12 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
                                 ),
                               ),
                               const PopupMenuDivider(),
+                              if (!c.repository.isMock &&
+                                  _selected?['applicationId'] != null)
+                                const PopupMenuItem(
+                                  value: 'dossier',
+                                  child: Text('Voir le dossier complet'),
+                                ),
                               const PopupMenuItem(
                                 value: 'note',
                                 child: Text('Ajouter une note privée'),

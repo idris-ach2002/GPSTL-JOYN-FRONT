@@ -21,7 +21,6 @@ class AdminUserException implements Exception {
 /// - `PATCH  /api/v1/admin/users/{id}/status` → [updateStatus]
 /// - `PATCH  /api/v1/admin/users/{id}/role`   → [updateRole]
 /// - `DELETE /api/v1/admin/users/{id}`        → [deleteUser]
-/// - `POST   /api/v1/admin/users`             → [inviteAdmin]
 ///   (à confirmer avec l'équipe back : absent du contrat initial)
 abstract interface class AdminUserRepository {
   /// Une page de résultats, recherchée, filtrée et triée par le serveur.
@@ -39,12 +38,4 @@ abstract interface class AdminUserRepository {
 
   /// Suppression logique avec anonymisation RGPD.
   Future<void> deleteUser(String id);
-
-  /// Crée un compte administrateur et envoie une invitation par e-mail
-  /// (le compte reste « En attente » jusqu'à la première connexion).
-  Future<AdminUserAccount> inviteAdmin({
-    required String firstName,
-    required String lastName,
-    required String email,
-  });
 }

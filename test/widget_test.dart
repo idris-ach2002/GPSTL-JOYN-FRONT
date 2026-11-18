@@ -187,7 +187,10 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(const JoynApp(webOverride: true));
     await finishTransition(tester);
-    final guide = find.text('Guide de l’alternance');
+    final guideLabel = footerLinks['Ressources']!.entries
+        .singleWhere((entry) => entry.value == '/guide-alternance')
+        .key;
+    final guide = find.text(guideLabel);
     await tester.ensureVisible(guide);
     await finishTransition(tester);
     final scroll = tester

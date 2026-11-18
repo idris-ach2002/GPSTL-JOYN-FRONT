@@ -35,7 +35,7 @@ class MobileRegisterChoiceScreen extends StatelessWidget {
                 icon: Icons.school_rounded,
                 tint: AppColors.skyTint,
                 badge: 'Étudiant·e',
-                title: 'Je cherche une alternance',
+                title: 'Je cherche un emploi ou un stage',
                 description: 'Crée ton profil, découvre tes meilleurs matchs et échange avec les entreprises.',
                 onTap: () => context.go(AppRoutes.candidateRegister),
               ),

@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'dart:convert';
 
 import '../../recruiter_studio/data/studio_store.dart';
@@ -95,8 +96,62 @@ class ApiRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
   @override
   bool get isMock => false;
   @override
-  Future<Map<String, dynamic>> profile() async =>
-      apiObject(await api.getJson('$root/profile'));
+  Future<Map<String, dynamic>> profile() async {
+    final result = apiObject(await api.getJson('$root/profile'));
+    try {
+      final dashboard = apiObject(await api.getJson('$root/dashboard'));
+      final companyId = dashboard['companyId'];
+      if (companyId != null) {
+        final company = apiObject(
+          await api.getJson(
+            '/api/v1/companies/$companyId',
+            query: {'include_jobs': 'false'},
+          ),
+        );
+        result.addAll({'companyId': companyId, 'company': company});
+      }
+    } catch (_) {
+      result['companyError'] = 'Les informations de l’entreprise sont indisponibles. Actualisez pour réessayer.';
+    }
+    return result;
+  }
+
+  Future<void> uploadPhoto(Uint8List bytes, String name) async {
+    await api.sendMultipart(
+      'PUT',
+      '/api/v1/users/profile-picture',
+      fileField: 'file',
+      fileBytes: bytes,
+      fileName: name,
+    );
+  }
+
+  Future<void> deletePhoto() async {
+    await api.deleteJson('/api/v1/users/profile-picture');
+  }
+
+  Future<void> uploadLogo(int id, Uint8List bytes, String name) async {
+    await api.sendMultipart(
+      'PUT',
+      '/api/v1/companies/$id/logo',
+      fileField: 'file',
+      fileBytes: bytes,
+      fileName: name,
+    );
+  }
+
+  Future<void> deleteLogo(int id) async {
+    await api.deleteJson('/api/v1/companies/$id/logo');
+  }
+
+  Future<void> saveCompany(int id, Map<String, dynamic> value) async {
+    await api.patchJson('/api/v1/companies/$id', body: value);
+  }
+
+  Future<void> deleteCompany(int id) async {
+    await api.deleteJson('/api/v1/companies/$id');
+  }
+
   @override
   Future<Map<String, dynamic>> saveProfile(Map<String, dynamic> value) async {
     final response = await api.patchJson(
@@ -106,7 +161,10 @@ class ApiRecruiterWorkspaceRepository implements RecruiterWorkspaceRepository {
           if (value.containsKey(key)) key: value[key],
       },
     );
-    return response == null ? profile() : apiObject(response);
+    return {
+      ...value,
+      ...apiObject(response ?? await api.getJson('$root/profile')),
+    };
   }
 
   // The server stores only the recruiter's first and last names.

@@ -13,18 +13,28 @@ class ApiRecruiterCandidateRepository implements RecruiterCandidateRepository {
   Future<CandidateRecommendationData> fetchRecommendations(
     CandidateRecommendationQuery query,
   ) async {
-    final overview = _map(await api.getJson('/api/v1/recruiters/dashboard'));
-    final summary = overview['topOffers'] as List? ?? const [];
-    final offers = [
-      for (final item in summary)
-        if (item is Map)
+    final offers = <RecruiterCandidateOffer>[];
+    for (var page = 1; ; page++) {
+      final result = _map(
+        await api.getJson(
+          '/api/v1/recruiters/jobs',
+          query: {'page': '$page', 'limit': '50'},
+        ),
+      );
+      for (final row in (result['content'] as List? ?? const [])) {
+        final offer = _map(_map(row)['offer']);
+        if (offer.isEmpty) continue;
+        offers.add(
           RecruiterCandidateOffer(
-            id: _int(item['id']),
-            title: '${item['title'] ?? ''}',
-            location: '${item['location'] ?? ''}',
-            contract: '${item['contract'] ?? ''}',
+            id: _int(offer['id']),
+            title: '${offer['title'] ?? ''}',
+            location: '${offer['location'] ?? ''}',
+            contract: '${offer['contract_type'] ?? ''}',
           ),
-    ];
+        );
+      }
+      if (result['hasNext'] != true) break;
+    }
     final selected =
         query.offerId ?? (offers.isNotEmpty ? offers.first.id : null);
     if (selected == null) {

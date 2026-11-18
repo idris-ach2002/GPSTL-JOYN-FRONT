@@ -66,6 +66,7 @@ final sample = [
   CandidateApplication(
     id: 's1',
     status: ApplicationStatus.sent,
+    backendStatus: 'PENDING',
     appliedAt: DateTime(2026, 10, 12),
   ),
 ];
@@ -106,29 +107,34 @@ void main() {
     expect(find.text('84 %'), findsOneWidget);
     expect(find.text('Envoyer ma candidature'), findsOneWidget);
     expect(find.text('Entretien · 15/10/2026'), findsOneWidget);
-    expect(find.text('En attente de l’entreprise'), findsOneWidget);
+    expect(find.text('Envoyée · en attente'), findsOneWidget);
     // Candidature sans données : tirets à la place des valeurs.
     expect(find.text('—'), findsWidgets);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('web : une candidature envoyée explique l’attente au clic', (
-    tester,
-  ) async {
-    await pumpScreen(
-      tester,
-      const WebCandidateApplicationsScreen(),
-      applications: sample,
-    );
+  testWidgets(
+    'web : ouvre l’offre depuis une candidature et garde l’action de suivi',
+    (tester) async {
+      await pumpScreen(
+        tester,
+        const WebCandidateApplicationsScreen(),
+        applications: sample,
+      );
 
-    await tester.tap(find.byKey(const ValueKey('application-s1')));
-    await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('application-s1')));
+      await tester.pumpAndSettle();
 
-    expect(
-      find.text('La conversation s’ouvrira quand l’entreprise aura répondu.'),
-      findsOneWidget,
-    );
-  });
+      expect(find.text('Détail de l’offre'), findsOneWidget);
+      expect(find.text('Suivi de la candidature'), findsOneWidget);
+      await tester.tap(find.text('Suivi de la candidature'));
+      await tester.pumpAndSettle();
+      expect(
+        find.text('La conversation s’ouvrira quand l’entreprise aura répondu.'),
+        findsOneWidget,
+      );
+    },
+  );
 
   testWidgets('web : colonnes empilées sur petit écran, sans débordement', (
     tester,

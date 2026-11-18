@@ -1,3 +1,9 @@
+import '../features/candidate_applications/data/api_candidate_applications_repository.dart';
+import '../core/network/api_client.dart';
+import '../features/onboarding/data/cv_repository.dart';
+import '../features/onboarding/data/device_cv_repository.dart';
+import '../features/onboarding/data/profile_repository.dart' as onboarding;
+
 import 'dart:async';
 
 import 'package:flutter/services.dart';
@@ -59,6 +65,7 @@ class JoynApp extends StatefulWidget {
   const JoynApp({
     super.key,
     this.webOverride,
+    this.api,
     this.studioStore,
     this.studioRepository,
     this.workspaceRepository,
@@ -66,6 +73,8 @@ class JoynApp extends StatefulWidget {
     this.dashboardRepository,
     this.registrationRepository,
     this.profileRepository,
+    this.cvRepository,
+    this.onboardingRepository,
     this.recruiterDashboardRepository,
     this.recruiterOffersRepository,
     this.recruiterCandidateRepository,
@@ -79,6 +88,7 @@ class JoynApp extends StatefulWidget {
     this.verificationRepository,
   });
 
+  final ApiClient? api;
   final RecruiterWorkspaceRepository? workspaceRepository;
   final StudioStore? studioStore;
   final StudioRepository? studioRepository;
@@ -87,6 +97,8 @@ class JoynApp extends StatefulWidget {
   final DashboardRepository? dashboardRepository;
   final RegistrationRepository? registrationRepository;
   final ProfileRepository? profileRepository;
+  final CvRepository? cvRepository;
+  final onboarding.ProfileRepository? onboardingRepository;
   final RecruiterDashboardRepository? recruiterDashboardRepository;
   final RecruiterOffersRepository? recruiterOffersRepository;
   final RecruiterCandidateRepository? recruiterCandidateRepository;
@@ -259,6 +271,10 @@ class _JoynAppState extends State<JoynApp> {
     final id = _authController.user?.id;
     if (id != _lastUserId) {
       _lastUserId = id;
+      final applications = _candidateApplicationsRepository;
+      if (applications is ApiCandidateApplicationsRepository) {
+        applications.interests.clear();
+      }
       _studio.bind(_authController.user?.role == UserRole.company ? id : null);
       final workspaceRepository = _workspaceController.repository;
       if (workspaceRepository is ApiRecruiterWorkspaceRepository) {
@@ -306,6 +322,7 @@ class _JoynAppState extends State<JoynApp> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        Provider<ApiClient?>.value(value: widget.api),
         ChangeNotifierProvider<StudioController>.value(value: _studio),
         ChangeNotifierProvider<WorkspaceController>.value(
           value: _workspaceController,
@@ -314,6 +331,13 @@ class _JoynAppState extends State<JoynApp> {
         Provider<DashboardRepository>.value(value: _dashboardRepository),
         Provider<RegistrationRepository>.value(value: _registrationRepository),
         Provider<ProfileRepository>.value(value: _profileRepository),
+        Provider<CvRepository>.value(
+          value: widget.cvRepository ?? DeviceCvRepository(),
+        ),
+        Provider<onboarding.ProfileRepository>.value(
+          value:
+              widget.onboardingRepository ?? onboarding.MockProfileRepository(),
+        ),
         Provider<RecruiterDashboardRepository>.value(
           value: _recruiterDashboardRepository,
         ),

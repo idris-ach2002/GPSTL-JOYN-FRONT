@@ -1,3 +1,8 @@
+import 'package:provider/provider.dart';
+
+import '../../../../core/network/api_client.dart';
+import '../../../admin/presentation/shared/admin_bulk_actions.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../../../design_system/tokens/app_colors.dart';
@@ -25,18 +30,26 @@ class CompanyActionsHandler {
 
   Future<void> edit(BuildContext context, AdminCompany company) async {
     final messenger = ScaffoldMessenger.of(context);
+    AdminCompany detail;
+    try {
+      detail = await controller.companyForEdit(company);
+    } catch (_) {
+      showAdminToastWith(
+        messenger,
+        'Impossible de charger l’entreprise. Réessayez.',
+        error: true,
+      );
+      return;
+    }
+    if (!context.mounted) return;
     final draft = await showCompanyFormDialog(
       context,
       logoPicker: controller.logoPicker,
-      initial: company,
+      initial: detail,
+      connected: controller.connected,
     );
     if (draft == null) return;
     _toast(messenger, await controller.update(company.id, draft));
-  }
-
-  Future<void> approve(BuildContext context, AdminCompany company) async {
-    final messenger = ScaffoldMessenger.of(context);
-    _toast(messenger, await controller.approve(company));
   }
 
   Future<void> reactivate(BuildContext context, AdminCompany company) async {
@@ -67,6 +80,14 @@ class CompanyActionsHandler {
   }
 
   Future<void> delete(BuildContext context, AdminCompany company) async {
+    if (context.read<ApiClient?>() != null) {
+      final removed = await confirmAdminRemoval(context, 'companies', {
+        company.id,
+      });
+      if (removed) await controller.load();
+      return;
+    }
+
     final messenger = ScaffoldMessenger.of(context);
     final confirmed = await showDeleteCompanyDialog(context, company);
     if (!confirmed) return;
@@ -78,10 +99,10 @@ class CompanyActionsHandler {
   }
 }
 
-enum _MenuAction { approve, reject, edit, suspend, reactivate, delete }
+enum _MenuAction { reject, edit, suspend, reactivate, delete }
 
 /// Menu « ⋮ » des actions d'une entreprise. Pour une entreprise en attente,
-/// « Valider » et « Rejeter » sont en tête du menu.
+/// le refus est disponible dans le menu.
 class CompanyRowActions extends StatelessWidget {
   const CompanyRowActions({
     required this.company,
@@ -115,15 +136,10 @@ class CompanyRowActions extends StatelessWidget {
 
     final pending = company.status == CompanyStatus.pending;
 
-    final editable = handler.controller.canEditCompanies;
-    if (!editable && !pending && company.status != CompanyStatus.rejected) {
-      return const SizedBox.shrink();
-    }
     final menu = PopupMenuButton<_MenuAction>(
       key: ValueKey('menu-${company.id}'),
       tooltip: 'Actions',
       onSelected: (action) => switch (action) {
-        _MenuAction.approve => handler.approve(context, company),
         _MenuAction.reject => handler.reject(context, company),
         _MenuAction.edit => handler.edit(context, company),
         _MenuAction.suspend => handler.suspend(context, company),
@@ -132,16 +148,6 @@ class CompanyRowActions extends StatelessWidget {
       },
       itemBuilder: (context) => [
         if (pending) ...[
-          const PopupMenuItem(
-            value: _MenuAction.approve,
-            child: ListTile(
-              leading: Icon(Icons.check_rounded, color: AppColors.successDeep),
-              title: Text(
-                'Valider',
-                style: TextStyle(color: AppColors.successDeep),
-              ),
-            ),
-          ),
           const PopupMenuItem(
             value: _MenuAction.reject,
             child: ListTile(
@@ -152,17 +158,16 @@ class CompanyRowActions extends StatelessWidget {
               ),
             ),
           ),
-          if (editable) const PopupMenuDivider(),
+          const PopupMenuDivider(),
         ],
-        if (editable)
-          const PopupMenuItem(
-            value: _MenuAction.edit,
-            child: ListTile(
-              leading: Icon(Icons.edit_outlined),
-              title: Text('Modifier'),
-            ),
+        const PopupMenuItem(
+          value: _MenuAction.edit,
+          child: ListTile(
+            leading: Icon(Icons.edit_outlined),
+            title: Text('Modifier'),
           ),
-        if (editable && company.status == CompanyStatus.approved)
+        ),
+        if (company.status == CompanyStatus.approved)
           const PopupMenuItem(
             value: _MenuAction.suspend,
             child: ListTile(
@@ -170,30 +175,28 @@ class CompanyRowActions extends StatelessWidget {
               title: Text('Suspendre'),
             ),
           ),
-        if (company.status == CompanyStatus.suspended ||
-            company.status == CompanyStatus.rejected)
+        if (company.status == CompanyStatus.suspended)
           const PopupMenuItem(
             value: _MenuAction.reactivate,
             child: ListTile(
               leading: Icon(Icons.verified_outlined),
-              title: Text('Valider / réactiver'),
+              title: Text('Réactiver'),
             ),
           ),
-        if (editable) const PopupMenuDivider(),
-        if (editable)
-          const PopupMenuItem(
-            value: _MenuAction.delete,
-            child: ListTile(
-              leading: Icon(
-                Icons.delete_outline_rounded,
-                color: AppColors.errorDeep,
-              ),
-              title: Text(
-                'Supprimer',
-                style: TextStyle(color: AppColors.errorDeep),
-              ),
+        const PopupMenuDivider(),
+        const PopupMenuItem(
+          value: _MenuAction.delete,
+          child: ListTile(
+            leading: Icon(
+              Icons.delete_outline_rounded,
+              color: AppColors.errorDeep,
+            ),
+            title: Text(
+              'Supprimer',
+              style: TextStyle(color: AppColors.errorDeep),
             ),
           ),
+        ),
       ],
     );
 

@@ -1,12 +1,14 @@
+import 'dart:typed_data';
+
 import '../../../core/network/api_client.dart';
 import '../../../core/network/api_exception.dart';
 import '../domain/company_verification.dart';
 import 'verification_repository.dart';
 
-/// Reuses the company verification status list; no generic /verifications API.
 class ApiVerificationRepository implements VerificationRepository {
   ApiVerificationRepository(this.api);
   final ApiClient api;
+  static const path = '/api/v1/admin/verifications';
 
   @override
   Future<List<CompanyVerification>> fetchVerifications({
@@ -15,71 +17,107 @@ class ApiVerificationRepository implements VerificationRepository {
   }) async {
     try {
       final items = <CompanyVerification>[];
-      for (var page = 1; page <= 20; page++) {
-        final body = Map<String, dynamic>.from(
-          await api.getJson(
-            '/api/v1/admin/companies',
-            query: {
-              'page': '$page',
-              'limit': '100',
-              if (search.trim().isNotEmpty) 'search': search.trim(),
-            },
-          ) as Map,
+      for (var page = 1; ; page++) {
+        final rows = await api.getJson(
+          path,
+          query: {'page': '$page', 'search': search.trim()},
+        ) as List;
+        items.addAll(
+          rows.map(_item).where((item) => filter.matches(item.status)),
         );
-        final data = body['data'] as List? ?? const [];
-        for (final value in data) {
-          final company = Map<String, dynamic>.from(value as Map);
-          final status = '${company['verification_status'] ?? ''}'
-              .toUpperCase();
-          final converted = switch (status) {
-            'VERIFIED' => VerificationStatus.verifiedManual,
-            'REJECTED' => VerificationStatus.refused,
-            _ => VerificationStatus.toReview,
-          };
-          items.add(
-            CompanyVerification(
-              id: '${company['id']}',
-              companyId: '${company['id']}',
-              companyName: '${company['name'] ?? ''}',
-              siret: '${company['siret'] ?? ''}',
-              city: '',
-              submittedAt:
-                  DateTime.tryParse('${company['created_at']}') ??
-                  DateTime.fromMillisecondsSinceEpoch(0),
-              status: converted,
-              issue: VerificationIssue.none,
-            ),
-          );
-        }
-        final pagination = Map<String, dynamic>.from(
-          body['pagination'] as Map? ?? {},
-        );
-        if (page >= (pagination['total_pages'] as num? ?? 1).toInt() ||
-            data.isEmpty) {
-          break;
-        }
+        if (rows.length < 100) return items;
       }
-      return items.where((item) => filter.matches(item.status)).toList();
     } on ApiException catch (error) {
-      throw VerificationException(
-        'Vérifications indisponibles (${error.statusCode ?? 'réseau'}).',
-        statusCode: error.statusCode,
-      );
+      throw _exception(error);
     }
   }
 
   @override
-  Future<CompanyVerification> retryAutomatic(String id) async =>
-      throw const VerificationException(
-        'Vérification automatique non exposée par cette API.',
-      );
+  Future<CompanyVerification> retryAutomatic(String id) =>
+      _write('$path/$id/retry');
 
   @override
   Future<CompanyVerification> decide(
     String id,
     VerificationDecision decision, {
     String note = '',
-  }) async => throw const VerificationException(
-    'Utilisez la validation d’entreprise dans l’administration.',
+  }) => _write(
+    '$path/$id/decision',
+    body: {'decision': decision.apiValue, 'note': note},
   );
+
+  Future<CompanyVerification> attachDocument(
+    String id,
+    String name,
+    Uint8List bytes,
+    String note,
+  ) async {
+    try {
+      return _item(
+        await api.sendMultipart(
+          'POST',
+          '$path/$id/document',
+          fileBytes: bytes,
+          fileName: name,
+          fileField: 'evidence',
+          fields: {'note': note},
+        ),
+      );
+    } on ApiException catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  Future<CompanyVerification> _write(String path, {Object? body}) async {
+    try {
+      return _item(await api.postJson(path, body: body));
+    } on ApiException catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  VerificationException _exception(ApiException error) =>
+      VerificationException(switch (error.statusCode) {
+        404 || 422 => 'Le registre ou la fiche n’a pas confirmé ces informations. Vérifiez le SIRET ou procédez à un contrôle manuel.',
+        503 => 'Le registre est indisponible. Vous pouvez traiter le dossier manuellement.',
+        400 => 'Vérifiez le contenu de la demande ou du justificatif.',
+        _ => 'Vérification indisponible (${error.statusCode ?? 'réseau'}).',
+      }, statusCode: error.statusCode);
+
+  CompanyVerification _item(Object? raw) {
+    final company = raw as Map;
+    final method = company['method'];
+    final status = switch ((company['verification_status'], method)) {
+      ('VERIFIED', 'REGISTRY') => VerificationStatus.verifiedAuto,
+      ('VERIFIED', 'DOCUMENT' || 'MANUAL') => VerificationStatus.verifiedManual,
+      ('VERIFIED', _) => VerificationStatus.verifiedAuto,
+      ('REJECTED', _) => VerificationStatus.refused,
+      ('NOT_VERIFIED', 'REQUEST') => VerificationStatus.documentRequested,
+      _ => VerificationStatus.toReview,
+    };
+    final review = DateTime.tryParse('${company['reviewed_at']}');
+    return CompanyVerification(
+      id: '${company['id']}',
+      companyId: '${company['id']}',
+      companyName: '${company['name']}',
+      siret: '${company['siret'] ?? ''}',
+      city: '',
+      declaredAddress: '${company['address'] ?? ''}',
+      submittedAt: DateTime.parse('${company['created_at']}'),
+      status: status,
+      issue: VerificationIssue.none,
+      hasDocument: company['has_document'] == true,
+      history: [
+        if (review != null)
+          VerificationEvent(
+            author: 'Administration',
+            date: review,
+            note: '${company['note'] ?? ''}',
+            label: method == 'DOCUMENT'
+                ? 'Validée sur justificatif PDF'
+                : status.label,
+          ),
+      ],
+    );
+  }
 }

@@ -67,8 +67,9 @@ void main() {
       candidateRouteFor(NotificationKind.newMessage),
       AppRoutes.candidateMessages,
     );
+    expect(candidateRouteFor(NotificationKind.interview), AppRoutes.dashboard);
     expect(
-      candidateRouteFor(NotificationKind.interview),
+      candidateRouteFor(NotificationKind.applicationUpdate),
       AppRoutes.candidateApplications,
     );
     expect(

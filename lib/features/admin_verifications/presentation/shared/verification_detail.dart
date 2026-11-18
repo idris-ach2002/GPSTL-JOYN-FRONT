@@ -1,3 +1,8 @@
+import 'package:provider/provider.dart';
+
+import '../../../../core/network/api_client.dart';
+import '../../../../design_system/documents/pdf_preview.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../../../design_system/material/joyn_notice.dart';
@@ -22,9 +27,31 @@ class VerificationActionsHandler {
 
   Future<void> approve(BuildContext context, CompanyVerification item) async {
     final messenger = ScaffoldMessenger.of(context);
-    final note = await showApproveVerificationDialog(context, item);
-    if (note == null) return;
-    _toast(messenger, await controller.approve(item, note: note));
+    final approval = await showApproveVerificationDialog(context, item);
+    if (approval == null) return;
+    final document = approval.document;
+    if (document == null) {
+      _toast(messenger, await controller.approve(item, note: approval.note));
+    } else {
+      try {
+        final bytes = await document.readAsBytes();
+        _toast(
+          messenger,
+          await controller.approveWithDocument(
+            item,
+            document.name,
+            bytes,
+            approval.note,
+          ),
+        );
+      } catch (_) {
+        showAdminToastWith(
+          messenger,
+          'Le PDF ne peut pas être lu.',
+          error: true,
+        );
+      }
+    }
   }
 
   Future<void> requestDocument(
@@ -231,6 +258,20 @@ class VerificationDetail extends StatelessWidget {
                   style: textTheme.bodySmall?.copyWith(fontSize: 12.5),
                 ),
               const SizedBox(height: 18),
+              if ((item.hasDocument, context.read<ApiClient?>()) case (
+                true,
+                final ApiClient api,
+              ))
+                TextButton.icon(
+                  onPressed: () => showPdfPreview(
+                    context,
+                    api,
+                    '/api/v1/admin/verifications/${item.id}/document',
+                    'Justificatif de ${item.companyName}',
+                  ),
+                  icon: const Icon(Icons.picture_as_pdf_outlined),
+                  label: const Text('Voir le justificatif PDF'),
+                ),
               const _SectionTitle('Historique'),
               for (final event in item.history)
                 Padding(
@@ -276,14 +317,7 @@ class VerificationDetail extends StatelessWidget {
             ],
           ),
         ),
-        if (item.status.isOpen && !controller.supportsReviewWorkflow)
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: Text(
-              'Ouvrez Entreprises pour valider ou rejeter cette entreprise.',
-            ),
-          ),
-        if (item.status.isOpen && controller.supportsReviewWorkflow) ...[
+        if (item.status.isOpen) ...[
           const Divider(height: 1),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 14),

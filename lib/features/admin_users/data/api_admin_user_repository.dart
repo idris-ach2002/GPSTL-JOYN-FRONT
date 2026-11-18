@@ -28,7 +28,7 @@ class ApiAdminUserRepository implements AdminUserRepository {
       }
       final entries = <AdminUserAccount>[];
       for (final role in roles) {
-        for (var page = 1; page <= 20; page++) {
+        for (var page = 1; ; page++) {
           final body = _map(
             await api.getJson(
               '/api/v1/admin/$role',
@@ -126,14 +126,6 @@ class ApiAdminUserRepository implements AdminUserRepository {
       throw const AdminUserException(
         'Modification du rôle non disponible dans cette API.',
       );
-  @override
-  Future<AdminUserAccount> inviteAdmin({
-    required String firstName,
-    required String lastName,
-    required String email,
-  }) async => throw const AdminUserException(
-    'Création admin réservée à l’équipe backend.',
-  );
   @override
   Future<void> deleteUser(String id) async =>
       throw const AdminUserException('Suppression non déployée sur main.');

@@ -1,3 +1,5 @@
+import '../../data/api_profile_repository.dart';
+
 import 'package:flutter/foundation.dart';
 
 import '../../data/profile_file_picker.dart';
@@ -20,6 +22,7 @@ class ProfileEditController extends ChangeNotifier {
     : _filePicker = filePicker ?? const DeviceProfileFilePicker();
 
   final ProfileRepository _repository;
+  bool get isConnected => _repository is ApiProfileRepository;
   final ProfileFilePicker _filePicker;
 
   static final RegExp _emailFormat = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]{2,}$');
@@ -155,6 +158,8 @@ class ProfileEditController extends ChangeNotifier {
   void setLastName(String value) => _edit((p) => p.copyWith(lastName: value));
   void setHeadline(String value) => _edit((p) => p.copyWith(headline: value));
   void setCity(String value) => _edit((p) => p.copyWith(city: value));
+  void setPhone(String value) => _edit((p) => p.copyWith(phone: value));
+  void setAddress(String value) => _edit((p) => p.copyWith(address: value));
   void setEmail(String value) => _edit((p) => p.copyWith(email: value));
   void setBio(String value) => _edit((p) => p.copyWith(bio: value));
 

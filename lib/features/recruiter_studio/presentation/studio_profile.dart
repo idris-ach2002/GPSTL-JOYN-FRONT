@@ -1,3 +1,5 @@
+import '../../recruiter_workspace/presentation/connected_profile_editor.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -76,31 +78,7 @@ class _StudioProfileState extends State<StudioProfile> {
     final c = context.watch<WorkspaceController>();
     final colors = Theme.of(context).colorScheme;
     if (!c.repository.isMock) {
-      return Form(
-        key: _form,
-        child: ListView(
-          padding: const EdgeInsets.all(24),
-          children: [
-            ListTile(
-              title: Text('${widget.value['companyName'] ?? ''}'),
-              subtitle: Text('${widget.value['email'] ?? ''}'),
-            ),
-            for (final key in ['firstName', 'lastName'])
-              TextFormField(
-                controller: _fields[key],
-                decoration: InputDecoration(labelText: labels[key]),
-                maxLength: 100,
-                onChanged: (_) => _changed(),
-                validator: (value) =>
-                    (value ?? '').trim().isEmpty ? 'Champ requis' : null,
-              ),
-            FilledButton(
-              onPressed: _dirty ? _save : null,
-              child: const Text('Enregistrer'),
-            ),
-          ],
-        ),
-      );
+      return ConnectedProfileEditor(value: widget.value);
     }
     final complete = [
       'firstName',

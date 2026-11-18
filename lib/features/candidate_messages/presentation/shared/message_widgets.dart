@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../app/navigation/candidate_entrance.dart';
+
 import '../../../../design_system/tokens/app_colors.dart';
 import '../../../../design_system/tokens/app_fonts.dart';
 import '../../../messaging/domain/conversation.dart';
@@ -101,7 +103,7 @@ class CompanyBadge extends StatelessWidget {
                 width: 11,
                 height: 11,
                 decoration: BoxDecoration(
-                  color: AppColors.orange,
+                  color: AppColors.navy,
                   shape: BoxShape.circle,
                   border: Border.all(color: AppColors.white, width: 2),
                 ),
@@ -471,7 +473,7 @@ class _ConversationFooterState extends State<ConversationFooter> {
               tooltip: 'Envoyer',
               onPressed: _submit,
               style: IconButton.styleFrom(
-                backgroundColor: AppColors.orange,
+                backgroundColor: AppColors.navy,
                 foregroundColor: AppColors.white,
                 minimumSize: const Size.square(48),
               ),
@@ -700,7 +702,10 @@ class ConversationPane extends StatelessWidget {
         header,
         const Divider(height: 1, color: AppColors.lineSoft),
         Expanded(
-          child: ColoredBox(color: AppColors.surfaceSubtle, child: body),
+          child: ColoredBox(
+            color: AppColors.surfaceSubtle,
+            child: CandidateEntrance(key: ValueKey(thread.id), child: body),
+          ),
         ),
         const Divider(height: 1, color: AppColors.lineSoft),
         Padding(
@@ -762,7 +767,8 @@ class ThreadList extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 16, 14, 8),
-          child: TextField(
+          child: TextFormField(
+            initialValue: controller.query,
             onChanged: controller.search,
             decoration: const InputDecoration(
               hintText: 'Rechercher une entreprise ou une offre',
@@ -770,12 +776,34 @@ class ThreadList extends StatelessWidget {
             ),
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          child: Row(
+            children: [
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: FilterChip(
+                    label: Text('Non lus (${controller.totalUnread})'),
+                    selected: controller.unreadOnly,
+                    onSelected: controller.filterUnread,
+                  ),
+                ),
+              ),
+              IconButton(
+                tooltip: 'Actualiser les conversations',
+                onPressed: controller.refresh,
+                icon: const Icon(Icons.refresh),
+              ),
+            ],
+          ),
+        ),
         Expanded(
           child: threads.isEmpty
-              ? const _EmptyThread(
-                  text:
-                      'Aucune conversation pour l’instant. Elles apparaissent '
-                      'ici dès que tu postules.',
+              ? _EmptyThread(
+                  text: controller.query.isNotEmpty || controller.unreadOnly
+                      ? 'Aucune conversation ne correspond à ces filtres.'
+                      : 'Tes candidatures et conversations apparaîtront ici.',
                 )
               : ListView.separated(
                   padding: const EdgeInsets.fromLTRB(8, 4, 8, 12),

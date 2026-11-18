@@ -43,6 +43,8 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
   late final _headline = TextEditingController(text: _initial.headline);
   late final _city = TextEditingController(text: _initial.city);
   late final _email = TextEditingController(text: _initial.email);
+  late final _phone = TextEditingController(text: _initial.phone);
+  late final _address = TextEditingController(text: _initial.address);
   late final _bio = TextEditingController(text: _initial.bio);
   late final _github = TextEditingController(text: _initial.links.github);
   late final _linkedin = TextEditingController(text: _initial.links.linkedin);
@@ -65,6 +67,8 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
       _headline,
       _city,
       _email,
+      _phone,
+      _address,
       _bio,
       _github,
       _linkedin,
@@ -270,6 +274,7 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
                   TextField(
                     key: const ValueKey('profile-email'),
                     controller: _email,
+                    readOnly: _form.isConnected,
                     onChanged: _form.setEmail,
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
@@ -279,6 +284,25 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
                         size: 20,
                       ),
                       errorText: _form.visibleErrorFor(ProfileEditField.email),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _pair(
+                  TextField(
+                    controller: _phone,
+                    onChanged: _form.setPhone,
+                    keyboardType: TextInputType.phone,
+                    decoration: const InputDecoration(
+                      labelText: 'Téléphone (facultatif)',
+                      hintText: '+33612345678',
+                    ),
+                  ),
+                  TextField(
+                    controller: _address,
+                    onChanged: _form.setAddress,
+                    decoration: const InputDecoration(
+                      labelText: 'Adresse (facultative)',
                     ),
                   ),
                 ),
@@ -302,7 +326,7 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
               decoration: const InputDecoration(
                 alignLabelWithHint: true,
                 labelText: 'Quelques mots sur toi',
-                helperText: 'Astuce : dis ce que tu sais faire, ce que tu cherches et pourquoi l’alternance. 3 ou 4 phrases suffisent.',
+                helperText: 'Astuce : dis ce que tu sais faire, ce que tu cherches et ce que tu recherches. 3 ou 4 phrases suffisent.',
               ),
             ),
           ),
@@ -598,25 +622,51 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _pair(
-                  DropdownMenu<String>(
-                    expandedInsets: EdgeInsets.zero,
-                    requestFocusOnTap: false,
-                    label: const Text('Début'),
-                    initialSelection: draft.availability.start.isEmpty
-                        ? null
-                        : draft.availability.start,
-                    onSelected: (value) {
-                      if (value != null) _form.setStart(value);
-                    },
-                    dropdownMenuEntries: [
-                      for (final start in {
-                        ...ProfileOptions.startDates,
-                        if (draft.availability.start.isNotEmpty)
-                          draft.availability.start,
-                      })
-                        DropdownMenuEntry(value: start, label: start),
-                    ],
-                  ),
+                  _form.isConnected
+                      ? OutlinedButton.icon(
+                          onPressed: () async {
+                            final now = DateTime.now();
+                            final current = DateTime.tryParse(
+                              draft.availability.start,
+                            );
+                            final picked = await showDatePicker(
+                              context: context,
+                              initialDate: current ?? now,
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime(now.year + 10),
+                            );
+                            if (picked != null && mounted) {
+                              _form.setStart(
+                                picked.toIso8601String().split('T').first,
+                              );
+                            }
+                          },
+                          icon: const Icon(Icons.calendar_today_outlined),
+                          label: Text(
+                            draft.availability.start.isEmpty
+                                ? 'Date de disponibilité'
+                                : draft.availability.start,
+                          ),
+                        )
+                      : DropdownMenu<String>(
+                          expandedInsets: EdgeInsets.zero,
+                          requestFocusOnTap: false,
+                          label: const Text('Début'),
+                          initialSelection: draft.availability.start.isEmpty
+                              ? null
+                              : draft.availability.start,
+                          onSelected: (value) {
+                            if (value != null) _form.setStart(value);
+                          },
+                          dropdownMenuEntries: [
+                            for (final start in {
+                              ...ProfileOptions.startDates,
+                              if (draft.availability.start.isNotEmpty)
+                                draft.availability.start,
+                            })
+                              DropdownMenuEntry(value: start, label: start),
+                          ],
+                        ),
                   DropdownMenu<int>(
                     expandedInsets: EdgeInsets.zero,
                     requestFocusOnTap: false,
@@ -686,26 +736,28 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
                     'Sinon, seules les entreprises avec qui tu matches te voient.',
                   ),
                 ),
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  value: draft.visibility.hiddenFromCurrentEmployer,
-                  onChanged: _form.setHiddenFromCurrentEmployer,
-                  title: const Text(
-                    'Masquer mon profil à mon entreprise actuelle',
+                if (!_form.isConnected)
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    value: draft.visibility.hiddenFromCurrentEmployer,
+                    onChanged: _form.setHiddenFromCurrentEmployer,
+                    title: const Text(
+                      'Masquer mon profil à mon entreprise actuelle',
+                    ),
+                    subtitle: const Text('Pour chercher en toute discrétion.'),
                   ),
-                  subtitle: const Text('Pour chercher en toute discrétion.'),
-                ),
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  value: draft.visibility.openToReplacement,
-                  onChanged: _form.setOpenToReplacement,
-                  title: const Text(
-                    'Ouvert·e aux propositions « Remplace-moi »',
+                if (!_form.isConnected)
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    value: draft.visibility.openToReplacement,
+                    onChanged: _form.setOpenToReplacement,
+                    title: const Text(
+                      'Ouvert·e aux propositions « Remplace-moi »',
+                    ),
+                    subtitle: const Text(
+                      'Les alternant·e·s peuvent te recommander pour leur poste.',
+                    ),
                   ),
-                  subtitle: const Text(
-                    'Les alternant·e·s peuvent te recommander pour leur poste.',
-                  ),
-                ),
               ],
             ),
           ),

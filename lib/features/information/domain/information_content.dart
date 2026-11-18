@@ -115,16 +115,16 @@ const informationPages = <String, InformationPage>{
   ),
   '/guide-alternance': InformationPage(
     eyebrow: 'Ressources',
-    title: 'Guide de l’alternance',
+    title: 'Guide de la recherche d’emploi',
     introduction: 'Des repères simples pour rendre ta recherche plus claire et plus efficace.',
     sections: [
       InformationSection(
         'Prépare un profil concret',
-        'Présente ta formation, tes projets et tes compétences avec des exemples. Ajoute ton rythme d’école, ta mobilité et ta date de disponibilité.',
+        'Présente ton parcours, tes expériences, tes projets et tes compétences avec des exemples. Précise le contrat recherché, ta mobilité et ta disponibilité.',
       ),
       InformationSection(
         'Lis une offre avec méthode',
-        'Sépare les missions, les compétences demandées, le lieu, le rythme et les conditions. Tu vois plus vite ce qui correspond réellement à ton projet.',
+        'Compare les missions, les compétences demandées, le contrat, la localisation, le mode de travail et la rémunération. Identifie les offres qui correspondent à ton projet.',
       ),
       InformationSection(
         'Prépare la conversation',
@@ -144,7 +144,7 @@ const informationPages = <String, InformationPage>{
     sections: [
       InformationSection(
         'À qui s’adresse JOYN ?',
-        'Aux candidats qui recherchent une alternance et aux entreprises qui recrutent.',
+        'À toute personne recherchant un emploi, un stage, une alternance ou une mission freelance, et aux entreprises qui recrutent.',
       ),
       InformationSection(
         'À quoi sert le matching ?',
@@ -166,7 +166,7 @@ const informationPages = <String, InformationPage>{
     introduction: 'Retrouve rapidement le bon point d’entrée selon ton besoin.',
     sections: [
       InformationSection(
-        'Je cherche une alternance',
+        'Je cherche une opportunité professionnelle',
         'Commence par ton profil, puis consulte les offres recommandées et le suivi de tes candidatures.',
       ),
       InformationSection(

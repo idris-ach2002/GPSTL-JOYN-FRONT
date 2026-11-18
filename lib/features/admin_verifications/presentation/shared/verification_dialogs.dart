@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../design_system/material/joyn_chip_group.dart';
@@ -14,10 +15,13 @@ Future<T?> _showThemedDialog<T>(BuildContext context, Widget dialog) {
 
 /// Validation manuelle : l'admin confirme avoir contrôlé les informations
 /// légales. Renvoie la note (éventuellement vide), ou `null` si annulé.
-Future<String?> showApproveVerificationDialog(
+Future<({String note, PlatformFile? document})?> showApproveVerificationDialog(
   BuildContext context,
   CompanyVerification item,
-) => _showThemedDialog<String>(context, _ApproveDialog(item: item));
+) => _showThemedDialog<({String note, PlatformFile? document})>(
+  context,
+  _ApproveDialog(item: item),
+);
 
 class _ApproveDialog extends StatefulWidget {
   const _ApproveDialog({required this.item});
@@ -31,6 +35,30 @@ class _ApproveDialog extends StatefulWidget {
 class _ApproveDialogState extends State<_ApproveDialog> {
   final _note = TextEditingController();
   bool _checked = false;
+  PlatformFile? _document;
+  String? _fileError;
+
+  Future<void> _pickDocument() async {
+    try {
+      final result = await FilePicker.pickFile(
+        type: FileType.custom,
+        allowedExtensions: const ['pdf'],
+      );
+      if (result == null || !mounted) return;
+      final size = result.lengthSync() ?? await result.length() ?? 0;
+      if (!mounted) return;
+      setState(() {
+        _fileError = size > 0 && size <= 5 * 1024 * 1024
+            ? null
+            : 'PDF de 5 Mo maximum.';
+        _document = _fileError == null ? result : null;
+      });
+    } catch (_) {
+      if (mounted) {
+        setState(() => _fileError = 'Impossible de sélectionner le PDF.');
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -42,43 +70,58 @@ class _ApproveDialogState extends State<_ApproveDialog> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return AlertDialog(
-      title: const Text('Valider manuellement'),
+      title: const Text('Valider l’entreprise'),
       content: SizedBox(
         width: 460,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              '« ${widget.item.companyName} » sera marquée comme vérifiée et ses offres deviendront visibles.',
-              style: textTheme.bodyMedium?.copyWith(color: AppColors.slate),
-            ),
-            const SizedBox(height: 12),
-            CheckboxListTile(
-              key: const ValueKey('approve-checked'),
-              contentPadding: EdgeInsets.zero,
-              controlAffinity: ListTileControlAffinity.leading,
-              value: _checked,
-              onChanged: (value) => setState(() => _checked = value ?? false),
-              title: Text(
-                'J’ai contrôlé les informations légales (Kbis, avis SIRENE ou site officiel).',
-                style: textTheme.bodySmall?.copyWith(
-                  color: AppColors.textPrimary,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                '« ${widget.item.companyName} » sera marquée comme vérifiée.',
+                style: textTheme.bodyMedium?.copyWith(color: AppColors.slate),
+              ),
+              const SizedBox(height: 12),
+              CheckboxListTile(
+                key: const ValueKey('approve-checked'),
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+                value: _checked,
+                onChanged: (value) => setState(() => _checked = value ?? false),
+                title: Text(
+                  'J’ai contrôlé les informations légales (Kbis, avis SIRENE ou site officiel).',
+                  style: textTheme.bodySmall?.copyWith(
+                    color: AppColors.textPrimary,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _note,
-              minLines: 2,
-              maxLines: 4,
-              decoration: const InputDecoration(
-                alignLabelWithHint: true,
-                labelText: 'Note interne (facultatif)',
-                hintText: 'Ex. : Kbis reçu par e-mail le 08/11',
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                onPressed: _pickDocument,
+                icon: const Icon(Icons.picture_as_pdf_outlined),
+                label: Text(
+                  _document?.name ?? 'Joindre un justificatif PDF (facultatif)',
+                ),
               ),
-            ),
-          ],
+              if (_document != null)
+                TextButton(
+                  onPressed: () => setState(() => _document = null),
+                  child: const Text('Retirer le PDF'),
+                ),
+              if (_fileError != null) Text(_fileError!),
+              TextField(
+                controller: _note,
+                minLines: 2,
+                maxLines: 4,
+                decoration: const InputDecoration(
+                  alignLabelWithHint: true,
+                  labelText: 'Note interne (facultatif)',
+                  hintText: 'Ex. : Kbis reçu par e-mail le 08/11',
+                ),
+              ),
+            ],
+          ),
         ),
       ),
       actions: [
@@ -90,7 +133,9 @@ class _ApproveDialogState extends State<_ApproveDialog> {
           key: const ValueKey('approve-confirm'),
           style: FilledButton.styleFrom(backgroundColor: AppColors.successDeep),
           onPressed: _checked
-              ? () => Navigator.of(context).pop(_note.text.trim())
+              ? () =>
+                    Navigator.of(context)
+                        .pop((note: _note.text.trim(), document: _document))
               : null,
           child: const Text('Valider l’entreprise'),
         ),

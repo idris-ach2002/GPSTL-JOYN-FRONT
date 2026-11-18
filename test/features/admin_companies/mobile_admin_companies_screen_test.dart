@@ -35,18 +35,14 @@ void main() {
     expect(find.text('Ajouter'), findsOneWidget);
     expect(tester.takeException(), isNull);
 
-    // Valider la première entreprise en attente via le menu « ⋮ ».
+    expect(find.text('Exporter en CSV'), findsOneWidget);
     final pendingMenu = find.byKey(const ValueKey('menu-cmp-3'));
     await tester.ensureVisible(pendingMenu);
     await tester.pump();
     await tester.tap(pendingMenu);
     await _settle(tester);
-    await tester.tap(find.text('Valider').last);
-    await _settle(tester);
-    expect(
-      find.textContaining('ses offres sont maintenant visibles'),
-      findsOneWidget,
-    );
+    expect(find.text('Valider'), findsNothing);
+    expect(find.text('Rejeter'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

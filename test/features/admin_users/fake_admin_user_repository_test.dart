@@ -91,26 +91,6 @@ void main() {
     expect(updated.moderationHistory.first.kind, ModerationKind.roleChanged);
   });
 
-  test('invitation d’un admin : doublon d’e-mail refusé', () async {
-    final invited = await repository.inviteAdmin(
-      firstName: 'Nina',
-      lastName: 'Morel',
-      email: 'nina@joyn.fr',
-    );
-    expect(invited.role, AccountRole.admin);
-    expect(invited.status, AccountStatus.pending);
-    expect(
-      () => repository.inviteAdmin(
-        firstName: 'Autre',
-        lastName: 'Nina',
-        email: 'NINA@joyn.fr',
-      ),
-      throwsA(
-        isA<AdminUserException>().having((e) => e.statusCode, 'code', 409),
-      ),
-    );
-  });
-
   test('suppression logique : compte masqué mais conservé', () async {
     final user = (await repository.fetchUsers(const UserQuery())).items.last;
     await repository.deleteUser(user.id);

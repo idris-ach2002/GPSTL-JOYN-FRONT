@@ -1,3 +1,5 @@
+import '../../../candidate_workspace/presentation/candidate_workspace_dialog.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -9,7 +11,7 @@ import 'package:joyn_front/features/candidate_applications/domain/candidate_appl
 import 'package:joyn_front/features/candidate_applications/presentation/candidate_applications_controller.dart';
 import 'package:joyn_front/features/candidate_applications/presentation/shared/application_card.dart';
 import 'package:joyn_front/features/candidate_applications/presentation/shared/application_formatters.dart';
-import 'package:joyn_front/features/candidate_applications/presentation/shared/open_conversation.dart';
+import 'package:joyn_front/features/candidate_applications/presentation/shared/application_offer_details.dart';
 import 'package:joyn_front/features/candidate_applications/presentation/shared/status_color.dart';
 import 'package:joyn_front/features/dashboard/presentation/widgets/dashboard_top_bar.dart';
 
@@ -124,6 +126,12 @@ class _Title extends StatelessWidget {
               ),
             ],
           ),
+        ),
+        OutlinedButton.icon(
+          style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
+          onPressed: () => showCandidateWorkspace(context, initialTab: 3),
+          icon: const Icon(Icons.edit_note_outlined),
+          label: const Text('Notes et rappels'),
         ),
         IconButton(
           tooltip: 'Actualiser',
@@ -257,7 +265,7 @@ class _StatusColumn extends StatelessWidget {
               application: application,
               now: controller.now,
               isBusy: controller.openingId == application.id,
-              onTap: () => openApplicationConversation(context, application),
+              onTap: () => openApplicationOffer(context, application),
             ),
             const SizedBox(height: 12),
           ],

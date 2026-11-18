@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../../../core/network/api_client.dart';
 import '../../messaging/data/api_messaging_repository.dart';
 import 'pending_interests_store.dart';
@@ -37,7 +39,14 @@ class ApiCandidateApplicationsRepository
     );
     final server = _mapPage(_asMap(json), requestedPage: page);
     if (page != 1) return server;
-    final local = interests.items;
+    final workspace = _asMap(
+      await _api.getJson('/api/v1/candidates/workspace'),
+    );
+    interests.restore(_asList(workspace['bookmarks']));
+    final submittedOfferIds = server.items.map((a) => a.offerId).toSet();
+    final local = interests.items
+        .where((a) => !submittedOfferIds.contains(a.offerId))
+        .toList();
     return ApplicationsPage(
       items: [...local, ...server.items],
       page: server.page,
@@ -64,17 +73,42 @@ class ApiCandidateApplicationsRepository
   }
 
   @override
-  Future<CandidateApplication> sendApplication(String applicationId) async {
+  Future<CandidateApplication> sendApplication(
+    String applicationId, {
+    String? coverMessage,
+    Uint8List? coverPdf,
+    String? coverPdfName,
+  }) async {
     final offerId = interests.findOfferId(applicationId);
     if (offerId == null) {
       throw UnsupportedError(
         'Seuls les intérêts locaux non envoyés peuvent être soumis.',
       );
     }
-    final raw = await _api.postJson(
-      '/api/v1/applications',
-      body: {'jobOfferId': int.parse(offerId)},
-    );
+    const path = '/api/v1/applications';
+    final raw = coverPdf == null
+        ? await _api.postJson(
+            path,
+            body: {
+              'jobOfferId': int.parse(offerId),
+              'coverMessage': ?coverMessage,
+            },
+          )
+        : await _api.sendMultipart(
+            'POST',
+            path,
+            fields: {'jobOfferId': offerId},
+            fileBytes: coverPdf,
+            fileField: 'coverPdf',
+            fileName: coverPdfName,
+          );
+    // Submission is authoritative; remove the temporary interest from storage.
+    try {
+      await _api.deleteJson('/api/v1/candidates/workspace/offers/$offerId');
+    } catch (_) {
+      // The application has already been submitted successfully. The list
+      // filters duplicates using server application IDs on the next load.
+    }
     interests.submitted(offerId);
     final data = _unwrap(_asMap(raw));
     return _mapApplication(data);
@@ -116,6 +150,7 @@ class ApiCandidateApplicationsRepository
     return CandidateApplication(
       id: _nullableString(json['id']) ?? '',
       status: ApplicationStatus.fromApi(_nullableString(json['status'])),
+      backendStatus: _nullableString(json['status']),
       offerId: _nullableString(
         json['jobOfferId'] ?? json['offerId'] ?? json['jobId'] ?? offer['id'],
       ),

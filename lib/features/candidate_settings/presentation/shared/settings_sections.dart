@@ -1,3 +1,11 @@
+import 'account_security_dialog.dart';
+import '../../../../core/network/api_client.dart';
+import 'password_dialog.dart';
+
+import 'package:go_router/go_router.dart';
+
+import '../../../../app/routing/app_routes.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -298,6 +306,7 @@ class NotificationsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final n = context.watch<NotificationsController>();
+    final api = context.read<ApiClient?>();
     final read = n.items.where((x) => x.isRead).length;
     return SettingsCard(
       icon: Icons.notifications_none_rounded,
@@ -306,38 +315,47 @@ class NotificationsSection extends StatelessWidget {
           ? 'Tu es à jour.'
           : '${n.unreadCount} notification${n.unreadCount > 1 ? 's' : ''} '
                 'non lue${n.unreadCount > 1 ? 's' : ''}.',
-      child: Wrap(
-        spacing: 10,
-        runSpacing: 10,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          FilledButton.tonalIcon(
-            onPressed: onOpen,
-            icon: const Icon(Icons.list_rounded, size: 18),
-            label: const Text('Voir les notifications'),
-          ),
-          OutlinedButton(
-            onPressed: n.unreadCount == 0 ? null : n.markAllRead,
-            child: const Text('Tout marquer comme lu'),
-          ),
-          OutlinedButton(
-            onPressed: read == 0
-                ? null
-                : () async {
-                    final messenger = ScaffoldMessenger.of(context);
-                    String text;
-                    try {
-                      final count = await n.deleteRead();
-                      text = count <= 1
-                          ? '$count notification lue supprimée.'
-                          : '$count notifications lues supprimées.';
-                    } catch (_) {
-                      text = 'La suppression a échoué.';
-                    }
-                    messenger.showSnackBar(SnackBar(content: Text(text)));
-                  },
-            child: Text(
-              read == 0 ? 'Supprimer les lues' : 'Supprimer les lues ($read)',
-            ),
+          if (api != null) AccountAlertPreferences(api: api),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              FilledButton.tonalIcon(
+                onPressed: onOpen,
+                icon: const Icon(Icons.list_rounded, size: 18),
+                label: const Text('Voir les notifications'),
+              ),
+              OutlinedButton(
+                onPressed: n.unreadCount == 0 ? null : n.markAllRead,
+                child: const Text('Tout marquer comme lu'),
+              ),
+              OutlinedButton(
+                onPressed: read == 0
+                    ? null
+                    : () async {
+                        final messenger = ScaffoldMessenger.of(context);
+                        String text;
+                        try {
+                          final count = await n.deleteRead();
+                          text = count <= 1
+                              ? '$count notification lue supprimée.'
+                              : '$count notifications lues supprimées.';
+                        } catch (_) {
+                          text = 'La suppression a échoué.';
+                        }
+                        messenger.showSnackBar(SnackBar(content: Text(text)));
+                      },
+                child: Text(
+                  read == 0
+                      ? 'Supprimer les lues'
+                      : 'Supprimer les lues ($read)',
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -354,15 +372,64 @@ class AccountSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final email = context.watch<CandidateSettingsController>().saved.email;
+    final api = context.read<ApiClient?>();
     return SettingsCard(
       icon: Icons.person_outline_rounded,
       title: 'Compte',
       subtitle: email.isEmpty ? 'Compte candidat' : 'Connecté avec $email',
-      child: OutlinedButton.icon(
-        onPressed: onSignOut,
-        style: OutlinedButton.styleFrom(foregroundColor: AppColors.errorDeep),
-        icon: const Icon(Icons.logout_rounded, size: 18),
-        label: const Text('Se déconnecter'),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          OutlinedButton.icon(
+            onPressed: () => context.go(AppRoutes.candidateProfileEdit),
+            icon: const Icon(Icons.edit_outlined, size: 18),
+            label: const Text('Modifier mon profil et mon CV'),
+          ),
+          OutlinedButton.icon(
+            onPressed: () => context.go(AppRoutes.candidateMessages),
+            icon: const Icon(Icons.chat_outlined, size: 18),
+            label: const Text('Ouvrir la messagerie'),
+          ),
+          if (api != null)
+            OutlinedButton.icon(
+              onPressed: () async {
+                final changed = await showPasswordDialog(context, api);
+                if (changed == true && context.mounted) onSignOut();
+              },
+              icon: const Icon(Icons.key_outlined, size: 18),
+              label: const Text('Modifier mon mot de passe'),
+            ),
+          if (api != null)
+            for (final (email, title, icon) in [
+              (true, 'Changer mon adresse e-mail', Icons.alternate_email),
+              (
+                false,
+                'Déconnecter mes appareils',
+                Icons.phonelink_erase_outlined,
+              ),
+            ])
+              OutlinedButton.icon(
+                onPressed: () async {
+                  final updated = await showAccountSecurityDialog(
+                    context,
+                    api,
+                    updateEmail: email,
+                  );
+                  if (updated == true && context.mounted) onSignOut();
+                },
+                icon: Icon(icon, size: 18),
+                label: Text(title),
+              ),
+          OutlinedButton.icon(
+            onPressed: onSignOut,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.errorDeep,
+            ),
+            icon: const Icon(Icons.logout_rounded, size: 18),
+            label: const Text('Se déconnecter'),
+          ),
+        ],
       ),
     );
   }

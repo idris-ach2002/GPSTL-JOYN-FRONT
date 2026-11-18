@@ -76,6 +76,7 @@ class ApiClient {
     Uint8List? fileBytes,
     String? fileName,
     String fileField = 'resume',
+    Duration? requestTimeout,
   }) async {
     try {
       final request = http.MultipartRequest(method, _uri(path));
@@ -90,8 +91,9 @@ class ApiClient {
           ),
         );
       }
-      final streamed = await _http.send(request).timeout(timeout);
-      return _decode(await http.Response.fromStream(streamed).timeout(timeout));
+      final limit = requestTimeout ?? timeout;
+      final streamed = await _http.send(request).timeout(limit);
+      return _decode(await http.Response.fromStream(streamed).timeout(limit));
     } catch (error) {
       if (error is ApiException) rethrow;
       throw ApiException(

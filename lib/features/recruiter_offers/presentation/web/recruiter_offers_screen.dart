@@ -212,7 +212,7 @@ class _WebRecruiterOffersScreenState extends State<WebRecruiterOffersScreen> {
 
     Widget buildCard(JobOffer offer, {required bool grid}) {
       final company = controller.companyFor(offer.companyId);
-      void onTap() => context.go(AppRoutes.recruiterDashboardOffer(offer.id));
+      void onTap() => context.go(AppRoutes.recruiterJobDetail(offer.id));
       void onEdit() => context.go(AppRoutes.recruiterJobEdit(offer.id));
       Future<void> onClose() => _confirmClose(context, controller, offer);
       Future<void> onDelete() => _confirmDelete(context, controller, offer);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import 'package:joyn_front/app/navigation/candidate_account_menu.dart';
 import 'package:joyn_front/app/routing/app_routes.dart';
 import 'package:joyn_front/core/theme/app_colors.dart';
 import 'package:joyn_front/core/theme/app_dimens.dart';
@@ -256,34 +257,13 @@ class _AccountMenu extends StatelessWidget {
 
   final bool showName;
 
-  Future<void> _signOut(BuildContext context) async {
-    await context.read<AuthController>().signOut();
-    // Navigation explicite : en mode démo (SKIP_LOGIN), le routeur ne
-    // redirige pas tout seul vers la connexion.
-    if (context.mounted) context.go(AppRoutes.login);
-  }
-
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthController>().user;
     // TODO(backend): afficher le vrai nom quand AppUser en contiendra un.
     final name = Placeholders.text(user?.email.split('@').first);
 
-    return PopupMenuButton<void>(
-      tooltip: 'Mon compte',
-      position: PopupMenuPosition.under,
-      itemBuilder: (context) => [
-        PopupMenuItem(
-          onTap: () => _signOut(context),
-          child: const Row(
-            children: [
-              Icon(Icons.logout_rounded, size: 18),
-              SizedBox(width: AppSpacing.sm),
-              Text('Se déconnecter'),
-            ],
-          ),
-        ),
-      ],
+    return CandidateAccountMenu(
       child: Container(
         padding: const EdgeInsets.fromLTRB(4, 4, 10, 4),
         decoration: BoxDecoration(

@@ -12,9 +12,9 @@ void main() {
     final calls = <String>[];
     final client = MockClient((request) async {
       calls.add(request.url.path);
-      if (request.url.path == '/api/v1/recruiters/dashboard') {
+      if (request.url.path == '/api/v1/recruiters/jobs') {
         return http.Response(
-          '{"topOffers":[{"id":7,"title":"Full Stack","location":"Paris","contract":"CDI"}]}',
+          '{"content":[{"offer":{"id":7,"title":"Full Stack","location":"Paris","contract_type":"CDI"},"candidate_count":1}],"hasNext":false}',
           200,
         );
       }
@@ -43,6 +43,8 @@ void main() {
     final data = await repo.fetchRecommendations(
       const CandidateRecommendationQuery(offerId: 7),
     );
+    expect(data.offers.single.id, 7);
+    expect(data.offers.single.title, 'Full Stack');
     expect(data.items.single.profileId, '17');
     expect(data.items.single.jobTitle, 'Développeuse');
     expect(data.items.single.fullName, 'Amina Diallo');
