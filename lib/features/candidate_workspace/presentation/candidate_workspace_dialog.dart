@@ -548,9 +548,10 @@ class _CandidateWorkspaceDialogState extends State<CandidateWorkspaceDialog> {
         ),
       );
     } catch (error) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('$error')));
+      }
     }
   }
 
@@ -593,10 +594,11 @@ class _CandidateWorkspaceDialogState extends State<CandidateWorkspaceDialog> {
 
   Widget _bookmarksTab(Map<String, dynamic> data) {
     final items = _rows(data['bookmarks']);
-    if (items.isEmpty)
+    if (items.isEmpty) {
       return const _Empty(
         'Aucune offre enregistrée. Explore les offres et sélectionne le marque-page.',
       );
+    }
     return Column(
       children: [
         for (final item in items)
@@ -843,11 +845,12 @@ class _CandidateWorkspaceDialogState extends State<CandidateWorkspaceDialog> {
                   ? () => _projectForm(project)
                   : () async {
                       final url = Uri.tryParse(_str(project['project_url']));
-                      if (url != null && url.scheme == 'https')
+                      if (url != null && url.scheme == 'https') {
                         await launchUrl(
                           url,
                           mode: LaunchMode.externalApplication,
                         );
+                      }
                     },
               trailing: Wrap(
                 children: [
@@ -886,8 +889,9 @@ class _CandidateWorkspaceDialogState extends State<CandidateWorkspaceDialog> {
         root['items'] ?? root['content'] ?? root['applications'],
       );
       final notes = _rows(data['notes']);
-      if (applications.isEmpty)
+      if (applications.isEmpty) {
         return const _Empty('Tu n’as pas encore envoyé de candidature.');
+      }
       return Column(
         children: [
           const Text(
@@ -1068,7 +1072,7 @@ class _CandidateWorkspaceDialogState extends State<CandidateWorkspaceDialog> {
                       ),
                     );
                     if (!c.mounted) return;
-                    if (time != null)
+                    if (time != null) {
                       update(
                         () => reminder = DateTime(
                           date.year,
@@ -1078,6 +1082,7 @@ class _CandidateWorkspaceDialogState extends State<CandidateWorkspaceDialog> {
                           time.minute,
                         ),
                       );
+                    }
                   },
                 ),
               ],

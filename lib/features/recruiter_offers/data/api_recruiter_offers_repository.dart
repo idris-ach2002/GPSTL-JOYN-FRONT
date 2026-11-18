@@ -297,8 +297,9 @@ class ApiRecruiterOffersRepository implements RecruiterOffersRepository {
       body: {'status': JobOfferStatus.closed.apiValue},
     );
     final updated = session[id];
-    if (updated != null)
+    if (updated != null) {
       session[id] = updated.copyWith(status: JobOfferStatus.closed);
+    }
   }
 
   @override

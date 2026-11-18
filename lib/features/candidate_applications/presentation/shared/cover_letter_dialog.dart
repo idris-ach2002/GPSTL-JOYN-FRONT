@@ -96,8 +96,9 @@ class _CoverLetterDialogState extends State<_CoverLetterDialog> {
       );
       if (mounted) setState(() => _error = 'Brouillon enregistré.');
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         setState(() => _error = 'Impossible d’enregistrer le brouillon.');
+      }
     } finally {
       if (mounted) setState(() => _savingDraft = false);
     }
