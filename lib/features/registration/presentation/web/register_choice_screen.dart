@@ -248,12 +248,12 @@ class _ChoiceCards extends StatelessWidget {
       tagIcon: Icons.apartment_outlined,
       tint: AppColors.orangeTint,
       tintForeground: AppColors.orangeDeep,
-      title: 'Je recrute des alternant·e·s',
+      title: 'Je recrute des talents',
       description: 'Recevez des profils compatibles avec votre poste, votre rythme et votre localisation.',
       benefits: const [
         'Paiement à l’annonce, sans abonnement',
         'Entreprise vérifiée grâce au SIRET',
-        'Vos alternants cooptent leurs successeurs',
+        'Vos équipes recommandent de nouveaux talents',
       ],
     );
 
