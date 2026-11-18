@@ -337,6 +337,7 @@ class _CandidateWorkspaceDialogState extends State<CandidateWorkspaceDialog> {
               SizedBox(
                 width: 160,
                 child: DropdownButtonFormField<String>(
+                  isExpanded: true,
                   initialValue: _contract,
                   decoration: const InputDecoration(labelText: 'Contrat'),
                   items: const [
@@ -350,7 +351,11 @@ class _CandidateWorkspaceDialogState extends State<CandidateWorkspaceDialog> {
                     ),
                     DropdownMenuItem(
                       value: 'PROFESSIONALIZATION',
-                      child: Text('Professionnalisation'),
+                      child: Text(
+                        'Professionnalisation',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                   onChanged: (v) => setState(() => _contract = v),
@@ -378,6 +383,7 @@ class _CandidateWorkspaceDialogState extends State<CandidateWorkspaceDialog> {
               SizedBox(
                 width: 145,
                 child: DropdownButtonFormField<String>(
+                  isExpanded: true,
                   initialValue: _remote,
                   decoration: const InputDecoration(labelText: 'Travail'),
                   items: const [

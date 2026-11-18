@@ -115,11 +115,18 @@ class _WebDiscoverScreenState extends State<WebDiscoverScreen>
                               alignment: Alignment.centerRight,
                               child: OutlinedButton.icon(
                                 style: OutlinedButton.styleFrom(
-                                  foregroundColor: Colors.white,
+                                  backgroundColor: AppColors.white,
+                                  side: const BorderSide(
+                                    color: AppColors.white,
+                                  ),
+                                  foregroundColor: AppColors.navy,
                                 ),
                                 onPressed: () =>
                                     showCandidateWorkspace(context),
-                                icon: const Icon(Icons.search),
+                                icon: const Icon(
+                                  Icons.manage_search_rounded,
+                                  color: AppColors.navy,
+                                ),
                                 label: const Text(
                                   'Recherche classique et favoris',
                                 ),
