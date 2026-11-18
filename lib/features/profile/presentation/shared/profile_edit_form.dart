@@ -43,6 +43,8 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
   late final _headline = TextEditingController(text: _initial.headline);
   late final _city = TextEditingController(text: _initial.city);
   late final _email = TextEditingController(text: _initial.email);
+  late final _phone = TextEditingController(text: _initial.phone);
+  late final _address = TextEditingController(text: _initial.address);
   late final _bio = TextEditingController(text: _initial.bio);
   late final _github = TextEditingController(text: _initial.links.github);
   late final _linkedin = TextEditingController(text: _initial.links.linkedin);
@@ -65,6 +67,8 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
       _headline,
       _city,
       _email,
+      _phone,
+      _address,
       _bio,
       _github,
       _linkedin,
@@ -280,6 +284,25 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
                         size: 20,
                       ),
                       errorText: _form.visibleErrorFor(ProfileEditField.email),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _pair(
+                  TextField(
+                    controller: _phone,
+                    onChanged: _form.setPhone,
+                    keyboardType: TextInputType.phone,
+                    decoration: const InputDecoration(
+                      labelText: 'Téléphone (facultatif)',
+                      hintText: '+33612345678',
+                    ),
+                  ),
+                  TextField(
+                    controller: _address,
+                    onChanged: _form.setAddress,
+                    decoration: const InputDecoration(
+                      labelText: 'Adresse (facultative)',
                     ),
                   ),
                 ),
@@ -599,25 +622,51 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _pair(
-                  DropdownMenu<String>(
-                    expandedInsets: EdgeInsets.zero,
-                    requestFocusOnTap: false,
-                    label: const Text('Début'),
-                    initialSelection: draft.availability.start.isEmpty
-                        ? null
-                        : draft.availability.start,
-                    onSelected: (value) {
-                      if (value != null) _form.setStart(value);
-                    },
-                    dropdownMenuEntries: [
-                      for (final start in {
-                        ...ProfileOptions.startDates,
-                        if (draft.availability.start.isNotEmpty)
-                          draft.availability.start,
-                      })
-                        DropdownMenuEntry(value: start, label: start),
-                    ],
-                  ),
+                  _form.isConnected
+                      ? OutlinedButton.icon(
+                          onPressed: () async {
+                            final now = DateTime.now();
+                            final current = DateTime.tryParse(
+                              draft.availability.start,
+                            );
+                            final picked = await showDatePicker(
+                              context: context,
+                              initialDate: current ?? now,
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime(now.year + 10),
+                            );
+                            if (picked != null && mounted) {
+                              _form.setStart(
+                                picked.toIso8601String().split('T').first,
+                              );
+                            }
+                          },
+                          icon: const Icon(Icons.calendar_today_outlined),
+                          label: Text(
+                            draft.availability.start.isEmpty
+                                ? 'Date de disponibilité'
+                                : draft.availability.start,
+                          ),
+                        )
+                      : DropdownMenu<String>(
+                          expandedInsets: EdgeInsets.zero,
+                          requestFocusOnTap: false,
+                          label: const Text('Début'),
+                          initialSelection: draft.availability.start.isEmpty
+                              ? null
+                              : draft.availability.start,
+                          onSelected: (value) {
+                            if (value != null) _form.setStart(value);
+                          },
+                          dropdownMenuEntries: [
+                            for (final start in {
+                              ...ProfileOptions.startDates,
+                              if (draft.availability.start.isNotEmpty)
+                                draft.availability.start,
+                            })
+                              DropdownMenuEntry(value: start, label: start),
+                          ],
+                        ),
                   DropdownMenu<int>(
                     expandedInsets: EdgeInsets.zero,
                     requestFocusOnTap: false,

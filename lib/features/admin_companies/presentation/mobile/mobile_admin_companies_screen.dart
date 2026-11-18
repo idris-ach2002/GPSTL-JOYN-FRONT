@@ -1,3 +1,5 @@
+import '../../../admin/presentation/shared/admin_bulk_actions.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -108,6 +110,20 @@ class _MobileAdminCompaniesViewState extends State<_MobileAdminCompaniesView> {
               ),
               SliverToBoxAdapter(
                 child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
+                  child: AdminBulkActions(
+                    kind: 'companies',
+                    selection: controller,
+                    export: controller.exportRows,
+                    reload: controller.load,
+                  ),
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
                   child: Row(
                     children: [
@@ -174,22 +190,21 @@ class _MobileAdminCompaniesViewState extends State<_MobileAdminCompaniesView> {
               const SliverToBoxAdapter(child: SizedBox(height: 96)),
             ],
           ),
-          if (controller.canCreateCompanies)
-            Positioned(
-              right: 16,
-              bottom: 16,
-              child: FloatingActionButton.extended(
-                key: const ValueKey('mobile-admin-add-company'),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(adminRadius),
-                ),
-                backgroundColor: AppColors.navy,
-                foregroundColor: AppColors.white,
-                onPressed: () => handler.create(context),
-                icon: const Icon(Icons.add_rounded),
-                label: const Text('Ajouter'),
+          Positioned(
+            right: 16,
+            bottom: 16,
+            child: FloatingActionButton.extended(
+              key: const ValueKey('mobile-admin-add-company'),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(adminRadius),
               ),
+              backgroundColor: AppColors.navy,
+              foregroundColor: AppColors.white,
+              onPressed: () => handler.create(context),
+              icon: const Icon(Icons.add_rounded),
+              label: const Text('Ajouter'),
             ),
+          ),
         ],
       ),
     );
@@ -337,6 +352,13 @@ class _CompanyCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Checkbox(
+                value: handler.controller.selected(company.id),
+                semanticLabel: 'Sélectionner',
+                onChanged: (value) =>
+                    handler.controller.select(company.id, value == true),
+                visualDensity: VisualDensity.compact,
+              ),
               CompanyLogoAvatar(
                 name: company.name,
                 initials: company.initials,

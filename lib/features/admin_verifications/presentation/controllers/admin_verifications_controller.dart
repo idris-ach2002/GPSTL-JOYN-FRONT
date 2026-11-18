@@ -1,9 +1,10 @@
+import '../../data/api_verification_repository.dart';
+
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
 import '../../data/verification_repository.dart';
-import '../../data/api_verification_repository.dart';
 import '../../domain/company_verification.dart';
 
 enum VerificationsStatus { loading, ready, error, forbidden }
@@ -27,7 +28,6 @@ class AdminVerificationsController extends ChangeNotifier {
   });
 
   final VerificationRepository _repository;
-  bool get supportsReviewWorkflow => _repository is! ApiVerificationRepository;
 
   /// Délai de la recherche pendant la saisie (debounce).
   final Duration searchDebounce;
@@ -130,14 +130,26 @@ class AdminVerificationsController extends ChangeNotifier {
         : 'Relance effectuée : ${updated.issue.label.toLowerCase()}. Une décision manuelle est nécessaire.',
   );
 
+  Future<VerificationActionResult> approveWithDocument(
+    CompanyVerification item,
+    String name,
+    Uint8List bytes,
+    String note,
+  ) => _run(
+    item,
+    () => _repository is ApiVerificationRepository
+        ? _repository.attachDocument(item.id, name, bytes, note)
+        : _repository.decide(item.id, VerificationDecision.approve, note: note),
+    (_) => 'Entreprise vérifiée sur justificatif.',
+  );
+
   Future<VerificationActionResult> approve(
     CompanyVerification item, {
     String note = '',
   }) => _run(
     item,
     () => _repository.decide(item.id, VerificationDecision.approve, note: note),
-    (_) =>
-        '« ${item.companyName} » est vérifiée : ses offres deviennent visibles.',
+    (_) => '« ${item.companyName} » est vérifiée.',
   );
 
   Future<VerificationActionResult> requestDocument(

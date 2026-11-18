@@ -1,3 +1,7 @@
+import '../../../core/network/api_client.dart';
+import '../../interviews/presentation/interview_agenda.dart';
+import '../../recruiter_workspace/presentation/candidate_dossier.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -257,6 +261,24 @@ class _StudioPlannerState extends State<StudioPlanner> {
   }
 
   Widget _events(StudioController c) {
+    final api = context.read<ApiClient?>();
+    if (api != null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          InterviewAgenda(api: api, recruiter: true, query: _query),
+          if (c.list('interviews').isNotEmpty)
+            ExpansionTile(
+              title: const Text('Créneaux personnels précédemment enregistrés'),
+              children: [_localEvents(c, allowNew: false)],
+            ),
+        ],
+      );
+    }
+    return _localEvents(c);
+  }
+
+  Widget _localEvents(StudioController c, {bool allowNew = true}) {
     final all = c.list('interviews');
     final values = all.where((e) {
       final d = DateTime.tryParse('${e['start']}')?.toLocal();
@@ -280,13 +302,14 @@ class _StudioPlannerState extends State<StudioPlanner> {
           runSpacing: 10,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            FilledButton.icon(
-              onPressed: c.loading || c.saving || c.error != null
-                  ? null
-                  : () => studioEditInterview(context),
-              icon: const Icon(Icons.add),
-              label: const Text('Préparer un entretien'),
-            ),
+            if (allowNew)
+              FilledButton.icon(
+                onPressed: c.loading || c.saving || c.error != null
+                    ? null
+                    : () => studioEditInterview(context),
+                icon: const Icon(Icons.add),
+                label: const Text('Préparer un entretien'),
+              ),
             OutlinedButton.icon(
               onPressed: values.isEmpty
                   ? null
@@ -540,6 +563,7 @@ class _StudioPlannerState extends State<StudioPlanner> {
     'closed': 'Clôturé',
   };
   Widget _pipeline(StudioController c) {
+    final api = context.read<ApiClient?>();
     final candidates = c
         .list('pipeline')
         .where(
@@ -614,6 +638,16 @@ class _StudioPlannerState extends State<StudioPlanner> {
                   Wrap(
                     spacing: 8,
                     children: [
+                      if (api != null && candidate['profileId'] != null)
+                        TextButton.icon(
+                          onPressed: () => showCandidateDossier(
+                            context,
+                            api,
+                            '${candidate['id']}',
+                          ),
+                          icon: const Icon(Icons.folder_open_outlined),
+                          label: const Text('Voir le dossier'),
+                        ),
                       TextButton.icon(
                         onPressed: () => studioAddNote(
                           context,
@@ -638,7 +672,7 @@ class _StudioPlannerState extends State<StudioPlanner> {
                             path: AppRoutes.recruiterMessages,
                             queryParameters: {
                               if (candidate['profileId'] != null)
-                                'profileId': '${candidate['profileId']}'
+                                'applicationId': '${candidate['id']}'
                               else
                                 'candidateId': '${candidate['id']}',
                               'name': '${candidate['name']}',

@@ -1,9 +1,11 @@
+import '../../data/api_admin_company_repository.dart';
+import '../../../admin/presentation/shared/admin_bulk_actions.dart';
+
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
 import '../../data/admin_company_repository.dart';
-import '../../data/api_admin_company_repository.dart';
 import '../../data/company_logo_picker.dart';
 import '../../domain/admin_company.dart';
 import '../../domain/admin_company_options.dart';
@@ -24,7 +26,7 @@ class AdminActionResult {
 ///
 /// La recherche, les filtres, le tri et la pagination sont faits par le
 /// serveur : chaque changement relance une requête sur la page concernée.
-class AdminCompaniesController extends ChangeNotifier {
+class AdminCompaniesController extends ChangeNotifier with AdminSelection {
   AdminCompaniesController(
     this._repository, {
     CompanyLogoPicker? logoPicker,
@@ -32,19 +34,19 @@ class AdminCompaniesController extends ChangeNotifier {
   }) : logoPicker = logoPicker ?? const DeviceCompanyLogoPicker();
 
   final AdminCompanyRepository _repository;
-  bool get canEditCompanies => true;
-  bool get canCreateCompanies => _repository is! ApiAdminCompanyRepository;
+
+  /// Sélecteur de logo utilisé par le formulaire.
+  final CompanyLogoPicker logoPicker;
+  final Duration _searchDebounce;
+
   bool get connected => _repository is ApiAdminCompanyRepository;
+
   Future<AdminCompany> companyForEdit(AdminCompany company) async {
     final repo = _repository;
     return repo is ApiAdminCompanyRepository
         ? repo.fetchCompany(company.id)
         : company;
   }
-
-  /// Sélecteur de logo utilisé par le formulaire.
-  final CompanyLogoPicker logoPicker;
-  final Duration _searchDebounce;
 
   CompanyQuery _query = const CompanyQuery();
   CompanyPage? _page;
@@ -269,6 +271,28 @@ class AdminCompaniesController extends ChangeNotifier {
 
   void _notify() {
     if (!_disposed) notifyListeners();
+  }
+
+  Future<List<List<Object?>>> exportRows() async {
+    final filter = _query;
+    final rows = <List<Object?>>[
+      ['Entreprise', 'SIRET', 'Secteur', 'Ville', 'Statut'],
+    ];
+    for (var page = 1; ; page++) {
+      final result = await _repository.fetchCompanies(
+        filter.copyWith(page: page),
+      );
+      for (final company in result.items) {
+        rows.add([
+          company.name,
+          company.siret,
+          company.sector,
+          company.city,
+          company.status.label,
+        ]);
+      }
+      if (page >= result.totalPages || result.items.isEmpty) return rows;
+    }
   }
 
   @override

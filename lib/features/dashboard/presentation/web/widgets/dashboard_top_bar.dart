@@ -74,6 +74,14 @@ class DashboardTopBar extends StatelessWidget {
         ),
         const SizedBox(width: AppSpacing.sm),
         _AccountMenu(showName: isWide),
+        _RoundIconButton(
+          icon: Icons.logout_rounded,
+          tooltip: 'Se déconnecter',
+          onPressed: () async {
+            await context.read<AuthController>().signOut();
+            if (context.mounted) context.go(AppRoutes.login);
+          },
+        ),
       ],
     );
 
@@ -256,13 +264,6 @@ class _AccountMenu extends StatelessWidget {
 
   final bool showName;
 
-  Future<void> _signOut(BuildContext context) async {
-    await context.read<AuthController>().signOut();
-    // Navigation explicite : en mode démo (SKIP_LOGIN), le routeur ne
-    // redirige pas tout seul vers la connexion.
-    if (context.mounted) context.go(AppRoutes.login);
-  }
-
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthController>().user;
@@ -270,18 +271,16 @@ class _AccountMenu extends StatelessWidget {
     final name = Placeholders.text(user?.email.split('@').first);
 
     return PopupMenuButton<void>(
-      tooltip: 'Mon compte',
+      tooltip: 'Mon profil',
       position: PopupMenuPosition.under,
       itemBuilder: (context) => [
         PopupMenuItem(
-          onTap: () => _signOut(context),
-          child: const Row(
-            children: [
-              Icon(Icons.logout_rounded, size: 18),
-              SizedBox(width: AppSpacing.sm),
-              Text('Se déconnecter'),
-            ],
-          ),
+          onTap: () => context.go(AppRoutes.candidateProfile),
+          child: const Text('Voir mon profil'),
+        ),
+        PopupMenuItem(
+          onTap: () => context.go(AppRoutes.candidateProfileEdit),
+          child: const Text('Modifier mon profil'),
         ),
       ],
       child: Container(

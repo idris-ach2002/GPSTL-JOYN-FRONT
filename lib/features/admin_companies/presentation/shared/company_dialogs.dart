@@ -78,7 +78,6 @@ class _CompanyFormDialogState extends State<_CompanyFormDialog> {
   late final _website = TextEditingController(text: widget.initial?.website);
   late String? _sector = widget.initial?.sector;
   late CompanyLogo? _logo = widget.initial?.logo;
-  CompanyStatus _initialStatus = CompanyStatus.pending;
   String? _logoError;
 
   bool get _editing => widget.initial != null;
@@ -116,14 +115,12 @@ class _CompanyFormDialogState extends State<_CompanyFormDialog> {
         address: _address.text.trim(),
         website: CompanyValidators.normalizeWebsite(_website.text),
         logo: _logo,
-        initialStatus: _initialStatus,
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
     final title = _editing ? "Modifier l'entreprise" : 'Ajouter une entreprise';
     final name = _name.text.trim();
 
@@ -247,17 +244,6 @@ class _CompanyFormDialogState extends State<_CompanyFormDialog> {
               prefixIcon: Icon(Icons.language_rounded, size: 20),
             ),
           ),
-          if (!_editing) ...[
-            const SizedBox(height: 18),
-            Text('Statut initial', style: textTheme.titleSmall),
-            const SizedBox(height: 8),
-            JoynChipGroup<CompanyStatus>.single(
-              options: const [CompanyStatus.pending, CompanyStatus.approved],
-              selected: _initialStatus,
-              labelOf: (status) => status.label,
-              onSelected: (status) => setState(() => _initialStatus = status),
-            ),
-          ],
         ],
       ),
     );

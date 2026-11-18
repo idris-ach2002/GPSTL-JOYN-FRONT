@@ -9,7 +9,7 @@ import 'package:joyn_front/features/candidate_applications/domain/candidate_appl
 import 'package:joyn_front/features/candidate_applications/presentation/candidate_applications_controller.dart';
 import 'package:joyn_front/features/candidate_applications/presentation/shared/application_card.dart';
 import 'package:joyn_front/features/candidate_applications/presentation/shared/application_formatters.dart';
-import 'package:joyn_front/features/candidate_applications/presentation/shared/open_conversation.dart';
+import 'package:joyn_front/features/candidate_applications/presentation/shared/application_offer_details.dart';
 import 'package:joyn_front/features/candidate_applications/presentation/shared/status_color.dart';
 import 'package:joyn_front/features/dashboard/presentation/widgets/dashboard_top_bar.dart';
 
@@ -257,7 +257,7 @@ class _StatusColumn extends StatelessWidget {
               application: application,
               now: controller.now,
               isBusy: controller.openingId == application.id,
-              onTap: () => openApplicationConversation(context, application),
+              onTap: () => openApplicationOffer(context, application),
             ),
             const SizedBox(height: 12),
           ],

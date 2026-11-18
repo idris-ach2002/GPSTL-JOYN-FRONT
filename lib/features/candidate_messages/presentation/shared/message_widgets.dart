@@ -762,7 +762,8 @@ class ThreadList extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 16, 14, 8),
-          child: TextField(
+          child: TextFormField(
+            initialValue: controller.query,
             onChanged: controller.search,
             decoration: const InputDecoration(
               hintText: 'Rechercher une entreprise ou une offre',
@@ -770,12 +771,34 @@ class ThreadList extends StatelessWidget {
             ),
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          child: Row(
+            children: [
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: FilterChip(
+                    label: Text('Non lus (${controller.totalUnread})'),
+                    selected: controller.unreadOnly,
+                    onSelected: controller.filterUnread,
+                  ),
+                ),
+              ),
+              IconButton(
+                tooltip: 'Actualiser les conversations',
+                onPressed: controller.refresh,
+                icon: const Icon(Icons.refresh),
+              ),
+            ],
+          ),
+        ),
         Expanded(
           child: threads.isEmpty
-              ? const _EmptyThread(
-                  text:
-                      'Aucune conversation pour l’instant. Elles apparaissent '
-                      'ici dès que tu postules.',
+              ? _EmptyThread(
+                  text: controller.query.isNotEmpty || controller.unreadOnly
+                      ? 'Aucune conversation ne correspond à ces filtres.'
+                      : 'Tes candidatures et conversations apparaîtront ici.',
                 )
               : ListView.separated(
                   padding: const EdgeInsets.fromLTRB(8, 4, 8, 12),

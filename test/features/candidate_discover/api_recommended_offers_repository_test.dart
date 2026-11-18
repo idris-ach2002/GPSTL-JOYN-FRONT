@@ -67,10 +67,10 @@ void main() {
       'companyName': 'Mobilis',
       'score': 140,
       'skills': ['SQL'],
-      'matching': {'skills': 80, 'location': 50},
+      'matching': {'skills': 80, 'location': 50, 'distance_km': 194.86},
     });
     expect(offer.compatibility, 100);
     expect(offer.skills.single.name, 'SQL');
-    expect(offer.criteria.map((c) => c.label), ['Technos', 'Trajet']);
+    expect(offer.criteria.map((c) => c.label), ['Compétences', 'Trajet']);
   });
 }

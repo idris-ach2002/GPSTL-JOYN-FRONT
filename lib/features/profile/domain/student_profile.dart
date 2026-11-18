@@ -206,6 +206,8 @@ class StudentProfile {
     this.headline = '',
     this.city = '',
     this.email = '',
+    this.phone = '',
+    this.address = '',
     this.bio = '',
     this.educations = const [],
     this.experiences = const [],
@@ -231,6 +233,8 @@ class StudentProfile {
   final String headline;
   final String city;
   final String email;
+  final String phone;
+  final String address;
 
   /// Présentation libre (400 caractères max).
   final String bio;
@@ -273,6 +277,8 @@ class StudentProfile {
     String? headline,
     String? city,
     String? email,
+    String? phone,
+    String? address,
     String? bio,
     List<ProfileEducation>? educations,
     List<ProfileExperience>? experiences,
@@ -291,6 +297,8 @@ class StudentProfile {
       headline: headline ?? this.headline,
       city: city ?? this.city,
       email: email ?? this.email,
+      phone: phone ?? this.phone,
+      address: address ?? this.address,
       bio: bio ?? this.bio,
       educations: educations ?? this.educations,
       experiences: experiences ?? this.experiences,

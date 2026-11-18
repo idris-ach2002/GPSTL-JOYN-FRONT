@@ -1,3 +1,5 @@
+import 'candidate_dossier.dart';
+
 import 'package:flutter/services.dart';
 
 import '../../recruiter_studio/presentation/studio_controller.dart';
@@ -587,6 +589,18 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
                                     candidateId: candidate,
                                     candidateName: name,
                                   );
+                                case 'dossier':
+                                  final repository = c.repository;
+                                  final appId = _selected?['applicationId'];
+                                  if (repository
+                                          is ApiRecruiterWorkspaceRepository &&
+                                      appId != null) {
+                                    await showCandidateDossier(
+                                      context,
+                                      repository.api,
+                                      '$appId',
+                                    );
+                                  }
                                 case 'interview':
                                   await studioEditInterview(
                                     context,
@@ -598,6 +612,7 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
                                     applicationId: _selected!['applicationId']
                                         ?.toString(),
                                   );
+                                  if (mounted) await _refresh();
                                 case 'refresh':
                                   await _refresh();
                               }
@@ -623,6 +638,12 @@ class _WorkspaceMessagesState extends State<WorkspaceMessages>
                                 ),
                               ),
                               const PopupMenuDivider(),
+                              if (!c.repository.isMock &&
+                                  _selected?['applicationId'] != null)
+                                const PopupMenuItem(
+                                  value: 'dossier',
+                                  child: Text('Voir le dossier complet'),
+                                ),
                               const PopupMenuItem(
                                 value: 'note',
                                 child: Text('Ajouter une note privée'),

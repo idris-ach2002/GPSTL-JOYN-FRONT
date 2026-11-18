@@ -68,6 +68,12 @@ class MockNotificationsRepository implements NotificationsRepository {
   }
 
   @override
+  Future<void> markUnread(String id) async {
+    final index = _items.indexWhere((item) => item.id == id);
+    if (index >= 0) _items[index] = _items[index].markRead(false);
+  }
+
+  @override
   Future<void> markAllRead() async {
     await Future<void>.delayed(latency);
     for (var i = 0; i < _items.length; i++) {

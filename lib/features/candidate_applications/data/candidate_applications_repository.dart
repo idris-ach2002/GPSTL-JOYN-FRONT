@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../domain/candidate_application.dart';
 
 /// Contrat d'accès aux candidatures du candidat connecté.
@@ -20,5 +22,10 @@ abstract interface class CandidateApplicationsRepository {
 
   /// Envoie une candidature de la colonne « Intéressé » à l'entreprise et
   /// renvoie sa nouvelle version (statut « envoyée »).
-  Future<CandidateApplication> sendApplication(String applicationId);
+  Future<CandidateApplication> sendApplication(
+    String applicationId, {
+    String? coverMessage,
+    Uint8List? coverPdf,
+    String? coverPdfName,
+  });
 }

@@ -5,7 +5,7 @@ import 'package:joyn_front/features/auth/data/fake_auth_repository.dart';
 import 'package:joyn_front/features/auth/presentation/auth_controller.dart';
 import 'package:joyn_front/features/auth/presentation/web/login_page.dart';
 import 'package:joyn_front/features/dashboard/data/fake_dashboard_repository.dart';
-import 'package:joyn_front/features/dashboard/presentation/web/dashboard_page.dart';
+import 'package:joyn_front/features/dashboard/presentation/student_dashboard.dart';
 
 Future<void> settle(WidgetTester tester) async {
   await tester.pump();
@@ -47,7 +47,7 @@ void main() {
 
     expect(auth.isAuthenticated, isTrue);
     expect(find.byType(LoginPage), findsNothing);
-    expect(find.byType(DashboardPage), findsOneWidget);
+    expect(find.byType(StudentDashboard), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
   });
 }

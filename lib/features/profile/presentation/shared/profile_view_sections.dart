@@ -1,3 +1,8 @@
+import 'package:provider/provider.dart';
+
+import '../../../../core/network/api_client.dart';
+import '../../../../design_system/documents/pdf_preview.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../../../design_system/material/joyn_chip_group.dart';
@@ -137,6 +142,20 @@ class ProfileHero extends StatelessWidget {
             style: textTheme.bodyLarge?.copyWith(
               color: const Color(0xE6FFFFFF),
               fontSize: compact ? 15 : 18,
+            ),
+          ),
+        ],
+        if (profile.phone.trim().isNotEmpty ||
+            profile.address.trim().isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Text(
+            [
+              profile.phone,
+              profile.address,
+            ].where((v) => v.trim().isNotEmpty).join(' · '),
+            textAlign: compact ? TextAlign.center : TextAlign.start,
+            style: textTheme.bodySmall?.copyWith(
+              color: const Color(0xFFE5F2FA),
             ),
           ),
         ],
@@ -637,6 +656,7 @@ class CvFileTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final onReplace = this.onReplace;
+    final api = context.read<ApiClient?>();
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 12),
       leading: const Icon(
@@ -644,6 +664,14 @@ class CvFileTile extends StatelessWidget {
         color: AppColors.errorDeep,
         size: 30,
       ),
+      onTap: api == null || cv.bytes != null
+          ? null
+          : () => showPdfPreview(
+              context,
+              api,
+              '/api/v1/candidates/profile/cv-preview',
+              'Mon CV',
+            ),
       title: Text(cv.fileName, maxLines: 1, overflow: TextOverflow.ellipsis),
       subtitle: cv.updatedLabel.isEmpty
           ? null

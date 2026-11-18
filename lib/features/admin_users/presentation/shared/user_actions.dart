@@ -1,3 +1,8 @@
+import 'package:provider/provider.dart';
+
+import '../../../../core/network/api_client.dart';
+import '../../../admin/presentation/shared/admin_bulk_actions.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../../../design_system/tokens/app_colors.dart';
@@ -46,21 +51,13 @@ class UserActionsHandler {
     _toast(messenger, await controller.changeRole(user, role));
   }
 
-  Future<void> inviteAdmin(BuildContext context) async {
-    final messenger = ScaffoldMessenger.of(context);
-    final invitation = await showInviteAdminDialog(context);
-    if (invitation == null) return;
-    _toast(
-      messenger,
-      await controller.inviteAdmin(
-        firstName: invitation.firstName,
-        lastName: invitation.lastName,
-        email: invitation.email,
-      ),
-    );
-  }
-
   Future<void> delete(BuildContext context, AdminUserAccount user) async {
+    if (context.read<ApiClient?>() != null) {
+      final removed = await confirmAdminRemoval(context, 'users', {user.id});
+      if (removed) await controller.load();
+      return;
+    }
+
     final messenger = ScaffoldMessenger.of(context);
     final confirmed = await showDeleteUserDialog(context, user);
     if (!confirmed) return;
@@ -106,13 +103,6 @@ class UserRowMenu extends StatelessWidget {
       );
     }
 
-    if (!handler.controller.canManageUsers) {
-      return IconButton(
-        tooltip: 'Voir le détail',
-        icon: const Icon(Icons.badge_outlined),
-        onPressed: onShowDetails,
-      );
-    }
     final sanctioned =
         user.status == AccountStatus.suspended ||
         user.status == AccountStatus.banned;

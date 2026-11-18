@@ -158,6 +158,8 @@ class ProfileEditController extends ChangeNotifier {
   void setLastName(String value) => _edit((p) => p.copyWith(lastName: value));
   void setHeadline(String value) => _edit((p) => p.copyWith(headline: value));
   void setCity(String value) => _edit((p) => p.copyWith(city: value));
+  void setPhone(String value) => _edit((p) => p.copyWith(phone: value));
+  void setAddress(String value) => _edit((p) => p.copyWith(address: value));
   void setEmail(String value) => _edit((p) => p.copyWith(email: value));
   void setBio(String value) => _edit((p) => p.copyWith(bio: value));
 

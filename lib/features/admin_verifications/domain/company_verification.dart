@@ -96,6 +96,7 @@ class CompanyVerification {
     this.apiMessage,
     this.checks = const [],
     this.history = const [],
+    this.hasDocument = false,
   });
 
   final String id;
@@ -120,6 +121,7 @@ class CompanyVerification {
   final String? apiMessage;
   final List<VerificationCheck> checks;
   final List<VerificationEvent> history;
+  final bool hasDocument;
 
   String get initials {
     final words = companyName.trim().split(RegExp(r'\s+'));
@@ -159,6 +161,7 @@ class CompanyVerification {
       apiMessage: clearApiMessage ? null : apiMessage ?? this.apiMessage,
       checks: checks ?? this.checks,
       history: history ?? this.history,
+      hasDocument: hasDocument,
     );
   }
 }

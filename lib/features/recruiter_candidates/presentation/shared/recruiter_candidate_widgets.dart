@@ -1,3 +1,5 @@
+import '../../../../core/network/api_client.dart';
+import '../../../recruiter_workspace/presentation/candidate_dossier.dart';
 import '../../../recruiter_studio/presentation/studio_talents.dart';
 import '../../../recruiter_studio/presentation/studio_components.dart';
 
@@ -6,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/routing/app_routes.dart';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../design_system/tokens/app_colors.dart';
 import '../../domain/recruiter_candidate_models.dart';
@@ -579,6 +582,16 @@ Future<void> showCandidateProfileDialog(
               label: const Text('Envoyer un message'),
             ),
             const SizedBox(height: 16),
+            if ((candidate.profileId, context.read<ApiClient?>()) case (
+              final String _,
+              final ApiClient api,
+            ))
+              OutlinedButton.icon(
+                onPressed: () =>
+                    showCandidateDossier(context, api, candidate.id),
+                icon: const Icon(Icons.folder_open),
+                label: const Text('Voir le dossier complet'),
+              ),
             CandidateStudioPanel(candidate: candidate),
             const SizedBox(height: 16),
             CandidateMatchPanel(candidate: candidate),

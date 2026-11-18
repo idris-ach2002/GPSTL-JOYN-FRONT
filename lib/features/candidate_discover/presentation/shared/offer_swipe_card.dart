@@ -187,11 +187,14 @@ class _Header extends StatelessWidget {
         const SizedBox(width: 8),
         Column(
           children: [
-            JoynScoreRing(score: offer.compatibility, size: compact ? 52 : 64),
+            if (offer.criteria.isNotEmpty)
+              JoynScoreRing(score: offer.compatibility, size: compact ? 52 : 64)
+            else
+              const Icon(Icons.remove_rounded),
             const SizedBox(height: 6),
-            const Text(
-              'COMPATIBILITÉ',
-              style: TextStyle(
+            Text(
+              offer.criteria.isEmpty ? 'NON ÉVALUÉE' : 'COMPATIBILITÉ',
+              style: const TextStyle(
                 fontFamily: AppFonts.body,
                 color: AppColors.slate,
                 fontSize: 10,

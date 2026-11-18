@@ -1,3 +1,5 @@
+import '../../../admin/presentation/shared/admin_bulk_actions.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -46,7 +48,6 @@ class _AdminUsersViewState extends State<_AdminUsersView>
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<AdminUsersController>();
-    final handler = UserActionsHandler(controller);
 
     return AdminShell(
       section: AdminSection.users,
@@ -65,28 +66,7 @@ class _AdminUsersViewState extends State<_AdminUsersView>
                     children: [
                       AdminPageHeader(
                         title: 'Utilisateurs',
-                        subtitle: 'Gérer les comptes candidats, recruteurs et administrateurs.',
-                        actions: [
-                          if (controller.canManageUsers)
-                            FilledButton.icon(
-                              key: const ValueKey('admin-invite-admin'),
-                              style: FilledButton.styleFrom(
-                                backgroundColor: AdminShell.sidebarColor,
-                                minimumSize: const Size(0, 40),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                ),
-                              ),
-                              onPressed: controller.isInviting
-                                  ? null
-                                  : () => handler.inviteAdmin(context),
-                              icon: const Icon(
-                                Icons.person_add_alt_1_outlined,
-                                size: 18,
-                              ),
-                              label: const Text('Ajouter un admin'),
-                            ),
-                        ],
+                        subtitle: 'Gérer les comptes candidats et recruteurs.',
                       ),
                       const SizedBox(height: 20),
                       AdminPanel(
@@ -94,11 +74,19 @@ class _AdminUsersViewState extends State<_AdminUsersView>
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Padding(
+                              padding: const EdgeInsets.fromLTRB(12, 10, 12, 0),
+                              child: AdminBulkActions(
+                                kind: 'users',
+                                selection: controller,
+                                export: controller.exportRows,
+                                reload: controller.load,
+                              ),
+                            ),
+                            Padding(
                               padding: const EdgeInsets.all(12),
                               child: _Toolbar(controller: controller),
                             ),
-                            if (controller.isRefreshing ||
-                                controller.isInviting)
+                            if (controller.isRefreshing)
                               const LinearProgressIndicator(minHeight: 2)
                             else
                               const Divider(height: 2, thickness: 1),
@@ -209,7 +197,9 @@ class _ToolbarState extends State<_Toolbar> {
               if (role != null) controller.setRoleFilter(role);
             },
             dropdownMenuEntries: [
-              for (final role in UserRoleFilter.values)
+              for (final role in UserRoleFilter.values.where(
+                (role) => role != UserRoleFilter.admin,
+              ))
                 DropdownMenuEntry(value: role, label: role.label),
             ],
           ),
@@ -308,7 +298,7 @@ class _TableArea extends StatelessWidget {
           constraints: BoxConstraints(minWidth: constraints.maxWidth),
           child: AdminTableTheme(
             child: DataTable(
-              showCheckboxColumn: false,
+              showCheckboxColumn: true,
               sortColumnIndex: sort.byName ? 0 : 4,
               sortAscending: sort.ascending,
               columns: [
@@ -334,11 +324,9 @@ class _TableArea extends StatelessWidget {
                 for (final user in users)
                   DataRow(
                     key: ValueKey(user.id),
-                    onSelectChanged: (_) => showUserDetails(
-                      context,
-                      controller: controller,
-                      user: user,
-                    ),
+                    selected: controller.selected(user.id),
+                    onSelectChanged: (value) =>
+                        controller.select(user.id, value == true),
                     cells: [
                       DataCell(
                         Row(
@@ -373,6 +361,11 @@ class _TableArea extends StatelessWidget {
                               ),
                             ),
                           ],
+                        ),
+                        onTap: () => showUserDetails(
+                          context,
+                          controller: controller,
+                          user: user,
                         ),
                       ),
                       DataCell(RoleBadge(role: user.role)),

@@ -1,3 +1,6 @@
+import 'application_offer_details.dart';
+import 'cover_letter_dialog.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -5,7 +8,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimens.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/placeholders.dart';
-import '../../../../core/widgets/coming_soon.dart';
 import '../../domain/candidate_application.dart';
 import '../candidate_applications_controller.dart';
 import 'application_formatters.dart';
@@ -195,17 +197,15 @@ class _InterestedActions extends StatelessWidget {
   Future<void> _send(BuildContext context) async {
     final controller = context.read<CandidateApplicationsController>();
     final messenger = ScaffoldMessenger.of(context);
-    final ok = await controller.send(application);
+    final ok = await showCoverLetterDialog(context, application, controller);
+    if (ok != true || !messenger.mounted) return;
     messenger
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
           behavior: SnackBarBehavior.floating,
           content: Text(
-            ok
-                ? 'Candidature envoyée à '
-                      '${application.companyName ?? 'l’entreprise'}.'
-                : 'La candidature n’a pas pu être envoyée. Réessaie.',
+            'Candidature envoyée à ${application.companyName ?? 'l’entreprise'}.',
           ),
         ),
       );
@@ -213,7 +213,6 @@ class _InterestedActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO(backend): « Détails » ouvrira la fiche de l'offre (route à créer).
     final sending = context.select<CandidateApplicationsController, bool>(
       (c) => c.isSending(application.id),
     );
@@ -237,7 +236,7 @@ class _InterestedActions extends StatelessWidget {
           ),
         ),
         OutlinedButton(
-          onPressed: () => showComingSoon(context, 'Détail de l’offre'),
+          onPressed: () => openApplicationOffer(context, application),
           style: OutlinedButton.styleFrom(
             minimumSize: const Size(0, 34),
             padding: const EdgeInsets.symmetric(horizontal: 16),

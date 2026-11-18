@@ -125,45 +125,6 @@ class FakeAdminUserRepository implements AdminUserRepository {
     _deletedIds.add(id);
   }
 
-  int _nextId = 1;
-
-  /// Invitations « envoyées » (au lieu d'un vrai e-mail).
-  final List<String> sentInvitations = [];
-
-  @override
-  Future<AdminUserAccount> inviteAdmin({
-    required String firstName,
-    required String lastName,
-    required String email,
-  }) async {
-    await _network();
-    final normalized = email.trim().toLowerCase();
-    final taken = _users.any(
-      (user) =>
-          user.email.toLowerCase() == normalized &&
-          !_deletedIds.contains(user.id),
-    );
-    if (taken) {
-      throw const AdminUserException(
-        'Un compte existe déjà avec cette adresse e-mail.',
-        statusCode: 409,
-      );
-    }
-    final user = AdminUserAccount(
-      id: 'invited-${_nextId++}-${normalized.hashCode.toUnsigned(32).toRadixString(16)}',
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      email: normalized,
-      role: AccountRole.admin,
-      status: AccountStatus.pending,
-      emailVerified: false,
-      createdAt: DateTime.now(),
-    );
-    _users.add(user);
-    sentInvitations.add(normalized);
-    return user;
-  }
-
   int _indexOf(String id) {
     final index = _users.indexWhere(
       (user) => user.id == id && !_deletedIds.contains(user.id),

@@ -92,6 +92,22 @@ class _WebCandidateMessagesScreenState
           ],
         ),
       ),
+      MessagesStatus.ready when size.width < 700 => card(
+        selected == null
+            ? ThreadList(
+                controller: controller,
+                now: now,
+                onOpen: (t) => controller.select(t.id),
+              )
+            : ConversationPane(
+                controller: controller,
+                thread: selected,
+                now: now,
+                compact: true,
+                onBack: controller.unselect,
+                onViewOffer: () => context.go(AppRoutes.candidateApplications),
+              ),
+      ),
       MessagesStatus.ready => Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -139,7 +155,12 @@ class _WebCandidateMessagesScreenState
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 1200),
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(32, 16, 32, 32),
+                    padding: EdgeInsets.fromLTRB(
+                      size.width < 700 ? 12 : 32,
+                      16,
+                      size.width < 700 ? 12 : 32,
+                      32,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [

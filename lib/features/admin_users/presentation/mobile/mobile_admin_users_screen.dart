@@ -1,3 +1,5 @@
+import '../../../admin/presentation/shared/admin_bulk_actions.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -102,19 +104,19 @@ class _MobileAdminUsersViewState extends State<_MobileAdminUsersView>
                       ],
                     ),
                   ),
-                  if (controller.canManageUsers)
-                    IconButton(
-                      key: const ValueKey('mobile-admin-invite'),
-                      tooltip: 'Ajouter un admin',
-                      onPressed: controller.isInviting
-                          ? null
-                          : () =>
-                                UserActionsHandler(controller)
-                                    .inviteAdmin(context),
-                      icon: const Icon(Icons.person_add_alt_1_outlined),
-                    ),
                   const MobileAdminSectionMenu(current: AdminSection.users),
                 ],
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: AdminBulkActions(
+                kind: 'users',
+                selection: controller,
+                export: controller.exportRows,
+                reload: controller.load,
               ),
             ),
           ),
@@ -155,7 +157,9 @@ class _MobileAdminUsersViewState extends State<_MobileAdminUsersView>
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
               child: Row(
                 children: [
-                  for (final role in UserRoleFilter.values)
+                  for (final role in UserRoleFilter.values.where(
+                    (role) => role != UserRoleFilter.admin,
+                  ))
                     Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: ChoiceChip(
@@ -333,6 +337,12 @@ class _UserCard extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Checkbox(
+                value: controller.selected(user.id),
+                semanticLabel: 'Sélectionner',
+                onChanged: (value) => controller.select(user.id, value == true),
+                visualDensity: VisualDensity.compact,
+              ),
               UserAvatar(user: user, radius: 17),
               const SizedBox(width: 12),
               Expanded(

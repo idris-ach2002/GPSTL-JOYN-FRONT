@@ -7,6 +7,11 @@ class PendingInterestsStore {
   final Set<String> _hidden = {};
 
   List<CandidateApplication> get items => List.unmodifiable(_pending.values);
+  void clear() {
+    _pending.clear();
+    _hidden.clear();
+  }
+
   bool isHidden(String id) => _hidden.contains(id);
   void interested(
     String offerId, {

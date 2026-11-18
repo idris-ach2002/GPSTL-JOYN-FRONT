@@ -1,9 +1,10 @@
+import '../../../admin/presentation/shared/admin_bulk_actions.dart';
+
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
 import '../../data/admin_user_repository.dart';
-import '../../data/api_admin_user_repository.dart';
 import '../../domain/admin_user.dart';
 import '../../domain/admin_user_options.dart';
 import '../../domain/user_query.dart';
@@ -25,7 +26,7 @@ class UserActionResult {
 /// La requête ([query]) est le reflet des paramètres de l'URL : chaque
 /// changement est signalé via [onQueryChanged] pour mettre l'URL à jour, et
 /// [syncWithUrl] applique l'URL au chargement ou après un retour arrière.
-class AdminUsersController extends ChangeNotifier {
+class AdminUsersController extends ChangeNotifier with AdminSelection {
   AdminUsersController(
     this._repository, {
     required this.currentUserId,
@@ -33,7 +34,6 @@ class AdminUsersController extends ChangeNotifier {
   });
 
   final AdminUserRepository _repository;
-  bool get canManageUsers => _repository is! ApiAdminUserRepository;
 
   /// Identifiant de l'administrateur connecté (protection anti auto-sanction).
   final String? currentUserId;
@@ -48,7 +48,6 @@ class AdminUsersController extends ChangeNotifier {
   UserPage? _page;
   AdminUsersStatus _status = AdminUsersStatus.loading;
   bool _refreshing = false;
-  bool _inviting = false;
   bool _loadedOnce = false;
   String? _error;
   final Set<String> _busyIds = {};
@@ -62,15 +61,15 @@ class AdminUsersController extends ChangeNotifier {
 
   UserQuery get query => _query;
   UserPage? get page => _page;
-  List<AdminUserAccount> get users => _page?.items ?? const [];
+  List<AdminUserAccount> get users =>
+      (_page?.items ?? const <AdminUserAccount>[])
+          .where((u) => u.role != AccountRole.admin)
+          .toList();
   AdminUsersStatus get status => _status;
   String? get error => _error;
   bool get showSkeleton => _status == AdminUsersStatus.loading;
   bool get isRefreshing => _refreshing;
   bool isBusy(String id) => _busyIds.contains(id);
-
-  /// Une invitation d'administrateur est en cours d'envoi.
-  bool get isInviting => _inviting;
 
   /// Le compte affiché est celui de l'administrateur connecté.
   bool isSelf(AdminUserAccount user) =>
@@ -85,7 +84,9 @@ class AdminUsersController extends ChangeNotifier {
   void syncWithUrl(UserQuery urlQuery) {
     if (_loadedOnce && urlQuery == _query) return;
     _debounce?.cancel();
-    _query = urlQuery;
+    _query = urlQuery.role == UserRoleFilter.admin
+        ? urlQuery.copyWith(role: UserRoleFilter.all)
+        : urlQuery;
     load();
   }
 
@@ -208,6 +209,13 @@ class AdminUsersController extends ChangeNotifier {
   );
 
   Future<UserActionResult> changeRole(AdminUserAccount user, AccountRole role) {
+    if (role == AccountRole.admin || user.role == AccountRole.admin) {
+      return Future.value(
+        const UserActionResult.failure(
+          'Ce rôle est géré en dehors de cette interface.',
+        ),
+      );
+    }
     if (isSelf(user) && role != AccountRole.admin) {
       return _selfBlocked('retirer vos droits d’administration');
     }
@@ -221,44 +229,6 @@ class AdminUsersController extends ChangeNotifier {
       () => _repository.updateRole(user.id, role),
       '${user.fullName} est maintenant ${role.label.toLowerCase()}.',
     );
-  }
-
-  /// Invite un nouvel administrateur (compte « En attente » jusqu'à sa
-  /// première connexion).
-  Future<UserActionResult> inviteAdmin({
-    required String firstName,
-    required String lastName,
-    required String email,
-  }) async {
-    if (_inviting) {
-      return const UserActionResult.failure('Invitation déjà en cours.');
-    }
-    _inviting = true;
-    _notify();
-    try {
-      final user = await _repository.inviteAdmin(
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-      );
-      await load(showSkeleton: false);
-      return UserActionResult.success(
-        'Invitation envoyée à ${user.email}. Le compte admin est en attente.',
-      );
-    } on AdminUserException catch (error) {
-      if (error.isForbidden) {
-        _status = AdminUsersStatus.forbidden;
-        _error = error.message;
-      }
-      return UserActionResult.failure(error.message);
-    } catch (_) {
-      return const UserActionResult.failure(
-        'L’invitation a échoué. Réessaie dans un instant.',
-      );
-    } finally {
-      _inviting = false;
-      _notify();
-    }
   }
 
   /// Suppression logique avec anonymisation RGPD.
@@ -316,6 +286,27 @@ class AdminUsersController extends ChangeNotifier {
 
   void _notify() {
     if (!_disposed) notifyListeners();
+  }
+
+  Future<List<List<Object?>>> exportRows() async {
+    final filter = _query;
+    final rows = <List<Object?>>[
+      ['Nom', 'Prénom', 'E-mail', 'Rôle', 'Statut'],
+    ];
+    for (var page = 1; ; page++) {
+      final result = await _repository.fetchUsers(filter.copyWith(page: page));
+      for (final user in result.items) {
+        if (user.role == AccountRole.admin) continue;
+        rows.add([
+          user.lastName,
+          user.firstName,
+          user.email,
+          user.role.label,
+          user.status.label,
+        ]);
+      }
+      if (page >= result.totalPages || result.items.isEmpty) return rows;
+    }
   }
 
   @override

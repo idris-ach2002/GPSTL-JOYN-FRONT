@@ -168,7 +168,12 @@ class CandidateApplicationsController extends ChangeNotifier {
   /// Mise à jour optimiste : la carte passe dans « Candidatures envoyées »
   /// tout de suite, et revient si l'envoi échoue. Renvoie `true` si l'envoi
   /// a réussi.
-  Future<bool> send(CandidateApplication application) async {
+  Future<bool> send(
+    CandidateApplication application, {
+    String? coverMessage,
+    Uint8List? coverPdf,
+    String? coverPdfName,
+  }) async {
     if (application.status != ApplicationStatus.interested ||
         _sendingIds.contains(application.id)) {
       return false;
@@ -178,7 +183,12 @@ class CandidateApplicationsController extends ChangeNotifier {
       application.copyWith(status: ApplicationStatus.sent, appliedAt: now),
     );
     try {
-      await _repository.sendApplication(application.id);
+      await _repository.sendApplication(
+        application.id,
+        coverMessage: coverMessage,
+        coverPdf: coverPdf,
+        coverPdfName: coverPdfName,
+      );
       await load(); // Use the persisted application ID and server status.
       return true;
     } catch (e) {

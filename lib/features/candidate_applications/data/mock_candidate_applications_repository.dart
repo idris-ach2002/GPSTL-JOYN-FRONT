@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../domain/candidate_application.dart';
 import 'candidate_applications_repository.dart';
 
@@ -98,7 +100,12 @@ class MockCandidateApplicationsRepository
   }
 
   @override
-  Future<CandidateApplication> sendApplication(String applicationId) async {
+  Future<CandidateApplication> sendApplication(
+    String applicationId, {
+    String? coverMessage,
+    Uint8List? coverPdf,
+    String? coverPdfName,
+  }) async {
     await Future<void>.delayed(latency);
     final index = _applications.indexWhere((a) => a.id == applicationId);
     if (index < 0) throw StateError('Candidature inconnue : $applicationId');

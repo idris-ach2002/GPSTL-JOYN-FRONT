@@ -153,6 +153,8 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
       ).clamp(0, 100),
       location: _string(json['location']),
       commuteMinutes: _nullableInt(json['commuteMinutes']),
+      distanceKm: double.tryParse('${_asMap(criteria)['distance_km'] ?? ''}'),
+      remotePolicy: _nullableString(json['remote_policy']),
       rhythm: _string(json['rhythm_type'] ?? json['rhythm']),
       remoteDays: _nullableInt(json['remoteDays']),
       monthlySalary: _nullableInt(
@@ -191,15 +193,16 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
     final map = _asMap(value);
     return [
       for (final entry in map.entries)
-        MatchCriterion(
-          label: _criterionLabels[entry.key] ?? entry.key,
-          score: _int(entry.value).clamp(0, 100),
-        ),
+        if (_criterionLabels.containsKey(entry.key) && entry.value != null)
+          MatchCriterion(
+            label: _criterionLabels[entry.key] ?? entry.key,
+            score: _int(entry.value).clamp(0, 100),
+          ),
     ];
   }
 
   static const Map<String, String> _criterionLabels = {
-    'skills': 'Technos',
+    'skills': 'Compétences',
     'education': 'Formation & niveau',
     'experience': 'Expérience',
     'availability': 'Disponibilité',

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -92,6 +93,50 @@ void main() {
       'GET /api/v1/candidates/applications',
       'POST /api/v1/applications',
     ]);
+  });
+
+  test('transmet une lettre éditée ou un PDF avec la candidature', () async {
+    final interests = PendingInterestsStore();
+    for (final id in ['11', '12']) {
+      interests.interested(id, title: 'Offre $id', companyName: 'JOYN');
+    }
+    final repository = ApiCandidateApplicationsRepository(
+      ApiClient(
+        baseUrl: 'https://api.joyn.test',
+        httpClient: MockClient((request) async {
+          expect(request.url.path, '/api/v1/applications');
+          if (request.headers['content-type']!.startsWith('application/json')) {
+            expect(jsonDecode(request.body), {
+              'jobOfferId': 11,
+              'coverMessage': 'Lettre adaptée',
+            });
+          } else {
+            expect(
+              request.headers['content-type'],
+              startsWith('multipart/form-data;'),
+            );
+            expect(request.body, contains('name="jobOfferId"'));
+            expect(
+              request.body,
+              contains('name="coverPdf"; filename="lettre.pdf"'),
+            );
+            expect(request.body, contains('%PDF'));
+          }
+          return http.Response('{"id":99,"status":"PENDING"}', 201);
+        }),
+      ),
+      interests: interests,
+    );
+    await repository.sendApplication(
+      'local-interest-11',
+      coverMessage: 'Lettre adaptée',
+    );
+    await repository.sendApplication(
+      'local-interest-12',
+      coverPdf: Uint8List.fromList('%PDF'.codeUnits),
+      coverPdfName: 'lettre.pdf',
+    );
+    expect(interests.items, isEmpty);
   });
 
   // La route existe désormais dans le Swagger du back (tag « Messaging »).

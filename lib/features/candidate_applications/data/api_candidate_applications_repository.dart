@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../../../core/network/api_client.dart';
 import '../../messaging/data/api_messaging_repository.dart';
 import 'pending_interests_store.dart';
@@ -64,17 +66,35 @@ class ApiCandidateApplicationsRepository
   }
 
   @override
-  Future<CandidateApplication> sendApplication(String applicationId) async {
+  Future<CandidateApplication> sendApplication(
+    String applicationId, {
+    String? coverMessage,
+    Uint8List? coverPdf,
+    String? coverPdfName,
+  }) async {
     final offerId = interests.findOfferId(applicationId);
     if (offerId == null) {
       throw UnsupportedError(
         'Seuls les intérêts locaux non envoyés peuvent être soumis.',
       );
     }
-    final raw = await _api.postJson(
-      '/api/v1/applications',
-      body: {'jobOfferId': int.parse(offerId)},
-    );
+    const path = '/api/v1/applications';
+    final raw = coverPdf == null
+        ? await _api.postJson(
+            path,
+            body: {
+              'jobOfferId': int.parse(offerId),
+              'coverMessage': ?coverMessage,
+            },
+          )
+        : await _api.sendMultipart(
+            'POST',
+            path,
+            fields: {'jobOfferId': offerId},
+            fileBytes: coverPdf,
+            fileField: 'coverPdf',
+            fileName: coverPdfName,
+          );
     interests.submitted(offerId);
     final data = _unwrap(_asMap(raw));
     return _mapApplication(data);

@@ -1,3 +1,5 @@
+import 'discover_tools.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../../../design_system/tokens/app_colors.dart';
@@ -60,7 +62,13 @@ Future<void> applyDiscoverDecision(
 
 /// Contenu détaillé d'une offre (« Voir l'offre complète »).
 class OfferDetailsView extends StatelessWidget {
-  const OfferDetailsView({super.key, required this.offer});
+  const OfferDetailsView({
+    super.key,
+    required this.offer,
+    this.showMatching = true,
+  });
+
+  final bool showMatching;
 
   final RecommendedOffer offer;
 
@@ -123,7 +131,12 @@ class OfferDetailsView extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 20),
-        MatchBreakdownCard(offer: offer, framed: false),
+        if (showMatching)
+          MatchBreakdownCard(
+            offer: offer,
+            framed: false,
+            onSkillGap: () => showSkillGap(context, offer),
+          ),
       ],
     );
   }

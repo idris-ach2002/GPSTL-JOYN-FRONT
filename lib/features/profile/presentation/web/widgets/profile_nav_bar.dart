@@ -71,6 +71,15 @@ class ProfileNavBar extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         _AccountMenu(firstName: firstName, initials: initials, photo: photo),
+        IconButton(
+          color: Colors.white,
+          tooltip: 'Se déconnecter',
+          icon: const Icon(Icons.logout),
+          onPressed: () async {
+            await context.read<AuthController>().signOut();
+            if (context.mounted) context.go(AppRoutes.login);
+          },
+        ),
       ],
     );
   }
@@ -163,7 +172,7 @@ class _CircleAction extends StatelessWidget {
   }
 }
 
-enum _AccountAction { dashboard, signOut }
+enum _AccountAction { view, edit }
 
 class _AccountMenu extends StatelessWidget {
   const _AccountMenu({
@@ -181,29 +190,29 @@ class _AccountMenu extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return PopupMenuButton<_AccountAction>(
-      tooltip: 'Mon compte',
+      tooltip: 'Mon profil',
       position: PopupMenuPosition.under,
       onSelected: (action) {
         switch (action) {
-          case _AccountAction.dashboard:
-            context.go(AppRoutes.dashboard);
-          case _AccountAction.signOut:
-            context.read<AuthController>().signOut();
+          case _AccountAction.view:
+            context.go(AppRoutes.candidateProfile);
+          case _AccountAction.edit:
+            context.go(AppRoutes.candidateProfileEdit);
         }
       },
       itemBuilder: (context) => const [
         PopupMenuItem(
-          value: _AccountAction.dashboard,
+          value: _AccountAction.view,
           child: ListTile(
-            leading: Icon(Icons.grid_view_rounded),
-            title: Text('Tableau de bord'),
+            leading: Icon(Icons.person_outline),
+            title: Text('Voir mon profil'),
           ),
         ),
         PopupMenuItem(
-          value: _AccountAction.signOut,
+          value: _AccountAction.edit,
           child: ListTile(
-            leading: Icon(Icons.logout_rounded),
-            title: Text('Se déconnecter'),
+            leading: Icon(Icons.edit_outlined),
+            title: Text('Modifier mon profil'),
           ),
         ),
       ],

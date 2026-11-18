@@ -96,12 +96,22 @@ class CandidateMessagesController extends ChangeNotifier {
   List<MessageThread> _threads = const [];
   String _query = '';
   String get query => _query;
+  bool _unreadOnly = false;
+  bool get unreadOnly => _unreadOnly;
+
+  void filterUnread(bool value) {
+    _unreadOnly = value;
+    notifyListeners();
+  }
 
   /// Fils visibles, filtrés par la recherche.
   List<MessageThread> get threads {
     final q = _query.trim().toLowerCase();
-    if (q.isEmpty) return _threads;
-    return _threads
+    final eligible = _unreadOnly
+        ? _threads.where((thread) => thread.unread > 0)
+        : _threads;
+    if (q.isEmpty) return eligible.toList();
+    return eligible
         .where(
           (t) =>
               t.companyName.toLowerCase().contains(q) ||

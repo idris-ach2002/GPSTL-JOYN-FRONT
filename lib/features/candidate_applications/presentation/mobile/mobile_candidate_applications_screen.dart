@@ -12,7 +12,7 @@ import '../../domain/candidate_application.dart';
 import '../candidate_applications_controller.dart';
 import '../shared/application_card.dart';
 import '../shared/application_formatters.dart';
-import '../shared/open_conversation.dart';
+import '../shared/application_offer_details.dart';
 import '../shared/status_color.dart';
 
 /// « Mes candidatures », version mobile : filtres par statut puis liste.
@@ -89,8 +89,7 @@ class _MobileCandidateApplicationsScreenState
                   application: application,
                   now: controller.now,
                   isBusy: controller.openingId == application.id,
-                  onTap: () =>
-                      openApplicationConversation(context, application),
+                  onTap: () => openApplicationOffer(context, application),
                 ),
                 const SizedBox(height: 12),
               ],

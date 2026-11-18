@@ -1,3 +1,4 @@
+import '../../features/dashboard/presentation/student_dashboard.dart';
 import '../../features/registration/data/api_registration_repository.dart';
 import '../../features/registration/data/registration_repository.dart';
 import '../../features/recruiter_workspace/presentation/connected_recruiter_screen.dart';
@@ -44,10 +45,6 @@ import '../../features/auth/presentation/mobile/mobile_forgot_password_screen.da
 import '../../features/auth/presentation/mobile/mobile_login_screen.dart';
 import '../../features/auth/presentation/web/forgot_password_page.dart';
 import '../../features/auth/presentation/web/login_page.dart';
-import '../../features/dashboard/data/dashboard_repository.dart';
-import '../../features/dashboard/presentation/dashboard_controller.dart';
-import '../../features/dashboard/presentation/mobile/mobile_dashboard_screen.dart';
-import '../../features/dashboard/presentation/web/dashboard_page.dart';
 import '../../features/information/domain/information_content.dart';
 import '../../features/information/presentation/mobile/information_screen.dart';
 import '../../features/information/presentation/web/information_screen.dart';
@@ -274,14 +271,7 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
                   : const WebRecruiterDashboardScreen(),
             );
           }
-          return ChangeNotifierProvider(
-            create: (context) =>
-                DashboardController(context.read<DashboardRepository>())
-                  ..load(),
-            child: useMobile(context)
-                ? const MobileDashboardScreen()
-                : const DashboardPage(),
-          );
+          return StudentDashboard(mobile: useMobile(context));
         },
       ),
 
@@ -289,6 +279,7 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
         path: AppRoutes.candidateMessages,
         name: 'candidateMessages',
         builder: (context, state) => ChangeNotifierProvider(
+          key: ValueKey(state.uri.queryParameters['conversation']),
           create: (context) => CandidateMessagesController(
             context.read<MessagingRepository>(),
             applicationsRepository: context

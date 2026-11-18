@@ -1,3 +1,7 @@
+import 'package:go_router/go_router.dart';
+
+import '../../../../app/routing/app_routes.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -122,6 +126,8 @@ Future<void> showDiscoverFilters(
 
 Future<void> showSkillGap(BuildContext context, RecommendedOffer offer) async {
   final repository = context.read<ProfileRepository>();
+  final profile = repository.fetchProfile();
+  final router = GoRouter.of(context);
   await showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
@@ -129,7 +135,7 @@ Future<void> showSkillGap(BuildContext context, RecommendedOffer offer) async {
     builder: (context) => SizedBox(
       height: MediaQuery.sizeOf(context).height * .7,
       child: FutureBuilder(
-        future: repository.fetchProfile(),
+        future: profile,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return const Center(
@@ -144,13 +150,20 @@ Future<void> showSkillGap(BuildContext context, RecommendedOffer offer) async {
           final owned = snapshot.data!.skills
               .map((s) => s.name.trim().toLowerCase())
               .toSet();
-          final required = offer.skills.map((s) => s.name).toSet();
+          final required = {
+            for (final skill in offer.skills)
+              if (skill.name.trim().isNotEmpty)
+                skill.name.trim().toLowerCase(): skill.name.trim(),
+          }.values.toList();
           final common = required
               .where((s) => owned.contains(s.trim().toLowerCase()))
               .toList();
           final missing = required
               .where((s) => !owned.contains(s.trim().toLowerCase()))
               .toList();
+          final coverage = required.isEmpty
+              ? null
+              : common.length / required.length;
           return ListView(
             padding: const EdgeInsets.all(24),
             children: [
@@ -159,14 +172,34 @@ Future<void> showSkillGap(BuildContext context, RecommendedOffer offer) async {
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 12),
-              const Text(
-                'Comparaison des compétences déclarées dans votre profil avec celles de l’offre. Ce rapprochement par nom ne mesure pas votre niveau.',
+              Text(
+                coverage == null
+                    ? 'Couverture des compétences non calculable'
+                    : '${common.length} compétence(s) sur ${required.length} retrouvée(s)',
               ),
+              if (offer.remotePolicy == 'REMOTE')
+                const Text('Offre en télétravail complet'),
+              if (offer.remotePolicy != 'REMOTE' && offer.distanceKm != null)
+                Text('${offer.distanceKm!.round()} km à vol d’oiseau'),
+
+              const SizedBox(height: 8),
+              if (coverage != null) ...[
+                Text(
+                  'Compétences couvertes · ${(coverage * 100).round()} % (${common.length}/${required.length})',
+                ),
+                const SizedBox(height: 6),
+                LinearProgressIndicator(value: coverage),
+              ],
+              const SizedBox(height: 8),
+              const Text(
+                'Chaque compétence demandée compte une fois. La couverture correspond aux compétences retrouvées dans votre profil, divisées par celles de l’offre.',
+              ),
+
               const SizedBox(height: 24),
               if (required.isEmpty)
                 const Text('Cette offre ne précise aucune compétence.'),
               Text(
-                'Déjà dans votre profil · ${common.length}',
+                'Compétences acquises · ${common.length}',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               Wrap(
@@ -196,7 +229,18 @@ Future<void> showSkillGap(BuildContext context, RecommendedOffer offer) async {
               ),
               const SizedBox(height: 16),
               const Text(
-                'Si vous possédez déjà une compétence, ajoutez-la à votre profil. Sinon, vous pouvez cibler un projet ou une formation pour la pratiquer.',
+                'Si vous possédez déjà une compétence, ajoutez-la à votre profil.',
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    router.go(AppRoutes.candidateProfileEdit);
+                  },
+                  icon: const Icon(Icons.edit_outlined),
+                  label: const Text('Mettre à jour mes compétences'),
+                ),
               ),
             ],
           );

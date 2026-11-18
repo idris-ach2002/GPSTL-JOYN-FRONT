@@ -60,6 +60,10 @@ class ApiProfileRepository implements ProfileRepository {
       'headline': profile.headline.trim(),
       'bio': profile.bio.trim(),
       'location': profile.city.trim(),
+      if (profile.phone != _lastProfile?.phone)
+        'phone': profile.phone.trim().replaceAll(RegExp(r'\s+'), ''),
+      if (profile.address != _lastProfile?.address)
+        'address': profile.address.trim(),
       'skills': profile.skills
           .map((skill) => skill.name.trim())
           .where((name) => name.isNotEmpty)
@@ -74,6 +78,8 @@ class ApiProfileRepository implements ProfileRepository {
       },
       'alternance': {
         'rhythm_type': profile.availability.rhythm,
+        if (RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(profile.availability.start))
+          'available_from': profile.availability.start,
         'contract_duration_months': profile.availability.durationMonths,
       },
       'experiences': [
@@ -203,6 +209,8 @@ class ApiProfileRepository implements ProfileRepository {
       firstName: '${j['first_name'] ?? ''}',
       lastName: '${j['last_name'] ?? ''}',
       email: '${j['email'] ?? ''}',
+      phone: '${j['phone'] ?? ''}',
+      address: '${j['address'] ?? ''}',
       headline: '${j['headline'] ?? ''}',
       city: '${j['location'] ?? ''}',
       bio: '${j['bio'] ?? ''}',

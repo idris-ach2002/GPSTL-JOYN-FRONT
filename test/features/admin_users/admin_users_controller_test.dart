@@ -113,43 +113,29 @@ void main() {
     expect(controller.findById(user.id)?.status, AccountStatus.active);
   });
 
-  test('promouvoir en admin', () async {
-    final candidate = controller.users.firstWhere(
-      (u) => u.role == AccountRole.candidate,
-    );
-    final result = await controller.changeRole(candidate, AccountRole.admin);
-    expect(result.succeeded, isTrue);
-    expect(result.message, contains('admin'));
-  });
-
-  test('inviter un admin : compte en attente et notification', () async {
-    final result = await controller.inviteAdmin(
-      firstName: 'Nina',
-      lastName: 'Morel',
-      email: 'Nina.Morel@joyn.fr',
-    );
-    expect(result.succeeded, isTrue);
-    expect(result.message, contains('nina.morel@joyn.fr'));
-    expect(repository.sentInvitations, ['nina.morel@joyn.fr']);
-
-    controller.setSearch('nina.morel');
-    await _flush();
-    final invited = controller.users.single;
-    expect(invited.role, AccountRole.admin);
-    expect(invited.status, AccountStatus.pending);
-    expect(invited.emailVerified, isFalse);
-  });
-
-  test('inviter une adresse déjà utilisée échoue proprement', () async {
-    final result = await controller.inviteAdmin(
-      firstName: 'Équipe',
-      lastName: 'Joyn',
-      email: 'admin@joyn.fr',
-    );
-    expect(result.succeeded, isFalse);
-    expect(result.message, contains('existe déjà'));
-    expect(controller.isInviting, isFalse);
-  });
+  test(
+    'les administrateurs sont exclus des résultats et de l’export',
+    () async {
+      await controller.load();
+      expect(
+        controller.users.every((user) => user.role != AccountRole.admin),
+        isTrue,
+      );
+      final candidate = controller.users.firstWhere(
+        (u) => u.role == AccountRole.candidate,
+      );
+      expect(
+        (await controller.changeRole(candidate, AccountRole.admin)).succeeded,
+        isFalse,
+      );
+      final rows = await controller.exportRows();
+      expect(
+        rows.skip(1).every((row) => row[3] != AccountRole.admin.label),
+        isTrue,
+      );
+      expect(rows.length, greaterThan(controller.users.length + 1));
+    },
+  );
 
   test('une réponse 403 affiche l’accès refusé', () async {
     final forbidden = AdminUsersController(

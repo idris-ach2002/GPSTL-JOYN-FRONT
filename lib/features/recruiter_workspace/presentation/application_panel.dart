@@ -1,3 +1,6 @@
+import 'candidate_dossier.dart';
+import '../../interviews/presentation/interview_dialog.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -238,8 +241,32 @@ class _ApplicationPanelState extends State<ApplicationPanel> {
                     trailing: PopupMenuButton<String>(
                       enabled: !_busy,
                       tooltip: 'Actions candidat',
-                      onSelected: (v) {
-                        if (v == 'contact' || v == 'invite') {
+                      onSelected: (v) async {
+                        if (v == 'invite' &&
+                            widget.repository
+                                is ApiRecruiterWorkspaceRepository) {
+                          final api =
+                              (widget.repository
+                                      as ApiRecruiterWorkspaceRepository)
+                                  .api;
+                          final sent = await showInterviewProposal(
+                            context,
+                            api,
+                            applicationId: '${item['id']}',
+                            offerId: widget.jobId,
+                          );
+                          if (sent == true && mounted) {
+                            ScaffoldMessenger.of(this.context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Entretien enregistré et invitation envoyée.',
+                                ),
+                              ),
+                            );
+                            await _load();
+                            if (mounted) widget.onChanged?.call();
+                          }
+                        } else if (v == 'contact') {
                           final router = GoRouter.of(context);
                           if (!widget.embedded) Navigator.pop(context);
                           router.go(
@@ -255,9 +282,6 @@ class _ApplicationPanelState extends State<ApplicationPanel> {
                                   'applicationId': '${item['id']}',
                               },
                             ).toString(),
-                            extra: v == 'invite'
-                                ? 'Bonjour ${item['name']}, je vous propose un entretien concernant l’offre n°${widget.jobId}. Quels créneaux vous conviendraient ?'
-                                : null,
                           );
                         } else {
                           _stage(item, v);
@@ -276,7 +300,8 @@ class _ApplicationPanelState extends State<ApplicationPanel> {
                           value: 'REJECTED',
                           child: Text('Refuser'),
                         ),
-                        if (item['candidateId'] != null)
+                        if (!widget.repository.isMock &&
+                            item['candidateId'] != null)
                           const PopupMenuItem(
                             value: 'invite',
                             child: Text('Proposer un entretien dans JOYN'),
@@ -294,6 +319,19 @@ class _ApplicationPanelState extends State<ApplicationPanel> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
+                            if (widget.repository
+                                case ApiRecruiterWorkspaceRepository(
+                                  :final api,
+                                ))
+                              OutlinedButton.icon(
+                                onPressed: () => showCandidateDossier(
+                                  context,
+                                  api,
+                                  '${item['id']}',
+                                ),
+                                icon: const Icon(Icons.folder_open),
+                                label: const Text('Voir le dossier complet'),
+                              ),
                             if (item['location'] != null)
                               Text('Localisation : ${item['location']}'),
                             if (item['experience'] != null)

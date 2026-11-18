@@ -41,7 +41,8 @@ void main() {
     );
     expect(find.text('Utilisateurs'), findsOneWidget);
     expect(rows, findsWidgets);
-    expect(find.byTooltip('Ajouter un admin'), findsOneWidget);
+    expect(find.byTooltip('Ajouter un admin'), findsNothing);
+    expect(find.text('Exporter en CSV'), findsOneWidget);
     expect(tester.takeException(), isNull);
 
     // Ouvrir le détail du premier compte.

@@ -39,7 +39,7 @@ void main() {
     final item = controller.items.firstWhere((i) => i.id == 'ver-3');
     final result = await controller.approve(item, note: 'Kbis reçu');
     expect(result.succeeded, isTrue);
-    expect(result.message, contains('ses offres deviennent visibles'));
+    expect(result.message, contains('est vérifiée'));
     expect(controller.items.any((i) => i.id == 'ver-3'), isFalse);
     // La sélection passe à la demande suivante.
     expect(controller.selected, isNotNull);

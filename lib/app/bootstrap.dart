@@ -117,6 +117,7 @@ Future<void> bootstrapJoyn({bool? webOverride}) async {
 
   runApp(
     JoynApp(
+      api: api,
       webOverride: webOverride,
       studioStore: deviceStore,
       studioRepository: LocalStudioRepository(deviceStore),

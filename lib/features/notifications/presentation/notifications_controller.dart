@@ -115,6 +115,17 @@ class NotificationsController extends ChangeNotifier {
     }
   }
 
+  Future<void> markUnread(AppNotification notification) async {
+    if (!notification.isRead) return;
+    try {
+      await _repository.markUnread(notification.id);
+      await load(silent: true);
+    } catch (_) {
+      _error = 'Impossible de marquer cette notification comme non lue.';
+      _notify();
+    }
+  }
+
   Future<void> markAllRead() async {
     _items = [for (final n in _items) n.markRead()];
     _unread = 0;
