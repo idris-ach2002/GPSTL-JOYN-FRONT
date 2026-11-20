@@ -71,9 +71,18 @@ class _CandidateWorkspaceDialogState extends State<CandidateWorkspaceDialog> {
   }
 
   void _reload() {
-    _workspace = _fetchWorkspace();
-    _catalog = _fetchCatalog();
-    _applicationsPage = _fetchApplicationsPage();
+    // Charge les données nécessaires à l'onglet actif.
+    _workspace = _tab == 0
+        ? Future<Map<String, dynamic>>.value({})
+        : _fetchWorkspace();
+
+    _catalog = _tab == 0
+        ? _fetchCatalog()
+        : Future<Map<String, dynamic>>.value({});
+
+    _applicationsPage = _tab == 3
+        ? _fetchApplicationsPage()
+        : Future<Map<String, dynamic>>.value({});
   }
 
   Future<Map<String, dynamic>> _fetchApplicationsPage() async => apiObject(
@@ -91,7 +100,7 @@ class _CandidateWorkspaceDialogState extends State<CandidateWorkspaceDialog> {
       '/api/v1/candidates/catalog',
       query: {
         'page': '$_page',
-        'limit': '20',
+        'limit': '10',
         if (_search.text.trim().isNotEmpty) 'q': _search.text.trim(),
         if (_location.text.trim().isNotEmpty) 'location': _location.text.trim(),
         if (_remote != null) 'remote': _remote,
@@ -104,11 +113,14 @@ class _CandidateWorkspaceDialogState extends State<CandidateWorkspaceDialog> {
 
   void _refresh({bool catalogOnly = false}) {
     if (!mounted) return;
+
     setState(() {
-      _workspace = _fetchWorkspace();
-      if (catalogOnly) _page = 1;
-      _catalog = _fetchCatalog();
-      _applicationsPage = _fetchApplicationsPage();
+      if (catalogOnly) {
+        _page = 1;
+        _catalog = _fetchCatalog();
+      } else {
+        _reload();
+      }
     });
   }
 
@@ -1388,10 +1400,18 @@ class _CandidateWorkspaceDialogState extends State<CandidateWorkspaceDialog> {
                   for (var i = 0; i < tabs.length; i++)
                     Padding(
                       padding: const EdgeInsets.only(right: 6),
+
                       child: ChoiceChip(
                         label: Text(tabs[i]),
                         selected: _tab == i,
-                        onSelected: (_) => setState(() => _tab = i),
+                        onSelected: (_) {
+                          if (_tab == i) return;
+
+                          setState(() {
+                            _tab = i;
+                            _reload();
+                          });
+                        },
                       ),
                     ),
                 ],

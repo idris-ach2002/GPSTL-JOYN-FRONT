@@ -3,100 +3,179 @@ import '../../candidate_applications/data/pending_interests_store.dart';
 import '../domain/recommended_offer.dart';
 import 'recommended_offers_repository.dart';
 
-/// Implémentation backend de [RecommendedOffersRepository].
-///
-/// Contrat attendu : voir `docs/candidate-discover.md`. Le mapping est
-/// tolérant (champs absents, enveloppe `data`, alias de noms) pour ne pas
-/// casser l'écran si le backend évolue légèrement.
-class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
+class ApiRecommendedOffersRepository
+    implements
+        RecommendedOffersRepository,
+        PaginatedRecommendedOffersRepository {
   ApiRecommendedOffersRepository(this._api, {PendingInterestsStore? interests})
     : interests = interests ?? PendingInterestsStore();
 
-  final PendingInterestsStore interests;
-  final Map<String, RecommendedOffer> _knownOffers = {};
-
   final ApiClient _api;
+  final PendingInterestsStore interests;
 
   static const String basePath = '/api/v1/candidates/recommendations';
+
+  final Map<String, RecommendedOffer> _knownOffers = {};
+
+  // Cache des informations des entreprises.
+  final Map<String, Map<String, dynamic>> _companyCache = {};
+
+  // Compétences du candidat.
+  Set<String> _profileSkills = {};
+
+  bool _metadataLoaded = false;
 
   @override
   Future<DiscoverFeed> fetchFeed({
     DiscoverFilters filters = const DiscoverFilters(),
+  }) {
+    return fetchPage(filters: filters, page: 1, limit: 50);
+  }
+
+  @override
+  Future<DiscoverFeed> fetchPage({
+    DiscoverFilters filters = const DiscoverFilters(),
+    int page = 1,
+    int limit = 10,
   }) async {
-    // Restore the authenticated candidate's persisted decisions first.
-    final workspace = _asMap(
-      await _api.getJson('/api/v1/candidates/workspace'),
-    );
-    interests.restore(_asList(workspace['bookmarks']));
-    final json = await _api.getJson(
-      basePath,
-      query: {
-        'page': '1',
-        'limit': '50',
-        'contract_type': filters.contractType,
-        'remote': filters.remote,
-        if (filters.rhythm != null) 'rhythm_type': filters.rhythm,
-        if (filters.location != null) 'location': filters.location,
-      },
-    );
-    final root = _unwrap(_asMap(json));
+    final loadMetadata = page == 1 && !_metadataLoaded;
+
+    // Les appels indépendants sont exécutés en parallèle.
+    final responses = await Future.wait<Object?>([
+      _api.getJson(
+        basePath,
+        query: {
+          'page': '$page',
+          'limit': '$limit',
+          'contract_type': filters.contractType,
+          'remote': filters.remote,
+          if (filters.rhythm != null) 'rhythm_type': filters.rhythm,
+          if (filters.location != null) 'location': filters.location,
+        },
+      ),
+
+      if (loadMetadata)
+        _api
+            .getJson('/api/v1/candidates/workspace')
+            .catchError((Object _) => null),
+
+      if (loadMetadata)
+        _api
+            .getJson('/api/v1/candidates/profile')
+            .catchError((Object _) => null),
+    ]);
+
+    final root = _unwrap(_asMap(responses.first));
     final offerRows = _asList(root['content']);
-    Set<String>? profileSkills;
-    try {
-      final profile = _asMap(await _api.getJson('/api/v1/candidates/profile'));
-      profileSkills = _asList(profile['skills'])
-          .whereType<String>()
-          .map((s) => s.trim().toLowerCase())
+
+    // Les favoris et le profil ne sont chargés
+    // qu'une fois pendant la session.
+    if (loadMetadata) {
+      final workspace = _asMap(responses[1]);
+
+      if (workspace.isNotEmpty) {
+        interests.restore(_asList(workspace['bookmarks']));
+      }
+
+      final profile = _asMap(responses[2]);
+
+      _profileSkills = _asList(profile['skills'])
+          .map(
+            (skill) => skill is Map ? _string(skill['name']) : _string(skill),
+          )
+          .map((skill) => skill.trim().toLowerCase())
+          .where((skill) => skill.isNotEmpty)
           .toSet();
-    } catch (_) {
-      // The feed remains usable; no acquired skills are claimed without the profile.
+
+      _metadataLoaded = true;
     }
+
+    // Compatibilité avec les anciennes réponses :
+    // les entreprises manquantes sont chargées
+    // en parallèle et mises en cache.
+    final missingCompanyIds = <String>{};
+
+    for (final row in offerRows) {
+      final envelope = _asMap(row);
+
+      if (_asMap(envelope['company']).isNotEmpty) {
+        continue;
+      }
+
+      final job = _asMap(envelope['offer']);
+      final id = _string(job['company_id']);
+
+      if (id.isNotEmpty && !_companyCache.containsKey(id)) {
+        missingCompanyIds.add(id);
+      }
+    }
+
+    await Future.wait(missingCompanyIds.map(_loadCompany));
+
     final mapped = <RecommendedOffer>[];
-    final companies = <String, Map<String, dynamic>>{};
+
     for (final row in offerRows) {
       final envelope = _asMap(row);
       final job = _asMap(envelope['offer']);
+
       if (job.isEmpty) continue;
+
       final companyId = _string(job['company_id']);
-      if (companyId.isNotEmpty && !companies.containsKey(companyId)) {
-        try {
-          companies[companyId] = _asMap(
-            await _api.getJson('/api/v1/companies/$companyId'),
-          );
-        } catch (_) {
-          companies[companyId] = const {};
-        }
-      }
-      final merged = {
+      final inlineCompany = _asMap(envelope['company']);
+
+      final merged = <String, dynamic>{
         ...job,
         'skills': [
           for (final skill in _asList(job['skills']))
             {
               'name': '$skill',
-              'matched':
-                  profileSkills?.contains('$skill'.trim().toLowerCase()) ==
-                  true,
+              'matched': _profileSkills.contains('$skill'.trim().toLowerCase()),
             },
         ],
         'match_score': envelope['match_score'],
         'score_breakdown': envelope['score_breakdown'],
-        'company': companies[companyId] ?? const <String, dynamic>{},
+        'company': inlineCompany.isNotEmpty
+            ? inlineCompany
+            : (_companyCache[companyId] ?? const <String, dynamic>{}),
       };
+
       final offer = mapOffer(merged);
+
       _knownOffers[offer.id] = offer;
-      if (!interests.isHidden(offer.id)) mapped.add(offer);
+
+      if (!interests.isHidden(offer.id)) {
+        mapped.add(offer);
+      }
     }
+
     return DiscoverFeed(
       offers: mapped,
       filters: filters,
       totalCompatible: _nullableInt(root['totalElements']) ?? mapped.length,
+      hasNext: root['hasNext'] == true,
     );
+  }
+
+  Future<void> _loadCompany(String companyId) async {
+    try {
+      _companyCache[companyId] = _asMap(
+        await _api.getJson('/api/v1/companies/$companyId'),
+      );
+    } catch (_) {
+      // Une erreur sur l'entreprise ne bloque pas
+      // toute la liste des offres.
+      _companyCache[companyId] = const {};
+    }
   }
 
   @override
   Future<void> submitDecision(String offerId, SwipeDecision decision) async {
     final offer = _knownOffers[offerId];
-    if (offer == null) throw StateError('Offre introuvable dans le flux.');
+
+    if (offer == null) {
+      throw StateError('Offre introuvable dans le flux.');
+    }
+
     await _api.putJson(
       '/api/v1/candidates/workspace/offers/$offerId',
       body: {
@@ -110,6 +189,7 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
             : 'À postuler',
       },
     );
+
     if (decision == SwipeDecision.interested) {
       interests.interested(
         offerId,
@@ -124,15 +204,17 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
   @override
   Future<void> cancelDecision(String offerId) async {
     await _api.deleteJson('/api/v1/candidates/workspace/offers/$offerId');
+
     interests.undo(offerId);
   }
 
-  /// Convertit le corps de `GET /recommendations` en [DiscoverFeed].
   static DiscoverFeed mapFeed(Map<String, dynamic> body) {
     final offers = _asList(body['items'] ?? body['offers'] ?? body['content'])
         .map((item) => mapOffer(_asMap(item)))
         .toList();
+
     final filters = _asMap(body['filters']);
+
     return DiscoverFeed(
       offers: offers,
       filters: DiscoverFilters(
@@ -142,17 +224,19 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
       totalCompatible: _nullableInt(
         body['totalCompatible'] ?? body['totalItems'],
       ),
+      hasNext: body['hasNext'] == true,
     );
   }
 
-  /// Convertit une offre JSON en [RecommendedOffer].
   static RecommendedOffer mapOffer(Map<String, dynamic> json) {
     final company = _asMap(json['company']);
+
     final criteria =
         json['score_breakdown'] ??
         json['criteria'] ??
         json['matching'] ??
         json['match'];
+
     return RecommendedOffer(
       id: _string(json['id']),
       title: _string(json['title']),
@@ -176,15 +260,19 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
       rhythm: _string(json['rhythm_type'] ?? json['rhythm']),
       remoteDays: _nullableInt(json['remoteDays']),
       monthlySalary: _nullableInt(
-        (json['salary_period'] == 'MONTH' ? json['salary_min'] : null),
+        json['salary_period'] == 'MONTH' ? json['salary_min'] : null,
       ),
       contractType: _string(
         json['contract_type'] ?? json['contractType'] ?? json['contract'],
       ),
       description: _string(json['description']),
       skills: _asList(json['skills']).map((skill) {
-        if (skill is String) return OfferSkill(name: skill, matched: false);
+        if (skill is String) {
+          return OfferSkill(name: skill, matched: false);
+        }
+
         final map = _asMap(skill);
+
         return OfferSkill(
           name: _string(map['name']),
           matched: map['matched'] == true,
@@ -195,7 +283,6 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
     );
   }
 
-  /// Accepte une liste `[{label, score}]` ou un objet `{technos: 90, …}`.
   static List<MatchCriterion> _mapCriteria(Object? value) {
     if (value is List) {
       return value
@@ -208,7 +295,9 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
           )
           .toList();
     }
+
     final map = _asMap(value);
+
     return [
       for (final entry in map.entries)
         if (_criterionLabels.containsKey(entry.key) && entry.value != null)
@@ -231,6 +320,7 @@ class ApiRecommendedOffersRepository implements RecommendedOffersRepository {
 
   static Map<String, dynamic> _unwrap(Map<String, dynamic> root) {
     final data = root['data'];
+
     return data is Map<String, dynamic> ? data : root;
   }
 

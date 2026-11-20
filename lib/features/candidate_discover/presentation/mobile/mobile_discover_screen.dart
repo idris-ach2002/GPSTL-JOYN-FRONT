@@ -112,6 +112,11 @@ class _MobileDiscoverScreenState extends State<MobileDiscoverScreen>
     }
 
     final current = controller.current;
+
+    if (current == null && controller.loadingMore) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     if (current == null) {
       return DiscoverEmptyState(
         interestedCount: controller.interestedCount,

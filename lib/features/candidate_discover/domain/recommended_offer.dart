@@ -153,18 +153,23 @@ class DiscoverFilters {
 }
 
 /// Réponse complète du flux de recommandations.
+
 class DiscoverFeed {
   const DiscoverFeed({
     required this.offers,
     this.filters = const DiscoverFilters(),
     int? totalCompatible,
+    this.hasNext = false,
   }) : totalCompatible = totalCompatible ?? offers.length;
 
   final List<RecommendedOffer> offers;
 
-  /// Préférences appliquées par le backend (issues du profil par défaut).
+  /// Filtres appliqués aux offres.
   final DiscoverFilters filters;
 
-  /// Nombre total d'offres compatibles aujourd'hui.
+  /// Nombre total d'offres compatibles.
   final int totalCompatible;
+
+  /// true lorsqu'il reste des pages à charger.
+  final bool hasNext;
 }

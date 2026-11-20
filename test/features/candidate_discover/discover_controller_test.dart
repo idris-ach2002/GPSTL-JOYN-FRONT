@@ -32,6 +32,19 @@ class _FailingRepository extends MockRecommendedOffersRepository {
     if (failDecisions) throw Exception('refus');
     return super.cancelDecision(offerId);
   }
+
+  @override
+  Future<DiscoverFeed> fetchPage({
+    DiscoverFilters filters = const DiscoverFilters(),
+    int page = 1,
+    int limit = 10,
+  }) {
+    if (failLoad) {
+      throw Exception('réseau');
+    }
+
+    return super.fetchPage(filters: filters, page: page, limit: limit);
+  }
 }
 
 void main() {
