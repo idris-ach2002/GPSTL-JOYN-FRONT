@@ -30,8 +30,16 @@ class AdminUsersController extends ChangeNotifier with AdminSelection {
   AdminUsersController(
     this._repository, {
     required this.currentUserId,
+    this.fixedRole = UserRoleFilter.all,
     this.searchDebounce = AdminUserOptions.searchDebounce,
   });
+
+  /// Rôle imposé par la rubrique (Candidats ou Recruteurs).
+  final UserRoleFilter fixedRole;
+
+  /// Recherche ou statut actifs (le rôle imposé ne compte pas).
+  bool get hasActiveFilters =>
+      _query.search.trim().isNotEmpty || _query.status != UserStatusFilter.all;
 
   final AdminUserRepository _repository;
 
@@ -84,9 +92,7 @@ class AdminUsersController extends ChangeNotifier with AdminSelection {
   void syncWithUrl(UserQuery urlQuery) {
     if (_loadedOnce && urlQuery == _query) return;
     _debounce?.cancel();
-    _query = urlQuery.role == UserRoleFilter.admin
-        ? urlQuery.copyWith(role: UserRoleFilter.all)
-        : urlQuery;
+    _query = urlQuery.copyWith(role: fixedRole);
     load();
   }
 
@@ -169,7 +175,7 @@ class AdminUsersController extends ChangeNotifier with AdminSelection {
   /// Remet recherche, rôle et statut à zéro (le tri est conservé).
   void resetFilters() {
     _debounce?.cancel();
-    _setQuery(UserQuery(sort: _query.sort));
+    _setQuery(UserQuery(sort: _query.sort, role: fixedRole));
   }
 
   // ---------------------------------------------------------------------------

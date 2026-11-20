@@ -4,7 +4,8 @@ import '../../../../app/routing/app_routes.dart';
 
 /// Rubriques de l'espace d'administration (uniquement celles qui existent).
 enum AdminSection {
-  users('Utilisateurs', Icons.group_outlined, AppRoutes.adminUsers),
+  candidates('Candidats', Icons.school_outlined, AppRoutes.adminCandidates),
+  recruiters('Recruteurs', Icons.badge_outlined, AppRoutes.adminRecruiters),
   companies('Entreprises', Icons.apartment_rounded, AppRoutes.adminCompanies),
   verifications(
     'Vérifications',

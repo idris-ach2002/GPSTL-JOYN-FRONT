@@ -34,20 +34,20 @@ Future<void> _open(WidgetTester tester, String? email, String location) async {
 }
 
 void main() {
-  testWidgets('un admin ouvre la page Utilisateurs', (tester) async {
-    // Le compte admin est le plus ancien : on le cherche par son e-mail.
-    await _open(tester, 'admin@joyn.fr', '/admin/users?q=admin@joyn.fr');
+  testWidgets('/admin/users redirige vers les candidats', (tester) async {
+    await _open(tester, 'admin@joyn.fr', '/admin/users');
     expect(find.byType(AdminUsersScreen), findsOneWidget);
+    final controller = Provider.of<AdminUsersController>(
+      tester.element(find.byType(AdminUsersScreen)),
+      listen: false,
+    );
+    expect(controller.query.role, UserRoleFilter.candidate);
     expect(find.text('Équipe Joyn (vous)'), findsNothing);
     expect(find.text('Exporter en CSV'), findsOneWidget);
   });
 
   testWidgets('les filtres de l’URL sont repris au chargement', (tester) async {
-    await _open(
-      tester,
-      'admin@joyn.fr',
-      '/admin/users?role=recruiter&status=suspended',
-    );
+    await _open(tester, 'admin@joyn.fr', '/admin/recruiters?status=suspended');
     final controller = Provider.of<AdminUsersController>(
       tester.element(find.byType(AdminUsersScreen)),
       listen: false,

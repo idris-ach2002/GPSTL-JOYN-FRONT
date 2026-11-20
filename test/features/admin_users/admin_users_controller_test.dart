@@ -36,19 +36,30 @@ void main() {
 
   tearDown(() => controller.dispose());
 
-  test('chargement depuis l’URL', () async {
-    controller.syncWithUrl(
-      const UserQuery(role: UserRoleFilter.candidate, page: 2),
+  test('chargement depuis l’URL : le rôle vient de la rubrique', () async {
+    final candidates = AdminUsersController(
+      repository,
+      currentUserId: 'demo-admin',
+      fixedRole: UserRoleFilter.candidate,
+      searchDebounce: Duration.zero,
+    );
+    final writes = <UserQuery>[];
+    candidates.onQueryChanged = writes.add;
+    addTearDown(candidates.dispose);
+
+    // Même si l'URL demande des recruteurs, la rubrique Candidats l'emporte.
+    candidates.syncWithUrl(
+      const UserQuery(role: UserRoleFilter.recruiter, page: 2),
     );
     await _flush();
-    expect(controller.query.role, UserRoleFilter.candidate);
-    expect(controller.query.page, 2);
+    expect(candidates.query.role, UserRoleFilter.candidate);
+    expect(candidates.query.page, 2);
     expect(
-      controller.users.every((u) => u.role == AccountRole.candidate),
+      candidates.users.every((u) => u.role == AccountRole.candidate),
       isTrue,
     );
     // Appliquer l'URL ne la réécrit pas.
-    expect(urlWrites, isEmpty);
+    expect(writes, isEmpty);
   });
 
   test('changer un filtre revient page 1 et met l’URL à jour', () async {

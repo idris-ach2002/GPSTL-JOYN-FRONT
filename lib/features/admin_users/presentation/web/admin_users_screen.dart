@@ -18,7 +18,14 @@ import 'package:joyn_front/features/admin_users/presentation/shared/users_url_sy
 
 /// Back-office : gestion et modération des utilisateurs (web).
 class AdminUsersScreen extends StatelessWidget {
-  const AdminUsersScreen({required this.urlQuery, super.key});
+  const AdminUsersScreen({
+    required this.section,
+    required this.urlQuery,
+    super.key,
+  });
+
+  /// Rubrique Candidats ou Recruteurs.
+  final AdminSection section;
 
   /// Requête lue dans l'URL (pagination, recherche, filtres, tri).
   final UserQuery urlQuery;
@@ -27,12 +34,16 @@ class AdminUsersScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // Le contenu est un widget à part : son `context` est sous le thème
     // Material JOYN, que les modales ouvertes depuis la page reprennent.
-    return JoynMaterialScope(child: _AdminUsersView(urlQuery: urlQuery));
+    return JoynMaterialScope(
+      child: _AdminUsersView(section: section, urlQuery: urlQuery),
+    );
   }
 }
 
 class _AdminUsersView extends StatefulWidget {
-  const _AdminUsersView({required this.urlQuery});
+  const _AdminUsersView({required this.section, required this.urlQuery});
+
+  final AdminSection section;
 
   final UserQuery urlQuery;
 
@@ -46,11 +57,14 @@ class _AdminUsersViewState extends State<_AdminUsersView>
   UserQuery get urlQuery => widget.urlQuery;
 
   @override
+  String get basePath => widget.section.route;
+
+  @override
   Widget build(BuildContext context) {
     final controller = context.watch<AdminUsersController>();
 
     return AdminShell(
-      section: AdminSection.users,
+      section: widget.section,
       child: controller.status == AdminUsersStatus.forbidden
           ? AdminForbiddenView(
               message: controller.error,
@@ -65,8 +79,10 @@ class _AdminUsersViewState extends State<_AdminUsersView>
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       AdminPageHeader(
-                        title: 'Utilisateurs',
-                        subtitle: 'Gérer les comptes candidats et recruteurs.',
+                        title: widget.section.label,
+                        subtitle: widget.section == AdminSection.candidates
+                            ? 'Gérer les comptes candidats.'
+                            : 'Gérer les comptes recruteurs.',
                       ),
                       const SizedBox(height: 20),
                       AdminPanel(
@@ -187,22 +203,6 @@ class _ToolbarState extends State<_Toolbar> {
               ),
             ),
           ),
-          DropdownMenu<UserRoleFilter>(
-            key: ValueKey('role-${query.role.name}'),
-            width: 170,
-            requestFocusOnTap: false,
-            label: const Text('Rôle'),
-            initialSelection: query.role,
-            onSelected: (role) {
-              if (role != null) controller.setRoleFilter(role);
-            },
-            dropdownMenuEntries: [
-              for (final role in UserRoleFilter.values.where(
-                (role) => role != UserRoleFilter.admin,
-              ))
-                DropdownMenuEntry(value: role, label: role.label),
-            ],
-          ),
           DropdownMenu<UserStatusFilter>(
             key: ValueKey('status-${query.status.name}'),
             width: 180,
@@ -233,7 +233,7 @@ class _ToolbarState extends State<_Toolbar> {
           ),
           TextButton.icon(
             key: const ValueKey('admin-user-reset'),
-            onPressed: query.hasFilters
+            onPressed: controller.hasActiveFilters
                 ? () {
                     _search.clear();
                     controller.resetFilters();
@@ -274,7 +274,7 @@ class _TableArea extends StatelessWidget {
 
     final users = controller.users;
     if (users.isEmpty) {
-      final filtered = controller.query.hasFilters;
+      final filtered = controller.hasActiveFilters;
       return AdminMessage(
         icon: Icons.person_search_outlined,
         title: filtered ? 'Aucun utilisateur trouvé' : 'Aucun utilisateur',

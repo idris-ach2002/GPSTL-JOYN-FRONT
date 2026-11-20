@@ -52,6 +52,8 @@ abstract final class AppRoutes {
   static const String admin = '/admin';
   static const String adminCompanies = '/admin/companies';
   static const String adminUsers = '/admin/users';
+  static const String adminCandidates = '/admin/candidates';
+  static const String adminRecruiters = '/admin/recruiters';
   static const String adminVerifications = '/admin/verifications';
   static const String forbidden = '/403';
 
