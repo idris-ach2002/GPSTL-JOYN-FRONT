@@ -4,81 +4,73 @@ import '../domain/admin_user.dart';
 import '../domain/user_query.dart';
 import 'admin_user_repository.dart';
 
-/// Joins the two read-only admin lists. The backend does not expose /admin/users.
+/// Liste des comptes, une rubrique à la fois, avec pagination serveur :
+///
+/// - Candidats : `GET /api/v1/admin/candidates?page=1&limit=20`
+/// - Recruteurs : `GET /api/v1/admin/recruiters?page=1&limit=20`
+///
+/// Réponse attendue : `{ "data": [...], "pagination": { "page", "limit",
+/// "total", "total_pages" } }`.
 class ApiAdminUserRepository implements AdminUserRepository {
   ApiAdminUserRepository(this.api);
   final ApiClient api;
 
   @override
   Future<UserPage> fetchUsers(UserQuery query) async {
-    try {
-      final roles = query.role == UserRoleFilter.candidate
-          ? ['candidates']
-          : query.role == UserRoleFilter.recruiter
-          ? ['recruiters']
-          : ['candidates', 'recruiters'];
-      // The backend does not expose a GET list of administrators.
-      if (query.role == UserRoleFilter.admin) {
-        return UserPage(
-          items: const [],
-          total: 0,
-          page: query.page,
-          pageSize: query.pageSize,
-        );
-      }
-      final entries = <AdminUserAccount>[];
-      for (final role in roles) {
-        for (var page = 1; ; page++) {
-          final body = _map(
-            await api.getJson(
-              '/api/v1/admin/$role',
-              query: {
-                'page': '$page',
-                'limit': '100',
-                if (query.search.trim().isNotEmpty)
-                  'search': query.search.trim(),
-                if (query.status != UserStatusFilter.all &&
-                    query.status.status != AccountStatus.banned)
-                  'status': query.status.status!.apiValue.toUpperCase(),
-              },
-            ),
-          );
-          final data = body['data'] as List? ?? const [];
-          entries.addAll([
-            for (final item in data)
-              role == 'candidates'
-                  ? _candidate(_map(item))
-                  : _recruiter(_map(item)),
-          ]);
-          final pagination = _map(body['pagination']);
-          if (page >= _int(pagination['total_pages'], fallback: 1) ||
-              data.isEmpty) {
-            break;
-          }
-        }
-      }
-      if (query.status == UserStatusFilter.banned) entries.clear();
-      if (query.sort.byName) {
-        entries.sort(
-          (a, b) =>
-              a.lastName.compareTo(b.lastName) *
-              (query.sort.ascending ? 1 : -1),
-        );
-      } else {
-        entries.sort(
-          (a, b) =>
-              a.createdAt.compareTo(b.createdAt) *
-              (query.sort.ascending ? 1 : -1),
-        );
-      }
-      final begin = (query.page - 1) * query.pageSize;
+    // Le back n'expose pas de liste des administrateurs.
+    if (query.role == UserRoleFilter.admin ||
+        query.status == UserStatusFilter.banned) {
       return UserPage(
-        items: begin >= entries.length
-            ? const []
-            : entries.skip(begin).take(query.pageSize).toList(),
-        total: entries.length,
+        items: const [],
+        total: 0,
         page: query.page,
         pageSize: query.pageSize,
+      );
+    }
+    final isRecruiters = query.role == UserRoleFilter.recruiter;
+    final path = isRecruiters
+        ? '/api/v1/admin/recruiters'
+        : '/api/v1/admin/candidates';
+    try {
+      final body = _map(
+        await api.getJson(
+          path,
+          query: {
+            'page': '${query.page}',
+            'limit': '${query.pageSize}',
+            if (query.search.trim().isNotEmpty) 'search': query.search.trim(),
+            if (query.status.status case final status?)
+              'status': status.apiValue.toUpperCase(),
+          },
+        ),
+      );
+      final data = body['data'] as List? ?? const [];
+      final items = [
+        for (final item in data)
+          isRecruiters ? _recruiter(_map(item)) : _candidate(_map(item)),
+      ];
+      // Tri de la page reçue (le back ne propose pas de paramètre de tri).
+      items.sort((a, b) {
+        final comparison = query.sort.byName
+            ? '${a.lastName} ${a.firstName}'.toLowerCase().compareTo(
+                '${b.lastName} ${b.firstName}'.toLowerCase(),
+              )
+            : a.createdAt.compareTo(b.createdAt);
+        return query.sort.ascending ? comparison : -comparison;
+      });
+
+      final pagination = _map(body['pagination']);
+      final limit = _int(pagination['limit'], fallback: query.pageSize);
+      final totalPages = _int(pagination['total_pages'], fallback: 1);
+      final total = _int(
+        pagination['total'],
+        fallback: totalPages <= 1 ? items.length : totalPages * limit,
+      );
+      return UserPage(
+        items: items,
+        total: total,
+        page: _int(pagination['page'], fallback: query.page),
+        pageSize: limit,
       );
     } on ApiException catch (error) {
       throw AdminUserException(

@@ -17,6 +17,7 @@ import 'package:provider/provider.dart';
 
 import '../../design_system/mobile/mobile_entry_transition.dart';
 import '../../features/admin_companies/data/admin_company_repository.dart';
+import '../../features/admin/presentation/shared/admin_section.dart';
 import '../../features/admin_users/data/admin_user_repository.dart';
 import '../../features/admin_verifications/data/verification_repository.dart';
 import '../../features/admin_verifications/presentation/controllers/admin_verifications_controller.dart';
@@ -356,24 +357,32 @@ GoRouter createAppRouter(AuthController auth, {bool? webOverride}) {
       ),
       GoRoute(
         path: AppRoutes.adminUsers,
-        name: 'adminUsers',
-        builder: (context, state) {
-          // Pagination, recherche et filtres viennent de l'URL : ils sont
-          // conservés au rafraîchissement et dans les liens partagés.
-          final urlQuery = UserQuery.fromQueryParameters(
-            state.uri.queryParameters,
-          );
-          return ChangeNotifierProvider(
-            create: (context) => AdminUsersController(
-              context.read<AdminUserRepository>(),
-              currentUserId: auth.user?.id,
-            ),
-            child: useMobile(context)
-                ? MobileAdminUsersScreen(urlQuery: urlQuery)
-                : AdminUsersScreen(urlQuery: urlQuery),
-          );
-        },
+        redirect: (context, state) => AppRoutes.adminCandidates,
       ),
+      for (final section in [AdminSection.candidates, AdminSection.recruiters])
+        GoRoute(
+          path: section.route,
+          name: 'admin-${section.name}',
+          builder: (context, state) {
+            final urlQuery = UserQuery.fromQueryParameters(
+              state.uri.queryParameters,
+            );
+            return ChangeNotifierProvider(
+              // ValueKey : un contrôleur neuf quand on change de rubrique.
+              key: ValueKey(section),
+              create: (context) => AdminUsersController(
+                context.read<AdminUserRepository>(),
+                currentUserId: auth.user?.id,
+                fixedRole: section == AdminSection.candidates
+                    ? UserRoleFilter.candidate
+                    : UserRoleFilter.recruiter,
+              ),
+              child: useMobile(context)
+                  ? MobileAdminUsersScreen(section: section, urlQuery: urlQuery)
+                  : AdminUsersScreen(section: section, urlQuery: urlQuery),
+            );
+          },
+        ),
       GoRoute(
         path: AppRoutes.adminVerifications,
         name: 'adminVerifications',

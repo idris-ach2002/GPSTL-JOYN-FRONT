@@ -21,18 +21,29 @@ import '../shared/users_url_sync.dart';
 
 /// Back-office : gestion et modération des utilisateurs (mobile).
 class MobileAdminUsersScreen extends StatelessWidget {
-  const MobileAdminUsersScreen({required this.urlQuery, super.key});
+  const MobileAdminUsersScreen({
+    required this.section,
+    required this.urlQuery,
+    super.key,
+  });
+
+  /// Rubrique Candidats ou Recruteurs.
+  final AdminSection section;
 
   final UserQuery urlQuery;
 
   @override
   Widget build(BuildContext context) {
-    return JoynMaterialScope(child: _MobileAdminUsersView(urlQuery: urlQuery));
+    return JoynMaterialScope(
+      child: _MobileAdminUsersView(section: section, urlQuery: urlQuery),
+    );
   }
 }
 
 class _MobileAdminUsersView extends StatefulWidget {
-  const _MobileAdminUsersView({required this.urlQuery});
+  const _MobileAdminUsersView({required this.section, required this.urlQuery});
+
+  final AdminSection section;
 
   final UserQuery urlQuery;
 
@@ -46,6 +57,9 @@ class _MobileAdminUsersViewState extends State<_MobileAdminUsersView>
 
   @override
   UserQuery get urlQuery => widget.urlQuery;
+
+  @override
+  String get basePath => widget.section.route;
 
   @override
   void dispose() {
@@ -97,14 +111,14 @@ class _MobileAdminUsersViewState extends State<_MobileAdminUsersView>
                         Semantics(
                           header: true,
                           child: Text(
-                            'Utilisateurs',
+                            widget.section.label,
                             style: textTheme.headlineMedium,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const MobileAdminSectionMenu(current: AdminSection.users),
+                  MobileAdminSectionMenu(current: widget.section),
                 ],
               ),
             ),
@@ -148,37 +162,6 @@ class _MobileAdminUsersViewState extends State<_MobileAdminUsersView>
                       child: const Icon(Icons.tune_rounded),
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-              child: Row(
-                children: [
-                  for (final role in UserRoleFilter.values.where(
-                    (role) => role != UserRoleFilter.admin,
-                  ))
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: ChoiceChip(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        label: Text(role.label),
-                        selected: controller.query.role == role,
-                        showCheckmark: false,
-                        selectedColor: AppColors.navy,
-                        labelStyle: textTheme.labelMedium?.copyWith(
-                          color: controller.query.role == role
-                              ? AppColors.white
-                              : AppColors.slateDark,
-                        ),
-                        onSelected: (_) => controller.setRoleFilter(role),
-                      ),
-                    ),
                 ],
               ),
             ),
@@ -230,7 +213,7 @@ class _MobileAdminUsersViewState extends State<_MobileAdminUsersView>
     }
     final users = controller.users;
     if (users.isEmpty) {
-      final filtered = controller.query.hasFilters;
+      final filtered = controller.hasActiveFilters;
       return [
         SliverFillRemaining(
           hasScrollBody: false,
@@ -436,7 +419,7 @@ class _FiltersSheet extends StatelessWidget {
               Row(
                 children: [
                   TextButton(
-                    onPressed: controller.query.hasFilters
+                    onPressed: controller.hasActiveFilters
                         ? () {
                             onReset();
                             controller.resetFilters();

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:joyn_front/features/admin/presentation/shared/admin_section.dart';
 import 'package:joyn_front/features/admin_users/data/fake_admin_user_repository.dart';
 import 'package:joyn_front/features/admin_users/domain/user_query.dart';
 import 'package:joyn_front/features/admin_users/presentation/controllers/admin_users_controller.dart';
@@ -22,12 +23,16 @@ void main() {
     final controller = AdminUsersController(
       FakeAdminUserRepository(latency: Duration.zero),
       currentUserId: 'demo-admin',
+      fixedRole: UserRoleFilter.candidate,
     );
     await tester.pumpWidget(
       ChangeNotifierProvider.value(
         value: controller,
         child: const MaterialApp(
-          home: MobileAdminUsersScreen(urlQuery: UserQuery()),
+          home: MobileAdminUsersScreen(
+            section: AdminSection.candidates,
+            urlQuery: UserQuery(),
+          ),
         ),
       ),
     );
@@ -39,7 +44,7 @@ void main() {
           widget.key is ValueKey<String> &&
           (widget.key! as ValueKey<String>).value.startsWith('user-card-'),
     );
-    expect(find.text('Utilisateurs'), findsOneWidget);
+    expect(find.text('Candidats'), findsOneWidget);
     expect(rows, findsWidgets);
     expect(find.byTooltip('Ajouter un admin'), findsNothing);
     expect(find.text('Exporter en CSV'), findsOneWidget);

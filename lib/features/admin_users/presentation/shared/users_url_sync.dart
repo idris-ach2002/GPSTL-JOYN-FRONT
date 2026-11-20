@@ -2,7 +2,6 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../app/routing/app_routes.dart';
 import '../../domain/user_query.dart';
 import '../controllers/admin_users_controller.dart';
 
@@ -14,6 +13,9 @@ import '../controllers/admin_users_controller.dart';
 mixin AdminUsersUrlSync<T extends StatefulWidget> on State<T> {
   /// Requête lue dans l'URL courante.
   UserQuery get urlQuery;
+
+  /// Chemin de la rubrique (`/admin/candidates` ou `/admin/recruiters`).
+  String get basePath;
 
   late final AdminUsersController usersController;
 
@@ -46,10 +48,11 @@ mixin AdminUsersUrlSync<T extends StatefulWidget> on State<T> {
 
   void _writeUrl(UserQuery query) {
     if (!mounted) return;
-    final params = query.toQueryParameters();
+    // Le rôle est donné par le chemin : inutile de le répéter dans l'URL.
+    final params = query.toQueryParameters()..remove('role');
     GoRouter.of(context).go(
       Uri(
-        path: AppRoutes.adminUsers,
+        path: basePath,
         queryParameters: params.isEmpty ? null : params,
       ).toString(),
     );
