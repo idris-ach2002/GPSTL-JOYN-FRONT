@@ -10,33 +10,50 @@ import 'recommended_offers_repository.dart';
 /// Si [applications] est fourni, une offre glissée à droite y est ajoutée
 /// dans la colonne « Intéressé » (et retirée si le geste est annulé), comme
 /// le fera le backend.
-class MockRecommendedOffersRepository implements RecommendedOffersRepository {
+class MockRecommendedOffersRepository
+    implements
+        RecommendedOffersRepository,
+        PaginatedRecommendedOffersRepository {
   MockRecommendedOffersRepository({
     this.latency = const Duration(milliseconds: 500),
     List<RecommendedOffer>? offers,
     this.applications,
   }) : _offers = offers ?? demoRecommendedOffers;
 
-  /// Délai simulé de chaque appel (mettre `Duration.zero` dans les tests).
   final Duration latency;
   final List<RecommendedOffer> _offers;
 
-  /// Candidatures simulées, partagées avec la page « Mes candidatures ».
   final MockCandidateApplicationsRepository? applications;
 
-  /// Gestes enregistrés, par identifiant d'offre.
   final Map<String, SwipeDecision> decisions = {};
 
   @override
   Future<DiscoverFeed> fetchFeed({
     DiscoverFilters filters = const DiscoverFilters(),
+  }) {
+    return fetchPage(filters: filters, page: 1, limit: _offers.length + 1);
+  }
+
+  @override
+  Future<DiscoverFeed> fetchPage({
+    DiscoverFilters filters = const DiscoverFilters(),
+    int page = 1,
+    int limit = 10,
   }) async {
     await Future<void>.delayed(latency);
+
     final remaining =
         _offers.where((offer) => !decisions.containsKey(offer.id)).toList()
           ..sort((a, b) => b.compatibility.compareTo(a.compatibility));
+
+    final offset = (page - 1) * limit;
+
+    final pageOffers = remaining.skip(offset).take(limit).toList();
+
     return DiscoverFeed(
-      offers: remaining,
+      offers: pageOffers,
+      totalCompatible: remaining.length,
+      hasNext: offset + limit < remaining.length,
       filters: DiscoverFilters(
         rhythm: filters.rhythm ?? '3 sem / 1 sem',
         location: filters.location ?? 'Paris',
@@ -47,10 +64,15 @@ class MockRecommendedOffersRepository implements RecommendedOffersRepository {
   @override
   Future<void> submitDecision(String offerId, SwipeDecision decision) async {
     await Future<void>.delayed(latency);
+
     decisions[offerId] = decision;
+
     if (decision != SwipeDecision.interested) return;
+
     final offer = _offers.where((o) => o.id == offerId).firstOrNull;
+
     if (offer == null) return;
+
     applications?.addInterested(
       offerId: offer.id,
       companyName: offer.company.name,
@@ -62,6 +84,7 @@ class MockRecommendedOffersRepository implements RecommendedOffersRepository {
   @override
   Future<void> cancelDecision(String offerId) async {
     await Future<void>.delayed(latency);
+
     decisions.remove(offerId);
     applications?.removeForOffer(offerId);
   }

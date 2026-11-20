@@ -173,6 +173,16 @@ class _WebDiscoverScreenState extends State<WebDiscoverScreen>
     }
 
     final current = controller.current;
+
+    if (current == null && controller.loadingMore) {
+      return SizedBox(
+        height: _deckSize.height,
+        child: const Center(
+          child: CircularProgressIndicator(color: AppColors.white),
+        ),
+      );
+    }
+
     if (current == null) {
       return SizedBox(
         height: _deckSize.height,

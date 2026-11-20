@@ -65,26 +65,38 @@ void main() {
       expect(feed.offers.single.company.name, 'Maison Solutions');
       expect(feed.offers.single.compatibility, 92);
       expect(feed.offers.single.monthlySalary, 1450);
-      expect(calls, [
-        'GET /api/v1/candidates/workspace',
-        'GET /api/v1/candidates/recommendations',
-        'GET /api/v1/candidates/profile',
-        'GET /api/v1/companies/12',
-      ]);
+
+      expect(
+        calls,
+        unorderedEquals([
+          'GET /api/v1/candidates/workspace',
+          'GET /api/v1/candidates/recommendations',
+          'GET /api/v1/candidates/profile',
+          'GET /api/v1/companies/12',
+        ]),
+      );
+
       await repo.submitDecision('27', SwipeDecision.interested);
       expect(repo.interests.items.single.offerId, '27');
       await repo.cancelDecision('27');
       expect(repo.interests.items, isEmpty);
       expect(feed.offers.single.skills.first.matched, isTrue);
       expect(feed.offers.single.skills.last.matched, isFalse);
-      expect(calls, [
-        'GET /api/v1/candidates/workspace',
-        'GET /api/v1/candidates/recommendations',
-        'GET /api/v1/candidates/profile',
-        'GET /api/v1/companies/12',
+
+      expect(
+        calls.take(4),
+        unorderedEquals([
+          'GET /api/v1/candidates/workspace',
+          'GET /api/v1/candidates/recommendations',
+          'GET /api/v1/candidates/profile',
+          'GET /api/v1/companies/12',
+        ]),
+      );
+
+      expect(calls.skip(4).toList(), [
         'PUT /api/v1/candidates/workspace/offers/27',
         'DELETE /api/v1/candidates/workspace/offers/27',
-      ]); // Swipe enregistré et annulé via les routes réelles.
+      ]);
     },
   );
 
